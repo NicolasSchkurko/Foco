@@ -19,7 +19,7 @@
 ## 4. Integration
 
 - [x] 4.1 Run the full gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`) and the app build (`gradlew.bat assembleDebug`); verify both pass.
-- [ ] 4.2 On commit, update `gitref` in `.openspec.yaml` to the branch tip; verify it matches `git rev-parse --short HEAD`.
+- [x] 4.2 On commit, update `gitref` in `.openspec.yaml` to the branch tip; verify it matches `git rev-parse --short HEAD`.
 
 ## Workflow follow-up
 
