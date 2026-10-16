@@ -191,3 +191,10 @@
 - **Decision (human):** approved ("layer-compliance approve"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`.
 - **Consequences:** Its apply heads the chain (`layer-compliance → app-settings → app-entry-gate`). Refactor proof: the suite stays green. The tech-brief comprehension sign-off remains for `/spec-verify` after the apply (the `walkthrough.md` is already written).
 - **Refs:** `openspec/changes/layer-compliance/.openspec.yaml` · `openspec/changes/layer-compliance/proposal.md` · `openspec/changes/layer-compliance/walkthrough.md`
+
+## [2026-10-16] Comprehension answers stay verbatim (the human's language)
+
+- **Context:** The `layer-compliance` `/spec-verify` teach-back asked the 3 questions in Spanish (the human's language, for free recall) and transcribed the answers word-for-word into the otherwise-English `walkthrough.md`; the same format was used earlier for `app-entry-gate`. The human questioned whether that breaks the repo's English rule and confirmed the practice ("si viene de las consultas anteriores todo ok").
+- **Decision:** keep it as the convention: the walkthrough structure, mechanism and questions stay English; the human's answers are quoted verbatim, in whatever language they answered, attributed `— the human, <date>`; the agent never translates or paraphrases them (the sign-off evidence is the human's).
+- **Consequences:** Future `/spec-verify` runs follow the same format; the quoted answers are an explicit, scoped exception to the English rule for artifacts (`openspec/config.yaml` context) — everything else stays English.
+- **Refs:** `openspec/changes/layer-compliance/walkthrough.md` · `openspec/changes/app-entry-gate/walkthrough.md` · `openspec/config.yaml`
