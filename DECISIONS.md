@@ -108,6 +108,13 @@
 - **Consequences:** The overlaps report as "sequenced by deps" warnings and the gate stays green during the apply. The whole in-flight queue is now ordered behind `app-usage-detail`.
 - **Refs:** `openspec/changes/app-entry-gate/.openspec.yaml` (`x-deps`) · `openspec/changes/app-usage-detail/.openspec.yaml` · DECISIONS.md [2026-10-16 Ordering: `app-usage-detail` depends on `layered-structure`]
 
+## [2026-10-16] Ordering: `app-entry-gate` queued behind the whole draft chain
+
+- **Context:** Starting the apply of `ranking-exclusions` (status → `applying`) would escalate the gate again over `app-entry-gate` (draft), which overlaps on `App.kt` and `app/src/androidTest/**`; the same collision was going to repeat when `app-settings` applies (it also touches `App.kt` and the androidTest tree). Fourth occurrence of the pattern (`dashboard-auto-refresh`, `layered-structure`, `app-usage-detail`, `ranking-exclusions`).
+- **Decision (human):** option A+ — `app-entry-gate` adds `ranking-exclusions` and `app-settings` to its `x-deps` in one go, encoding it **last** in the queue. Rationale: it was already the de-facto plan; one declaration removes this destrabe and the one that would arrive with `app-settings`' apply.
+- **Consequences:** `app-entry-gate` formally waits for the whole chain (dep warnings until each change is verified/archived). No further ordering destrabes are expected for the current queue.
+- **Refs:** `openspec/changes/app-entry-gate/.openspec.yaml` (`x-deps`) · `openspec/changes/ranking-exclusions/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml`
+
 ## [2026-10-16] Change approved: `ranking-exclusions`
 
 - **Context:** Created on 2026-10-16 as a draft: long-press on a ranking row excludes the app from the ranking (its time keeps counting in the total and the hourly chart), with an **Undo** snackbar and a persisted list (DataStore Preferences — management lives in the `app-settings` change per the scope decision). Its dep (`app-usage-detail`) is archived.
