@@ -16,7 +16,7 @@ context: |
 rules:
   proposal:
     - Declare kind (fix|feature|architecture), targets, tests and deps in .openspec.yaml
-    - Short: why and what. The how goes in design.md, only if kind=architecture
+    - "Short: why and what. The how goes in design.md, only if kind=architecture"
   specs:
     - Requirements in SHALL; concrete WHEN/THEN scenarios
     - Each requirement carries a [@test] line with the path of the test that verifies it

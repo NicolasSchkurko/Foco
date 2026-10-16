@@ -205,7 +205,13 @@ export function readChange(root, id, errors = null) {
   const dir = join(root, "openspec", "changes", id);
   const metaPath = join(dir, ".openspec.yaml");
   const errs = [];
-  const meta = existsSync(metaPath) ? parseYaml(readText(metaPath), errs) : {};
+  const raw = existsSync(metaPath) ? parseYaml(readText(metaPath), errs) : {};
+  // openspec 1.14+ marca las keys propias como desconocidas y recomienda el prefijo
+  // `x-`; `x-<key>` es la forma canónica y la forma sin prefijo sigue aceptándose.
+  const meta = { ...raw };
+  for (const [k, v] of Object.entries(raw)) {
+    if (k.startsWith("x-") && meta[k.slice(2)] === undefined) meta[k.slice(2)] = v;
+  }
   if (errors) {
     for (const e of errs) errors.push({ id, file: metaPath, line: e.line, text: e.text });
   }

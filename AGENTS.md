@@ -15,7 +15,7 @@ This repo uses **Spec Growth**: living specs as the contract, in-flight changes,
 ## Rules
 
 1. No behavior change enters without a change in `openspec/changes/`.
-2. Every change declares in `.openspec.yaml`: `kind` (fix|feature|architecture), `targets`, `tests`, `deps`, `gitref`.
+2. Every change declares in `.openspec.yaml`, with the `x-` prefix (openspec 1.14+ flags bare custom keys; the gate reads both): `x-kind` (fix|feature|architecture), `x-targets`, `x-tests`, `x-deps`, `x-gitref` — plus `x-status`, `x-waivers`, `x-open_decisions`, `x-human_approved`, etc. when they apply.
 3. `kind: fix` requires a regression test (`[@test]`).
 4. **Waivers**: anyone *requests* (`state: requested` + reason); only the human *grants* (`granted` + `owner` + `expires`). A **requested or expired** waiver blocks `verified`; a **valid granted** one enables it (its expiry is its closure).
 5. **Decisions**: anything beyond the agent's authority is recorded in `open_decisions` (question/target/proposal); pending = no `verified`; the resolution goes to `DECISIONS.md`.

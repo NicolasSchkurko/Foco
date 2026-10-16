@@ -1,0 +1,19 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: architecture
+x-status: accepted
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-16
+x-targets:
+  - app/src/main/java/com/foco/app/data/**
+  - app/src/main/java/com/foco/app/ui/**
+  - app/src/test/**
+  - app/build.gradle.kts
+  - gradle/libs.versions.toml
+  - openspec/config.yaml
+x-tests:
+  - app/src/test/java/com/foco/app/data/SessionBuilderTest.kt
+  - app/src/test/java/com/foco/app/data/SessionFilterTest.kt
+  - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
+x-deps: []
+x-gitref: 8211f1b
