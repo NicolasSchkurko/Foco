@@ -65,3 +65,11 @@
 - **Decision (human):** option A — the drafts declare the dependency on the change that goes first: `layered-structure` and `app-usage-detail` add `dashboard-auto-refresh` to their `x-deps` (alongside `session-based-metrics`). Rationale: `dashboard-auto-refresh` is applied now, so "it first, the others after" is a fact; the dep is satisfied as soon as it reaches `verified` (archive not required by the gate).
 - **Consequences:** Their overlaps with it report as warnings ("secuenciado por dep") and the gate stays green during the apply. No rule weakening: the repo gate keeps its current semantics. If the human later wants to apply `layered-structure` or `app-usage-detail` before `dashboard-auto-refresh` finishes, these deps must be revisited (new decision, append-only).
 - **Refs:** `openspec/changes/layered-structure/.openspec.yaml` (`x-deps`) · `openspec/changes/app-usage-detail/.openspec.yaml` (`x-deps`) · `openspec/changes/dashboard-auto-refresh/.openspec.yaml`
+
+
+## [2026-10-16] Reversal: gate scripts follow upstream v0.9 (English)
+
+- **Context:** upstream Spec Growth now ships natively the two fixes this repo had patched locally (`x-` metadata support for OpenSpec 1.14 strict validation, and the glob-aware target-existence check), plus report-only `--scope`, conflicts, `refactor` kind and untracked-zone detection. The earlier decision "[2026-10-16] Repository docs moved to English" had left the gate scripts in Spanish; maintaining a divergent fork no longer has any benefit.
+- **Decision (human):** revert that part of the decision. `scripts/gates/*` are replaced by upstream v0.9 (English output, dependency-free). The `x-` divergence is not a divergence anymore.
+- **Consequences:** gate and BOARD messages print in English; future upstream updates apply to this repo without patching. Local resync flow stays: copy `assets/scripts/*` from the skill.
+- **Refs:** `scripts/gates/*` (commit 377e5bd) · `DECISIONS.md` [2026-10-16 docs to English] · [2026-10-16 x- prefix]
