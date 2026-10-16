@@ -12,7 +12,7 @@
 ## 3. Tests + integration
 
 - [x] 3.1 Update `AppDetailNavigationTest`: find the control by content description (the key/back cases stay green); verify `gradlew.bat connectedDebugAndroidTest` on the API 36 AVD.
-- [ ] 3.2 `gradlew.bat test` (JVM) + `assembleDebug` + the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref`.
+- [x] 3.2 `gradlew.bat test` (JVM) + `assembleDebug` + the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref`.
 
 ## Workflow follow-up
 
