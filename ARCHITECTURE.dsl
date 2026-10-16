@@ -6,10 +6,10 @@ workspace "Foco" "Personal Android app to track device usage per app — 100% lo
         foco = softwareSystem "Foco" "Tracks usage per app as time sessions; shows a daily dashboard; limits/friction are planned (Phases 3-4)." {
             app = container "Android app" "Kotlin + Jetpack Compose (Material 3), single process, offline; four layered packages." {
                 entry = component "Entry" "MainActivity + App routing (onboarding to dashboard)."
-                ui = component "UI" "Compose presentation: dashboard, onboarding, derived metrics, formatting, theme."
-                data = component "Data" "Platform adapters: UsageRepository (UsageStatsManager events) and UsageAccess (usage-access AppOp)."
-                domain = component "Domain" "Pure behavior: session fold (buildSessions) and package filtering (filterSessions)."
-                model = component "Model" "Pure types: UsageSession, UsageEvent, UsageEventType."
+                ui = component "UI" "Compose presentation: dashboard, onboarding, derived metrics, formatting, theme." "" "cap:usage-tracking,cap:code-structure"
+                data = component "Data" "Platform adapters: UsageRepository (UsageStatsManager events) and UsageAccess (usage-access AppOp)." "" "cap:usage-tracking,cap:code-structure"
+                domain = component "Domain" "Pure behavior: session fold (buildSessions) and package filtering (filterSessions)." "" "cap:usage-tracking,cap:code-structure"
+                model = component "Model" "Pure types: UsageSession, UsageEvent, UsageEventType." "" "cap:usage-tracking,cap:code-structure"
             }
         }
 

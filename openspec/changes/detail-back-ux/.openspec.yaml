@@ -1,0 +1,18 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: fix
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/AndroidManifest.xml
+  - app/src/main/java/com/foco/app/ui/dashboard/AppDetailScreen.kt
+  - app/src/test/**
+  - app/src/androidTest/**
+  - app/build.gradle.kts
+  - gradle/libs.versions.toml
+x-tests:
+  - app/src/test/java/com/foco/app/BackInvokedCallbackManifestTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+x-deps:
+  - detail-back-arrow
+x-gitref: 794f1b4

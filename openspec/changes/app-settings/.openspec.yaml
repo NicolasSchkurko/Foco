@@ -2,6 +2,7 @@ schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
 x-status: draft
+x-tech_brief: true
 x-targets:
   - app/src/main/java/com/foco/app/ui/**
   - app/src/main/java/com/foco/app/data/**
@@ -17,4 +18,6 @@ x-deps:
   - app-usage-detail
   - ranking-exclusions
   - detail-back-arrow
+  - detail-back-ux
+  - unlock-counter
 x-gitref: 6127847

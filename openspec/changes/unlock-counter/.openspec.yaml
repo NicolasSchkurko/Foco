@@ -1,0 +1,16 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: feature
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/model/day/
+  - app/src/main/java/com/foco/app/data/**
+  - app/src/main/java/com/foco/app/ui/**
+  - app/src/test/**
+  - app/src/androidTest/**
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
+x-deps:
+  - detail-back-ux
+x-gitref: b4f940e

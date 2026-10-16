@@ -4,7 +4,7 @@
 //   severity by active work; deps-sequenced → warning) · [@test] · targets ·
 //   fix/refactor→regression · ⚔ conflicts · waivers
 //   (valid granted ENABLES; requested/expired block) · decisions · acceptance ·
-//   findings · protected zones (targets + real files + ADR) · capabilities
+//   findings · tasks · tech brief (walkthrough + sign-off) · protected zones (targets + real files + ADR) · capabilities
 //   (case-insensitive) · requirements/citations · deps · archive · suite · evidence
 //   (substituted ≠ green) · --pre-archive · --scope.
 // Modes: [--root DIR] [--json] [--run-tests] [--tests-command "CMD"] [--pre-archive ID] [--diff BASE] [--scope ID]
@@ -188,7 +188,7 @@ for (const c of changes) {
 }
 
 // 6) waivers (valid types; valid granted ENABLES; requested/expired block)
-const WAIVER_TYPES = ["known-gap", "deferred-test", "pending-external-evidence", "frontier-stub"];
+const WAIVER_TYPES = ["known-gap", "deferred-test", "pending-external-evidence", "frontier-stub", "comprehension-debt"];
 const today = new Date();
 for (const c of changes) {
   for (const w of c.waivers) {
@@ -283,6 +283,51 @@ for (const c of changes) {
   const tp = join(c.dir, "tasks.md");
   if (existsSync(tp) && /^\s*[-*]\s+\[ \]/m.test(lib.readText(tp))) {
     warn(`${c.id}: open tasks in tasks.md`, [c.id]);
+  }
+}
+
+// 9c) tech brief: walkthrough.md completeness + comprehension sign-off
+const WALKTHROUGH_SECTIONS = [
+  ["Mechanism", /^##\s+Mechanism\b/im],
+  ["Physical traceability", /^##\s+Physical traceability\b/im],
+  ["Limits and failure modes", /^##\s+Limits and failure modes\b/im],
+  ["Touched APIs", /^##\s+Touched APIs\b/im],
+  ["Implicit decisions", /^##\s+Implicit decisions\b/im],
+];
+function briefIssues(c) {
+  const wp = join(c.dir, "walkthrough.md");
+  if (!existsSync(wp)) return ["walkthrough.md missing"];
+  const text = lib.readText(wp);
+  const issues = [];
+  for (const [name, re] of WALKTHROUGH_SECTIONS) {
+    const m = re.exec(text);
+    if (!m) {
+      issues.push(`'## ${name}' missing`);
+      continue;
+    }
+    const rest = text.slice(m.index + m[0].length);
+    const next = rest.search(/^##\s/m);
+    const body = (next >= 0 ? rest.slice(0, next) : rest).trim();
+    if (body.length < 40) issues.push(`'## ${name}' looks empty`);
+  }
+  if (!/^##\s+Cognitive sign-off\b/im.test(text)) issues.push("'## Cognitive sign-off' missing");
+  return issues;
+}
+function signoffPending(c) {
+  if (!c.understood_by || !c.understood_at) return "sign-off not recorded (understood_by/understood_at)";
+  const wp = join(c.dir, "walkthrough.md");
+  if (existsSync(wp) && /TODO\(human\)/i.test(lib.readText(wp))) return "answers still TODO(human)";
+  return null;
+}
+for (const c of changes) {
+  if (!c.tech_brief || TERMINAL.includes(c.status)) continue;
+  if (!["applying", "verified"].includes(c.status)) continue;
+  const issues = briefIssues(c);
+  if (issues.length) {
+    warn(`${c.id}: tech brief incomplete — ${issues.join("; ")}`, [c.id]);
+  } else if (c.status === "verified") {
+    const pend = signoffPending(c);
+    if (pend) warn(`${c.id}: walkthrough ready — awaiting comprehension sign-off (${pend})`, [c.id]);
   }
 }
 
@@ -462,6 +507,60 @@ if (diffBase) {
         if (both) err(msg, [deltas[a].source, deltas[b].source]);
         else warn(msg, [deltas[a].source, deltas[b].source]);
       }
+    }
+  }
+}
+
+// 11b) two active changes creating the same NEW capability (folder collision)
+{
+  const livingCapPaths = new Set();
+  for (const cap of lib.listCapabilities(root)) {
+    const m = String(cap.path).replace(/\\/g, "/").match(/^openspec\/specs\/(.+)\/spec\.md$/i);
+    if (m) livingCapPaths.add(m[1].toLowerCase());
+  }
+  const creators = new Map();
+  for (const c of changes) {
+    if (TERMINAL.includes(c.status)) continue;
+    for (const f of lib.walkMd(join(c.dir, "specs"))) {
+      const rel = relative(root, f).replace(/\\/g, "/");
+      const m = rel.match(/changes\/[^/]+\/specs\/(.+)\/spec\.md$/i);
+      if (!m) continue;
+      const key = m[1].toLowerCase();
+      if (livingCapPaths.has(key)) continue; // modification of an existing capability
+      if (!creators.has(key)) creators.set(key, []);
+      creators.get(key).push(c);
+    }
+  }
+  for (const [key, cs] of creators) {
+    const uniq = [...new Map(cs.map((c) => [c.id, c])).values()];
+    if (uniq.length < 2) continue;
+    const ids = uniq.map((c) => c.id);
+    const both = uniq.filter((c) => ADVANCED.includes(c.status)).length >= 2;
+    const msg = `new capability '${key}' created by ${ids.join(" and ")} (pick one owner)`;
+    if (both) err(msg, ids);
+    else warn(msg, ids);
+  }
+}
+
+// 11c) structural mapping: capabilities vs ARCHITECTURE.dsl tags (only when the file exists)
+{
+  const dslPath = join(root, "ARCHITECTURE.dsl");
+  if (existsSync(dslPath)) {
+    const dsl = lib.readText(dslPath).toLowerCase();
+    const living = [];
+    for (const cap of lib.listCapabilities(root)) {
+      const m = String(cap.path).replace(/\\/g, "/").match(/^openspec\/specs\/(.+)\/spec\.md$/i);
+      if (m) living.push(m[1]);
+    }
+    for (const capPath of living) {
+      if (!dsl.includes("cap:" + capPath.toLowerCase())) {
+        warn(`capability '${capPath}' is not tagged in ARCHITECTURE.dsl (cap:${capPath}) — run /diagram-sync`);
+      }
+    }
+    const known = new Set(living.map((x) => x.toLowerCase()));
+    const tags = [...new Set([...dsl.matchAll(/cap:[a-z0-9._-]+/g)].map((x) => x[0]))];
+    for (const tag of tags) {
+      if (!known.has(tag.slice(4))) warn(`ARCHITECTURE.dsl: tag '${tag}' references no living capability (stale?)`);
     }
   }
 }
@@ -735,6 +834,17 @@ if (preArchiveId) {
     const tasksPath = join(c.dir, "tasks.md");
     if (existsSync(tasksPath) && /^\s*[-*]\s+\[ \]/m.test(lib.readText(tasksPath))) {
       warn(`pre-archive ${c.id}: open tasks in tasks.md (did you finish them?)`, [c.id]);
+    }
+    if (c.tech_brief) {
+      const brief = briefIssues(c);
+      if (brief.length) err(`pre-archive ${c.id}: tech brief incomplete — ${brief.join("; ")}`, [c.id]);
+      const pend = signoffPending(c);
+      const debtWaived = c.waivers.some((w) => String(w.type) === "comprehension-debt" && !blameWaiver(w));
+      if (pend && !brief.length && !debtWaived) {
+        err(`pre-archive ${c.id}: comprehension sign-off pending (${pend}) — run /spec-verify or grant a comprehension-debt waiver`, [c.id]);
+      } else if (pend && debtWaived) {
+        warn(`pre-archive ${c.id}: archived with comprehension-debt waiver (${pend})`, [c.id]);
+      }
     }
     const green = mergedGreen(c);
     if (c.status === "verified") {
