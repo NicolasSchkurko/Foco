@@ -156,3 +156,10 @@
 - **Decision (human):** approved ("detail-back-ux approve"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
 - **Consequences:** Its apply unblocks the queue (`unlock-counter` lands after it; `app-settings` and `app-entry-gate` follow transitively). The manifest flag becomes tripwire-pinned by `BackInvokedCallbackManifestTest`.
 - **Refs:** `openspec/changes/detail-back-ux/.openspec.yaml` · `openspec/changes/detail-back-ux/walkthrough.md` · `openspec/changes/detail-back-ux/proposal.md`
+
+## [2026-10-16] Change approved: `unlock-counter`
+
+- **Context:** Created on 2026-10-16 as a draft feature: the dashboard subtitle shows the day's unlock count, derived from the `KEYGUARD_HIDDEN` events of the same daily query that feeds the sessions (no new permissions or dependencies; keyguard-dismissal is the platform's standard unlock semantics, fixed in the spec). Comprehension sign-off already recorded (walkthrough 3/3). Its ordering is pre-declared behind `detail-back-ux` (its dep).
+- **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply` in its turn. No protected zones are involved.
+- **Consequences:** Its apply follows the `detail-back-ux` close-out (dep + overlap sequencing); `app-settings` and `app-entry-gate` stay queued transitively behind it.
+- **Refs:** `openspec/changes/unlock-counter/.openspec.yaml` · `openspec/changes/unlock-counter/walkthrough.md` · `openspec/changes/unlock-counter/proposal.md`
