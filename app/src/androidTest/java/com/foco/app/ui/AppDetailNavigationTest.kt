@@ -13,8 +13,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tocar una fila del ranking abre el detalle de esa app; el back del sistema
- * vuelve al dashboard. E2E: genera uso real (Settings) antes de lanzar la app.
+ * Navegación al detalle: tocar una fila lo abre; el back del sistema vuelve;
+ * y la flechita visible del detalle también vuelve. E2E: genera uso real
+ * (Settings) antes de lanzar la app.
  */
 @RunWith(AndroidJUnit4::class)
 class AppDetailNavigationTest {
@@ -29,29 +30,39 @@ class AppDetailNavigationTest {
             .close()
     }
 
-    @Test
-    fun tappingARowOpensTheDetailAndBackReturns() {
-        // Permiso + un poco de uso real para que exista al menos una fila.
+    /** Permiso + uso real, lanza la app, toca la fila de Settings y espera el detalle. */
+    private fun launchAndOpenDetail(): ActivityScenario<MainActivity> {
         shell("appops set com.foco.app android:get_usage_stats allow")
         shell("am start -a android.settings.SETTINGS")
         Thread.sleep(2_000)
         shell("input keyevent KEYCODE_HOME")
         Thread.sleep(500)
 
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            // Espera la fila de Settings y la toca.
-            composeRule.waitUntil(timeoutMillis = 15_000) {
-                composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isNotEmpty()
-            }
-            composeRule.onNodeWithText("Settings").performClick()
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        composeRule.waitUntil(timeoutMillis = 15_000) {
+            composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText("Settings").performClick()
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText("Resumen").fetchSemanticsNodes().isNotEmpty()
+        }
+        return scenario
+    }
 
-            // El detalle abrió: está el encabezado del resumen.
-            composeRule.waitUntil(timeoutMillis = 10_000) {
-                composeRule.onAllNodesWithText("Resumen").fetchSemanticsNodes().isNotEmpty()
-            }
-
-            // Back del sistema → dashboard otra vez.
+    @Test
+    fun tappingARowOpensTheDetailAndBackReturns() {
+        launchAndOpenDetail().use { scenario ->
             scenario.onActivity { activity -> activity.onBackPressedDispatcher.onBackPressed() }
+            composeRule.waitUntil(timeoutMillis = 10_000) {
+                composeRule.onAllNodesWithText("Hoy").fetchSemanticsNodes().isNotEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun tappingTheBackArrowReturnsToTheDashboard() {
+        launchAndOpenDetail().use {
+            composeRule.onNodeWithText("←").performClick()
             composeRule.waitUntil(timeoutMillis = 10_000) {
                 composeRule.onAllNodesWithText("Hoy").fetchSemanticsNodes().isNotEmpty()
             }
