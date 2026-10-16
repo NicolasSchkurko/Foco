@@ -20,7 +20,7 @@
 ## 4. Device + integration
 
 - [x] 4.1 `gradlew.bat installDebug` and verify on the emulator: dashboard identical (total, chart, ranking, labels/icons) and onboarding intact.
-- [ ] 4.2 Run the full gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref` to the branch tip and verify it is an ancestor of HEAD.
+- [x] 4.2 Run the full gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref` to the branch tip and verify it is an ancestor of HEAD.
 
 ## Workflow follow-up
 

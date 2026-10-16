@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: architecture
-x-status: applying
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-targets:
@@ -15,4 +15,4 @@ x-tests:
 x-deps:
   - session-based-metrics
   - dashboard-auto-refresh
-x-gitref: 7396b6a
+x-gitref: 431fbca
