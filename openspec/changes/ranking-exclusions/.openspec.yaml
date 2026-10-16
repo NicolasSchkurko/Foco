@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
-x-status: applying
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-targets:
@@ -16,4 +16,4 @@ x-tests:
   - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
 x-deps:
   - app-usage-detail
-x-gitref: 6127847
+x-gitref: 7f025a1
