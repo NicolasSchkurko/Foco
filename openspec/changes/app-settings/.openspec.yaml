@@ -16,4 +16,5 @@ x-tests:
 x-deps:
   - app-usage-detail
   - ranking-exclusions
+  - detail-back-arrow
 x-gitref: 6127847
