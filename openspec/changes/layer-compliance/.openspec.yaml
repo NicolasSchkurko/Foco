@@ -1,0 +1,17 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: refactor
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/**
+  - app/src/main/java/com/foco/app/domain/**
+  - app/src/main/java/com/foco/app/ui/dashboard/AppIcon.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/AppLabel.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/AppDetailScreen.kt
+  - app/src/test/**
+x-tests:
+  - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+x-deps: []
+x-gitref: 4510657
