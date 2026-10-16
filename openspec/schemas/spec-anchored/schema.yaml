@@ -44,7 +44,7 @@ artifacts:
       Keep it concise (1-2 pages). Focus on the "why" not the "how" -
       implementation details belong in design.md.
 
-      Completar `.openspec.yaml` con kind (fix|feature|architecture), targets,
+      Complete `.openspec.yaml` with kind (fix|feature|architecture), targets,
       tests, deps, gitref.
 
       This is the foundation - specs, design, and tasks all build on this.
@@ -104,7 +104,7 @@ artifacts:
 
       Format requirements:
       - Each requirement: `### Requirement: <name>` followed by description
-      - Cada requirement incluye escenarios WHEN/THEN y una línea `[@test] <ruta del test>` que lo verifica
+      - Each requirement includes WHEN/THEN scenarios and a `[@test] <test path>` line that verifies it
       - Use SHALL/MUST for normative requirements (avoid should/may)
       - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
       - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
@@ -172,7 +172,7 @@ artifacts:
       Create the design document that explains HOW to implement the change.
 
       When to include design.md (create only if any apply):
-      - Obligatorio si kind=architecture; opcional en el resto.
+      - Mandatory if kind=architecture; optional otherwise.
       - Cross-cutting change (multiple services/modules) or new architectural pattern
       - New external dependency or significant data model changes
       - Security, performance, or migration complexity

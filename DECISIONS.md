@@ -1,25 +1,32 @@
 # DECISIONS
 
-Registro **append-only** de decisiones (ADR-lite). Acá van: el triage de bugs/discrepancias, las decisiones de arquitectura, las **resoluciones de decision requests** y los **waivers otorgados/rechazados**, y las **aprobaciones de zonas protegidas**. Formato:
+**Append-only** record of decisions (ADR-lite). It holds: bug/discrepancy triage, architecture decisions, **resolution of decision requests**, **granted/rejected waivers**, and **protected-zone approvals**. Format:
 
-## [YYYY-MM-DD] Título de la decisión
-- **Contexto:** qué situación obligó a decidir
-- **Decisión:** qué se eligió y por qué
-- **Consecuencias:** qué implica / qué queda pendiente
-- **Refs:** archivo:línea · specs · changes
+## [YYYY-MM-DD] Decision title
+- **Context:** what situation forced the decision
+- **Decision:** what was chosen and why
+- **Consequences:** what it implies / what remains pending
+- **Refs:** file:line · specs · changes
 
 ---
 
-## [2026-10-16] INIT de Spec Growth — desvíos de instalación en Windows
+## [2026-10-16] Spec Growth INIT — installation deviations on Windows
 
-- **Contexto:** Se inicializó Spec Growth en este repo. El procedimiento asume el CLI `opencode mcp add` (no instalado: solo existe el desktop app) y `npx codebase-memory-mcp@<versión>` (roto en Windows en v0.12.0: su instalador npm rechaza el `.exe` nativo por superar su propio límite de 256 MiB — el binario pesa ~318 MiB).
-- **Decisión:** (1) MCPs cableados editando directo `~/.config/opencode/opencode.json` (formato V2, `mcp.servers`), con backup del archivo. (2) `codebase-memory` instalado por la vía nativa oficial (`install.ps1 --skip-config`, release v0.12.0 verificado por checksum) en `%LOCALAPPDATA%\Programs\codebase-memory-mcp\`; el MCP apunta a ese `.exe` por ruta absoluta. (3) `structurizr` como MCP remoto (`https://mcp.structurizr.com/mcp`). (4) `openspec init --tools opencode --language spanish`; schema propio `spec-anchored` forkeado y parcheado según la skill.
-- **Consecuencias:** Actualizar codebase-memory = re-correr `%LOCALAPPDATA%\Programs\codebase-memory-mcp\install.ps1`. El comando canónico `npx -y codebase-memory-mcp@<v>` no es usable en esta máquina hasta que el paquete npm corrija su extracción. Herramientas instaladas en la sesión: Node.js 24.20.0 LTS (winget) y OpenSpec 1.14.2 (npm, pinneado).
+- **Context:** Spec Growth was initialized in this repo. The procedure assumes the `opencode mcp add` CLI (not installed on this machine: only the desktop app exists) and `npx codebase-memory-mcp@<version>` (broken on Windows in v0.12.0: its npm installer rejects the native `.exe` for exceeding its own 256 MiB limit — the binary weighs ~318 MiB).
+- **Decision:** (1) MCPs wired by editing `~/.config/opencode/opencode.json` directly (V2 format, `mcp.servers`), with a file backup. (2) `codebase-memory` installed through the official native path (`install.ps1 --skip-config`, release v0.12.0 verified by checksum) into `%LOCALAPPDATA%\Programs\codebase-memory-mcp\`; the MCP points to that `.exe` by absolute path. (3) `structurizr` as a remote MCP (`https://mcp.structurizr.com/mcp`). (4) `openspec init --tools opencode --language spanish`; own `spec-anchored` schema forked and patched per the skill.
+- **Consequences:** Updating codebase-memory = re-running `%LOCALAPPDATA%\Programs\codebase-memory-mcp\install.ps1`. The canonical `npx -y codebase-memory-mcp@<v>` command is unusable on this machine until the npm package fixes its extraction. Tools installed in the session: Node.js 24.20.0 LTS (winget) and OpenSpec 1.14.2 (npm, pinned).
 - **Refs:** `~/.config/opencode/opencode.json` · `openspec/config.yaml` · `openspec/schemas/spec-anchored/schema.yaml` · `AGENTS.md`
 
-## [2026-10-16] Sanitización del workspace — repo a `Foco/`, tooling afuera
+## [2026-10-16] Workspace sanitization — repo into `Foco/`, tooling outside
 
-- **Contexto:** El repo tenía mezclados el código Android, el sistema Spec Growth y la tooling de OpenCode (`.opencode/`) en la misma raíz. Además había ~530 MB de artefactos regenerables (builds, `.idea`, temp de instalación de codebase-memory).
-- **Decisión:** (1) El repo completo (incluido `.git`) vive en `Foco/`; el workspace `E:\Proyectos\Foco` queda como contenedor sin git y hospeda `.opencode/` (fuera del repo, a propósito). (2) Comandos `spec-*` y `diagram-sync` adaptados: asumen cwd en `Foco/`. (3) La constitución (`Foco/AGENTS.md`) se carga en el contenedor vía `opencode.json` → `instructions: ["Foco/AGENTS.md"]`; hay una guía breve en el `AGENTS.md` del contenedor. (4) Se borraron `app/build`, `build/`, `.gradle`, `.idea` y el temp de instalación; `.kotlin/` se agregó al `.gitignore`. (5) Se borraron los comandos/skills propios de OpenSpec (`opsx-*`, `openspec-*`): Spec Growth no los usa; se regeneran con `openspec update` si se los quiere.
-- **Consecuencias:** Android Studio debe reabrirse en `E:\Proyectos\Foco\Foco` (perdió `.idea`). Las sesiones de OpenCode se abren en el contenedor; los comandos hacen `cd Foco`. El gate y el pre-commit viven en el repo y siguen funcionando con cwd = raíz del repo. Cambios pendientes del usuario (`gradle.properties`, `gradle/gradle-daemon-jvm.properties`) intactos y sin commitear.
-- **Refs:** `E:\Proyectos\Foco\Foco` · `.opencode/commands/` · `opencode.json` (contenedor) · `Foco/AGENTS.md`
+- **Context:** The repo had the Android code, the Spec Growth system and the OpenCode tooling (`.opencode/`) mixed at the same root. It also carried ~530 MB of regenerable artifacts (builds, `.idea`, codebase-memory install temp).
+- **Decision:** (1) The full repo (including `.git`) lives in `Foco/`; the `E:\Proyectos\Foco` workspace is a container without git that hosts `.opencode/` (outside the repo, on purpose). (2) `spec-*` and `diagram-sync` commands adapted: they assume cwd in `Foco/`. (3) The constitution (`Foco/AGENTS.md`) is loaded in the container via `opencode.json` → `instructions: ["Foco/AGENTS.md"]`; there is a short guide in the container's `AGENTS.md`. (4) `app/build`, `build/`, `.gradle`, `.idea` and the install temp were deleted; `.kotlin/` was added to `.gitignore`. (5) OpenSpec's own commands/skills (`opsx-*`, `openspec-*`) were deleted: Spec Growth does not use them; they can be regenerated with `openspec update`.
+- **Consequences:** Android Studio must be reopened at `E:\Proyectos\Foco\Foco` (it lost `.idea`). OpenCode sessions open in the container; the commands do `cd Foco`. The gate and the pre-commit hook live in the repo and keep working with cwd = repo root. The user's pending changes (`gradle.properties`, `gradle/gradle-daemon-jvm.properties`) stayed untouched and were committed separately.
+- **Refs:** `E:\Proyectos\Foco\Foco` · `.opencode/commands/` · `opencode.json` (container) · `Foco/AGENTS.md`
+
+## [2026-10-16] Repository docs moved to English
+
+- **Context:** The repo is a development experiment with the Spec Growth method, pushed to GitHub. Its documentation was written in Spanish.
+- **Decision:** README, PLAN, AGENTS.md, DECISIONS.md, the OpenSpec config (`Language: english` — future artifacts in English) and the `spec-*` commands were translated to English. Kotlin code and gate scripts stay as they are (Spanish comments and output).
+- **Consequences:** New OpenSpec artifacts will be written in English. `BOARD.md` keeps generating Spanish section titles (produced by the gate scripts, left untouched by decision).
+- **Refs:** `README.md` · `PLAN.md` · `AGENTS.md` · `DECISIONS.md` · `openspec/config.yaml` · `.opencode/commands/`

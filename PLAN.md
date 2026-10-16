@@ -1,107 +1,107 @@
-# PLAN — Foco (tracker + límites + bloqueo de reels)
+# PLAN — Foco (tracker + limits + Reels blocking)
 
-Plan de implementación por fases. Cada fase termina con algo usable y un criterio
-concreto de "terminado". El objetivo es aprender Android construyendo, no al revés.
+Phased implementation plan. Each phase ends with something usable and a concrete
+"done" criterion. The goal is to learn Android by building, not the other way around.
 
-## Idea madre
+## Core idea
 
-Ganarle al scroll infinito no se hace con muros (se puentean), sino con
-**fricción**: cada decisión de abrir la app cuesta unos segundos y requiere
-intención. El tracker es el espejo; la fricción es la herramienta.
+Beating infinite scroll is not done with walls (people bypass them), but with
+**friction**: every decision to open the app costs a few seconds and requires
+intention. The tracker is the mirror; friction is the tool.
 
-## Principios de diseño
+## Design principles
 
-1. **Fricción antes que muro.** Esperas, respiraciones, "escribí por qué" — cambiar
-   la decisión, no declararle la guerra al usuario.
-2. **Todo local.** Nada de cuentas ni servidores: los datos de uso quedan en el teléfono.
-3. **El sistema manda.** Android no tiene API para "bloquear parte de otra app".
-   Todo lo de Reels se construye leyendo la UI, es heurístico y hay que mantenerlo.
-   El diseño asume eso (motor de reglas, no lógica hardcodeada).
-4. **Fases usables.** Nada de tres meses sin probar nada en el teléfono.
+1. **Friction before walls.** Waits, breathing pauses, "write why" — change the
+   decision, do not declare war on the user.
+2. **Everything local.** No accounts or servers: usage data stays on the phone.
+3. **The platform rules.** Android has no API to "block part of another app".
+   Everything Reels-related is built by reading the UI, it is heuristic, and it
+   needs maintenance. The design assumes that (rules engine, not hardcoded logic).
+4. **Usable phases.** No three months without trying anything on the phone.
 
-## Arquitectura objetivo (dónde va cada cosa)
+## Target architecture (where everything goes)
 
-| Componente | Responsabilidad | Fase |
+| Component | Responsibility | Phase |
 |---|---|---|
-| UI Compose (`ui/`) | Dashboard, límites, ajustes | 1+ |
-| `UsageRepository` (`data/`) | Leer UsageStatsManager → sesiones | 1 ✅ |
-| Room (`data/db/`) | Histórico propio, presupuestos, reglas | 2 |
-| `UsageMonitorService` (FGS) | Seguir uso en curso, disparar límites | 3 |
-| `FrictionOverlay` | Pantalla de fricción sobre la app objetivo | 3 |
-| `LimitEngine` | Presupuestos por app/hora + notificaciones | 3 |
-| `ReelsBlockerService` (Accessibility) | Detectar Reels/Shorts y actuar | 4 |
-| `rules.json` (`assets/`) | Selectores y acciones por app/versión | 4 |
+| Compose UI (`ui/`) | Dashboard, limits, settings | 1+ |
+| `UsageRepository` (`data/`) | Read UsageStatsManager → sessions | 1 ✅ |
+| Room (`data/db/`) | Own history, budgets, rules | 2 |
+| `UsageMonitorService` (FGS) | Track ongoing usage, trigger limits | 3 |
+| `FrictionOverlay` | Friction screen over the target app | 3 |
+| `LimitEngine` | Per-app/hour budgets + notifications | 3 |
+| `ReelsBlockerService` (Accessibility) | Detect Reels/Shorts and act | 4 |
+| `rules.json` (`assets/`) | Selectors and actions per app/version | 4 |
 
 ---
 
-## Fase 0 — Entorno
+## Phase 0 — Environment
 
-- [ ] Instalar Android Studio; abrir `Foco`; primer build en el teléfono.
-- [ ] Depuración USB en el teléfono; aceptar el prompt de la PC.
-- [ ] (Para la Fase 3) Desactivar la optimización de batería para Foco.
+- [ ] Install Android Studio; open `Foco`; first build on the phone.
+- [ ] USB debugging on the phone; accept the prompt from the PC.
+- [ ] (For Phase 3) Disable battery optimization for Foco.
 
-**Terminado cuando:** el dashboard corre en tu teléfono y ves tu uso real.
+**Done when:** the dashboard runs on your phone and you see your real usage.
 
-## Fase 1 — Tracker del día ✅ (scaffold incluido)
+## Phase 1 — Day tracker ✅ (scaffold included)
 
-Qué hay: onboarding del permiso, total del día, actividad por hora (24 barras),
-ranking de apps con ícono, duración y hora del último uso.
+What's there: permission onboarding, day total, hourly activity (24 bars),
+app ranking with icon, duration and time of the last use.
 
-Archivos clave:
+Key files:
 
-- `MainActivity.kt` — decide onboarding ↔ dashboard y re-chequea el permiso en `ON_RESUME`.
-- `UsageAccess.kt` — el permiso `PACKAGE_USAGE_STATS` se verifica como AppOp.
-- `data/UsageRepository.kt` — eventos → sesiones → ranking + buckets por hora.
-- `ui/DashboardScreen.kt` — todo el dashboard.
+- `MainActivity.kt` — decides onboarding ↔ dashboard and re-checks the permission on `ON_RESUME`.
+- `UsageAccess.kt` — the `PACKAGE_USAGE_STATS` permission is checked as an AppOp.
+- `data/UsageRepository.kt` — events → sessions → ranking + hourly buckets.
+- `ui/DashboardScreen.kt` — the whole dashboard.
 
-Extensiones naturales (cuando quieras jugar): selector de fecha, comparación
-con ayer, exportar CSV, widget de "hoy".
+Natural extensions (whenever you feel like playing): date picker, comparison
+with yesterday, CSV export, "today" widget.
 
-**Terminado cuando:** ✅ ya funciona.
+**Done when:** ✅ already working.
 
-## Fase 2 — Histórico y persistencia (Room)
+## Phase 2 — History and persistence (Room)
 
-Objetivo: no depender de lo que el sistema retiene (limitado) y tener base para límites.
+Goal: stop depending on what the system retains (limited) and get a base for limits.
 
-- [ ] Entidades: `SessionRecord` (pkg, inicio, fin) y `DailyAggregate` (pkg, día, total).
-- [ ] `WorkManager`: job nocturno que consolida el día y limpia crudo viejo.
-- [ ] Pantalla **Semana**: barras por día + totales por app.
-- [ ] Migración de esquema desde el día 1 (buena costumbre).
+- [ ] Entities: `SessionRecord` (pkg, start, end) and `DailyAggregate` (pkg, day, total).
+- [ ] `WorkManager`: nightly job that consolidates the day and cleans up old raw data.
+- [ ] **Week** screen: bars per day + totals per app.
+- [ ] Schema migration from day one (good habit).
 
-Conceptos nuevos: Room (DAO + Flow), WorkManager, migraciones.
+New concepts: Room (DAO + Flow), WorkManager, migrations.
 
-**Terminado cuando:** historial de 7+ días visible, sobrevive reinicios.
+**Done when:** 7+ days of history visible, survives reboots.
 
-## Fase 3 — Límites, recordatorios y fricción
+## Phase 3 — Limits, reminders and friction
 
-Objetivo: presupuestos por app y fricción real al pasarse. **Acá aparece el
-foreground service.**
+Goal: per-app budgets and real friction when going over. **This is where the
+foreground service appears.**
 
-- [ ] Presupuesto por app (ej. Instagram 30 min/día), configurable en Ajustes.
-- [ ] `UsageMonitorService` (foreground, tipo `specialUse` — obligatorio desde Android 14):
-      tick cada 15-30 s con UsageStats + accessibility para tiempo real.
-      Alternativa liviana: `WorkManager` cada 15 min (alcanza para límites, no para instantaneidad).
-- [ ] Notificaciones: canal propio + permiso `POST_NOTIFICATIONS` (Android 13+).
-- [ ] **Overlay de fricción** (`SYSTEM_ALERT_WINDOW` + `TYPE_APPLICATION_OVERLAY`):
-      pantalla completa sobre la app objetivo con:
-        - cuenta regresiva de 10 s antes de habilitar "Abrir igual",
-        - opción "escribí para qué la vas a abrir",
-        - modo excepción "5 minutos más" con costo (espera + registro).
-- [ ] Patrones de referencia de UX: **one sec**, **ScreenZen**.
+- [ ] Per-app budget (e.g. Instagram 30 min/day), configurable in Settings.
+- [ ] `UsageMonitorService` (foreground, `specialUse` type — mandatory since Android 14):
+      tick every 15-30 s with UsageStats + accessibility for real time.
+      Lightweight alternative: `WorkManager` every 15 min (enough for limits, not for instantaneity).
+- [ ] Notifications: own channel + `POST_NOTIFICATIONS` permission (Android 13+).
+- [ ] **Friction overlay** (`SYSTEM_ALERT_WINDOW` + `TYPE_APPLICATION_OVERLAY`):
+      full-screen over the target app with:
+        - 10 s countdown before enabling "Open anyway",
+        - "write why you're opening it" option,
+        - "5 more minutes" exception mode with a cost (wait + record).
+- [ ] UX reference patterns: **one sec**, **ScreenZen**.
 
-**Terminado cuando:** si te pasás del límite de Instagram, el teléfono te frena
-de verdad y ceder cuesta (un poquito).
+**Done when:** if you go over the Instagram limit, the phone really stops you
+and giving in costs (a little).
 
-## Fase 4 — Bloqueo de Reels / Shorts (la parte artesanal)
+## Phase 4 — Reels / Shorts blocking (the artisanal part)
 
-Objetivo: que abrir Reels no sea una opción. No hay API: se lee la UI con
+Goal: opening Reels is not an option. There is no API: the UI is read with an
 **AccessibilityService**.
 
-- [ ] `ReelsBlockerService` con `accessibility-service` config XML.
-- [ ] Detección: `onAccessibilityEvent` (`TYPE_WINDOW_STATE_CHANGED` /
-      `TYPE_WINDOW_CONTENT_CHANGED`) → BFS acotado sobre `rootInActiveWindow`,
-      matcheando por `viewIdResourceName` (regex), texto y `contentDescription`.
-- [ ] **Motor de reglas** en `assets/rules.json` (así no recompilás por cada cambio de Instagram):
+- [ ] `ReelsBlockerService` with `accessibility-service` config XML.
+- [ ] Detection: `onAccessibilityEvent` (`TYPE_WINDOW_STATE_CHANGED` /
+      `TYPE_WINDOW_CONTENT_CHANGED`) → bounded BFS over `rootInActiveWindow`,
+      matching by `viewIdResourceName` (regex), text and `contentDescription`.
+- [ ] **Rules engine** in `assets/rules.json` (so you don't recompile for every Instagram change):
       ```json
       {
         "package": "com.instagram.android",
@@ -113,50 +113,50 @@ Objetivo: que abrir Reels no sea una opción. No hay API: se lee la UI con
         "action": "back"
       }
       ```
-- [ ] Acciones: `BACK` y, si a los ~300 ms sigue bloqueado, `HOME`.
-- [ ] Anti falsos positivos: whitelist (visor de stories, DM), debounce de 1 s,
-      decisión registrada en un log local (últimas N).
-- [ ] Anti-impulso: desactivar el servicio requiere PIN.
-- [ ] Sobreversión (Android 13+): una app instalada a mano necesita
-      "Permitir ajustes restringidos" para poder activar Accesibilidad.
-- [ ] Probar con logcat + prueba real por app (Instagram, TikTok, YouTube).
+- [ ] Actions: `BACK` and, if still blocked after ~300 ms, `HOME`.
+- [ ] Anti false positives: whitelist (story viewer, DMs), 1 s debounce,
+      decision recorded in a local log (last N).
+- [ ] Anti-impulse: disabling the service requires a PIN.
+- [ ] Sideloaded (Android 13+): a manually installed app needs
+      "Allow restricted settings" to be able to enable Accessibility.
+- [ ] Test with logcat + a real test per app (Instagram, TikTok, YouTube).
 
-Referencias open source: `duartebarbosadev/Scrolless`,
-`JacobX0126/shorts-blocker-android` (este último documenta exactamente estas
-decisiones, incluso el escalado BACK→HOME y el PIN).
+Open source references: `duartebarbosadev/Scrolless`,
+`JacobX0126/shorts-blocker-android` (the latter documents exactly these
+decisions, including the BACK→HOME escalation and the PIN).
 
-**Terminado cuando:** abrir Reels te devuelve al feed de forma consistente, sin
-romper el resto de la app (chats, stories, perfil).
+**Done when:** opening Reels sends you back to the feed consistently, without
+breaking the rest of the app (chats, stories, profile).
 
-## Fase 5 — Endurecimiento (opcional)
+## Phase 5 — Hardening (optional)
 
-- [ ] **Device owner** (una vez, por adb: `adb shell dpm set-device-owner`):
-      `DevicePolicyManager.setPackagesSuspended()` bloquea apps a nivel sistema,
-      sin heurísticas. Ojo: tu app debe poder desactivarse sola después
+- [ ] **Device owner** (once, via adb: `adb shell dpm set-device-owner`):
+      `DevicePolicyManager.setPackagesSuspended()` blocks apps at the system level,
+      no heuristics. Careful: your app must be able to deactivate itself afterwards
       (`clearDeviceOwnerApp()`).
-- [ ] O root + LSPosed si te picó el bicho (hook directo a la pantalla de Reels:
-      lo más robusto que existe, pero requiere root).
-- [ ] Distribución: `adb install` o compilar APK firmado. La verificación de
-      desarrollador de Google (en curso 2026-2027) **no afecta** instalaciones
-      por adb ni el sideload directo por ahora; para compartir con hasta 20
-      dispositivos hay "limited distribution account" gratis.
+- [ ] Or root + LSPosed if the bug has bitten you (direct hook into the Reels screen:
+      the most robust thing there is, but it requires root).
+- [ ] Distribution: `adb install` or build a signed APK. Google's developer
+      verification (in progress 2026-2027) **does not affect** adb installs or
+      direct sideloading for now; to share with up to 20 devices there is a free
+      "limited distribution account".
 
 ---
 
-## Riesgos y cosas que este plan no promete
+## Risks and things this plan does not promise
 
-- **OEMs:** algunos fabricantes matan servicios en segundo plano con saña; por eso
-  Foco se excluye de optimización de batería y el paso de límites no depende de tiempo real exacto.
-- **Instagram cambia la UI:** por eso reglas en JSON + log de decisiones; esperar
-  mantenimiento periódico de la Fase 4.
-- **Play Store:** accessibility + overlay juntos es zona de alto escrutinio. Este
-  proyecto es de uso personal: se instala por USB, no se publica.
-- **Batería:** el costo lo paga el foreground service de la Fase 3; se mide y se ajusta ahí.
+- **OEMs:** some manufacturers kill background services relentlessly; that is why
+  Foco is excluded from battery optimization and the limits path does not depend on exact real time.
+- **Instagram changes the UI:** hence JSON rules + decision log; expect
+  periodic maintenance of Phase 4.
+- **Play Store:** accessibility + overlay together is a high-scrutiny area. This
+  project is for personal use: it is installed over USB, it is not published.
+- **Battery:** the cost is paid by the Phase 3 foreground service; it is measured and tuned there.
 
-## Recursos
+## Resources
 
-- Curso oficial gratis: *Android Basics with Compose* (developer.android.com).
-- Docs clave: `UsageStatsManager`, `AppOpsManager`, `AccessibilityService`,
+- Free official course: *Android Basics with Compose* (developer.android.com).
+- Key docs: `UsageStatsManager`, `AppOpsManager`, `AccessibilityService`,
   `TYPE_APPLICATION_OVERLAY`, `DevicePolicyManager.setPackagesSuspended`,
   foreground service types (`specialUse`).
-- Apps para estudiar su UX: **one sec**, **ScreenZen**, **Scrolless**.
+- Apps to study their UX: **one sec**, **ScreenZen**, **Scrolless**.

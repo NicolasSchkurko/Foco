@@ -1,95 +1,95 @@
 # Foco
 
-App de Android (proyecto personal) para:
+An Android app (personal project) to:
 
-1. **Trackear** cuánto y *cuándo* usás cada app (estilo Bienestar Digital, pero con tus propias reglas).
-2. Poner **límites y fricción** (recordatorios, esperas forzadas) para reducir el uso automático.
-3. **Bloquear Reels / Shorts** (contenido de scroll infinito) dentro de Instagram, TikTok y YouTube.
+1. **Track** how much and *when* you use each app (Digital Wellbeing style, but with your own rules).
+2. Add **limits and friction** (reminders, forced waits) to reduce automatic usage.
+3. **Block Reels / Shorts** (infinite-scroll content) inside Instagram, TikTok and YouTube.
 
-Stack: **Kotlin + Jetpack Compose**. Todo local, sin cuentas ni servidores.
-
----
-
-> **🧪 Nota:** este repositorio es una **prueba de desarrollo** para experimentar con el método **Spec Growth** — un flujo *spec-anchored* donde las specs son el contrato vivo (`openspec/specs/`), los cambios en trámite viven en `openspec/changes/`, el porqué queda en `DECISIONS.md`, el estado se genera en `BOARD.md` y la verificación corre en `scripts/gates/` (pre-commit y CI). La app es el caso de prueba del método.
+Stack: **Kotlin + Jetpack Compose**. Everything local — no accounts, no servers.
 
 ---
 
-## Estado actual
+> **🧪 Note:** this repository is a **development experiment** for the **Spec Growth** method — a spec-anchored workflow where specs are the living contract (`openspec/specs/`), in-flight changes live in `openspec/changes/`, the rationale is recorded in `DECISIONS.md`, status is generated into `BOARD.md`, and verification runs in `scripts/gates/` (pre-commit and CI). The app is the method's test case.
 
-- ✅ **Fase 1 (este scaffold)**: tracker del día — total de uso, actividad por hora y ranking de apps, con onboarding del permiso de "Acceso de uso".
-- ⏭️ Fases 2 a 5 (límites, fricción, bloqueo de reels): ver **[PLAN.md](PLAN.md)**.
+---
 
-## Requisitos
+## Current status
 
-- [Android Studio](https://developer.android.com/studio) (última versión — incluye el JDK y el SDK).
-- Un teléfono Android con Android 10 (API 29) o superior, con **depuración USB** activada.
-  - El emulador sirve para ver la UI, pero **no** para datos de uso reales.
+- ✅ **Phase 1 (this scaffold)**: day tracker — total usage, hourly activity and app ranking, with onboarding for the "Usage Access" permission.
+- ⏭️ Phases 2 to 5 (limits, friction, Reels blocking): see **[PLAN.md](PLAN.md)**.
 
-## Cómo abrirlo y correrlo
+## Requirements
 
-1. Android Studio → **Open** → seleccioná esta carpeta (`Foco`).
-2. Esperá el primer *sync* de Gradle (descarga Gradle 9.6 y las dependencias; la primera vez tarda).
-3. Conectá el teléfono por USB y aceptá "Permitir depuración USB" cuando aparezca.
-4. Presioná **Run ▶**.
+- [Android Studio](https://developer.android.com/studio) (latest version — includes the JDK and the SDK).
+- An Android phone running Android 10 (API 29) or higher, with **USB debugging** enabled.
+  - The emulator works for viewing the UI, but **not** for real usage data.
 
-> El proyecto ya usa la misma pila que trae Android Studio 2026.2: AGP 9.4, Kotlin 2.4 (incorporado), Gradle 9.6 y Compose BOM 2026.09. No deberías ver pedidos de "Upgrade".
+## How to open and run it
 
-## Primer uso
+1. Android Studio → **Open** → select this folder (`Foco`).
+2. Wait for the first Gradle *sync* (it downloads Gradle 9.6 and the dependencies; the first time takes a while).
+3. Connect the phone via USB and accept "Allow USB debugging" when it appears.
+4. Press **Run ▶**.
 
-1. Al abrir, Foco te pide el permiso **Acceso de uso** (es un permiso especial: Android no permite pedirlo con un diálogo, solo activarlo a mano).
-2. Tocá **"Abrir Ajustes"**, buscá **Foco** en la lista y activá el permiso.
-3. Volvé a la app: el dashboard se actualiza solo.
+> The project already uses the same stack that ships with Android Studio 2026.2: AGP 9.4, Kotlin 2.4 (built-in), Gradle 9.6 and Compose BOM 2026.09. You should not see "Upgrade" requests.
 
-Si tu fabricante tarda en mostrar la app en esa lista, salí de Ajustes y volvé a entrar.
+## First use
 
-## Estructura del proyecto
+1. When it opens, Foco asks for the **Usage Access** permission (it is a special permission: Android does not allow requesting it through a dialog, only enabling it by hand).
+2. Tap **"Open Settings"**, find **Foco** in the list and enable the permission.
+3. Go back to the app: the dashboard updates by itself.
+
+If your manufacturer is slow to show the app in that list, leave Settings and come back in.
+
+## Project structure
 
 ```
 Foco/
 ├── app/
-│   ├── build.gradle.kts              # módulo: SDK, dependencias
+│   ├── build.gradle.kts              # module: SDK, dependencies
 │   └── src/main/
-│       ├── AndroidManifest.xml       # permiso especial + queries + activity
-│       ├── res/                      # ícono, tema base, strings
+│       ├── AndroidManifest.xml       # special permission + queries + activity
+│       ├── res/                      # icon, base theme, strings
 │       └── java/com/foco/app/
-│           ├── MainActivity.kt       # entrada: onboarding ↔ dashboard
-│           ├── UsageAccess.kt        # chequeo del permiso "Acceso de uso"
+│           ├── MainActivity.kt       # entry point: onboarding ↔ dashboard
+│           ├── UsageAccess.kt        # "Usage Access" permission check
 │           ├── data/
-│           │   ├── UsageModels.kt    # modelos (día, app, hora)
-│           │   └── UsageRepository.kt# consulta UsageStatsManager, arma sesiones
+│           │   ├── UsageModels.kt    # models (day, app, hour)
+│           │   └── UsageRepository.kt# queries UsageStatsManager, builds sessions
 │           └── ui/
 │               ├── OnboardingScreen.kt
-│               ├── DashboardScreen.kt# gráfico por hora + ranking de apps
-│               ├── Formatting.kt     # duración "3 h 24 min", hora "14:32"
-│               └── theme/Theme.kt    # Material 3 (+ color dinámico)
-├── gradle/libs.versions.toml         # catálogo de versiones
-├── PLAN.md                           # plan de implementación por fases
-└── gradlew / gradlew.bat             # wrapper de Gradle
+│               ├── DashboardScreen.kt# hourly chart + app ranking
+│               ├── Formatting.kt     # duration "3 h 24 min", time "14:32"
+│               └── theme/Theme.kt    # Material 3 (+ dynamic color)
+├── gradle/libs.versions.toml         # version catalog
+├── PLAN.md                           # phased implementation plan
+└── gradlew / gradlew.bat             # Gradle wrapper
 ```
 
-## Comandos útiles (con el wrapper)
+## Useful commands (with the wrapper)
 
-En la raíz del proyecto:
+From the project root:
 
 ```powershell
-.\gradlew.bat assembleDebug     # compila -> app/build/outputs/apk/debug/app-debug.apk
-.\gradlew.bat installDebug      # compila e instala en el teléfono conectado
+.\gradlew.bat assembleDebug     # build -> app/build/outputs/apk/debug/app-debug.apk
+.\gradlew.bat installDebug      # build and install on the connected phone
 ```
 
-`adb` viene con el SDK (`%LOCALAPPDATA%\Android\Sdk\platform-tools`), o instalás *platform-tools* desde el SDK Manager.
+`adb` ships with the SDK (`%LOCALAPPDATA%\Android\Sdk\platform-tools`), or install *platform-tools* from the SDK Manager.
 
-## Cómo funciona el tracker (resumen técnico)
+## How the tracker works (technical summary)
 
-- `UsageStatsManager.queryEvents()` devuelve eventos del sistema (`ACTIVITY_RESUMED` / `ACTIVITY_PAUSED`).
-- `UsageRepository` los convierte en **sesiones** (app, inicio, fin), descarta apps sin ícono de lanzador, home y Foco mismo, y arma dos vistas: ranking por app y distribución por hora.
-- El permiso `PACKAGE_USAGE_STATS` se declara en el manifest y se verifica como **AppOp** (`UsageAccess.isGranted`).
-- Los datos se consultan al vuelo (el sistema ya los guarda); la persistencia propia llega en la Fase 2 con Room.
+- `UsageStatsManager.queryEvents()` returns system events (`ACTIVITY_RESUMED` / `ACTIVITY_PAUSED`).
+- `UsageRepository` turns them into **sessions** (app, start, end), drops apps without a launcher icon, the home screen and Foco itself, and builds two views: ranking by app and distribution by hour.
+- The `PACKAGE_USAGE_STATS` permission is declared in the manifest and checked as an **AppOp** (`UsageAccess.isGranted`).
+- Data is queried on the fly (the system already stores it); own persistence arrives in Phase 2 with Room.
 
-## Problemas comunes
+## Common issues
 
-| Síntoma | Causa / solución |
+| Symptom | Cause / fix |
 |---|---|
-| "Sin actividad registrada" | El permiso de uso no está activo, o es un teléfono recién formateado (el sistema tarda en acumular eventos). |
-| El sync de Gradle falla por red | Reintentar: Tools → Sync Project. Si persiste, revisar proxy/firewall. |
-| `SDK location not found` | Abrí el proyecto con Android Studio (genera `local.properties`) o definí `ANDROID_HOME`. |
-| Compila pero no instala | ¿Depuración USB aceptada? ¿Conflicto con una versión ya instalada? `.\gradlew.bat installDebug -r`. |
+| "No activity recorded" | The usage permission is not enabled, or it is a freshly reset phone (the system takes a while to accumulate events). |
+| Gradle sync fails over the network | Retry: Tools → Sync Project. If it persists, check proxy/firewall. |
+| `SDK location not found` | Open the project with Android Studio (it generates `local.properties`) or set `ANDROID_HOME`. |
+| It builds but does not install | USB debugging accepted? Conflict with an already installed version? `.\gradlew.bat installDebug -r`. |
