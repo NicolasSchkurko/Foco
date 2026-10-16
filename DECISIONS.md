@@ -122,6 +122,13 @@
 - **Consequences:** No mid-apply destrabe when the arrow is applied; `app-settings` waits for it (dep warnings until then). The chain reads: `ranking-exclusions → detail-back-arrow → app-settings → app-entry-gate`.
 - **Refs:** `openspec/changes/detail-back-arrow/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`) · DECISIONS.md [2026-10-16 Ordering: `app-entry-gate` queued behind the whole draft chain]
 
+## [2026-10-16] Ordering: `app-settings` lands after `detail-back-ux` (pre-declared)
+
+- **Context:** A new fix change, `detail-back-ux` (Android 16 predictive-back gesture + Material back icon), overlaps `app-settings` (`ui/**`, `androidTest/**`, build files) and must land first: it fixes a user-reported bug. Per the A+ policy, the order is pre-declared.
+- **Decision:** `app-settings` adds `detail-back-ux` to its `x-deps`; `app-entry-gate` follows transitively through `app-settings`. *Proposed by the agent under the A+ policy and flagged in the same turn — reversible with a new entry if another order is preferred.*
+- **Consequences:** Chain: `detail-back-ux → app-settings → app-entry-gate`. No mid-apply destrabes expected.
+- **Refs:** `openspec/changes/detail-back-ux/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`)
+
 ## [2026-10-16] Change approved: `detail-back-arrow`
 
 - **Context:** Created from the `/spec-verify` finding the user reported: the detail screen has no visible way back (system back verified working with `KEYCODE_BACK`; the affordance was missing). Small feature: a back arrow on the detail header wired to the same back action; ordering pre-declared (`app-settings` depends on it).

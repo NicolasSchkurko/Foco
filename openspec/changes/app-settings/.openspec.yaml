@@ -18,4 +18,5 @@ x-deps:
   - app-usage-detail
   - ranking-exclusions
   - detail-back-arrow
+  - detail-back-ux
 x-gitref: 6127847
