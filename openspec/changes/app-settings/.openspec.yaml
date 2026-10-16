@@ -19,4 +19,5 @@ x-deps:
   - ranking-exclusions
   - detail-back-arrow
   - detail-back-ux
+  - unlock-counter
 x-gitref: 6127847

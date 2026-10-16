@@ -129,6 +129,13 @@
 - **Consequences:** Chain: `detail-back-ux → app-settings → app-entry-gate`. No mid-apply destrabes expected.
 - **Refs:** `openspec/changes/detail-back-ux/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`)
 
+## [2026-10-16] Ordering: `app-settings` lands after `unlock-counter` (pre-declared)
+
+- **Context:** A new small feature, `unlock-counter` (dashboard unlock count), overlaps `app-settings` (`ui/**`, `data/**`, tests). The human chose "next after `detail-back-ux`" (it is small and wanted soon). Per the A+ policy the order is pre-declared.
+- **Decision:** `app-settings` adds `unlock-counter` to its `x-deps`; `app-entry-gate` follows transitively. *Proposed by the agent under the A+ policy, flagged in the same turn — reversible with a new entry.*
+- **Consequences:** Chain: `detail-back-ux → unlock-counter → app-settings → app-entry-gate`. No mid-apply destrabes expected.
+- **Refs:** `openspec/changes/unlock-counter/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`)
+
 ## [2026-10-16] Change approved: `detail-back-arrow`
 
 - **Context:** Created from the `/spec-verify` finding the user reported: the detail screen has no visible way back (system back verified working with `KEYCODE_BACK`; the affordance was missing). Small feature: a back arrow on the detail header wired to the same back action; ordering pre-declared (`app-settings` depends on it).
