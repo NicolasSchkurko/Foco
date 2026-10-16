@@ -8,11 +8,11 @@
 ## 2. The tripwires (structure checks)
 
 - [x] 2.1 Extend `LayerRulesTest`: a `data/` file without `android`/`androidx` imports fails; raw platform markers in `ui/` fail.
-- [ ] 2.2 Verify the suite is green with both checks active (the previous layout would have failed both).
+- [x] 2.2 Verify the suite is green with both checks active (the previous layout would have failed both).
 
 ## 3. Integration
 
-- [ ] 3.1 `gradlew.bat test` (JVM) + `assembleDebug` + the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref`.
+- [x] 3.1 `gradlew.bat test` (JVM) + `assembleDebug` + the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref`.
 
 ## Workflow follow-up
 
