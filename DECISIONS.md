@@ -66,10 +66,16 @@
 - **Consequences:** Their overlaps with it report as warnings ("secuenciado por dep") and the gate stays green during the apply. No rule weakening: the repo gate keeps its current semantics. If the human later wants to apply `layered-structure` or `app-usage-detail` before `dashboard-auto-refresh` finishes, these deps must be revisited (new decision, append-only).
 - **Refs:** `openspec/changes/layered-structure/.openspec.yaml` (`x-deps`) · `openspec/changes/app-usage-detail/.openspec.yaml` (`x-deps`) · `openspec/changes/dashboard-auto-refresh/.openspec.yaml`
 
-
 ## [2026-10-16] Reversal: gate scripts follow upstream v0.9 (English)
 
 - **Context:** upstream Spec Growth now ships natively the two fixes this repo had patched locally (`x-` metadata support for OpenSpec 1.14 strict validation, and the glob-aware target-existence check), plus report-only `--scope`, conflicts, `refactor` kind and untracked-zone detection. The earlier decision "[2026-10-16] Repository docs moved to English" had left the gate scripts in Spanish; maintaining a divergent fork no longer has any benefit.
 - **Decision (human):** revert that part of the decision. `scripts/gates/*` are replaced by upstream v0.9 (English output, dependency-free). The `x-` divergence is not a divergence anymore.
 - **Consequences:** gate and BOARD messages print in English; future upstream updates apply to this repo without patching. Local resync flow stays: copy `assets/scripts/*` from the skill.
 - **Refs:** `scripts/gates/*` (commit 377e5bd) · `DECISIONS.md` [2026-10-16 docs to English] · [2026-10-16 x- prefix]
+
+## [2026-10-16] Test emulator: API ≤ 36 (Espresso breaks on API 37)
+
+- **Context:** During the `dashboard-auto-refresh` apply, `connectedDebugAndroidTest` on the only available emulator (API 37 / Android 17) failed all 4 tests before executing any logic: Espresso's event injection reflects on `android.hardware.input.InputManager.getInstance`, a hidden method removed in Android 17. It is a known upstream issue (community workaround: API ≤ 36 emulators), unrelated to the change.
+- **Decision (human):** option A — download the API 36 (Android 16) system image and create a dedicated test AVD (`Medium_Phone_API_36.0`) instead of deferring the tests with a `deferred-test` waiver. Rationale: proper fix, consistent with the project's stable `compileSdk 36`, and instrumented testing stays viable going forward.
+- **Consequences:** Instrumented runs must target API ≤ 36 until Espresso supports API 37 (`Medium_Phone_API_36.0` is the repo's test AVD; noted in `dashboard-auto-refresh/tasks.md`). The API 37 AVD stays for manual smoke checks. All 4 instrumented tests pass on API 36.
+- **Refs:** `app/src/androidTest/java/com/foco/app/ui/DashboardRefreshTest.kt` · `openspec/changes/dashboard-auto-refresh/tasks.md`
