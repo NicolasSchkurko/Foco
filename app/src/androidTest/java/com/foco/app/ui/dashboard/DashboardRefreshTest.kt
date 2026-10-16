@@ -1,4 +1,4 @@
-package com.foco.app.ui
+package com.foco.app.ui.dashboard
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule

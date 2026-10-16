@@ -1,4 +1,4 @@
-package com.foco.app
+package com.foco.app.data
 
 import android.app.AppOpsManager
 import android.content.Context

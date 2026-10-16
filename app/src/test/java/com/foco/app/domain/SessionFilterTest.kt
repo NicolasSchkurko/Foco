@@ -1,5 +1,6 @@
-package com.foco.app.data
+package com.foco.app.domain
 
+import com.foco.app.model.UsageSession
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

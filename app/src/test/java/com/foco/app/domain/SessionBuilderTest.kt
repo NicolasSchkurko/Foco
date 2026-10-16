@@ -1,5 +1,8 @@
-package com.foco.app.data
+package com.foco.app.domain
 
+import com.foco.app.model.UsageEvent
+import com.foco.app.model.UsageEventType
+import com.foco.app.model.UsageSession
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

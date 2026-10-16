@@ -1,4 +1,4 @@
-package com.foco.app.ui
+package com.foco.app.ui.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.foco.app.UsageAccess
+import com.foco.app.data.UsageAccess
 
 /**
  * Se muestra cuando la app todavía no tiene el permiso de "Acceso de uso".

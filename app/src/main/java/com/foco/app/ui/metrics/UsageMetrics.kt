@@ -1,30 +1,9 @@
 package com.foco.app.ui.metrics
 
-import com.foco.app.data.UsageSession
+import com.foco.app.model.UsageSession
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-
-/** Uso agregado de una app, derivado de sus sesiones (salida del ranking). */
-data class AppUsageEntry(
-    val packageName: String,
-    val totalMillis: Long,
-    val lastUsedAt: Long,
-    val sessions: Int
-)
-
-/** Uso del dispositivo dentro de una franja horaria (0..23). */
-data class HourBucket(
-    val hour: Int,
-    val millis: Long
-)
-
-/** Todo lo que muestra el dashboard para un día, derivado de sus sesiones. */
-data class DayMetrics(
-    val totalMillis: Long,
-    val entries: List<AppUsageEntry>,
-    val hourly: List<HourBucket>
-)
 
 /** Tiempo total en pantalla del día. */
 fun dayTotal(sessions: List<UsageSession>): Long =
