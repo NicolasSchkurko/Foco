@@ -10,6 +10,10 @@ Stack: **Kotlin + Jetpack Compose**. Todo local, sin cuentas ni servidores.
 
 ---
 
+> **🧪 Nota:** este repositorio es una **prueba de desarrollo** para experimentar con el método **Spec Growth** — un flujo *spec-anchored* donde las specs son el contrato vivo (`openspec/specs/`), los cambios en trámite viven en `openspec/changes/`, el porqué queda en `DECISIONS.md`, el estado se genera en `BOARD.md` y la verificación corre en `scripts/gates/` (pre-commit y CI). La app es el caso de prueba del método.
+
+---
+
 ## Estado actual
 
 - ✅ **Fase 1 (este scaffold)**: tracker del día — total de uso, actividad por hora y ranking de apps, con onboarding del permiso de "Acceso de uso".

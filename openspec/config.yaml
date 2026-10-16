@@ -1,0 +1,34 @@
+schema: spec-anchored
+
+# Comando de tests del proyecto. Lo usa `gate-check --run-tests` para registrar evidencia real.
+# Ejemplos: "./gradlew test" (Linux/macOS) · "gradlew.bat test" (Windows) · "npm test" · "pytest -q"
+# (Pendiente: definir cuando existan tests; con Gradle sería "gradlew.bat test")
+# test_command: ""
+
+context: |
+  Language: spanish
+  All artifacts must be written in spanish.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Foco — app Android personal (Kotlin + Jetpack Compose, Material 3), 100% local.
+  Build: Android Studio o `gradlew.bat assembleDebug`. Ver `README.md` y `PLAN.md`.
+
+rules:
+  proposal:
+    - Declarar kind (fix|feature|architecture), targets, tests y deps en .openspec.yaml
+    - Corto: por qué y qué. El cómo va en design.md, solo si kind=architecture
+  specs:
+    - Requirements en SHALL; escenarios WHEN/THEN concretos
+    - Cada requirement lleva una línea [@test] con la ruta del test que lo verifica
+  tasks:
+    - Checklist verificable; tareas pequeñas, cada una completable y probable
+
+# Zonas protegidas: cambios que tocan estos globs requieren aprobación humana explícita
+# (llave `human_approved: true` en el change, indicada por el humano). Se ven en BOARD.md.
+# Ejemplo:
+# protected:
+#   - glob: "app/src/main/**/storage/**"
+#     reason: "persistencia — datos del usuario"
+#   - glob: "**/auth/**"
+#     reason: "autenticación"
+protected: []
