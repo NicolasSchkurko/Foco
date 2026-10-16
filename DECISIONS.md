@@ -86,3 +86,10 @@
 - **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
 - **Consequences:** Its apply is unblocked (deps archived). It overlaps `app-usage-detail` (both drafts, independent): whichever applies first, the second adapts. After its apply, `/diagram-sync` creates `ARCHITECTURE.dsl`, which does not exist yet.
 - **Refs:** `openspec/changes/layered-structure/.openspec.yaml` · `openspec/changes/layered-structure/design.md`
+
+## [2026-10-16] Ordering: `app-usage-detail` depends on `layered-structure`
+
+- **Context:** Starting the apply of `layered-structure` (status → `applying`) escalated the gate to 4 overlap errors with `app-usage-detail` (draft): their targets collide (`app/src/**` vs `ui/**`, `data/**`, `app/src/test/**`, `app/src/androidTest/**`) and no dependency was declared between them (both had been declared independent of each other).
+- **Decision (human):** option A — `app-usage-detail` adds `layered-structure` to its `x-deps` (alongside the already-archived `session-based-metrics` and `dashboard-auto-refresh`). Rationale: `layered-structure` is applied now, so "it first, `app-usage-detail` after" is a fact; the dep is satisfied when it reaches `verified`. Same pattern as the earlier `dashboard-auto-refresh` ordering decision.
+- **Consequences:** The overlaps report as "sequenced by deps" warnings and the gate stays green during the apply. `app-usage-detail` later lands on the four-layer layout (its findings.md already lists the housekeeping for its own apply).
+- **Refs:** `openspec/changes/app-usage-detail/.openspec.yaml` (`x-deps`) · `openspec/changes/layered-structure/.openspec.yaml` · DECISIONS.md [2026-10-16 Ordering: the other drafts depend on `dashboard-auto-refresh`]
