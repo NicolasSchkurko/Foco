@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.foco.app.data.UsageRepository
-import com.foco.app.data.availableDays
+import com.foco.app.domain.availableDays
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
