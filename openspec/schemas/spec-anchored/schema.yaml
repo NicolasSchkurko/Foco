@@ -44,8 +44,9 @@ artifacts:
       Keep it concise (1-2 pages). Focus on the "why" not the "how" -
       implementation details belong in design.md.
 
-      Complete `.openspec.yaml` with kind (fix|feature|architecture), targets,
-      tests, deps, gitref.
+      Complete `.openspec.yaml` with x-kind (fix|feature|architecture), x-targets,
+      x-tests, x-deps, x-gitref (the `x-` prefix keeps `openspec validate --strict`
+      clean; the gate reads both forms).
 
       This is the foundation - specs, design, and tasks all build on this.
     requires: []

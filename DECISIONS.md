@@ -37,3 +37,10 @@
 - **Decision (human):** the version catalog is the source of truth; the documentation was stale. The README is corrected to `2026.06` (the doc's own major.minor style).
 - **Consequences:** documentation fix, no behavior change → no OpenSpec change and no `[@test]`. Rule applied: build files rule over docs. The unselected candidate (README says "Gradle 9.6" vs wrapper `9.6.1`) was left as is by decision.
 - **Refs:** `README.md:35` · `gradle/libs.versions.toml:7` · `app/build.gradle.kts:41`
+
+## [2026-10-16] openspec 1.14 flags bare custom keys — `x-` prefix adopted, gate accepts both
+
+- **Context:** Creating the first change (`session-based-metrics`), `openspec validate --strict` failed: the custom `.openspec.yaml` keys (`kind`, `targets`, `tests`, `deps`, `gitref`, …) are flagged as unrecognized; openspec recommends the `x-<key>` form. The Spec Growth scripts (v0.8 assets) read only the bare keys.
+- **Decision:** adopt `x-<key>` as the canonical form in `.openspec.yaml` and patch the gate to accept both: `scripts/gates/lib.mjs` (readChange normalizes `x-` → bare) and `scripts/gates/compact-archive.mjs` (kindOf matches `x-kind`). `AGENTS.md` rule 2, the `spec-anchored` schema instruction and the `spec-add` command updated to match.
+- **Consequences:** `openspec validate --all --strict` passes clean while the gate keeps working. This is a documented divergence from the skill's stock scripts: if a future skill update ships native `x-` support, resync the scripts.
+- **Refs:** `openspec/changes/session-based-metrics/.openspec.yaml` · `scripts/gates/lib.mjs` · `scripts/gates/compact-archive.mjs` · `AGENTS.md` · `openspec/schemas/spec-anchored/schema.yaml`
