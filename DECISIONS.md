@@ -122,6 +122,13 @@
 - **Consequences:** No mid-apply destrabe when the arrow is applied; `app-settings` waits for it (dep warnings until then). The chain reads: `ranking-exclusions → detail-back-arrow → app-settings → app-entry-gate`.
 - **Refs:** `openspec/changes/detail-back-arrow/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`) · DECISIONS.md [2026-10-16 Ordering: `app-entry-gate` queued behind the whole draft chain]
 
+## [2026-10-16] Change approved: `detail-back-arrow`
+
+- **Context:** Created from the `/spec-verify` finding the user reported: the detail screen has no visible way back (system back verified working with `KEYCODE_BACK`; the affordance was missing). Small feature: a back arrow on the detail header wired to the same back action; ordering pre-declared (`app-settings` depends on it).
+- **Decision (human):** approved. Moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
+- **Consequences:** Its apply closes the user-reported gap; `app-settings` lands after it (declared dep). No conflict destrabes expected.
+- **Refs:** `openspec/changes/detail-back-arrow/.openspec.yaml` · `openspec/changes/detail-back-arrow/proposal.md`
+
 ## [2026-10-16] Change approved: `ranking-exclusions`
 
 - **Context:** Created on 2026-10-16 as a draft: long-press on a ranking row excludes the app from the ranking (its time keeps counting in the total and the hourly chart), with an **Undo** snackbar and a persisted list (DataStore Preferences — management lives in the `app-settings` change per the scope decision). Its dep (`app-usage-detail`) is archived.
