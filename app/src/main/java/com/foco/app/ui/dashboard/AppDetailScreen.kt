@@ -63,7 +63,7 @@ fun AppDetailScreen(packageName: String) {
     val selectedDate = days[selectedIndex]
     LaunchedEffect(packageName, selectedDate) {
         sessions = null
-        sessions = withContext(Dispatchers.IO) { repository.loadDay(selectedDate) }
+        sessions = withContext(Dispatchers.IO) { repository.loadDay(selectedDate).sessions }
     }
 
     val detail = remember(sessions, packageName) {
