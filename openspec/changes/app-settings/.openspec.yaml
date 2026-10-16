@@ -20,4 +20,5 @@ x-deps:
   - detail-back-arrow
   - detail-back-ux
   - unlock-counter
+  - layer-compliance
 x-gitref: 6127847

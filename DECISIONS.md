@@ -170,3 +170,24 @@
 - **Decision (human):** apply the full diff — `nav` (Navigation) and `storage` (Local store) become their own cap-tagged components; relationships updated, including `ui → platform` and `nav → platform`.
 - **Consequences:** `ARCHITECTURE.dsl` reflects reality as of today. Two code-side questions stay flagged (not silently decided): the direct `ui → platform` icon/label access and `AvailableDays.kt` (pure, but living in `data/`) — candidates for `/spec-verify` or `/spec-triage`. Re-sync after `app-settings` and `app-entry-gate` land.
 - **Refs:** `ARCHITECTURE.dsl` · `openspec/specs/code-structure/spec.md`
+
+## [2026-10-16] Triage: layer boundaries — `availableDays` and the platform adapters
+
+- **Context:** The `/diagram-sync` review flagged two silent discrepancies against `code-structure`. (1) `data/AvailableDays.kt:9` is pure (`java.time` only) but `data/` is defined as Android platform access; pure behavior belongs to `domain/`. (2) `ui/dashboard/AppIcon.kt:30` and `ui/dashboard/AppLabel.kt:18` call `PackageManager` raw from the UI; the spec was silent and the fresh diagram draws `ui → platform` (reality sync `4510657`).
+- **Decision (human):** (1) the spec is right → `availableDays` moves to `domain/` (with its caller and test; no behavior change). (2) route the icon/label platform reads through a `data/` adapter — the UI stops touching the platform directly. Both land in one `kind: refactor` change (`layer-compliance`) whose delta clarifies the two boundary SHALLs and whose structure test pins them.
+- **Consequences:** After the refactor, `ui` reaches the platform only through `data/`; the DSL's `ui → platform` edge gets re-checked at the next `/diagram-sync` (drawn as reality today; superseded by this fix). Regression proof: `DaySelectionTest` + the suite stay green.
+- **Refs:** `openspec/changes/layer-compliance/` · `ARCHITECTURE.dsl` · `openspec/specs/code-structure/spec.md`
+
+## [2026-10-16] Ordering: `app-settings` lands after `layer-compliance` (pre-declared)
+
+- **Context:** The triage-born refactor `layer-compliance` (`availableDays` → `domain/`; platform reads behind `data/` adapters) overlaps `app-settings` (`data/**`, `ui/**`, `test/**`). Per the A+ policy the order is pre-declared instead of resolved mid-apply.
+- **Decision:** `app-settings` adds `layer-compliance` to its `x-deps`; `app-entry-gate` follows transitively. *Proposed by the agent under the A+ policy, flagged in the same turn — reversible with a new entry if another order is preferred.*
+- **Consequences:** Chain: `layer-compliance → app-settings → app-entry-gate`. No mid-apply destrabes expected.
+- **Refs:** `openspec/changes/layer-compliance/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`)
+
+## [2026-10-16] Change approved: `layer-compliance`
+
+- **Context:** Created on 2026-10-16 from the `/diagram-sync` triage of the layer boundaries: `availableDays` (pure `java.time` math) moves out of `data/` into `domain/` with its caller and test, and the raw `PackageManager` icon/label reads in `AppIcon`/`AppLabel` move behind a context-scoped `data/` adapter (`AppPackageInfo`) — one `kind: refactor` change, zero behavior change. The structure test gains the two boundary tripwires; `DaySelectionTest` is the regression proof. Its ordering was pre-declared at the head of the chain (`app-settings` depends on it; `app-entry-gate` follows transitively). No deps, no protected zones.
+- **Decision (human):** approved ("layer-compliance approve"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`.
+- **Consequences:** Its apply heads the chain (`layer-compliance → app-settings → app-entry-gate`). Refactor proof: the suite stays green. The tech-brief comprehension sign-off remains for `/spec-verify` after the apply (the `walkthrough.md` is already written).
+- **Refs:** `openspec/changes/layer-compliance/.openspec.yaml` · `openspec/changes/layer-compliance/proposal.md` · `openspec/changes/layer-compliance/walkthrough.md`
