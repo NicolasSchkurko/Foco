@@ -100,3 +100,10 @@
 - **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
 - **Consequences:** Its apply opens the chain (`ranking-exclusions` → `app-settings` land after it). Overlaps with `app-entry-gate` stay informational; the two findings.md items should be addressed during the apply.
 - **Refs:** `openspec/changes/app-usage-detail/.openspec.yaml` · `openspec/changes/app-usage-detail/findings.md`
+
+## [2026-10-16] Ordering: `app-entry-gate` depends on `app-usage-detail`
+
+- **Context:** Starting the apply of `app-usage-detail` (status → `applying`) escalated the gate to 2 overlap errors with `app-entry-gate` (draft): they collide on `App.kt` and `app/src/androidTest/**`, with no dependency between them (`app-entry-gate` had been declared independent).
+- **Decision (human):** option A — `app-entry-gate` adds `app-usage-detail` to its `x-deps`. Rationale: `app-usage-detail` is applied now, so "it first, `app-entry-gate` after" is a fact; the dep is satisfied when it reaches `verified`. Same pattern as the two earlier ordering decisions (`dashboard-auto-refresh`, `layered-structure`).
+- **Consequences:** The overlaps report as "sequenced by deps" warnings and the gate stays green during the apply. The whole in-flight queue is now ordered behind `app-usage-detail`.
+- **Refs:** `openspec/changes/app-entry-gate/.openspec.yaml` (`x-deps`) · `openspec/changes/app-usage-detail/.openspec.yaml` · DECISIONS.md [2026-10-16 Ordering: `app-usage-detail` depends on `layered-structure`]

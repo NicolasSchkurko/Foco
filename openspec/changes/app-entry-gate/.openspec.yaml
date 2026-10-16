@@ -8,5 +8,6 @@ x-targets:
 x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppEntryGateTest.kt
   - app/src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt
-x-deps: []
+x-deps:
+  - app-usage-detail
 x-gitref: 6127847
