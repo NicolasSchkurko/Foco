@@ -34,7 +34,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.UsageRepository
-import com.foco.app.model.UsageSession
+import com.foco.app.model.day.DayData
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.metrics.deriveDayMetrics
 import java.time.ZoneId
@@ -47,31 +47,31 @@ import kotlinx.coroutines.withContext
 const val DEFAULT_REFRESH_INTERVAL_MILLIS = 30_000L
 
 /**
- * Dashboard del día: total, actividad por hora y ranking de apps.
+ * Dashboard del día: total, actividad por hora, ranking de apps y desbloqueos.
  *
- * Carga las sesiones del día y deriva las métricas en la capa de UI (funciones
- * puras en `ui/metrics/`). Los datos se actualizan solos: al mostrarse y cada
- * [refreshIntervalMillis] mientras la app está en primer plano.
+ * Carga los datos del día (sesiones + marcas de desbloqueo) y deriva las métricas
+ * en la capa de UI (funciones puras en `ui/metrics/`). Los datos se actualizan solos:
+ * al mostrarse y cada [refreshIntervalMillis] mientras la app está en primer plano.
  *
  * @param refreshIntervalMillis intervalo entre refrescos periódicos (los tests inyectan intervalos cortos).
- * @param loadSessions seam de tests: si es null, se usa el repositorio real.
+ * @param loadDay seam de tests: si es null, se usa el repositorio real.
  */
 @Composable
 fun DashboardScreen(
     refreshIntervalMillis: Long = DEFAULT_REFRESH_INTERVAL_MILLIS,
-    loadSessions: (suspend () -> List<UsageSession>)? = null,
+    loadDay: (suspend () -> DayData)? = null,
     onAppClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
-    val load by rememberUpdatedState(loadSessions ?: { repository.loadToday() })
+    val load by rememberUpdatedState(loadDay ?: { repository.loadToday() })
 
     val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
     var excludedPackages by remember { mutableStateOf(emptySet<String>()) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
+    var day by remember { mutableStateOf<DayData?>(null) }
 
     // repeatOnLifecycle: el ciclo corre solo mientras la pantalla está RESUMED —
     // se relanza al volver a primer plano (refresco automático en cada vuelta)
@@ -80,7 +80,7 @@ fun DashboardScreen(
     LaunchedEffect(lifecycleOwner, refreshIntervalMillis) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             while (true) {
-                sessions = withContext(Dispatchers.IO) { load() }
+                day = withContext(Dispatchers.IO) { load() }
                 delay(refreshIntervalMillis)
             }
         }
@@ -104,9 +104,9 @@ fun DashboardScreen(
         }
     }
 
-    // Derivación memoizada: se recalcula cuando cambian las sesiones o las exclusiones.
-    val metrics = remember(sessions, excludedPackages) {
-        sessions?.let { deriveDayMetrics(it, ZoneId.systemDefault(), excludedPackages) }
+    // Derivación memoizada: se recalcula cuando cambian los datos o las exclusiones.
+    val metrics = remember(day, excludedPackages) {
+        day?.let { deriveDayMetrics(it.sessions, ZoneId.systemDefault(), excludedPackages) }
     }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
@@ -120,10 +120,13 @@ fun DashboardScreen(
 
             Column {
                 Text("Hoy", style = MaterialTheme.typography.headlineMedium)
+                val currentDay = day
                 Text(
-                    text = metrics
-                        ?.let { "Uso en pantalla: ${formatDuration(it.totalMillis)}" }
-                        ?: "Cargando…",
+                    text = metrics?.let { m ->
+                        val unlocks = currentDay?.unlockTimes?.size ?: 0
+                        val unlockLabel = if (unlocks == 1) "desbloqueo" else "desbloqueos"
+                        "Uso en pantalla: ${formatDuration(m.totalMillis)} · $unlocks $unlockLabel"
+                    } ?: "Cargando…",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

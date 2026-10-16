@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-tech_brief: true
@@ -17,4 +17,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
 x-deps:
   - detail-back-ux
-x-gitref: b4f940e
+x-gitref: fee0b48

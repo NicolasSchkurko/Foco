@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.foco.app.model.day.DayData
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -29,9 +30,9 @@ class DashboardRefreshTest {
         composeRule.setContent {
             DashboardScreen(
                 refreshIntervalMillis = refreshIntervalMillis,
-                loadSessions = {
+                loadDay = {
                     loads.incrementAndGet()
-                    emptyList()
+                    DayData(sessions = emptyList(), unlockTimes = emptyList())
                 }
             )
         }
