@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
-x-status: draft
+x-status: accepted
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-16
 x-targets:
   - app/src/main/java/com/foco/app/ui/**
   - app/src/androidTest/**

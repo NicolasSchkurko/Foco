@@ -41,27 +41,38 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import com.foco.app.data.AppUsageEntry
-import com.foco.app.data.DayUsage
 import com.foco.app.data.UsageRepository
+import com.foco.app.data.UsageSession
+import com.foco.app.ui.metrics.AppUsageEntry
+import com.foco.app.ui.metrics.DayMetrics
+import com.foco.app.ui.metrics.deriveDayMetrics
+import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
  * Dashboard del día: total, actividad por hora y ranking de apps.
+ *
+ * Carga las sesiones del día desde el repositorio y deriva las métricas
+ * en la capa de UI (funciones puras en `ui/metrics/`).
  */
 @Composable
 fun DashboardScreen() {
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
     var refreshKey by remember { mutableIntStateOf(0) }
-    var usage by remember { mutableStateOf<DayUsage?>(null) }
+    var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
     var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(refreshKey) {
         loading = true
-        usage = withContext(Dispatchers.IO) { repository.loadToday() }
+        sessions = withContext(Dispatchers.IO) { repository.loadToday() }
         loading = false
+    }
+
+    // Derivación memoizada: se recalcula solo cuando cambia la lista de sesiones.
+    val metrics = remember(sessions) {
+        sessions?.let { deriveDayMetrics(it, ZoneId.systemDefault()) }
     }
 
     Scaffold { innerPadding ->
@@ -80,7 +91,7 @@ fun DashboardScreen() {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Hoy", style = MaterialTheme.typography.headlineMedium)
                     Text(
-                        text = usage
+                        text = metrics
                             ?.let { "Uso en pantalla: ${formatDuration(it.totalMillis)}" }
                             ?: "Cargando…",
                         style = MaterialTheme.typography.bodyMedium,
@@ -94,7 +105,7 @@ fun DashboardScreen() {
 
             Spacer(Modifier.height(20.dp))
 
-            val current = usage
+            val current = metrics
             when {
                 loading && current == null -> Box(
                     modifier = Modifier
@@ -141,7 +152,7 @@ fun DashboardScreen() {
 
 /** Barras de uso por hora (00 a 23). */
 @Composable
-private fun HourChart(day: DayUsage) {
+private fun HourChart(day: DayMetrics) {
     Column {
         Text("Actividad por hora", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(12.dp))
@@ -201,7 +212,7 @@ private fun AppUsageRow(entry: AppUsageEntry, totalMillis: Long) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = entry.label,
+                text = appLabel(entry.packageName),
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1
             )
@@ -227,6 +238,21 @@ private fun AppUsageRow(entry: AppUsageEntry, totalMillis: Long) {
             )
         }
     }
+}
+
+/** Label de la app, resuelto fuera del hilo principal (los labels viven en la UI). */
+@Composable
+private fun appLabel(packageName: String): String {
+    val context = LocalContext.current
+    val label by produceState(initialValue = packageName, packageName) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                val pm = context.packageManager
+                pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
+            }.getOrDefault(packageName)
+        }
+    }
+    return label
 }
 
 /** Ícono de la app, cargado fuera del hilo principal. */

@@ -2,8 +2,7 @@ schema: spec-anchored
 
 # Project test command. Used by `gate-check --run-tests` to record real evidence.
 # Examples: "./gradlew test" (Linux/macOS) · "gradlew.bat test" (Windows) · "npm test" · "pytest -q"
-# (Pending: define once tests exist; with Gradle it would be "gradlew.bat test")
-# test_command: ""
+test_command: "gradlew.bat test"
 
 context: |
   Language: english

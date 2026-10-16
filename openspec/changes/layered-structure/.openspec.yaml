@@ -1,0 +1,16 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: architecture
+x-status: draft
+x-targets:
+  - app/src/**
+x-tests:
+  - app/src/test/java/com/foco/app/structure/OneTypePerFileTest.kt
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+  - app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt
+  - app/src/test/java/com/foco/app/domain/SessionFilterTest.kt
+  - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
+x-deps:
+  - session-based-metrics
+  - dashboard-auto-refresh
+x-gitref: 7396b6a
