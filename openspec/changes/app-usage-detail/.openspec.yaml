@@ -16,4 +16,5 @@ x-tests:
 x-deps:
   - session-based-metrics
   - dashboard-auto-refresh
+  - layered-structure
 x-gitref: 7396b6a

@@ -1,6 +1,6 @@
 name: spec-anchored
 version: 1
-description: Spec-anchored workflow - proposal → specs → design → tasks (metadata obligatoria kind/targets/tests; trazabilidad [@test])
+description: Spec-anchored workflow - proposal → specs → design → tasks (required metadata x-kind/x-targets/x-tests; [@test] traceability)
 artifacts:
   - id: proposal
     generates: proposal.md
@@ -44,9 +44,10 @@ artifacts:
       Keep it concise (1-2 pages). Focus on the "why" not the "how" -
       implementation details belong in design.md.
 
-      Complete `.openspec.yaml` with x-kind (fix|feature|architecture), x-targets,
+      Complete `.openspec.yaml` with x-kind (fix|feature|architecture|refactor), x-targets,
       x-tests, x-deps, x-gitref (the `x-` prefix keeps `openspec validate --strict`
-      clean; the gate reads both forms).
+      clean; the gate reads both forms). Add x-waivers, x-open_decisions, x-conflicts
+      and x-human_approved only when they apply.
 
       This is the foundation - specs, design, and tasks all build on this.
     requires: []

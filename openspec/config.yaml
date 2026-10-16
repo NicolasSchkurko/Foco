@@ -14,7 +14,7 @@ context: |
 
 rules:
   proposal:
-    - Declare kind (fix|feature|architecture), targets, tests and deps in .openspec.yaml
+    - Declare kind (fix|feature|architecture|refactor), targets, tests and deps in .openspec.yaml
     - "Short: why and what. The how goes in design.md, only if kind=architecture"
   specs:
     - Requirements in SHALL; concrete WHEN/THEN scenarios
