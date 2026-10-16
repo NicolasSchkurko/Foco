@@ -24,11 +24,11 @@ Stack: **Kotlin + Jetpack Compose**. Todo local, sin cuentas ni servidores.
 ## Cómo abrirlo y correrlo
 
 1. Android Studio → **Open** → seleccioná esta carpeta (`Foco`).
-2. Esperá el primer *sync* de Gradle (descarga Gradle 8.9 y las dependencias; la primera vez tarda).
+2. Esperá el primer *sync* de Gradle (descarga Gradle 9.6 y las dependencias; la primera vez tarda).
 3. Conectá el teléfono por USB y aceptá "Permitir depuración USB" cuando aparezca.
 4. Presioná **Run ▶**.
 
-> Si Android Studio ofrece "Upgrade AGP/Kotlin", podés posponerlo: el proyecto compila tal como está.
+> El proyecto ya usa la misma pila que trae Android Studio 2026.2: AGP 9.4, Kotlin 2.4 (incorporado), Gradle 9.6 y Compose BOM 2026.09. No deberías ver pedidos de "Upgrade".
 
 ## Primer uso
 

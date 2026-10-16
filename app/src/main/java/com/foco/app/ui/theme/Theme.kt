@@ -1,4 +1,4 @@
-package com.foco.app.ui
+package com.foco.app.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

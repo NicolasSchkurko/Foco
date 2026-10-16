@@ -1,10 +1,10 @@
 [versions]
-agp = "8.7.3"
-kotlin = "2.0.21"
+agp = "9.4.0"
+kotlin = "2.4.21"
 coreKtx = "1.15.0"
 lifecycle = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.10.01"
+composeBom = "2026.06.01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -20,5 +20,6 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+# AGP 9 trae Kotlin incorporado: NO se usa org.jetbrains.kotlin.android.
+# Solo se aplica el plugin del compilador de Compose.
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

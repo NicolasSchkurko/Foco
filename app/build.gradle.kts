@@ -1,17 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    // Kotlin viene incorporado en AGP 9; solo aplicamos el compilador de Compose.
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.foco.app"
-    compileSdk = 35
+    // Android 16 (API 36) estable. Compose 1.12+ exige 37, aún no estable.
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.foco.app"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
     }
@@ -29,10 +30,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
