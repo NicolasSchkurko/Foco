@@ -51,3 +51,17 @@
 - **Decision (human):** (1) In the repo's `gate-check.mjs`, an overlap between two changes with a declared `deps` in either direction is reported as a warning ("secuenciado por dep"), not an error; the ordering guarantee stays with check 13 (a change cannot reach `verified` while its dep is not verified/archived). (2) The target-existence check strips everything from the first `*` before `existsSync`; patterns starting with `*` are skipped as uncheckable.
 - **Consequences:** Overlaps without a declared dep still error while work is active. Only the repo copy changes; the skill's global asset remains v0.8 — resync if upstream adopts an equivalent fix.
 - **Refs:** `scripts/gates/gate-check.mjs` · `openspec/changes/dashboard-auto-refresh/.openspec.yaml` (`x-deps`) · `openspec/changes/session-based-metrics/.openspec.yaml` (`x-targets`)
+
+## [2026-10-16] Change approved: `dashboard-auto-refresh`
+
+- **Context:** Created on 2026-10-16, `dashboard-auto-refresh` (feature: fresh dashboard data on every app open — reload on return to foreground, periodic refresh while visible, manual "Actualizar" button removed) awaited human approval to leave `draft`.
+- **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
+- **Consequences:** Applying it requires its `x-deps` (`session-based-metrics`) archived or verified — it is already `verified` (archive pending). Overlaps with `layered-structure` and `app-usage-detail` stay informational (no ordering declared; whichever applies second adapts).
+- **Refs:** `openspec/changes/dashboard-auto-refresh/.openspec.yaml` · `openspec/changes/dashboard-auto-refresh/proposal.md`
+
+## [2026-10-16] Ordering: the other drafts depend on `dashboard-auto-refresh`
+
+- **Context:** Starting the apply of `dashboard-auto-refresh` (status → `applying`) escalated the gate to **15 overlap errors**: its targets (`ui/**`, `app/src/androidTest/**`, `app/build.gradle.kts`, `gradle/libs.versions.toml`) collide with the two live drafts (`layered-structure`, `app-usage-detail`), which had been declared independent of each other and of it. The escalation rule — any overlap with an `applying` change is an error unless sequenced by a declared dep — is by design.
+- **Decision (human):** option A — the drafts declare the dependency on the change that goes first: `layered-structure` and `app-usage-detail` add `dashboard-auto-refresh` to their `x-deps` (alongside `session-based-metrics`). Rationale: `dashboard-auto-refresh` is applied now, so "it first, the others after" is a fact; the dep is satisfied as soon as it reaches `verified` (archive not required by the gate).
+- **Consequences:** Their overlaps with it report as warnings ("secuenciado por dep") and the gate stays green during the apply. No rule weakening: the repo gate keeps its current semantics. If the human later wants to apply `layered-structure` or `app-usage-detail` before `dashboard-auto-refresh` finishes, these deps must be revisited (new decision, append-only).
+- **Refs:** `openspec/changes/layered-structure/.openspec.yaml` (`x-deps`) · `openspec/changes/app-usage-detail/.openspec.yaml` (`x-deps`) · `openspec/changes/dashboard-auto-refresh/.openspec.yaml`
