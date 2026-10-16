@@ -50,9 +50,18 @@ cannot silently rot again.
 
 Answer in your own words (the agent must not fill these):
 
-1. Where do pure helpers live, where did `availableDays` live before — and why did it move? — TODO(human)
-2. If someone calls `packageManager.getApplicationIcon(...)` straight from a composable again, what catches it — and what is that net's limit? — TODO(human)
-3. To add a new platform read used by the dashboard, which files/functions do you touch? — TODO(human)
+1. Where do pure helpers live, where did `availableDays` live before — and why did it move?
+   > antes estaba en data ahora lo movimos a domain ya que cumple con una funcion de dominio
+   >
+   > — the human, 2026-10-16
+2. If someone calls `packageManager.getApplicationIcon(...)` straight from a composable again, what catches it — and what is that net's limit?
+   > LayerRulesTest lo atrapa y la red tiene un limite ya que solo atrapa 4 formas literales
+   >
+   > — the human, 2026-10-16
+3. To add a new platform read used by the dashboard, which files/functions do you touch?
+   > en data apppackage info y usage repository y despues en ui
+   >
+   > — the human, 2026-10-16
 
 When satisfied, the sign-off is recorded in `/spec-verify` (`understood_by` + `understood_at` in
 `.openspec.yaml`).
