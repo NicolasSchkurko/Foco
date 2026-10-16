@@ -11,7 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.foco.app.data.UsageAccess
-import com.foco.app.ui.dashboard.DashboardScreen
 import com.foco.app.ui.onboarding.OnboardingScreen
 
 /**
@@ -35,7 +34,7 @@ fun App() {
     }
 
     if (hasUsageAccess) {
-        DashboardScreen()
+        FocoNavHost()
     } else {
         OnboardingScreen()
     }

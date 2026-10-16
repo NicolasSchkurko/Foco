@@ -2,7 +2,7 @@
 
 ## Why
 
-The ranking rows do nothing when tapped (`DashboardScreen.kt:191-230`). The user wants to open one app and understand *when* its time was spent — an hourly breakdown plus the day's details — and to move across recent days.
+The ranking rows do nothing when tapped (`app/src/main/java/com/foco/app/ui/dashboard/AppUsageRow.kt`). The user wants to open one app and understand *when* its time was spent — an hourly breakdown plus the day's details — and to move across recent days.
 
 ## What Changes
 
@@ -42,6 +42,6 @@ Understand the *when* of one app: the detail shows which hours the day's usage f
 
 - `app/src/main/java/com/foco/app/ui/**` — clickable rows, detail screen (header, selector, chart reuse, summary, session list), NavHost wiring
 - `app/src/main/java/com/foco/app/data/**` — `loadDay(date)` + available-days window
-- `app/build.gradle.kts`, `gradle/libs.versions.toml` — `androidx.navigation:navigation-compose` (+ Compose UI test infra if `dashboard-auto-refresh` has not landed it yet)
+- `app/build.gradle.kts`, `gradle/libs.versions.toml` — `androidx.navigation:navigation-compose` (the Compose UI test infra already landed with `dashboard-auto-refresh`)
 - `app/src/test/**`, `app/src/androidTest/**` — detail metrics, day selection, navigation tests
 - Ordering: independent of `dashboard-auto-refresh` and `layered-structure` (human decision); `x-deps` only on `session-based-metrics`, the session primitive this builds on (already verified)
