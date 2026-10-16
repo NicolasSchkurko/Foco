@@ -1,0 +1,17 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: feature
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/ui/**
+  - app/src/main/java/com/foco/app/data/**
+  - app/src/test/**
+  - app/src/androidTest/**
+  - app/build.gradle.kts
+  - gradle/libs.versions.toml
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/ExcludedAppsTest.kt
+  - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
+x-deps:
+  - app-usage-detail
+x-gitref: 6127847

@@ -1,0 +1,19 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: feature
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/ui/**
+  - app/src/main/java/com/foco/app/data/**
+  - app/src/main/java/com/foco/app/MainActivity.kt
+  - app/src/main/res/**
+  - app/src/main/AndroidManifest.xml
+  - app/src/androidTest/**
+  - app/build.gradle.kts
+  - gradle/libs.versions.toml
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - app-usage-detail
+  - ranking-exclusions
+x-gitref: 6127847
