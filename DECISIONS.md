@@ -51,3 +51,11 @@
 - **Decision (human):** (1) In the repo's `gate-check.mjs`, an overlap between two changes with a declared `deps` in either direction is reported as a warning ("secuenciado por dep"), not an error; the ordering guarantee stays with check 13 (a change cannot reach `verified` while its dep is not verified/archived). (2) The target-existence check strips everything from the first `*` before `existsSync`; patterns starting with `*` are skipped as uncheckable.
 - **Consequences:** Overlaps without a declared dep still error while work is active. Only the repo copy changes; the skill's global asset remains v0.8 — resync if upstream adopts an equivalent fix.
 - **Refs:** `scripts/gates/gate-check.mjs` · `openspec/changes/dashboard-auto-refresh/.openspec.yaml` (`x-deps`) · `openspec/changes/session-based-metrics/.openspec.yaml` (`x-targets`)
+
+
+## [2026-10-16] Reversal: gate scripts follow upstream v0.9 (English)
+
+- **Context:** upstream Spec Growth now ships natively the two fixes this repo had patched locally (`x-` metadata support for OpenSpec 1.14 strict validation, and the glob-aware target-existence check), plus report-only `--scope`, conflicts, `refactor` kind and untracked-zone detection. The earlier decision "[2026-10-16] Repository docs moved to English" had left the gate scripts in Spanish; maintaining a divergent fork no longer has any benefit.
+- **Decision (human):** revert that part of the decision. `scripts/gates/*` are replaced by upstream v0.9 (English output, dependency-free). The `x-` divergence is not a divergence anymore.
+- **Consequences:** gate and BOARD messages print in English; future upstream updates apply to this repo without patching. Local resync flow stays: copy `assets/scripts/*` from the skill.
+- **Refs:** `scripts/gates/*` (commit 377e5bd) · `DECISIONS.md` [2026-10-16 docs to English] · [2026-10-16 x- prefix]
