@@ -1,6 +1,6 @@
 package com.foco.app.ui.dashboard
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,11 +20,16 @@ import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.AppUsageEntry
 
 @Composable
-fun AppUsageRow(entry: AppUsageEntry, totalMillis: Long, onClick: () -> Unit) {
+fun AppUsageRow(
+    entry: AppUsageEntry,
+    totalMillis: Long,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

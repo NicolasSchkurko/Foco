@@ -115,6 +115,13 @@
 - **Consequences:** `app-entry-gate` formally waits for the whole chain (dep warnings until each change is verified/archived). No further ordering destrabes are expected for the current queue.
 - **Refs:** `openspec/changes/app-entry-gate/.openspec.yaml` (`x-deps`) · `openspec/changes/ranking-exclusions/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml`
 
+## [2026-10-16] Ordering: `app-settings` lands after `detail-back-arrow` (pre-declared)
+
+- **Context:** `/spec-verify` surfaced a user report: the detail screen has no visible way back (`KEYCODE_BACK` works; the affordance is missing). The new small change `detail-back-arrow` touches `AppDetailScreen.kt` (inside `app-settings`'s `ui/**` target) and `androidTest/**`, so the two would collide when the arrow applies. Under the A+ policy ("kill the destrabes"), the ordering is **pre-declared** instead of resolved mid-apply.
+- **Decision:** `app-settings` adds `detail-back-arrow` to its `x-deps`; the arrow applies first (it is the direct response to the UX report). *Proposed by the agent under the A+ policy and flagged to the human in the same turn — reversible with a new entry if another order is preferred.*
+- **Consequences:** No mid-apply destrabe when the arrow is applied; `app-settings` waits for it (dep warnings until then). The chain reads: `ranking-exclusions → detail-back-arrow → app-settings → app-entry-gate`.
+- **Refs:** `openspec/changes/detail-back-arrow/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`) · DECISIONS.md [2026-10-16 Ordering: `app-entry-gate` queued behind the whole draft chain]
+
 ## [2026-10-16] Change approved: `ranking-exclusions`
 
 - **Context:** Created on 2026-10-16 as a draft: long-press on a ranking row excludes the app from the ranking (its time keeps counting in the total and the hourly chart), with an **Undo** snackbar and a persisted list (DataStore Preferences — management lives in the `app-settings` change per the scope decision). Its dep (`app-usage-detail`) is archived.

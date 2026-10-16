@@ -47,4 +47,18 @@ class UsageMetricsTest {
         assertEquals(40 * 60_000L, ranking[0].totalMillis)
         assertEquals(10 * 60_000L, ranking[1].totalMillis)
     }
+
+    @Test
+    fun `excluded apps leave the ranking but keep their time in totals`() {
+        val sessions = listOf(
+            UsageSession("app.a", at(9, 0), at(9, 40)),   // 40 min
+            UsageSession("app.b", at(10, 0), at(10, 10))  // 10 min
+        )
+
+        val metrics = deriveDayMetrics(sessions, zone, excludedPackages = setOf("app.a"))
+
+        assertEquals(listOf("app.b"), metrics.entries.map { it.packageName })
+        assertEquals(50 * 60_000L, metrics.totalMillis)
+        assertEquals(40 * 60_000L, metrics.hourly[9].millis)
+    }
 }

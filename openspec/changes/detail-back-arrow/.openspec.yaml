@@ -1,0 +1,11 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: feature
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/ui/dashboard/AppDetailScreen.kt
+  - app/src/androidTest/**
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+x-deps: []
+x-gitref: f0ceede
