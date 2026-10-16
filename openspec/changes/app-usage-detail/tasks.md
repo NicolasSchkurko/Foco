@@ -21,7 +21,7 @@
 ## 4. Integration
 
 - [x] 4.1 Device pass with real activity: the numbers, chart and session list match the raw sessions of the day; the selector moves to previous days and the empty state shows.
-- [ ] 4.2 Run the full gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`) and `gradlew.bat assembleDebug`; update `gitref` to the branch tip.
+- [x] 4.2 Run the full gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`) and `gradlew.bat assembleDebug`; update `gitref` to the branch tip.
 
 ## Workflow follow-up
 

@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
-x-status: applying
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-targets:
@@ -19,4 +19,4 @@ x-deps:
   - session-based-metrics
   - dashboard-auto-refresh
   - layered-structure
-x-gitref: 7396b6a
+x-gitref: bfd5ac8
