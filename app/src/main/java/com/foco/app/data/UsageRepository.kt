@@ -4,6 +4,11 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import com.foco.app.domain.buildSessions
+import com.foco.app.domain.filterSessions
+import com.foco.app.model.UsageEvent
+import com.foco.app.model.UsageEventType
+import com.foco.app.model.UsageSession
 import java.time.Instant
 import java.time.ZoneId
 

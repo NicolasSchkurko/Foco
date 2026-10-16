@@ -1,20 +1,8 @@
-package com.foco.app.data
+package com.foco.app.domain
 
-/** Sesión de uso de una app en primer plano: [start, end) inferido de eventos de resumen/parada. */
-data class UsageSession(
-    val packageName: String,
-    val start: Long,
-    val end: Long
-)
-
-/** Evento crudo de primer plano, mapeado desde los eventos del sistema. */
-data class UsageEvent(
-    val packageName: String,
-    val timestamp: Long,
-    val type: UsageEventType
-)
-
-enum class UsageEventType { RESUMED, STOPPED }
+import com.foco.app.model.UsageEvent
+import com.foco.app.model.UsageEventType
+import com.foco.app.model.UsageSession
 
 /**
  * Fold puro: construye las sesiones del día a partir de eventos resumen/parada.
@@ -63,13 +51,4 @@ fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
     }
 
     return sessions
-}
-
-/** Política pura: conserva solo las sesiones de paquetes permitidos, menos los excluidos. */
-fun filterSessions(
-    sessions: List<UsageSession>,
-    allowedPackages: Set<String>,
-    excludedPackages: Set<String>
-): List<UsageSession> = sessions.filter {
-    it.packageName in allowedPackages && it.packageName !in excludedPackages
 }

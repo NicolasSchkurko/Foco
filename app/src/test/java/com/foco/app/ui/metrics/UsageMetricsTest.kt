@@ -1,6 +1,6 @@
 package com.foco.app.ui.metrics
 
-import com.foco.app.data.UsageSession
+import com.foco.app.model.UsageSession
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
