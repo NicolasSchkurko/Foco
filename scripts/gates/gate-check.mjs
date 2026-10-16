@@ -110,9 +110,12 @@ for (const c of changes) {
       if (seen.has(k)) continue;
       seen.add(k);
       const msg = `overlap: '${a.raw}' (${a.c.id}, ${a.c.status}) y '${b.raw}' (${b.c.id}, ${b.c.status}) se solapan`;
+      // Un dep declarado (en cualquier dirección) secuencia los changes: el orden lo
+      // garantiza el check 13 (deps), así que el solape queda como warning, no como error.
+      const sequenced = a.c.deps.includes(b.c.id) || b.c.deps.includes(a.c.id);
       const active = a.c.status === "applying" || b.c.status === "applying";
-      if (active) err(msg, [a.c.id, b.c.id]);
-      else warn(msg, [a.c.id, b.c.id]);
+      if (active && !sequenced) err(msg, [a.c.id, b.c.id]);
+      else warn(sequenced ? `${msg} — secuenciado por dep` : msg, [a.c.id, b.c.id]);
     }
   }
 }
@@ -138,7 +141,10 @@ for (const c of changes) {
 for (const c of changes) {
   if (!["applying", "verified"].includes(c.status)) continue;
   for (const t of c.targets) {
-    if (!existsSync(normalize(join(root, t)))) warn(`${c.id}: target no existe en disco (¿renombrado?) → ${t}`, [c.id]);
+    // Globs ("dir/**", "src/*.kt"): chequear la base antes del primer comodín;
+    // un patrón que arranca con "*" no es chequeable (se omite).
+    const base = String(t).split("*")[0].replace(/[\\/]+$/, "");
+    if (base && !existsSync(normalize(join(root, base)))) warn(`${c.id}: target no existe en disco (¿renombrado?) → ${t}`, [c.id]);
   }
 }
 
