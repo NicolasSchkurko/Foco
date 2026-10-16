@@ -79,3 +79,10 @@
 - **Decision (human):** option A — download the API 36 (Android 16) system image and create a dedicated test AVD (`Medium_Phone_API_36.0`) instead of deferring the tests with a `deferred-test` waiver. Rationale: proper fix, consistent with the project's stable `compileSdk 36`, and instrumented testing stays viable going forward.
 - **Consequences:** Instrumented runs must target API ≤ 36 until Espresso supports API 37 (`Medium_Phone_API_36.0` is the repo's test AVD; noted in `dashboard-auto-refresh/tasks.md`). The API 37 AVD stays for manual smoke checks. All 4 instrumented tests pass on API 36.
 - **Refs:** `app/src/androidTest/java/com/foco/app/ui/DashboardRefreshTest.kt` · `openspec/changes/dashboard-auto-refresh/tasks.md`
+
+## [2026-10-16] Change approved: `layered-structure`
+
+- **Context:** Created on 2026-10-16 as a draft: four-layer source layout (`model/` · `domain/` · `data/` · `ui/`), one type per file enforced by structure tests, zero behavior change. Its deps (`session-based-metrics`, `dashboard-auto-refresh`) are archived. The semantic pass re-verified its premises against the current code (still exactly `data/Sessions.kt` and `ui/metrics/UsageMetrics.kt` break one-type-per-file; no findings).
+- **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
+- **Consequences:** Its apply is unblocked (deps archived). It overlaps `app-usage-detail` (both drafts, independent): whichever applies first, the second adapts. After its apply, `/diagram-sync` creates `ARCHITECTURE.dsl`, which does not exist yet.
+- **Refs:** `openspec/changes/layered-structure/.openspec.yaml` · `openspec/changes/layered-structure/design.md`
