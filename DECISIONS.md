@@ -184,3 +184,10 @@
 - **Decision:** `app-settings` adds `layer-compliance` to its `x-deps`; `app-entry-gate` follows transitively. *Proposed by the agent under the A+ policy, flagged in the same turn — reversible with a new entry if another order is preferred.*
 - **Consequences:** Chain: `layer-compliance → app-settings → app-entry-gate`. No mid-apply destrabes expected.
 - **Refs:** `openspec/changes/layer-compliance/.openspec.yaml` · `openspec/changes/app-settings/.openspec.yaml` (`x-deps`)
+
+## [2026-10-16] Change approved: `layer-compliance`
+
+- **Context:** Created on 2026-10-16 from the `/diagram-sync` triage of the layer boundaries: `availableDays` (pure `java.time` math) moves out of `data/` into `domain/` with its caller and test, and the raw `PackageManager` icon/label reads in `AppIcon`/`AppLabel` move behind a context-scoped `data/` adapter (`AppPackageInfo`) — one `kind: refactor` change, zero behavior change. The structure test gains the two boundary tripwires; `DaySelectionTest` is the regression proof. Its ordering was pre-declared at the head of the chain (`app-settings` depends on it; `app-entry-gate` follows transitively). No deps, no protected zones.
+- **Decision (human):** approved ("layer-compliance approve"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`.
+- **Consequences:** Its apply heads the chain (`layer-compliance → app-settings → app-entry-gate`). Refactor proof: the suite stays green. The tech-brief comprehension sign-off remains for `/spec-verify` after the apply (the `walkthrough.md` is already written).
+- **Refs:** `openspec/changes/layer-compliance/.openspec.yaml` · `openspec/changes/layer-compliance/proposal.md` · `openspec/changes/layer-compliance/walkthrough.md`
