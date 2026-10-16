@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Tema base solo para el arranque: toda la UI real la dibuja Compose (FocoTheme). -->
-    <style name="Theme.Foco" parent="android:Theme.DeviceDefault.DayNight.NoActionBar" />
+    <style name="Theme.Foco" parent="android:Theme.DeviceDefault.Light.NoActionBar" />
 </resources>
