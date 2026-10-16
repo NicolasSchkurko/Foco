@@ -12,7 +12,7 @@
 
 ## 3. Integration
 
-- [ ] 3.1 `gradlew.bat test` (JVM) + `assembleDebug` + the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref`.
+- [x] 3.1 `gradlew.bat test` (JVM) + `assembleDebug` + the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref`.
 
 ## Workflow follow-up
 
