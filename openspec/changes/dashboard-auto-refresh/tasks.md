@@ -15,7 +15,7 @@
 ## 3. Integration
 
 - [x] 3.1 Run the JVM suite (`gradlew.bat test`), the instrumented test, and the gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); verify all pass and report the instrumented result separately (the gate's `test_command` covers JVM only).
-- [ ] 3.2 On commit, update `x-gitref` in `.openspec.yaml` to the branch tip; verify it matches `git rev-parse --short HEAD`.
+- [x] 3.2 On commit, update `x-gitref` in `.openspec.yaml` to the branch tip; verify it matches `git rev-parse --short HEAD`.
 
 ## Workflow follow-up
 
