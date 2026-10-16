@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: feature
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/ui/**
+  - app/src/androidTest/**
+  - app/build.gradle.kts
+  - gradle/libs.versions.toml
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/DashboardRefreshTest.kt
+x-deps:
+  - session-based-metrics
+x-gitref: 8211f1b
