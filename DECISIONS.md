@@ -163,3 +163,10 @@
 - **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply` in its turn. No protected zones are involved.
 - **Consequences:** Its apply follows the `detail-back-ux` close-out (dep + overlap sequencing); `app-settings` and `app-entry-gate` stay queued transitively behind it.
 - **Refs:** `openspec/changes/unlock-counter/.openspec.yaml` · `openspec/changes/unlock-counter/walkthrough.md` · `openspec/changes/unlock-counter/proposal.md`
+
+## [2026-10-16] Diagram sync: `nav` and `storage` join the C4 model (reality sync)
+
+- **Context:** `/diagram-sync` (v1.2 background subagent) found real drift since the last diagram touch: Navigation Compose (`FocoNavHost`) and the `excluded_apps` DataStore were undocumented; `entry → data "Checks the permission"` was false (the gate lives in `ui/App.kt`); the UI resolves launcher icons/labels straight from `PackageManager` (undrawn); descriptions lacked the app-detail surface, day window and unlock count. The proposal was validated with Structurizr (parse OK; `cap:` tags check both ways).
+- **Decision (human):** apply the full diff — `nav` (Navigation) and `storage` (Local store) become their own cap-tagged components; relationships updated, including `ui → platform` and `nav → platform`.
+- **Consequences:** `ARCHITECTURE.dsl` reflects reality as of today. Two code-side questions stay flagged (not silently decided): the direct `ui → platform` icon/label access and `AvailableDays.kt` (pure, but living in `data/`) — candidates for `/spec-verify` or `/spec-triage`. Re-sync after `app-settings` and `app-entry-gate` land.
+- **Refs:** `ARCHITECTURE.dsl` · `openspec/specs/code-structure/spec.md`
