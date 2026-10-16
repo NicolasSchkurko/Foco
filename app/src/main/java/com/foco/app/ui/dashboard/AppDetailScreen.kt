@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -78,7 +81,10 @@ fun AppDetailScreen(packageName: String) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { backDispatcher?.onBackPressed() }) {
-                    Text("←", style = MaterialTheme.typography.titleLarge)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver"
+                    )
                 }
                 Spacer(Modifier.width(4.dp))
                 AppIcon(packageName = packageName)

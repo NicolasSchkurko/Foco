@@ -2,6 +2,7 @@ package com.foco.app.ui
 
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -62,7 +63,7 @@ class AppDetailNavigationTest {
     @Test
     fun tappingTheBackArrowReturnsToTheDashboard() {
         launchAndOpenDetail().use {
-            composeRule.onNodeWithText("←").performClick()
+            composeRule.onNodeWithContentDescription("Volver").performClick()
             composeRule.waitUntil(timeoutMillis = 10_000) {
                 composeRule.onAllNodesWithText("Hoy").fetchSemanticsNodes().isNotEmpty()
             }

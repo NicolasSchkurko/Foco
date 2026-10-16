@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: fix
-x-status: accepted
+x-status: applying
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-tech_brief: true
