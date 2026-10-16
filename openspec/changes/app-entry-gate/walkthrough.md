@@ -58,11 +58,20 @@ restoring `allow` on cleanup.
 Answer in your own words (the agent must not fill these):
 
 1. Why do the tests need BOTH a fake predicate and real `appops` shell commands — what does each
-   layer prove that the other cannot? — TODO(human)
+   layer prove that the other cannot?
+   > porque los reales son fragiles y los fakes no sabemos si el permiso real se lee correctamente.
+   >
+   > — the human, 2026-10-16
 2. Why can reinstalling the app suddenly show the onboarding even though "you granted the
-   permission yesterday"? — TODO(human)
-3. What would you look at first if the emulator shows the onboarding right after the tests ran? —
-   TODO(human)
+   permission yesterday"?
+   > porque se reinicia el permiso
+   >
+   > — the human, 2026-10-16
+3. What would you look at first if the emulator shows the onboarding right after the tests ran?
+   > el estado real del permiso en el emulador y si vemos que esta allow e igual salio onboarding
+   > revisamos el codigo
+   >
+   > — the human, 2026-10-16
 
 When satisfied, the sign-off is recorded in `/spec-verify` (`understood_by` + `understood_at` in
 `.openspec.yaml`).
