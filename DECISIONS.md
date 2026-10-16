@@ -149,3 +149,10 @@
 - **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
 - **Consequences:** Its apply heads the remaining chain (`app-settings` lands after it; `app-entry-gate` remains encoded behind `app-usage-detail`). It introduces the `datastore-preferences` dependency that `app-settings` reuses.
 - **Refs:** `openspec/changes/ranking-exclusions/.openspec.yaml` · `openspec/changes/ranking-exclusions/proposal.md`
+
+## [2026-10-16] Change approved: `detail-back-ux`
+
+- **Context:** Created on 2026-10-16 as a draft fix: on Android 16 (API 36) the predictive-back default left the detail's back **gesture** without a listener (key and visible control verified working; measured in `/spec-verify`). The fix declares `android:enableOnBackInvokedCallback="true"` and swaps the `←` glyph for the Material back icon with a `contentDescription`. Comprehension sign-off already recorded (walkthrough 3/3). Its ordering is pre-declared at the head of the chain.
+- **Decision (human):** approved ("detail-back-ux approve"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
+- **Consequences:** Its apply unblocks the queue (`unlock-counter` lands after it; `app-settings` and `app-entry-gate` follow transitively). The manifest flag becomes tripwire-pinned by `BackInvokedCallbackManifestTest`.
+- **Refs:** `openspec/changes/detail-back-ux/.openspec.yaml` · `openspec/changes/detail-back-ux/walkthrough.md` · `openspec/changes/detail-back-ux/proposal.md`

@@ -3,6 +3,8 @@ created: 2026-10-16
 x-kind: feature
 x-status: draft
 x-tech_brief: true
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-16
 x-targets:
   - app/src/main/java/com/foco/app/ui/App.kt
   - app/src/androidTest/**

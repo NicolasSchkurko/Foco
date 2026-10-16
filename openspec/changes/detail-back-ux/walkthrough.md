@@ -66,11 +66,20 @@ with a `contentDescription`, so the control is standard and accessible.
 Answer in your own words (the agent must not fill these):
 
 1. Why did the back gesture stop returning from the detail on Android 16 even though the app
-   code had not changed? — TODO(human)
-2. In one sentence: what does declaring `android:enableOnBackInvokedCallback="true"` change? —
-   TODO(human)
-3. If the gesture breaks again after a future update, what is the first thing you would check? —
-   TODO(human)
+   code had not changed?
+   > Basicamente android cambio el gesto de mirar atras a un callback nuevo que hay que declarar
+   > en el manifiesto como enable true, caso contrario el ir para atras no funciona.
+   >
+   > — the human, 2026-10-16
+2. In one sentence: what does declaring `android:enableOnBackInvokedCallback="true"` change?
+   > ok al declarar la bandera ahora el gesto entrega la accion al callback y el callback a la
+   > funcion de on back pressed dispatcher
+   >
+   > — the human, 2026-10-16
+3. If the gesture breaks again after a future update, what is the first thing you would check?
+   > Tanto el manifiesto como el como se handlea el callback en nuestro proyecto
+   >
+   > — the human, 2026-10-16
 
 When satisfied, the sign-off is recorded in `/spec-verify` (`understood_by` + `understood_at` in
 `.openspec.yaml`).

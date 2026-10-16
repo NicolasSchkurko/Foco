@@ -57,11 +57,24 @@ the 30-second periodic loop) and never runs extra background work.
 
 Answer in your own words (the agent must not fill these):
 
-1. Why does the unlock count not need any new permission or dependency? — TODO(human)
+1. Why does the unlock count not need any new permission or dependency?
+   > porque ya lo saca del mismo lugar donde saca la cantidad de horas en apps
+   >
+   > — the human, 2026-10-16
 2. On a phone with no lockscreen, what does the number actually count, and why is that considered
-   standard? — TODO(human)
+   standard?
+   > cuando la pantalla pasa de apagada a encendida
+   > claro porque si no hay keyguard entonces siempre esta hidden asi que hace el mismo callback
+   > que cuando desbloqueas en un celular con pantalla de bloqueo (donde el keyguard debe estar en
+   > show o algo asi) que cuando no tene pantalla de desbloqueo (automaticamente hidden)
+   >
+   > — the human, 2026-10-16
 3. If tomorrow the count shows 3× yesterday's usual numbers, what are the first two things you
-   would check? — TODO(human)
+   would check?
+   > si no tengo el pin de bloqueo y por eso me cuenta 3 veces cada vez que prende la pantalla
+   > o si cambo la logica de keyward hidden
+   >
+   > — the human, 2026-10-16
 
 When satisfied, the sign-off is recorded in `/spec-verify` (`understood_by` + `understood_at` in
 `.openspec.yaml`).
