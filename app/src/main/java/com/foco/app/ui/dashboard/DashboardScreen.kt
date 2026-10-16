@@ -13,12 +13,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.formatDuration
@@ -35,6 +40,7 @@ import com.foco.app.ui.metrics.deriveDayMetrics
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Intervalo entre refrescos automáticos mientras el dashboard está visible. */
@@ -60,6 +66,11 @@ fun DashboardScreen(
     val repository = remember { UsageRepository(context.applicationContext) }
     val load by rememberUpdatedState(loadSessions ?: { repository.loadToday() })
 
+    val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
+    var excludedPackages by remember { mutableStateOf(emptySet<String>()) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
 
     // repeatOnLifecycle: el ciclo corre solo mientras la pantalla está RESUMED —
@@ -75,12 +86,30 @@ fun DashboardScreen(
         }
     }
 
-    // Derivación memoizada: se recalcula solo cuando cambia la lista de sesiones.
-    val metrics = remember(sessions) {
-        sessions?.let { deriveDayMetrics(it, ZoneId.systemDefault()) }
+    // Exclusiones del usuario (persistidas): solo afectan al ranking.
+    LaunchedEffect(excludedStore) {
+        excludedStore.excludedPackages.collect { excludedPackages = it }
     }
 
-    Scaffold { innerPadding ->
+    val onExclude: (String) -> Unit = { packageName ->
+        scope.launch {
+            excludedStore.add(packageName)
+            val result = snackbarHostState.showSnackbar(
+                message = "Excluida de las estadísticas",
+                actionLabel = "Deshacer"
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                excludedStore.remove(packageName)
+            }
+        }
+    }
+
+    // Derivación memoizada: se recalcula cuando cambian las sesiones o las exclusiones.
+    val metrics = remember(sessions, excludedPackages) {
+        sessions?.let { deriveDayMetrics(it, ZoneId.systemDefault(), excludedPackages) }
+    }
+
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -140,7 +169,8 @@ fun DashboardScreen(
                             AppUsageRow(
                                 entry = entry,
                                 totalMillis = current.totalMillis,
-                                onClick = { onAppClick(entry.packageName) }
+                                onClick = { onAppClick(entry.packageName) },
+                                onLongClick = { onExclude(entry.packageName) }
                             )
                             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                         }

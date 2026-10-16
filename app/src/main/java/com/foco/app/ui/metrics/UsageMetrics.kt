@@ -9,9 +9,17 @@ import java.time.temporal.ChronoUnit
 fun dayTotal(sessions: List<UsageSession>): Long =
     sessions.sumOf { it.end - it.start }
 
-/** Ranking por app, ordenado por duración total descendente. */
-fun appRanking(sessions: List<UsageSession>): List<AppUsageEntry> =
+/**
+ * Ranking por app, ordenado por duración total descendente.
+ * [excludedPackages] (exclusiones del usuario) quedan fuera del ranking,
+ * pero su tiempo sigue contando en el total y en las horas.
+ */
+fun appRanking(
+    sessions: List<UsageSession>,
+    excludedPackages: Set<String> = emptySet()
+): List<AppUsageEntry> =
     sessions
+        .filter { it.packageName !in excludedPackages }
         .groupBy { it.packageName }
         .map { (packageName, list) ->
             AppUsageEntry(
@@ -39,9 +47,13 @@ fun hourlyDistribution(sessions: List<UsageSession>, zone: ZoneId): List<HourBuc
     return buckets.mapIndexed { hour, millis -> HourBucket(hour, millis) }
 }
 
-/** Métricas completas del día, a partir de la lista de sesiones. */
-fun deriveDayMetrics(sessions: List<UsageSession>, zone: ZoneId): DayMetrics = DayMetrics(
+/** Métricas completas del día; [excludedPackages] solo afecta al ranking. */
+fun deriveDayMetrics(
+    sessions: List<UsageSession>,
+    zone: ZoneId,
+    excludedPackages: Set<String> = emptySet()
+): DayMetrics = DayMetrics(
     totalMillis = dayTotal(sessions),
-    entries = appRanking(sessions),
+    entries = appRanking(sessions, excludedPackages),
     hourly = hourlyDistribution(sessions, zone)
 )
