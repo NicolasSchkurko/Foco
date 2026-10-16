@@ -93,3 +93,17 @@
 - **Decision (human):** option A — `app-usage-detail` adds `layered-structure` to its `x-deps` (alongside the already-archived `session-based-metrics` and `dashboard-auto-refresh`). Rationale: `layered-structure` is applied now, so "it first, `app-usage-detail` after" is a fact; the dep is satisfied when it reaches `verified`. Same pattern as the earlier `dashboard-auto-refresh` ordering decision.
 - **Consequences:** The overlaps report as "sequenced by deps" warnings and the gate stays green during the apply. `app-usage-detail` later lands on the four-layer layout (its findings.md already lists the housekeeping for its own apply).
 - **Refs:** `openspec/changes/app-usage-detail/.openspec.yaml` (`x-deps`) · `openspec/changes/layered-structure/.openspec.yaml` · DECISIONS.md [2026-10-16 Ordering: the other drafts depend on `dashboard-auto-refresh`]
+
+## [2026-10-16] Change approved: `app-usage-detail`
+
+- **Context:** Created on 2026-10-16: per-app detail screen (hourly breakdown, day summary, session list) with a ‹ day › selector within system retention, on Navigation Compose; head of the current chain (`ranking-exclusions` and `app-settings` depend on it). Its deps (`session-based-metrics`, `dashboard-auto-refresh`, `layered-structure`) are archived. The semantic pass left two low-impact housekeeping items in its `findings.md` (stale line ref; test infra already landed).
+- **Decision (human):** approved. The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`. No protected zones are involved.
+- **Consequences:** Its apply opens the chain (`ranking-exclusions` → `app-settings` land after it). Overlaps with `app-entry-gate` stay informational; the two findings.md items should be addressed during the apply.
+- **Refs:** `openspec/changes/app-usage-detail/.openspec.yaml` · `openspec/changes/app-usage-detail/findings.md`
+
+## [2026-10-16] Ordering: `app-entry-gate` depends on `app-usage-detail`
+
+- **Context:** Starting the apply of `app-usage-detail` (status → `applying`) escalated the gate to 2 overlap errors with `app-entry-gate` (draft): they collide on `App.kt` and `app/src/androidTest/**`, with no dependency between them (`app-entry-gate` had been declared independent).
+- **Decision (human):** option A — `app-entry-gate` adds `app-usage-detail` to its `x-deps`. Rationale: `app-usage-detail` is applied now, so "it first, `app-entry-gate` after" is a fact; the dep is satisfied when it reaches `verified`. Same pattern as the two earlier ordering decisions (`dashboard-auto-refresh`, `layered-structure`).
+- **Consequences:** The overlaps report as "sequenced by deps" warnings and the gate stays green during the apply. The whole in-flight queue is now ordered behind `app-usage-detail`.
+- **Refs:** `openspec/changes/app-entry-gate/.openspec.yaml` (`x-deps`) · `openspec/changes/app-usage-detail/.openspec.yaml` · DECISIONS.md [2026-10-16 Ordering: `app-usage-detail` depends on `layered-structure`]

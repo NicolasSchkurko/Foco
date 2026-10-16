@@ -1,0 +1,13 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: feature
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/ui/App.kt
+  - app/src/androidTest/**
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/AppEntryGateTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt
+x-deps:
+  - app-usage-detail
+x-gitref: 6127847
