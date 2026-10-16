@@ -8,9 +8,9 @@ workspace "Foco" "Personal Android app to track device usage per app — 100% lo
                 entry = component "Entry" "MainActivity: edge-to-edge window, theme and Compose entry point (App)."
                 nav = component "Navigation" "FocoNavHost: Navigation Compose routes (dashboard, detail/{packageName}); the usage-access gate stays outside it, in App." "" "cap:usage-tracking,cap:code-structure"
                 ui = component "UI" "Compose presentation: dashboard, app detail, onboarding, day selector, derived metrics, unlock count, formatting, theme." "" "cap:usage-tracking,cap:code-structure"
-                data = component "Data" "Platform adapters: UsageRepository (UsageStatsManager events + KEYGUARD_HIDDEN unlocks), UsageAccess (usage-access AppOp), availableDays (retention window)." "" "cap:usage-tracking,cap:code-structure"
-                storage = component "Local store" "Preferences DataStore 'excluded_apps' in app-private storage: the packages the user hid from the ranking." "" "cap:usage-tracking,cap:code-structure"
-                domain = component "Domain" "Pure behavior: session fold (buildSessions) and package filtering (filterSessions)." "" "cap:usage-tracking,cap:code-structure"
+                data = component "Data" "Platform adapters: UsageRepository (UsageStatsManager events + KEYGUARD_HIDDEN unlocks, launcher/home package visibility), UsageAccess (usage-access AppOp and the settings intent that opens it), AppPackageInfo (launcher icon and label reads)." "" "cap:usage-tracking,cap:code-structure"
+                storage = component "Local store" "Preferences DataStore 'excluded_apps' in app-private storage (key 'excluded_packages'): the packages the user hid from the ranking." "" "cap:usage-tracking,cap:code-structure"
+                domain = component "Domain" "Pure behavior: session fold (buildSessions), package filtering (filterSessions) and the offered-day window (availableDays)." "" "cap:usage-tracking,cap:code-structure"
                 model = component "Model" "Pure types: UsageSession, UsageEvent, UsageEventType, DayData (sessions + unlock times)." "" "cap:usage-tracking,cap:code-structure"
             }
         }
@@ -21,15 +21,16 @@ workspace "Foco" "Personal Android app to track device usage per app — 100% lo
 
         user -> app "Uses"
         entry -> ui "Hosts the Compose tree"
+        entry -> platform "Declared as the launcher activity: usage-access permission, launcher/home queries, predictive-back callback"
         ui -> nav "Routes through"
-        ui -> data "Loads the day's sessions and checks the usage-access permission"
+        ui -> data "Loads the day's sessions, icons and labels, the excluded packages; checks the usage-access permission"
+        ui -> domain "Offers the days inside the retention window"
         ui -> model "Renders"
+        ui -> storage "Reads and writes the packages hidden from the ranking"
         data -> domain "Folds and filters sessions"
         domain -> model "Produces"
-        data -> storage "Persists the excluded packages"
         data -> platform "Queries events, permission state and package visibility"
-        ui -> platform "Resolves launcher icons and labels"
-        nav -> platform "Relies on the system back invocation"
+        ui -> platform "Opens the system usage-access settings screen and dispatches the system back invocation"
     }
 
     views {

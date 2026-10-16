@@ -198,3 +198,10 @@
 - **Decision:** keep it as the convention: the walkthrough structure, mechanism and questions stay English; the human's answers are quoted verbatim, in whatever language they answered, attributed `— the human, <date>`; the agent never translates or paraphrases them (the sign-off evidence is the human's).
 - **Consequences:** Future `/spec-verify` runs follow the same format; the quoted answers are an explicit, scoped exception to the English rule for artifacts (`openspec/config.yaml` context) — everything else stays English.
 - **Refs:** `openspec/changes/layer-compliance/walkthrough.md` · `openspec/changes/app-entry-gate/walkthrough.md` · `openspec/config.yaml`
+
+## [2026-10-16] Diagram sync: `ARCHITECTURE.dsl` reconciled with `layer-compliance` (reality sync)
+
+- **Context:** `/diagram-sync` (background subagent) found the diagram still describing the pre-refactor structure: `data` listed `availableDays`, `domain` omitted it, `ui -> platform` was drawn as icon/label resolution, and stale edges remained (`data -> storage`, `nav -> platform`). The proposal was validated with Structurizr (parse OK; lint with no new class of finding).
+- **Decision (human):** apply the full diff ("si" to the proposal, including the optional store-key detail): `data` gains `AppPackageInfo`, `domain` gains `availableDays`; edges updated — added `ui -> domain`, `ui -> storage`, `entry -> platform`; removed `data -> storage`, `nav -> platform`; `ui -> platform` re-described (opens the usage-access settings screen and dispatches the back invocation).
+- **Consequences:** `ARCHITECTURE.dsl` reflects reality as of today and the `layer-compliance` finding is resolved. Capability tags unchanged (`usage-tracking`, `code-structure`); `cap:app-entry` / `cap:app-settings` are added only after those changes are archived — re-run `/diagram-sync` after each archive.
+- **Refs:** `ARCHITECTURE.dsl` · `openspec/changes/layer-compliance/findings.md` · `scripts/gates/gate-check.mjs` (cap-tags check)
