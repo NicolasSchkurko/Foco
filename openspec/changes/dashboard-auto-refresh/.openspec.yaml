@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-targets:
@@ -13,4 +13,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/DashboardRefreshTest.kt
 x-deps:
   - session-based-metrics
-x-gitref: 8211f1b
+x-gitref: 890254b
