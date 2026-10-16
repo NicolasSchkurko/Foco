@@ -1,5 +1,6 @@
 package com.foco.app.ui.dashboard
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun AppDetailScreen(packageName: String) {
     val context = LocalContext.current
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val repository = remember { UsageRepository(context.applicationContext) }
     val today = remember { LocalDate.now() }
     val days = remember(today) { availableDays(today) }
@@ -75,6 +77,10 @@ fun AppDetailScreen(packageName: String) {
             Spacer(Modifier.height(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { backDispatcher?.onBackPressed() }) {
+                    Text("←", style = MaterialTheme.typography.titleLarge)
+                }
+                Spacer(Modifier.width(4.dp))
                 AppIcon(packageName = packageName)
                 Spacer(Modifier.width(12.dp))
                 Column {
