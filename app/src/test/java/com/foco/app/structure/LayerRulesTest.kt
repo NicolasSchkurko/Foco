@@ -10,6 +10,8 @@ import org.junit.Test
  * 1. Every source lives in the folder that matches its package.
  * 2. `model/` and `domain/` do not import Android or Compose APIs.
  * 3. Dependencies only point downward: ui → data → domain → model.
+ * 4. `data/` is Android platform access: every file imports android/androidx.
+ * 5. `ui/` never reaches the platform raw — reads go through `data/` adapters.
  *
  * Scans `app/src/main/java` (Gradle runs unit tests with the module dir as cwd).
  * Root-package files (`com.foco.app`, e.g. the entry activity) are exempt from the
@@ -25,6 +27,13 @@ class LayerRulesTest {
         "domain" to setOf("data", "ui"),
         "data" to setOf("ui"),
         "ui" to emptySet<String>()
+    )
+    /** Raw platform calls forbidden in `ui/` (heuristic marker scan). */
+    private val rawPlatformMarkers = listOf(
+        "packageManager.",
+        "getSystemService(",
+        "queryEvents(",
+        "unsafeCheckOpNoThrow("
     )
 
     @Test
@@ -58,6 +67,18 @@ class LayerRulesTest {
                 if (layer == "model" || layer == "domain") {
                     imports.filter { frameworkImport.containsMatchIn(it) }
                         .forEach { violations += "$relative: pure layer '$layer' imports a framework API → $it" }
+                }
+
+                if (layer == "data" && imports.none { frameworkImport.containsMatchIn(it) }) {
+                    violations += "$relative: 'data' layer is Android platform access — a file without android/androidx imports belongs in 'domain/'"
+                }
+
+                if (layer == "ui") {
+                    rawPlatformMarkers.forEach { marker ->
+                        if (lines.any { marker in it }) {
+                            violations += "$relative: 'ui' layer reaches the platform raw ('$marker') — go through a 'data/' adapter"
+                        }
+                    }
                 }
 
                 val forbidden = forbiddenLayers[layer] ?: return@forEach

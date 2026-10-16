@@ -1,10 +1,12 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: refactor
-x-status: accepted
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-tech_brief: true
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-16
 x-targets:
   - app/src/main/java/com/foco/app/data/**
   - app/src/main/java/com/foco/app/domain/**
@@ -16,4 +18,4 @@ x-tests:
   - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
   - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
 x-deps: []
-x-gitref: 4510657
+x-gitref: 1193d5a

@@ -1,4 +1,4 @@
-package com.foco.app.data
+package com.foco.app.domain
 
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
