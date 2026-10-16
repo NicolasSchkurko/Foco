@@ -30,3 +30,10 @@
 - **Decision:** README, PLAN, AGENTS.md, DECISIONS.md, the OpenSpec config (`Language: english` — future artifacts in English) and the `spec-*` commands were translated to English. Kotlin code and gate scripts stay as they are (Spanish comments and output).
 - **Consequences:** New OpenSpec artifacts will be written in English. `BOARD.md` keeps generating Spanish section titles (produced by the gate scripts, left untouched by decision).
 - **Refs:** `README.md` · `PLAN.md` · `AGENTS.md` · `DECISIONS.md` · `openspec/config.yaml` · `.opencode/commands/`
+
+## [2026-10-16] Triage: README vs the real Compose BOM (2026.06.01)
+
+- **Context:** The README claimed "Compose BOM 2026.09" while the project resolves `composeBom = "2026.06.01"` through the version catalog (`gradle/libs.versions.toml:7` → `app/build.gradle.kts:41`). First triage of the repo — no living specs yet, so the discrepancy was between documentation and configuration.
+- **Decision (human):** the version catalog is the source of truth; the documentation was stale. The README is corrected to `2026.06` (the doc's own major.minor style).
+- **Consequences:** documentation fix, no behavior change → no OpenSpec change and no `[@test]`. Rule applied: build files rule over docs. The unselected candidate (README says "Gradle 9.6" vs wrapper `9.6.1`) was left as is by decision.
+- **Refs:** `README.md:35` · `gradle/libs.versions.toml:7` · `app/build.gradle.kts:41`

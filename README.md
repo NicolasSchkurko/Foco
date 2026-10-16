@@ -32,7 +32,7 @@ Stack: **Kotlin + Jetpack Compose**. Everything local — no accounts, no server
 3. Connect the phone via USB and accept "Allow USB debugging" when it appears.
 4. Press **Run ▶**.
 
-> The project already uses the same stack that ships with Android Studio 2026.2: AGP 9.4, Kotlin 2.4 (built-in), Gradle 9.6 and Compose BOM 2026.09. You should not see "Upgrade" requests.
+> The project already uses the same stack that ships with Android Studio 2026.2: AGP 9.4, Kotlin 2.4 (built-in), Gradle 9.6 and Compose BOM 2026.06. You should not see "Upgrade" requests.
 
 ## First use
 
