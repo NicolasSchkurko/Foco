@@ -205,3 +205,10 @@
 - **Decision (human):** apply the full diff ("si" to the proposal, including the optional store-key detail): `data` gains `AppPackageInfo`, `domain` gains `availableDays`; edges updated — added `ui -> domain`, `ui -> storage`, `entry -> platform`; removed `data -> storage`, `nav -> platform`; `ui -> platform` re-described (opens the usage-access settings screen and dispatches the back invocation).
 - **Consequences:** `ARCHITECTURE.dsl` reflects reality as of today and the `layer-compliance` finding is resolved. Capability tags unchanged (`usage-tracking`, `code-structure`); `cap:app-entry` / `cap:app-settings` are added only after those changes are archived — re-run `/diagram-sync` after each archive.
 - **Refs:** `ARCHITECTURE.dsl` · `openspec/changes/layer-compliance/findings.md` · `scripts/gates/gate-check.mjs` (cap-tags check)
+
+## [2026-10-16] Change approved: `app-settings`
+
+- **Context:** Created on 2026-10-16 as a draft feature: a Settings screen (gear in the dashboard) with language (Automático/ES/EN via the `appcompat` backport), appearance (Automático/Claro/Oscuro resolved in `FocoTheme`) and the excluded-apps manager (list + restore; management lives only here), persisted in the existing DataStore; the i18n baseline moves the hardcoded UI strings to resources. Its deps are all archived (`app-usage-detail`, `ranking-exclusions`, `detail-back-arrow`, `detail-back-ux`, `unlock-counter`, `layer-compliance`). No protected zones are involved.
+- **Decision (human):** approved ("approve app-settings"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`.
+- **Consequences:** It heads the remaining queue (`app-entry-gate` follows transitively, declared dep). Its tech-brief `walkthrough.md` is written during the apply and the comprehension sign-off happens in `/spec-verify` afterwards, before `--pre-archive`.
+- **Refs:** `openspec/changes/app-settings/.openspec.yaml` · `openspec/changes/app-settings/proposal.md` · `openspec/changes/app-settings/specs/app-settings/spec.md`
