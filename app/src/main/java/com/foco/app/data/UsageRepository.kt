@@ -10,6 +10,7 @@ import com.foco.app.model.UsageEvent
 import com.foco.app.model.UsageEventType
 import com.foco.app.model.UsageSession
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 
 /**
@@ -46,17 +47,25 @@ class UsageRepository(private val context: Context) {
         result
     }
 
-    /** Sesiones del día actual: eventos del sistema → fold puro → política pura. */
-    fun loadToday(now: Long = System.currentTimeMillis()): List<UsageSession> {
-        val zone = ZoneId.systemDefault()
-        val startOfDay = Instant.ofEpochMilli(now)
-            .atZone(zone)
-            .toLocalDate()
-            .atStartOfDay(zone)
-            .toInstant()
-            .toEpochMilli()
+    /** Sesiones del día actual. */
+    fun loadToday(now: Long = System.currentTimeMillis()): List<UsageSession> =
+        loadDay(
+            date = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate(),
+            now = now
+        )
 
-        val events = usageStats?.queryEvents(startOfDay, now) ?: return emptyList()
+    /**
+     * Sesiones de un día cualquiera: eventos del sistema → fold puro → política pura.
+     * Ventana `[inicio del día, min(fin del día, now)]`: para días pasados una sesión
+     * abierta se cierra al final del día; para hoy, en "ahora".
+     */
+    fun loadDay(date: LocalDate, now: Long = System.currentTimeMillis()): List<UsageSession> {
+        val zone = ZoneId.systemDefault()
+        val startOfDay = date.atStartOfDay(zone).toInstant().toEpochMilli()
+        val dayEndExclusive = date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+        val effectiveEnd = minOf(dayEndExclusive, now)
+
+        val events = usageStats?.queryEvents(startOfDay, effectiveEnd) ?: return emptyList()
 
         val rawEvents = mutableListOf<UsageEvent>()
         while (events.hasNextEvent()) {
@@ -75,7 +84,7 @@ class UsageRepository(private val context: Context) {
         }
 
         return filterSessions(
-            sessions = buildSessions(rawEvents, now),
+            sessions = buildSessions(rawEvents, now = effectiveEnd),
             allowedPackages = launchablePackages,
             excludedPackages = excludedPackages
         )

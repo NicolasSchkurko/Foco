@@ -53,7 +53,8 @@ const val DEFAULT_REFRESH_INTERVAL_MILLIS = 30_000L
 @Composable
 fun DashboardScreen(
     refreshIntervalMillis: Long = DEFAULT_REFRESH_INTERVAL_MILLIS,
-    loadSessions: (suspend () -> List<UsageSession>)? = null
+    loadSessions: (suspend () -> List<UsageSession>)? = null,
+    onAppClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
@@ -126,7 +127,7 @@ fun DashboardScreen(
                 }
 
                 else -> {
-                    HourChart(current)
+                    HourChart(current.hourly)
                     Spacer(Modifier.height(20.dp))
                     Text("Apps", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
@@ -136,7 +137,11 @@ fun DashboardScreen(
                             .weight(1f)
                     ) {
                         items(current.entries, key = { it.packageName }) { entry ->
-                            AppUsageRow(entry = entry, totalMillis = current.totalMillis)
+                            AppUsageRow(
+                                entry = entry,
+                                totalMillis = current.totalMillis,
+                                onClick = { onAppClick(entry.packageName) }
+                            )
                             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                         }
                     }

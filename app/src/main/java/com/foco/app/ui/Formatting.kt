@@ -1,6 +1,7 @@
 package com.foco.app.ui
 
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -17,3 +18,12 @@ private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 fun formatTimeOfDay(epochMillis: Long, zone: ZoneId = ZoneId.systemDefault()): String =
     Instant.ofEpochMilli(epochMillis).atZone(zone).format(timeFormatter)
+
+private val dayFormatter = DateTimeFormatter.ofPattern("EEE d MMM")
+
+/** "Hoy", "Ayer" o la fecha abreviada ("mié 14 oct" según el locale del dispositivo). */
+fun formatDayLabel(date: LocalDate, today: LocalDate): String = when (date) {
+    today -> "Hoy"
+    today.minusDays(1) -> "Ayer"
+    else -> dayFormatter.format(date)
+}

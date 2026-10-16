@@ -17,16 +17,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.foco.app.ui.metrics.DayMetrics
+import com.foco.app.ui.metrics.HourBucket
 
 /** Barras de uso por hora (00 a 23). */
 @Composable
-fun HourChart(day: DayMetrics) {
+fun HourChart(hourly: List<HourBucket>) {
     Column {
         Text("Actividad por hora", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(12.dp))
 
-        val maxMillis = day.hourly.maxOf { it.millis }.coerceAtLeast(1L)
+        val maxMillis = hourly.maxOf { it.millis }.coerceAtLeast(1L)
 
         Row(
             modifier = Modifier
@@ -35,7 +35,7 @@ fun HourChart(day: DayMetrics) {
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.Bottom
         ) {
-            day.hourly.forEach { bucket ->
+            hourly.forEach { bucket ->
                 val fraction = (bucket.millis.toFloat() / maxMillis).coerceIn(0f, 1f)
                 val minVisible = if (bucket.millis > 0) 0.04f else 0.015f
                 Box(
