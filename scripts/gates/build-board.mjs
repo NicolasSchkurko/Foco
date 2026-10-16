@@ -28,9 +28,26 @@ const TERMINAL = ["rejected", "superseded"];
 
 const parseErrors = [];
 const changes = lib.listChanges(root, parseErrors);
-const { archived, digests } = lib.listArchive(root);
+const { archived, digests, digestIds } = lib.listArchive(root);
 const cfg = lib.readConfig(root);
 const evidence = lib.readEvidence(root);
+
+// declared dependency graph (change -> deps); archived deps count as resolved
+const byIdAll = new Map(changes.map((c) => [c.id, c]));
+const restIdOf = (name) => String(name).replace(/^\d{4}-\d{2}-\d{2}-/, "");
+const depResolves = (dep) =>
+  archived.some((a) => restIdOf(a) === dep || restIdOf(a).endsWith("-" + dep)) || digestIds.includes(dep);
+const depNodes = new Set();
+const depEdges = [];
+for (const c of changes) {
+  for (const d of c.deps) {
+    const dep = String(d);
+    depNodes.add(c.id);
+    depNodes.add(dep);
+    const target = byIdAll.get(dep);
+    depEdges.push({ from: dep, to: c.id, verified: target ? target.status === "verified" : depResolves(dep) ? true : null });
+  }
+}
 
 // capabilities (living + deltas) — only for visible duplicates
 const caps = new Map();
@@ -143,14 +160,21 @@ function evidenceBadge(c) {
   const rec = evidence && evidence.changes ? evidence.changes[c.id] : null;
   const green = rec && rec.green_tests;
   if (!green) return "⚠ no green test evidence";
+  const list = [...c.targets, ...c.tests];
+  const fp = lib.targetsFingerprint(root, list);
+  if (green.files_hash && fp) {
+    return green.files_hash === fp
+      ? `✅ evidence ${fmt(green.at)} (tests)`
+      : `⚠ stale evidence (${fmt(green.at)}) — targets changed`;
+  }
   let maxTs = 0;
   let nul = 0;
-  for (const t of c.targets) {
+  for (const t of list) {
     const ts = lib.gitLastCommitTs(root, t);
     if (ts) maxTs = Math.max(maxTs, ts);
     else nul++;
   }
-  if (c.targets.length && nul === c.targets.length) return `⚠ evidence (${fmt(green.at)}) — freshness not verifiable`;
+  if (list.length && nul === list.length) return `⚠ evidence (${fmt(green.at)}) — freshness not verifiable`;
   if (maxTs && maxTs > Date.parse(green.at)) return `⚠ stale evidence (${fmt(green.at)})`;
   return `✅ evidence ${fmt(green.at)} (tests)`;
 }
@@ -199,6 +223,36 @@ if (invalid.length) {
 }
 md += `\n\n## Blocked / rejected\n\n`;
 md += blocked.length ? blocked.map((c) => line(c)).join("\n") : "_(empty)_";
+md += `\n\n## Dependency graph (declared deps)\n\n`;
+if (depNodes.size) {
+  const slug = (s) => String(s).replace(/[^A-Za-z0-9_]/g, "_");
+  md += "```mermaid\ngraph LR\n";
+  for (const id of [...depNodes].sort((a, b) => a.localeCompare(b))) {
+    const c = byIdAll.get(id);
+    const resolved = !c && depResolves(id);
+    const cls = c
+      ? ["draft", "accepted", "applying", "verified"].includes(c.status)
+        ? c.status
+        : "other"
+      : resolved
+        ? "archived"
+        : "other";
+    md += `  ${slug(id)}["${id}${c ? ` (${c.status})` : resolved ? " (archived)" : " (unknown)"}"]:::${cls}\n`;
+  }
+  for (const e of depEdges) {
+    const lbl = e.verified === false ? "|unverified|" : e.verified === null ? "|unknown|" : "";
+    md += `  ${slug(e.from)} -->${lbl} ${slug(e.to)}\n`;
+  }
+  md += "  classDef draft fill:#f2f2f2,stroke:#999,color:#333;\n";
+  md += "  classDef accepted fill:#fff8dd,stroke:#ccaa00,color:#333;\n";
+  md += "  classDef applying fill:#e8f0ff,stroke:#4477cc,color:#333;\n";
+  md += "  classDef verified fill:#e8ffe8,stroke:#33aa33,color:#333;\n";
+  md += "  classDef archived fill:#eef2f7,stroke:#8899aa,color:#333;\n";
+  md += "  classDef other fill:#ffe8e8,stroke:#cc4444,color:#333;\n";
+  md += "```";
+} else {
+  md += "_(no declared dependencies)_";
+}
 md += `\n\n## Archive\n\n- Archived changes: ${archived.length}`;
 if (digests.length) md += ` · digests: ${digests.join(", ")}`;
 md += "\n";
@@ -216,6 +270,7 @@ const board = {
     capabilities: [...caps.entries()].map(([id, providers]) => ({ id, providers })),
     duplicates: duplicates.map(([id, providers]) => ({ id, providers })),
   },
+  dependencies: depEdges,
   protected_zones: cfg.protectedZones,
   evidence: evidence
     ? { generated_at: evidence.generated_at, gate_ok: evidence.gate_ok !== false, mode: evidence.mode, tests: evidence.tests }
