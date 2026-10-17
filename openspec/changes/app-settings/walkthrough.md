@@ -79,11 +79,20 @@ strings moved from Kotlin literals to resources (default Spanish + `values-en`).
 Answer in your own words (the agent must not fill these):
 
 1. Where do the language and appearance choices live (file and keys), who reads them — and at
-   what moment is the language applied? — TODO(human)
+   what moment is the language applied?
+   > se guardan en data y despues setting store lo trae en el main activity y lo pone a disposicion
+   >
+   > — the human, 2026-10-16
 2. If that file is cleared or holds an unknown value, what does Foco show at startup, and
-   why? — TODO(human)
+   why?
+   > perfecto cae en el callback de languaje option o aparreance option retorna default
+   >
+   > — the human, 2026-10-16
 3. To add a new preference to Settings (say, a fourth option), which files and functions do
-   you touch? — TODO(human)
+   you touch?
+   > creo un option, settings store, settings screen
+   >
+   > — the human, 2026-10-16
 
 When satisfied, the sign-off is recorded in `/spec-verify` (`understood_by` + `understood_at` in
 `.openspec.yaml`).
