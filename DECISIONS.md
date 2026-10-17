@@ -212,3 +212,17 @@
 - **Decision (human):** approved ("approve app-settings"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`.
 - **Consequences:** It heads the remaining queue (`app-entry-gate` follows transitively, declared dep). Its tech-brief `walkthrough.md` is written during the apply and the comprehension sign-off happens in `/spec-verify` afterwards, before `--pre-archive`.
 - **Refs:** `openspec/changes/app-settings/.openspec.yaml` · `openspec/changes/app-settings/proposal.md` · `openspec/changes/app-settings/specs/app-settings/spec.md`
+
+## [2026-10-16] Change approved: `app-entry-gate`
+
+- **Context:** Created on 2026-10-16 as a draft: blind the permission gate (`App` checks the usage-access AppOp on first composition and on every `ON_RESUME`) behind a seam — `App(isUsageAccessGranted = { ... })` — plus the two instrumented test layers (deterministic fake-predicate seam + real-`appops` E2E on the API 36 AVD). The comprehension sign-off was already recorded (walkthrough 3/3, 2026-10-16). Its deps — `app-usage-detail`, `ranking-exclusions`, `app-settings` — are all archived. No protected zones are involved.
+- **Decision (human):** approved ("app-entry-gate"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply`.
+- **Consequences:** It heads the remaining queue; `structure-housekeeping`, `themed-window` and `back-arrow-inset` wait behind it (declared deps; their overlaps on `data/**`, `test/**` and `androidTest/**` stay sequenced as warnings). No further ordering destrabes are expected.
+- **Refs:** `openspec/changes/app-entry-gate/.openspec.yaml` · `openspec/changes/app-entry-gate/proposal.md` · `openspec/changes/app-entry-gate/walkthrough.md`
+
+## [2026-10-16] Change approved: `structure-housekeeping`
+
+- **Context:** Created on 2026-10-16 as a `refactor`: shared widgets (`AppIcon`/`appLabel`) move from `ui/dashboard` to `ui/common`, `AppDetailScreen` to `ui/detail`; language/appearance move to their own DataStore (`foco_settings`) with a one-shot idempotent migration from the legacy `excluded_apps` file; plus an expressivity pass (physical-resource headers, `add/remove` → `exclude/restore`, the cross-feature boundary pinned by `LayerRulesTest`). Regression: `SettingsMigrationTest` (JVM, temp-file stores) + the structure tests. Tech brief: yes (persistence split; walkthrough written during the apply). Its dep `app-entry-gate` is accepted and goes first.
+- **Decision (human):** approved ("approve structure-housekeeping"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply` behind `app-entry-gate`.
+- **Consequences:** Applying it requires `app-entry-gate` verified/archived first (declared dep; the `data/**`, `MainActivity.kt`, `test/**` and `androidTest/**` overlaps stay sequenced). The comprehension sign-off happens in `/spec-verify` after its apply (walkthrough covers the migration). `themed-window` and `back-arrow-inset` wait transitively behind it.
+- **Refs:** `openspec/changes/structure-housekeeping/.openspec.yaml` · `openspec/changes/structure-housekeeping/proposal.md` · `openspec/changes/structure-housekeeping/specs/code-structure/spec.md`
