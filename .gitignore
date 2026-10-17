@@ -15,3 +15,6 @@ captures/
 BOARD.md
 openspec/board.json
 openspec/evidence.json
+
+# Tooling lives outside the repo (workspace container); never re-track command copies
+.opencode/
