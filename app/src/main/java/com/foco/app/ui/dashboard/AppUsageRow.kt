@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
+import com.foco.app.ui.common.AppIcon
+import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.AppUsageEntry

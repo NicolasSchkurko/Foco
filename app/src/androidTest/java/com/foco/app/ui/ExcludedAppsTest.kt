@@ -58,7 +58,7 @@ class ExcludedAppsTest {
     @After
     fun cleanUp() {
         // No dejar exclusiones pegadas en el device.
-        runBlocking { ExcludedAppsStore(targetContext).remove(SETTINGS_PACKAGE) }
+        runBlocking { ExcludedAppsStore(targetContext).restore(SETTINGS_PACKAGE) }
     }
 
     @Test

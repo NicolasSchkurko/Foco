@@ -75,7 +75,7 @@ class SettingsScreenTest {
         runBlocking {
             SettingsStore(targetContext).setLanguage(LanguageOption.AUTO)
             SettingsStore(targetContext).setAppearance(AppearanceOption.AUTO)
-            ExcludedAppsStore(targetContext).remove(SETTINGS_PACKAGE)
+            ExcludedAppsStore(targetContext).restore(SETTINGS_PACKAGE)
         }
         AppLanguage.applyToSystem(LanguageOption.AUTO)
     }
@@ -174,7 +174,7 @@ class SettingsScreenTest {
 
     @Test
     fun excludedAppsAreListedAndRestored() {
-        runBlocking { ExcludedAppsStore(targetContext).add(SETTINGS_PACKAGE) }
+        runBlocking { ExcludedAppsStore(targetContext).exclude(SETTINGS_PACKAGE) }
 
         ActivityScenario.launch(MainActivity::class.java).use {
             ensureSettings(language = "en")

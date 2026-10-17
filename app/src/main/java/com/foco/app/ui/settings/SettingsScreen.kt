@@ -38,8 +38,8 @@ import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SettingsStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.model.LanguageOption
-import com.foco.app.ui.dashboard.AppIcon
-import com.foco.app.ui.dashboard.appLabel
+import com.foco.app.ui.common.AppIcon
+import com.foco.app.ui.common.appLabel
 import kotlinx.coroutines.launch
 
 /**
@@ -146,7 +146,7 @@ fun SettingsScreen() {
                             maxLines = 1,
                             modifier = Modifier.weight(1f)
                         )
-                        TextButton(onClick = { scope.launch { excludedStore.remove(packageName) } }) {
+                        TextButton(onClick = { scope.launch { excludedStore.restore(packageName) } }) {
                             Text(stringResource(R.string.settings_restore))
                         }
                     }
