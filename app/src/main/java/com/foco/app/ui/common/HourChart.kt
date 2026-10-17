@@ -1,4 +1,4 @@
-package com.foco.app.ui.dashboard
+package com.foco.app.ui.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

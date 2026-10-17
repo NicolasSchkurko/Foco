@@ -1,4 +1,4 @@
-package com.foco.app.ui.dashboard
+package com.foco.app.ui.detail
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +39,9 @@ import com.foco.app.R
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.availableDays
 import com.foco.app.model.UsageSession
+import com.foco.app.ui.common.AppIcon
+import com.foco.app.ui.common.HourChart
+import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay

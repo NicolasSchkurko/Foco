@@ -12,6 +12,7 @@ import org.junit.Test
  * 3. Dependencies only point downward: ui → data → domain → model.
  * 4. `data/` is Android platform access: every file imports android/androidx.
  * 5. `ui/` never reaches the platform raw — reads go through `data/` adapters.
+ * 6. UI features do not import each other; shared widgets live in `ui/common/`.
  *
  * Scans `app/src/main/java` (Gradle runs unit tests with the module dir as cwd).
  * Root-package files (`com.foco.app`, e.g. the entry activity) are exempt from the
@@ -35,6 +36,9 @@ class LayerRulesTest {
         "queryEvents(",
         "unsafeCheckOpNoThrow("
     )
+    /** Feature packages under `ui/`; imports between two of them are violations. */
+    private val uiFeatures = setOf("dashboard", "detail", "settings", "onboarding")
+    private val uiFeatureImport = Regex("""^import\s+com\.foco\.app\.ui\.(\w+)""")
 
     @Test
     fun packagesMatchFoldersPureLayersStayPureAndDependenciesPointDownward() {
@@ -77,6 +81,16 @@ class LayerRulesTest {
                     rawPlatformMarkers.forEach { marker ->
                         if (lines.any { marker in it }) {
                             violations += "$relative: 'ui' layer reaches the platform raw ('$marker') — go through a 'data/' adapter"
+                        }
+                    }
+
+                    val feature = declaredPackage.split('.').getOrNull(4)
+                    if (feature != null && feature in uiFeatures) {
+                        imports.forEach { line ->
+                            val target = uiFeatureImport.find(line)?.groupValues?.get(1)
+                            if (target != null && target in uiFeatures && target != feature) {
+                                violations += "$relative: ui feature '$feature' must not import '$target' — share through 'ui/common/'"
+                            }
                         }
                     }
                 }

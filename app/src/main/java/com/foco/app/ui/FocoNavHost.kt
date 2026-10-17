@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.foco.app.ui.dashboard.AppDetailScreen
+import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.dashboard.DashboardScreen
 import com.foco.app.ui.settings.SettingsScreen
 

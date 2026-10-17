@@ -43,6 +43,7 @@ import com.foco.app.R
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.model.day.DayData
+import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.metrics.deriveDayMetrics
 import java.time.ZoneId
@@ -106,13 +107,13 @@ fun DashboardScreen(
 
     val onExclude: (String) -> Unit = { packageName ->
         scope.launch {
-            excludedStore.add(packageName)
+            excludedStore.exclude(packageName)
             val result = snackbarHostState.showSnackbar(
                 message = snackbarExcluded,
                 actionLabel = undoLabel
             )
             if (result == SnackbarResult.ActionPerformed) {
-                excludedStore.remove(packageName)
+                excludedStore.restore(packageName)
             }
         }
     }

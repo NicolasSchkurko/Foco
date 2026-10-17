@@ -1,4 +1,4 @@
-package com.foco.app.ui.dashboard
+package com.foco.app.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
