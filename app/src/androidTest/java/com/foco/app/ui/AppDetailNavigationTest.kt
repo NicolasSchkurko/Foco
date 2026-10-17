@@ -9,6 +9,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
+import com.foco.app.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,13 +17,18 @@ import org.junit.runner.RunWith
 /**
  * Navegación al detalle: tocar una fila lo abre; el back del sistema vuelve;
  * y la flechita visible del detalle también vuelve. E2E: genera uso real
- * (Settings) antes de lanzar la app.
+ * (Settings) antes de lanzar la app. Los textos de la app se resuelven de
+ * recursos: el test no depende del idioma del device.
  */
 @RunWith(AndroidJUnit4::class)
 class AppDetailNavigationTest {
 
     @get:Rule
     val composeRule = createEmptyComposeRule()
+
+    private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+
+    private fun string(resId: Int): String = targetContext.resources.getString(resId)
 
     private fun shell(command: String) {
         InstrumentationRegistry.getInstrumentation()
@@ -45,7 +51,7 @@ class AppDetailNavigationTest {
         }
         composeRule.onNodeWithText("Settings").performClick()
         composeRule.waitUntil(timeoutMillis = 10_000) {
-            composeRule.onAllNodesWithText("Resumen").fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithText(string(R.string.detail_summary)).fetchSemanticsNodes().isNotEmpty()
         }
         return scenario
     }
@@ -55,7 +61,7 @@ class AppDetailNavigationTest {
         launchAndOpenDetail().use { scenario ->
             scenario.onActivity { activity -> activity.onBackPressedDispatcher.onBackPressed() }
             composeRule.waitUntil(timeoutMillis = 10_000) {
-                composeRule.onAllNodesWithText("Hoy").fetchSemanticsNodes().isNotEmpty()
+                composeRule.onAllNodesWithText(string(R.string.dashboard_title)).fetchSemanticsNodes().isNotEmpty()
             }
         }
     }
@@ -63,9 +69,9 @@ class AppDetailNavigationTest {
     @Test
     fun tappingTheBackArrowReturnsToTheDashboard() {
         launchAndOpenDetail().use {
-            composeRule.onNodeWithContentDescription("Volver").performClick()
+            composeRule.onNodeWithContentDescription(string(R.string.content_back)).performClick()
             composeRule.waitUntil(timeoutMillis = 10_000) {
-                composeRule.onAllNodesWithText("Hoy").fetchSemanticsNodes().isNotEmpty()
+                composeRule.onAllNodesWithText(string(R.string.dashboard_title)).fetchSemanticsNodes().isNotEmpty()
             }
         }
     }

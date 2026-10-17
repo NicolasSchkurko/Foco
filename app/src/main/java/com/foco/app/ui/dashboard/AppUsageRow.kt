@@ -14,7 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.foco.app.R
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.AppUsageEntry
@@ -58,7 +60,7 @@ fun AppUsageRow(
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "último: ${formatTimeOfDay(entry.lastUsedAt)}",
+                text = stringResource(R.string.row_last_used, formatTimeOfDay(entry.lastUsedAt)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

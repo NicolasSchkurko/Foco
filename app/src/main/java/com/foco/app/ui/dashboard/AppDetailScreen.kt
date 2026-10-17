@@ -32,8 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.foco.app.R
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.availableDays
 import com.foco.app.model.UsageSession
@@ -83,7 +85,7 @@ fun AppDetailScreen(packageName: String) {
                 IconButton(onClick = { backDispatcher?.onBackPressed() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver"
+                        contentDescription = stringResource(R.string.content_back)
                     )
                 }
                 Spacer(Modifier.width(4.dp))
@@ -96,8 +98,8 @@ fun AppDetailScreen(packageName: String) {
                         maxLines = 1
                     )
                     Text(
-                        text = detail?.let { "Uso del día: ${formatDuration(it.totalMillis)}" }
-                            ?: "Cargando…",
+                        text = detail?.let { stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis)) }
+                            ?: stringResource(R.string.loading),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -119,7 +121,12 @@ fun AppDetailScreen(packageName: String) {
                     Text("‹", style = MaterialTheme.typography.titleLarge)
                 }
                 Text(
-                    text = formatDayLabel(selectedDate, today),
+                    text = formatDayLabel(
+                        selectedDate,
+                        today,
+                        stringResource(R.string.day_today),
+                        stringResource(R.string.day_yesterday)
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.width(150.dp),
                     textAlign = TextAlign.Center
@@ -152,7 +159,7 @@ fun AppDetailScreen(packageName: String) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Sin actividad de esta app ese día.",
+                        text = stringResource(R.string.detail_empty),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -162,15 +169,18 @@ fun AppDetailScreen(packageName: String) {
                     HourChart(current.hourly)
                     Spacer(Modifier.height(16.dp))
 
-                    Text("Resumen", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(R.string.detail_summary),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     Spacer(Modifier.height(4.dp))
                     val summary = listOf(
-                        "Total" to formatDuration(current.totalMillis),
-                        "Sesiones" to current.sessionCount.toString(),
-                        "Primera" to formatTimeOfDay(current.firstStart),
-                        "Última" to formatTimeOfDay(current.lastEnd),
-                        "Promedio" to formatDuration(current.averageMillis),
-                        "Más larga" to formatDuration(current.longestMillis)
+                        stringResource(R.string.detail_total) to formatDuration(current.totalMillis),
+                        stringResource(R.string.detail_sessions) to current.sessionCount.toString(),
+                        stringResource(R.string.detail_first) to formatTimeOfDay(current.firstStart),
+                        stringResource(R.string.detail_last) to formatTimeOfDay(current.lastEnd),
+                        stringResource(R.string.detail_average) to formatDuration(current.averageMillis),
+                        stringResource(R.string.detail_longest) to formatDuration(current.longestMillis)
                     )
                     summary.forEach { (label, value) ->
                         Row(
@@ -189,7 +199,10 @@ fun AppDetailScreen(packageName: String) {
                     }
 
                     Spacer(Modifier.height(16.dp))
-                    Text("Sesiones", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(R.string.detail_sessions),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     Spacer(Modifier.height(4.dp))
                     LazyColumn(
                         modifier = Modifier

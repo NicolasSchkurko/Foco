@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.foco.app.ui.dashboard.AppDetailScreen
 import com.foco.app.ui.dashboard.DashboardScreen
+import com.foco.app.ui.settings.SettingsScreen
 
 /** Rutas de la app; el gate de permiso queda afuera, en `App`. */
 @Composable
@@ -17,8 +18,13 @@ fun FocoNavHost() {
     NavHost(navController = navController, startDestination = "dashboard") {
         composable("dashboard") {
             DashboardScreen(
-                onAppClick = { packageName -> navController.navigate("detail/$packageName") }
+                onAppClick = { packageName -> navController.navigate("detail/$packageName") },
+                onOpenSettings = { navController.navigate("settings") }
             )
+        }
+
+        composable("settings") {
+            SettingsScreen()
         }
 
         composable(

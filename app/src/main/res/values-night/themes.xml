@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Variante para modo oscuro (mismo nombre de estilo). -->
-    <style name="Theme.Foco" parent="android:Theme.DeviceDefault.NoActionBar" />
-</resources>
