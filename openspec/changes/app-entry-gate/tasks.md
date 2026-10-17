@@ -2,22 +2,22 @@
 
 ## 1. Seam (production, minimal)
 
-- [ ] 1.1 Add the injectable predicate to `App()` — `isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted` — used at first composition and on the resume re-check; verify `gradlew.bat assembleDebug` and a manual cold start (granted → dashboard).
+- [x] 1.1 Add the injectable predicate to `App()` — `isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted` — used at first composition and on the resume re-check; verify `gradlew.bat assembleDebug` and a manual cold start (granted → dashboard).
 
 ## 2. Seam tests (deterministic)
 
-- [ ] 2.1 `AppEntrySeamTest` (ComponentActivity + `App(isUsageAccessGranted = fake)`): granted at start → dashboard; missing → onboarding with explanation + "Abrir Ajustes"; flip false→true on return → dashboard; true→false → onboarding.
-- [ ] 2.2 Run `gradlew.bat connectedDebugAndroidTest` (API 36 AVD, `Medium_Phone_API_36.0`) and verify the cases green.
+- [x] 2.1 `AppEntrySeamTest` (ComponentActivity + `App(isUsageAccessGranted = fake)`): granted at start → dashboard; missing → onboarding with explanation + "Abrir Ajustes"; flip false→true on return → dashboard; true→false → onboarding.
+- [x] 2.2 Run `gradlew.bat connectedDebugAndroidTest` (API 36 AVD, `Medium_Phone_API_36.0`) and verify the cases green.
 
 ## 3. E2E tests (real appops)
 
-- [ ] 3.1 `AppEntryGateTest` (MainActivity; appops via `uiAutomation.executeShellCommand`; `createEmptyComposeRule()` + manual `ActivityScenario.launch` so appops is set BEFORE the cold start): granted → dashboard; revoked → onboarding; **restore `allow` in cleanup** (a fresh install starts without the permission — the artifact that started this change).
-- [ ] 3.2 Live transitions e2e: revoke while open → return → onboarding; grant → return → dashboard.
-- [ ] 3.3 Verify `connectedDebugAndroidTest` green and the emulator left with `GET_USAGE_STATS: allow`.
+- [x] 3.1 `AppEntryGateTest` (MainActivity; appops via `uiAutomation.executeShellCommand`; `createEmptyComposeRule()` + manual `ActivityScenario.launch` so appops is set BEFORE the cold start): granted → dashboard; revoked → onboarding; **restore `allow` in cleanup** (a fresh install starts without the permission — the artifact that started this change).
+- [x] 3.2 Live transitions e2e: revoke while open → return → onboarding; grant → return → dashboard.
+- [x] 3.3 Verify `connectedDebugAndroidTest` green and the emulator left with `GET_USAGE_STATS: allow`.
 
 ## 4. Integration
 
-- [ ] 4.1 `gradlew.bat test` (JVM suite unchanged) + `assembleDebug` + `connectedDebugAndroidTest`; gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref` to the branch tip.
+- [x] 4.1 `gradlew.bat test` (JVM suite unchanged) + `assembleDebug` + `connectedDebugAndroidTest`; gate with green evidence (`node scripts/gates/gate-check.mjs --run-tests`); update `gitref` to the branch tip.
 
 ## Workflow follow-up
 
