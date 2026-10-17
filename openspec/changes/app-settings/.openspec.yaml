@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: feature
-x-status: applying
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-16
 x-tech_brief: true
@@ -23,4 +23,4 @@ x-deps:
   - detail-back-ux
   - unlock-counter
   - layer-compliance
-x-gitref: 6127847
+x-gitref: 61974d7
