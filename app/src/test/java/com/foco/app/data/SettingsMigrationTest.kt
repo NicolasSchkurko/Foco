@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -36,6 +37,20 @@ class SettingsMigrationTest {
             produceFile = { File(temp.root, fileName) }
         )
 
+    /**
+     * El artefacto Android de DataStore mueve su archivo temporal con `File.renameTo`
+     * cuando `Build.VERSION.SDK_INT < 26` — el valor que ve un test unitario, porque el
+     * `android.jar` mockeado reporta 0. En Windows `renameTo` no puede reemplazar un
+     * archivo existente, así que la segunda escritura al mismo archivo falla ahí.
+     * Ver el change `datastore-test-on-windows`.
+     */
+    private fun assumeDataStoreCanReplaceAnExistingFile() {
+        assumeFalse(
+            "En Windows DataStore no puede reemplazar un archivo existente (rama renameTo)",
+            System.getProperty("os.name").orEmpty().lowercase().contains("win")
+        )
+    }
+
     @After
     fun cleanUp() {
         scope.cancel()
@@ -43,6 +58,7 @@ class SettingsMigrationTest {
 
     @Test
     fun copiesTheSettingsClearsTheLegacyAndLeavesTheExclusionsAlone() {
+        assumeDataStoreCanReplaceAnExistingFile()
         val legacy = newStore("legacy.preferences_pb")
         val target = newStore("foco_settings.preferences_pb")
         val exclusionsKey = androidx.datastore.preferences.core.stringSetPreferencesKey("excluded_packages")
@@ -66,6 +82,7 @@ class SettingsMigrationTest {
 
     @Test
     fun runningItAgainIsANoOp() {
+        assumeDataStoreCanReplaceAnExistingFile()
         val legacy = newStore("legacy.preferences_pb")
         val target = newStore("foco_settings.preferences_pb")
 
