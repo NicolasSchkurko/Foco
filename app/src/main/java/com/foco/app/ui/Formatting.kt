@@ -21,9 +21,18 @@ fun formatTimeOfDay(epochMillis: Long, zone: ZoneId = ZoneId.systemDefault()): S
 
 private val dayFormatter = DateTimeFormatter.ofPattern("EEE d MMM")
 
-/** "Hoy", "Ayer" o la fecha abreviada ("mié 14 oct" según el locale del dispositivo). */
-fun formatDayLabel(date: LocalDate, today: LocalDate): String = when (date) {
-    today -> "Hoy"
-    today.minusDays(1) -> "Ayer"
+/**
+ * Etiqueta del selector de días: hoy/ayer usan las etiquetas del idioma activo
+ * (que la UI resuelve con `day_today`/`day_yesterday`); el resto, la fecha
+ * abreviada ("mié 14 oct" según el locale del dispositivo).
+ */
+fun formatDayLabel(
+    date: LocalDate,
+    today: LocalDate,
+    todayLabel: String,
+    yesterdayLabel: String
+): String = when (date) {
+    today -> todayLabel
+    today.minusDays(1) -> yesterdayLabel
     else -> dayFormatter.format(date)
 }

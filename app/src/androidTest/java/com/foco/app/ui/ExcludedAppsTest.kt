@@ -12,6 +12,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
+import com.foco.app.R
 import com.foco.app.data.ExcludedAppsStore
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -23,7 +24,8 @@ import org.junit.runner.RunWith
 /**
  * Mantener presionado excluye la app del ranking (el total no cambia); Deshacer
  * la trae de vuelta; y la exclusión persiste al relanzar. E2E con uso real
- * (Settings) en la API 36.
+ * (Settings) en la API 36. Los textos de la app se resuelven de recursos:
+ * el test no depende del idioma del device.
  */
 @RunWith(AndroidJUnit4::class)
 class ExcludedAppsTest {
@@ -33,6 +35,10 @@ class ExcludedAppsTest {
 
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
+    private fun string(resId: Int): String = targetContext.resources.getString(resId)
+
+    private val usageLinePrefix = string(R.string.dashboard_usage_line).substringBefore(":")
+
     private fun shell(command: String) {
         InstrumentationRegistry.getInstrumentation()
             .uiAutomation
@@ -41,7 +47,7 @@ class ExcludedAppsTest {
     }
 
     private fun headerText(): String =
-        composeRule.onAllNodesWithText("Uso en pantalla", substring = true)
+        composeRule.onAllNodesWithText(usageLinePrefix, substring = true)
             .fetchSemanticsNodes()
             .first()
             .config
@@ -79,9 +85,9 @@ class ExcludedAppsTest {
 
         // Deshacer -> vuelve al ranking.
         composeRule.waitUntil(timeoutMillis = 10_000) {
-            composeRule.onAllNodesWithText("Deshacer").fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithText(string(R.string.excluded_undo)).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("Deshacer").performClick()
+        composeRule.onNodeWithText(string(R.string.excluded_undo)).performClick()
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isNotEmpty()
         }
@@ -95,7 +101,7 @@ class ExcludedAppsTest {
 
         scenario = ActivityScenario.launch(MainActivity::class.java)
         composeRule.waitUntil(timeoutMillis = 15_000) {
-            composeRule.onAllNodesWithText("Cargando…").fetchSemanticsNodes().isEmpty()
+            composeRule.onAllNodesWithText(string(R.string.loading)).fetchSemanticsNodes().isEmpty()
         }
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isEmpty()

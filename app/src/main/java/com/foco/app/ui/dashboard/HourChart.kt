@@ -16,14 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.foco.app.R
 import com.foco.app.ui.metrics.HourBucket
 
 /** Barras de uso por hora (00 a 23). */
 @Composable
 fun HourChart(hourly: List<HourBucket>) {
     Column {
-        Text("Actividad por hora", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.chart_hourly), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(12.dp))
 
         val maxMillis = hourly.maxOf { it.millis }.coerceAtLeast(1L)

@@ -13,8 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.foco.app.R
 import com.foco.app.data.UsageAccess
 
 /**
@@ -40,8 +42,7 @@ fun OnboardingScreen() {
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Para medir cuánto usás cada app, Foco necesita acceso a las " +
-                "estadísticas de uso. Android solo permite activarlo a mano, desde Ajustes.",
+            text = stringResource(R.string.onboarding_explanation),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
@@ -49,14 +50,13 @@ fun OnboardingScreen() {
         Spacer(Modifier.height(24.dp))
 
         Button(onClick = { context.startActivity(UsageAccess.settingsIntent()) }) {
-            Text("Abrir Ajustes")
+            Text(stringResource(R.string.onboarding_open_settings))
         }
 
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = "Buscá «Foco» en la lista y activá el permiso. Al volver acá, " +
-                "la pantalla se actualiza sola.",
+            text = stringResource(R.string.onboarding_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

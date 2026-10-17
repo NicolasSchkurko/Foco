@@ -2,6 +2,7 @@ package com.foco.app.ui.dashboard
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -28,10 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import com.foco.app.R
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.model.day.DayData
@@ -55,12 +63,14 @@ const val DEFAULT_REFRESH_INTERVAL_MILLIS = 30_000L
  *
  * @param refreshIntervalMillis intervalo entre refrescos periódicos (los tests inyectan intervalos cortos).
  * @param loadDay seam de tests: si es null, se usa el repositorio real.
+ * @param onOpenSettings abre la pantalla de Ajustes (engranaje del encabezado).
  */
 @Composable
 fun DashboardScreen(
     refreshIntervalMillis: Long = DEFAULT_REFRESH_INTERVAL_MILLIS,
     loadDay: (suspend () -> DayData)? = null,
-    onAppClick: (String) -> Unit = {}
+    onAppClick: (String) -> Unit = {},
+    onOpenSettings: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
@@ -72,6 +82,9 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
 
     var day by remember { mutableStateOf<DayData?>(null) }
+
+    val snackbarExcluded = stringResource(R.string.excluded_snackbar)
+    val undoLabel = stringResource(R.string.excluded_undo)
 
     // repeatOnLifecycle: el ciclo corre solo mientras la pantalla está RESUMED —
     // se relanza al volver a primer plano (refresco automático en cada vuelta)
@@ -95,8 +108,8 @@ fun DashboardScreen(
         scope.launch {
             excludedStore.add(packageName)
             val result = snackbarHostState.showSnackbar(
-                message = "Excluida de las estadísticas",
-                actionLabel = "Deshacer"
+                message = snackbarExcluded,
+                actionLabel = undoLabel
             )
             if (result == SnackbarResult.ActionPerformed) {
                 excludedStore.remove(packageName)
@@ -118,18 +131,32 @@ fun DashboardScreen(
         ) {
             Spacer(Modifier.height(16.dp))
 
-            Column {
-                Text("Hoy", style = MaterialTheme.typography.headlineMedium)
-                val currentDay = day
-                Text(
-                    text = metrics?.let { m ->
-                        val unlocks = currentDay?.unlockTimes?.size ?: 0
-                        val unlockLabel = if (unlocks == 1) "desbloqueo" else "desbloqueos"
-                        "Uso en pantalla: ${formatDuration(m.totalMillis)} · $unlocks $unlockLabel"
-                    } ?: "Cargando…",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.dashboard_title),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    val currentDay = day
+                    Text(
+                        text = metrics?.let { m ->
+                            val unlocks = currentDay?.unlockTimes?.size ?: 0
+                            stringResource(
+                                R.string.dashboard_usage_line,
+                                formatDuration(m.totalMillis),
+                                pluralStringResource(R.plurals.dashboard_unlocks, unlocks, unlocks)
+                            )
+                        } ?: stringResource(R.string.loading),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = onOpenSettings) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = stringResource(R.string.settings_title)
+                    )
+                }
             }
 
             Spacer(Modifier.height(20.dp))
@@ -152,7 +179,7 @@ fun DashboardScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Sin actividad registrada todavía hoy.",
+                        text = stringResource(R.string.dashboard_empty),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -161,7 +188,10 @@ fun DashboardScreen(
                 else -> {
                     HourChart(current.hourly)
                     Spacer(Modifier.height(20.dp))
-                    Text("Apps", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(R.string.dashboard_apps),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     Spacer(Modifier.height(4.dp))
                     LazyColumn(
                         modifier = Modifier
