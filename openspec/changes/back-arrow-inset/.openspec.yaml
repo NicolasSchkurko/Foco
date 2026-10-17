@@ -1,0 +1,16 @@
+schema: spec-anchored
+created: 2026-10-16
+x-kind: fix
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/ui/detail/**
+  - app/src/main/java/com/foco/app/ui/settings/**
+  - app/src/androidTest/**
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - app-entry-gate
+  - structure-housekeeping
+  - themed-window
+x-gitref: 8b5e6ad
