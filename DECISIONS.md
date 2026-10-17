@@ -226,3 +226,10 @@
 - **Decision (human):** approved ("approve structure-housekeeping"). The change moves to `accepted` (`x-accepted_by: Nschkurko`, `x-accepted_at: 2026-10-16`) and is ready for `/spec-apply` behind `app-entry-gate`.
 - **Consequences:** Applying it requires `app-entry-gate` verified/archived first (declared dep; the `data/**`, `MainActivity.kt`, `test/**` and `androidTest/**` overlaps stay sequenced). The comprehension sign-off happens in `/spec-verify` after its apply (walkthrough covers the migration). `themed-window` and `back-arrow-inset` wait transitively behind it.
 - **Refs:** `openspec/changes/structure-housekeeping/.openspec.yaml` · `openspec/changes/structure-housekeeping/proposal.md` · `openspec/changes/structure-housekeeping/specs/code-structure/spec.md`
+
+## [2026-10-16] Tooling back out of the repo: the tracked `.opencode/` removed
+
+- **Context:** The workspace sanitization put the OpenCode tooling outside the repo (`.opencode/` in the container, on purpose), but the `v1.1-token-diet` PR (`542308b`) re-added a snapshot of the 8 command files inside the repo and they stayed tracked — and stale: the container copies are the live, newer set (v1.2 background-mode bodies; e.g. `spec-gate.md` carries 2 lines the repo copy lacked).
+- **Decision (human):** move the tooling back out — `git rm -r .opencode` from the repo (the container's `E:\Proyectos\Foco\.opencode` remains the single canonical home, untouched) — and ignore `.opencode/` in the repo so no future sync re-tracks stale copies.
+- **Consequences:** Working from the container is unaffected; opening the project directly at `Foco/` no longer loads stale commands. Future spec-growth command syncs land only in the container's `.opencode/`.
+- **Refs:** `.gitignore` (`.opencode/` ignored) · commit `542308b` (which re-added them) · container `E:\Proyectos\Foco\.opencode`
