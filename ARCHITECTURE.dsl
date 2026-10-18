@@ -5,13 +5,13 @@ workspace "Foco" "Personal Android app to track device usage per app — 100% lo
 
         foco = softwareSystem "Foco" "Tracks usage per app as time sessions; shows a daily dashboard; limits/friction are planned (Phases 3-4)." {
             app = container "Android app" "Kotlin + Jetpack Compose (Material 3), single process, offline; four layered packages." {
-                entry = component "Entry" "MainActivity: edge-to-edge window, theme and Compose entry point (App)."
-                nav = component "Navigation" "FocoNavHost: Navigation Compose routes (dashboard, detail/{packageName}); the usage-access gate stays outside it, in App." "" "cap:usage-tracking,cap:code-structure"
-                ui = component "UI" "Compose presentation: dashboard, app detail, onboarding, day selector, derived metrics, unlock count, formatting, theme." "" "cap:usage-tracking,cap:code-structure"
-                data = component "Data" "Platform adapters: UsageRepository (UsageStatsManager events + KEYGUARD_HIDDEN unlocks, launcher/home package visibility), UsageAccess (usage-access AppOp and the settings intent that opens it), AppPackageInfo (launcher icon and label reads)." "" "cap:usage-tracking,cap:code-structure"
-                storage = component "Local store" "Preferences DataStore 'excluded_apps' in app-private storage (key 'excluded_packages'): the packages the user hid from the ranking." "" "cap:usage-tracking,cap:code-structure"
+                entry = component "Entry" "MainActivity: edge-to-edge window, theme and Compose entry point (App); gates the entry on the usage-access permission." "" "cap:app-entry,cap:code-structure"
+                nav = component "Navigation" "FocoNavHost: Navigation Compose routes (dashboard, detail/{packageName}, settings); the usage-access gate stays outside it, in App." "" "cap:app-settings,cap:usage-tracking,cap:code-structure"
+                ui = component "UI" "Compose presentation: dashboard, app detail, onboarding, settings, day selector, derived metrics, unlock count, formatting, theme." "" "cap:app-entry,cap:app-settings,cap:usage-tracking,cap:code-structure"
+                data = component "Data" "Platform adapters: UsageRepository (UsageStatsManager events + KEYGUARD_HIDDEN unlocks, launcher/home package visibility), UsageAccess (usage-access AppOp and the settings intent that opens it), AppPackageInfo (launcher icon and label reads), the preferences stores (excluded apps, settings, language) and the one-shot settings migration." "" "cap:app-settings,cap:usage-tracking,cap:code-structure"
+                storage = component "Local store" "Two preferences DataStores in app-private storage: 'excluded_apps' (key 'excluded_packages': the packages hidden from the ranking) and 'foco_settings' (language and appearance, migrated out of the legacy store on first start)." "" "cap:app-settings,cap:usage-tracking,cap:code-structure"
                 domain = component "Domain" "Pure behavior: session fold (buildSessions), package filtering (filterSessions) and the offered-day window (availableDays)." "" "cap:usage-tracking,cap:code-structure"
-                model = component "Model" "Pure types: UsageSession, UsageEvent, UsageEventType, DayData (sessions + unlock times)." "" "cap:usage-tracking,cap:code-structure"
+                model = component "Model" "Pure types: UsageSession, UsageEvent, UsageEventType, DayData (sessions + unlock times), LanguageOption and AppearanceOption (the settings choices)." "" "cap:app-settings,cap:usage-tracking,cap:code-structure"
             }
         }
 

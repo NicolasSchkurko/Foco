@@ -5,7 +5,7 @@
 - [x] 1.1 `SettingsStore` declares its own DataStore (`foco_settings`) and reads/writes `language`/`appearance` there.
 - [x] 1.2 One-shot migration in `data/`: copy `language`/`appearance` from `excluded_apps` into `foco_settings` and clear them from the legacy store; idempotent; wired in `MainActivity.onCreate` before the first language read.
 - [x] 1.3 `SettingsMigrationTest` (JVM, two temp-file stores): copies the keys, clears them from the legacy store, a second run is a no-op, fresh install is untouched.
-- [ ] 1.4 Device pass: install over a build with a stored language/appearance and verify both survive the upgrade (same choices in the UI after the update).
+- [x] 1.4 Device pass: install over a build with a stored language/appearance and verify both survive the upgrade (same choices in the UI after the update).
 
 ## 2. Expressivity (storage + names)
 

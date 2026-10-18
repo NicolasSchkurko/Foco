@@ -1,7 +1,5 @@
 # Spec Growth — repository constitution
 
-> **Location:** this repo lives in `Foco/` inside the `E:\Proyectos\Foco` workspace (the workspace also hosts `.opencode/` with the `spec-*` commands). All paths here are relative to the repo root (`Foco/`).
-
 Foco uses **Spec Growth**: living specs as the contract, changes in flight, recorded decisions, and evidence-based verification. The canonical definitions (states, waivers, decisions, conflicts, protected zones, capabilities, evidence, tech briefs) live in the `spec-growth` skill; this file only carries the repo's rules.
 
 ## Layout
