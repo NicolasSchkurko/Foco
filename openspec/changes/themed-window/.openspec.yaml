@@ -1,17 +1,21 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: fix
-x-status: draft
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-18
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-18
 x-tech_brief: true
 x-targets:
   - app/src/main/java/com/foco/app/MainActivity.kt
-  - app/src/main/java/com/foco/app/data/**
-  - app/src/test/**
-  - app/src/androidTest/**
+  - app/src/main/java/com/foco/app/data/AppAppearance.kt
+  - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-tests:
   - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-deps:
   - app-entry-gate
   - structure-housekeeping
-x-gitref: 75bde6b
+x-gitref: 8cbf062
