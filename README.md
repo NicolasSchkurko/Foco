@@ -10,7 +10,7 @@ Stack: **Kotlin + Jetpack Compose**. Everything local — no accounts, no server
 
 ---
 
-> **🧪 Note:** this repository is a **development experiment** for the **Spec Growth** method — a spec-anchored workflow where specs are the living contract (`openspec/specs/`), in-flight changes live in `openspec/changes/`, the rationale is recorded in `DECISIONS.md`, status is generated into `BOARD.md`, and verification runs in `scripts/gates/` (pre-commit and CI). The app is the method's test case.
+> **🧪 Note:** this repository is a **development experiment** for the **Spec Growth** method — a spec-anchored workflow where specs are the living contract (`openspec/specs/`), in-flight changes live in `openspec/changes/`, the rationale is recorded in `DECISIONS.md`, status is generated into `BOARD.md`, and verification runs in `scripts/gates/` (pre-commit). The app is the method's test case.
 
 ---
 
@@ -77,6 +77,8 @@ From the project root:
 ```
 
 `adb` ships with the SDK (`%LOCALAPPDATA%\Android\Sdk\platform-tools`), or install *platform-tools* from the SDK Manager.
+
+CI (`.github/workflows/ci.yml`) runs `./gradlew test` on Linux for every push to `main` and every pull request — that is where the Windows-excluded DataStore tests execute.
 
 ## How the tracker works (technical summary)
 

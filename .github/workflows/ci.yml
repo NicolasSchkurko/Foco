@@ -1,0 +1,38 @@
+# CI: the JVM test suite on Linux, for every push to main and every pull request.
+#
+# Why Linux matters: the DataStore migration tests are excluded on Windows
+# (see DECISIONS.md [2026-10-18] datastore-test-on-windows). This runner is the
+# place where those two tests actually execute.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The daemon JVM is pinned to 25 by gradle/gradle-daemon-jvm.properties,
+      # so provide it here instead of letting Gradle download a toolchain.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      # compileSdk = 36 (app/build.gradle.kts). Licenses are accepted by default;
+      # any other SDK package the build needs is downloaded by AGP on demand.
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: ./gradlew test
