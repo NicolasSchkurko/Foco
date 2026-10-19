@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Foco</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Hoy</string>
+    <string name="dashboard_usage_line">Uso en pantalla: %1$s · %2$s</string>
+    <plurals name="dashboard_unlocks">
+        <item quantity="one">%d desbloqueo</item>
+        <item quantity="other">%d desbloqueos</item>
+    </plurals>
+    <string name="dashboard_empty">Sin actividad registrada todavía hoy.</string>
+    <string name="dashboard_apps">Apps</string>
+    <string name="excluded_snackbar">Excluida de las estadísticas</string>
+    <string name="excluded_undo">Deshacer</string>
+
+    <!-- Hourly activity -->
+    <string name="chart_hourly">Actividad por hora</string>
+
+    <!-- App row -->
+    <string name="row_last_used">último: %1$s</string>
+
+    <!-- Dates -->
+    <string name="day_today">Hoy</string>
+    <string name="day_yesterday">Ayer</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_explanation">Para medir cuánto usás cada app, Foco necesita acceso a las estadísticas de uso. Android solo permite activarlo a mano, desde Ajustes.</string>
+    <string name="onboarding_open_settings">Abrir Ajustes</string>
+    <string name="onboarding_hint">Buscá «Foco» en la lista y activá el permiso. Al volver acá, la pantalla se actualiza sola.</string>
+
+    <!-- App detail -->
+    <string name="content_back">Volver</string>
+    <string name="detail_day_usage">Uso del día: %1$s</string>
+    <string name="detail_empty">Sin actividad de esta app ese día.</string>
+    <string name="detail_summary">Resumen</string>
+    <string name="detail_total">Total</string>
+    <string name="detail_sessions">Sesiones</string>
+    <string name="detail_first">Primera</string>
+    <string name="detail_last">Última</string>
+    <string name="detail_average">Promedio</string>
+    <string name="detail_longest">Más larga</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_language_section">Idioma</string>
+    <string name="settings_appearance_section">Apariencia</string>
+    <string name="settings_option_auto">Automático</string>
+    <string name="settings_option_light">Claro</string>
+    <string name="settings_option_dark">Oscuro</string>
+    <string name="settings_language_es">Español</string>
+    <string name="settings_language_en">Inglés</string>
+    <string name="settings_excluded_section">Apps excluidas</string>
+    <string name="settings_excluded_empty">No hay apps excluidas.</string>
+    <string name="settings_restore">Restaurar</string>
+
+    <!-- Common -->
+    <string name="loading">Cargando…</string>
+</resources>
