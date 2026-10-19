@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-18
 x-kind: fix
-x-status: draft
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
 x-tech_brief: false
 x-targets:
   - openspec/config.yaml
@@ -11,4 +13,4 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt
 x-deps:
   - spec-requirement-budget
-x-gitref: 6c16929
+x-gitref: 5c9f244
