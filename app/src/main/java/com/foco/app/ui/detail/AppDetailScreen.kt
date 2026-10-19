@@ -35,9 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.R
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
@@ -56,6 +53,7 @@ import com.foco.app.ui.metrics.appDayDetail
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 
 /**
@@ -73,16 +71,11 @@ fun AppDetailScreen(packageName: String, date: LocalDate? = null) {
     var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
 
-    // Which days the store has can still grow while the screen is open (the startup backfill writes
-    // totals), so the window is re-read every time the screen resumes. Until then — and if the read
-    // fails — it is today alone, which keeps the screen usable instead of crashing.
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            storedDays = withContext(Dispatchers.IO) {
-                readOr(emptySet<LocalDate>()) { store.storedDays() }
-            }
-        }
+    // Which days the store has grows while the screen is open (the startup backfill writes totals),
+    // so the window follows the store's stream instead of being re-read on resume. Until the first
+    // emission — and if the stream fails — it is today alone, which keeps the screen usable.
+    LaunchedEffect(store) {
+        store.storedDaysFlow().readOr(emptySet<LocalDate>()).collect { storedDays = it }
     }
 
     val days = remember(today, storedDays, date) {

@@ -4,7 +4,12 @@ import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -68,6 +73,19 @@ class HistoryConsolidationTest {
         store.consolidate(today)
 
         assertEquals(0, sessions.rows.size)
+    }
+
+    @Test
+    fun `the stored days stream re-emits after a consolidation`() = runBlocking {
+        val emissions = withTimeout(5_000) {
+            val collector = async { store.storedDaysFlow().take(2).toList() }
+            yield()
+            platform[yesterday] = dayWith("com.instagram.android" to minutes(yesterday, 0L, 1L))
+            store.consolidate(today)
+            collector.await()
+        }
+
+        assertEquals(listOf(emptySet<LocalDate>(), setOf(yesterday)), emissions)
     }
 
     private fun minutes(day: LocalDate, fromMinute: Long, toMinute: Long): Pair<Long, Long> {

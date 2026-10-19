@@ -12,7 +12,7 @@ class DaySelectionTest {
 
     private val today = LocalDate.of(2026, 10, 16)
 
-    /** The days [daysBack] behind today, as `SessionHistoryStore.storedDays()` returns them. */
+    /** The days [daysBack] behind today, shaped as the store's day set is. */
     private fun storedDays(vararg daysBack: Long): Set<LocalDate> = daysBack.map { today.minusDays(it) }.toSet()
 
     @Test

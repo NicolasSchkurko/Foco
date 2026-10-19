@@ -6,6 +6,9 @@ import com.foco.app.data.db.DailyUnlock
 import com.foco.app.data.db.DailyUnlockDao
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
 /** In-memory DAOs, so the store's logic runs on the JVM without an Android runtime. */
 class FakeSessionRecordDao : SessionRecordDao {
@@ -31,14 +34,22 @@ class FakeDailyAggregateDao : DailyAggregateDao {
 
     val rows = mutableMapOf<Pair<String, String>, DailyAggregate>()
 
+    private val writes = MutableStateFlow(0)
+
     override suspend fun upsert(rows: List<DailyAggregate>) {
         rows.forEach { this.rows[it.packageName to it.day] = it }
+        writes.value++
     }
 
-    override suspend fun storedDays(): List<String> = rows.keys.map { it.second }.distinct()
+    override suspend fun storedDays(): List<String> = daysNow()
+
+    /** What the map holds when a write happens: the fake's stand-in for Room's invalidation. */
+    override fun storedDaysFlow(): Flow<List<String>> = writes.map { daysNow() }
 
     override suspend fun totalsFor(from: String, to: String): List<DailyAggregate> =
         rows.values.filter { it.day in from..to }.sortedWith(compareBy({ it.day }, { it.packageName }))
+
+    private fun daysNow(): List<String> = rows.keys.map { it.second }.distinct()
 }
 
 /** In-memory counts: one row per day, replaced on the day, exactly like the Room DAO. */

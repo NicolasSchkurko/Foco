@@ -14,6 +14,8 @@ import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Consolidates the finished days the platform still serves into the app's database, then prunes.
@@ -38,9 +40,9 @@ class SessionHistoryStore(
     suspend fun week(until: LocalDate): List<DailyAggregate> =
         aggregates.totalsFor(until.minusDays(SIX_DAYS).toString(), until.toString())
 
-    /** The days the store has totals for: what bounds the detail's day selector. */
-    suspend fun storedDays(): Set<LocalDate> =
-        aggregates.storedDays().map { LocalDate.parse(it) }.toSet()
+    /** The days the store has totals for: what bounds the detail's day selector, as a stream. */
+    fun storedDaysFlow(): Flow<Set<LocalDate>> =
+        aggregates.storedDaysFlow().map { days -> days.map { LocalDate.parse(it) }.toSet() }
 
     /** The stored raw sessions of [date], half-open on the start; empty means the day has no rows. */
     suspend fun sessionsFor(date: LocalDate): List<UsageSession> {

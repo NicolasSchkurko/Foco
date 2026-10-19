@@ -6,6 +6,13 @@ import com.foco.app.ui.common.readOr
 import java.io.IOException
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -35,5 +42,44 @@ class AppDetailReadTest {
         }
 
         assertTrue("cancellation must not be swallowed", propagated)
+    }
+
+    @Test
+    fun aFailedStreamIsAnsweredWithTheFallback() = runBlocking {
+        val storeBusy = IOException("the store is busy")
+        val failing = flow {
+            emit(setOf(LocalDate.of(2026, 10, 18)))
+            throw storeBusy
+        }
+
+        assertEquals(
+            listOf(setOf(LocalDate.of(2026, 10, 18)), emptySet<LocalDate>()),
+            failing.readOr(emptySet<LocalDate>()).toList()
+        )
+    }
+
+    @Test
+    fun aCancelledCollectionIsNotAnsweredWithTheFallback() = runBlocking {
+        val seen = mutableListOf<Set<LocalDate>>()
+        val first = CompletableDeferred<Unit>()
+        val ticker = flow {
+            emit(setOf(LocalDate.of(2026, 10, 18)))
+            awaitCancellation()
+        }
+
+        val job = launch {
+            ticker.readOr(emptySet<LocalDate>()).collect {
+                seen += it
+                first.complete(Unit)
+            }
+        }
+        first.await()
+        job.cancelAndJoin()
+
+        assertEquals(
+            "a cancelled collection must not be answered with the fallback",
+            listOf(setOf(LocalDate.of(2026, 10, 18))),
+            seen
+        )
     }
 }
