@@ -1,21 +1,24 @@
 schema: spec-anchored
 created: 2026-10-19
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-19
 x-tech_brief: true
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
 x-targets:
   - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
-  - app/src/main/java/com/foco/app/data/DaySource.kt
-  - app/src/main/java/com/foco/app/data/DetailDaySource.kt
+  - app/src/main/java/com/foco/app/domain/DaySource.kt
+  - app/src/main/java/com/foco/app/domain/DetailDaySource.kt
   - app/src/main/java/com/foco/app/domain/AvailableDays.kt
   - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
 x-tests:
   - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
-  - app/src/test/java/com/foco/app/data/DetailDaySourceTest.kt
+  - app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt
 x-deps:
   - usage-history-foundation
   - history-storage-followups
-x-gitref: 8c91b63
+x-gitref: dbf35df

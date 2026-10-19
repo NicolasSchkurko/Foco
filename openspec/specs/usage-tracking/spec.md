@@ -125,18 +125,6 @@ The detail SHALL show, for the chosen app and day: total time, number of session
 - **WHEN** the app has no sessions that day
 - **THEN** the detail shows an explicit empty state instead of numbers
 
-### Requirement: Day selection within system retention
-The detail SHALL offer moving to previous days with ‹ › controls limited to the window the system retains (today plus the previous six days by default), the forward arrow SHALL be disabled at today and the back arrow at the oldest available day, and switching days SHALL reload the breakdown for that day.
-[@test] `app/src/test/java/com/foco/app/data/DaySelectionTest.kt`
-
-#### Scenario: Bounds
-- **WHEN** the oldest available day is shown
-- **THEN** the back arrow is disabled and selection stays within the retained window
-
-#### Scenario: Switching days
-- **WHEN** the user moves to a previous day
-- **THEN** the detail reloads totals, chart and sessions for that day
-
 ### Requirement: Long-press excludes an app from the ranking
 Long-pressing an app in the ranking SHALL exclude it from the ranking while its time keeps counting in the day total and the hourly distribution, and SHALL offer an immediate undo.
 [@test] `app/src/androidTest/java/com/foco/app/ui/ExcludedAppsTest.kt`
@@ -273,3 +261,33 @@ The app SHALL read the stored per-app totals of the seven days ending at a given
 #### Scenario: Nothing is stored
 - **WHEN** no day has stored totals
 - **THEN** the read yields nothing
+
+### Requirement: Day selection within the stored history
+The detail SHALL offer every day from today back to the oldest stored day, seven at most (the raw retention), with ‹ › controls: today read live and the previous days from storage, the forward arrow disabled at today and the back arrow at the oldest day offered.
+[@test] `app/src/test/java/com/foco/app/domain/DaySelectionTest.kt`
+[@test] `app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt`
+[@test] `app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt`
+
+#### Scenario: Bounds
+- **WHEN** the oldest stored day is shown
+- **THEN** the back arrow is disabled and selection stays within the stored window
+
+#### Scenario: Switching days
+- **WHEN** the user moves to a previous day
+- **THEN** the detail reloads totals, chart and sessions from that day's stored sessions
+
+#### Scenario: A day inside the window without stored sessions
+- **WHEN** the offered day has no stored sessions (the store never got it)
+- **THEN** the detail shows its empty state and the arrows keep moving
+
+#### Scenario: A day the platform no longer serves
+- **WHEN** the chosen day is in the stored history but no longer returned by `queryEvents`
+- **THEN** the detail still shows that day's totals, chart and sessions
+
+### Requirement: A failed stored read degrades instead of closing the app
+The detail SHALL keep working when a stored read fails: it shows the empty state for that day, or today alone when the stored days could not be read, and the app never closes.
+[@test] `app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt`
+
+#### Scenario: A stored read fails
+- **WHEN** reading a day's sessions or the list of stored days throws
+- **THEN** the screen answers its empty state (or today alone) and stays open

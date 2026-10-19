@@ -1,5 +1,6 @@
 package com.foco.app.ui.detail
 
+import android.util.Log
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,9 +36,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.R
+import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
+import com.foco.app.domain.DaySource
 import com.foco.app.domain.availableDays
+import com.foco.app.domain.daySource
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.HourChart
@@ -48,27 +55,52 @@ import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.appDayDetail
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * One app's detail: hourly breakdown, the day's summary and the session list,
- * with a ‹ day › selector limited to the window the system retains.
+ * One app's detail: hourly breakdown, the day's summary and the session list, with a ‹ day ›
+ * selector that walks back from today to the oldest day the store has.
  */
 @Composable
 fun AppDetailScreen(packageName: String) {
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val repository = remember { UsageRepository(context.applicationContext) }
+    val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
     val today = remember { LocalDate.now() }
-    val days = remember(today) { availableDays(today) }
+    var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
     var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
 
+    // Which days the store has can still grow while the screen is open (the startup backfill writes
+    // totals), so the window is re-read every time the screen resumes. Until then — and if the read
+    // fails — it is today alone, which keeps the screen usable instead of crashing.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            storedDays = withContext(Dispatchers.IO) {
+                readOr(emptySet<LocalDate>()) { store.storedDays() }
+            }
+        }
+    }
+
+    val days = remember(today, storedDays) { availableDays(today, storedDays.orEmpty()) }
     val selectedDate = days[selectedIndex]
-    LaunchedEffect(packageName, selectedDate) {
+    LaunchedEffect(packageName, selectedDate, storedDays) {
         sessions = null
-        sessions = withContext(Dispatchers.IO) { repository.loadDay(selectedDate).sessions }
+        sessions = withContext(Dispatchers.IO) {
+            // Today is never consolidated, so the live read answers for it and the store for the rest.
+            // A failed read answers an empty day, which is the empty state the screen already has.
+            readOr(emptyList<UsageSession>()) {
+                when (daySource(selectedDate, today, storedDays.orEmpty())) {
+                    DaySource.Live -> repository.loadDay(selectedDate).sessions
+                    DaySource.Stored -> store.sessionsFor(selectedDate)
+                    DaySource.Absent -> emptyList()
+                }
+            }
+        }
     }
 
     val detail = remember(sessions, packageName) {
@@ -251,3 +283,17 @@ fun AppDetailScreen(packageName: String) {
         }
     }
 }
+
+/**
+ * One day's read that degrades instead of crashing: a failure logs and answers [fallback] (today
+ * alone, or an empty day) — internal so `AppDetailReadTest` can exercise it. Cancellation propagates.
+ */
+internal suspend fun <T> readOr(fallback: T, read: suspend () -> T): T =
+    try {
+        read()
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (failure: Exception) {
+        Log.w("Foco", "Day read failed", failure)
+        fallback
+    }

@@ -35,6 +35,18 @@ class SessionHistoryStore(
     suspend fun week(until: LocalDate): List<DailyAggregate> =
         aggregates.totalsFor(until.minusDays(SIX_DAYS).toString(), until.toString())
 
+    /** The days the store has totals for: what bounds the detail's day selector. */
+    suspend fun storedDays(): Set<LocalDate> =
+        aggregates.storedDays().map { LocalDate.parse(it) }.toSet()
+
+    /** The stored raw sessions of [date], half-open on the start; empty means the day has no rows. */
+    suspend fun sessionsFor(date: LocalDate): List<UsageSession> {
+        val dayStart = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val nextDayStart = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        return sessions.sessionsBetween(dayStart, nextDayStart)
+            .map { UsageSession(it.packageName, it.start, it.end) }
+    }
+
     private suspend fun consolidateDay(day: LocalDate) {
         val daySessions = readDay(day).sessions
         if (daySessions.isEmpty()) return
