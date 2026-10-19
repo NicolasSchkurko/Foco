@@ -1,0 +1,15 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: fix
+x-status: draft
+x-tech_brief: false
+x-targets:
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+  - app/src/main/res/values-en/strings.xml
+  - app/src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps: []
+x-gitref: 6c16929

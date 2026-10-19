@@ -1,0 +1,27 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: refactor
+x-status: draft
+x-tech_brief: false
+x-targets:
+  - app/src/main/java/com/foco/app/**
+  - app/src/test/java/com/foco/app/**
+  - app/src/androidTest/java/com/foco/app/**
+  - app/src/main/AndroidManifest.xml
+  - app/src/main/res/values/themes.xml
+  - app/src/main/res/xml/locales_config.xml
+  - app/src/test/java/com/foco/app/structure/ShortCommentsTest.kt
+  - docs/mechanisms/**
+x-tests:
+  - app/src/test/java/com/foco/app/structure/ShortCommentsTest.kt
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+  - app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - boundary-check-fixture
+  - english-default-resources
+  - cross-midnight-sessions
+  - same-millisecond-transitions
+  - layer-check-scope
+  - back-arrow-inset
+x-gitref: 6c16929

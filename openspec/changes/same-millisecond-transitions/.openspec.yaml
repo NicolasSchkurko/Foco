@@ -1,0 +1,15 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: fix
+x-status: draft
+x-targets:
+  - app/src/main/java/com/foco/app/domain/**
+  - app/src/test/**
+x-tests:
+  - app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt
+x-deps:
+  - boundary-check-fixture
+  - cross-midnight-sessions
+  - layer-check-scope
+  - datastore-test-on-windows
+x-gitref: 04d4be5

@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: fix
+x-status: draft
+x-tech_brief: false
+x-targets:
+  - openspec/config.yaml
+  - openspec/specs/code-structure/spec.md
+  - app/src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt
+x-deps:
+  - spec-requirement-budget
+x-gitref: 6c16929

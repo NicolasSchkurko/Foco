@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: fix
+x-status: draft
+x-tech_brief: false
+x-targets:
+  - openspec/specs/app-settings/spec.md
+  - openspec/specs/code-structure/spec.md
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+  - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+x-deps: []
+x-gitref: 6c16929

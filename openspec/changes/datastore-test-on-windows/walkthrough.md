@@ -49,8 +49,19 @@ Lifecycle: nothing survives a run. The temp folder belongs to one test method an
 
 ## Cognitive sign-off
 
-TODO(human) — answer in your own words. This is not a quiz to guess at; it is the check that the mechanism is actually understood.
+Answered by the human on 2026-10-18 — answers transcribed verbatim (repo convention).
 
 1. The device and the unit test run the same code — why does one pass and the other fail?
+   - "Ok, entiendo. como nuestro test cae en el fallback de sdk = 0 se busca hacer un file rename
+     al archivo x.preferences_pv.temp una vez editado para logar completar el test. como windows
+     no puede renombrar un archivo temp por sobre el real rompe y da eror" — the human, 2026-10-18
+   - Noted: this covers the failing side (the test's `SDK_INT = 0` fallback, and Windows refusing
+     to move a temp file over the existing one). The passing side is its mirror — on a device
+     `SDK_INT = 36` takes `Files.move(REPLACE_EXISTING)`, which does replace. Question 2 covers it.
 2. What does `Build.VERSION.SDK_INT` report inside a unit test, and why does that decide which branch runs?
+   - "ok reporta 0 por el stub del android jar y como se cumple la condicion de ser menor a 26 cae en file rename to" — the human, 2026-10-18
 3. What exactly is given up by skipping on Windows, and where is that gap covered instead?
+   - "se pierden los tests copiesTheSettingsClearsTheLegacyAndLeavesTheExclusionsAlone y runningItAgainIsANoOp. se cubre en linux o los CI y en el emulador" — the human, 2026-10-18
+   - Noted: the emulator/device side is the manual upgrade pass (there is no instrumented test
+     for the migration), so on Windows the migration is unverified locally — and it shows as
+     *skipped*, not green.

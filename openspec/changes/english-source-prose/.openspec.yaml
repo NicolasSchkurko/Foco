@@ -1,0 +1,21 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: refactor
+x-status: draft
+x-tech_brief: false
+x-targets:
+  - app/src/**
+x-tests:
+  - app/src/test/java/com/foco/app/structure/SourceProseTest.kt
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+  - app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - boundary-check-fixture
+  - trim-long-comments
+  - english-default-resources
+  - cross-midnight-sessions
+  - same-millisecond-transitions
+  - layer-check-scope
+  - back-arrow-inset
+x-gitref: 6c16929
