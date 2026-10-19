@@ -1,0 +1,18 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: feature
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
+  - app/src/main/java/com/foco/app/data/DaySource.kt
+  - app/src/main/java/com/foco/app/data/DetailDaySource.kt
+  - app/src/main/java/com/foco/app/domain/AvailableDays.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
+x-tests:
+  - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
+  - app/src/test/java/com/foco/app/data/DetailDaySourceTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+x-deps:
+  - usage-history-foundation
+x-gitref: 8c91b63

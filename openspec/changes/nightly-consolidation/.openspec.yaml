@@ -1,0 +1,19 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: feature
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/ConsolidationRunner.kt
+  - app/src/main/java/com/foco/app/data/ConsolidationWorker.kt
+  - app/src/main/java/com/foco/app/data/ConsolidationScheduler.kt
+  - app/src/main/java/com/foco/app/MainActivity.kt
+  - gradle/libs.versions.toml
+  - app/build.gradle.kts
+x-tests:
+  - app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt
+  - app/src/test/java/com/foco/app/data/ConsolidationRetryTest.kt
+  - app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt
+x-deps:
+  - usage-history-foundation
+x-gitref: 3b3c14c

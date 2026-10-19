@@ -6,16 +6,24 @@ Track device usage per app as time sessions for the current day, and derive the 
 ## Requirements
 
 ### Requirement: Usage sessions are built from system events
-The system SHALL build per-app usage sessions (package, start, end) for the current day from activity resume/pause/stop events, as a computation over plain event data: switching directly between apps closes the previous session at the new start; a session open at query time closes at "now"; transitions inside the same app do not split the session.
-[@test] `app/src/test/java/com/foco/app/data/SessionBuilderTest.kt`
+The system SHALL build per-app usage sessions (package, start, end) for the day from resume/pause/stop events, over plain event data: the direct switch closes the previous session at the new start and a pause or stop closes the open session of its own package (both ties-inclusive); a session open at query time closes at "now"; same-app transitions do not split it; a zero-length session is not emitted.
+[@test] `app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt`
 
 #### Scenario: Direct switch between apps
 - **WHEN** app A resumes at 10:00 and app B resumes at 10:05
 - **THEN** A yields the session 10:00–10:05 and B's session starts at 10:05
 
+#### Scenario: A direct switch inside the same millisecond
+- **WHEN** app A resumes and app B resumes at the same millisecond
+- **THEN** A's session closes at that instant and B's session opens there, with A contributing no time
+
 #### Scenario: Session open at query time
 - **WHEN** an app is in the foreground when the day is queried
 - **THEN** its session ends at the query time
+
+#### Scenario: A stop in the same millisecond as the resume
+- **WHEN** an app resumes and stops at the same millisecond
+- **THEN** no session is emitted for it, and no package is left open afterwards
 
 #### Scenario: No activity
 - **WHEN** there are no relevant events for the day
@@ -212,15 +220,3 @@ Usage sessions SHALL include an app that was already in the foreground when the 
 #### Scenario: An app open for more than a day
 - **WHEN** an app has been in the foreground since two days ago and is closed today
 - **THEN** its opening event falls outside the one-day lookback, so today yields no session for it — the bound is deliberate, not an oversight
-
-### Requirement: A transition settles by event order, not by strict inequality
-A resume for a different package SHALL close the open session at that resume's timestamp, and a pause or stop SHALL close the open session of its own package, in both cases even when the event shares the session's start millisecond. A session whose start equals its end SHALL NOT be emitted.
-[@test] `app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt`
-
-#### Scenario: A direct switch inside the same millisecond
-- **WHEN** app A resumes and app B resumes at the same millisecond
-- **THEN** A's session closes at that instant and B's session opens there, with A contributing no time
-
-#### Scenario: A stop in the same millisecond as the resume
-- **WHEN** an app resumes and stops at the same millisecond
-- **THEN** no session is emitted for it, and no package is left open afterwards

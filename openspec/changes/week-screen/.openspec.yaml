@@ -1,0 +1,21 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: feature
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/week/WeekScreen.kt
+  - app/src/main/java/com/foco/app/ui/metrics/WeekMetrics.kt
+  - app/src/main/java/com/foco/app/ui/metrics/WeekDayBar.kt
+  - app/src/main/java/com/foco/app/ui/metrics/AppWeekTotal.kt
+  - app/src/main/java/com/foco/app/ui/FocoNavHost.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+x-tests:
+  - app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
+x-deps:
+  - usage-history-foundation
+  - detail-history-days
+x-gitref: 8c91b63

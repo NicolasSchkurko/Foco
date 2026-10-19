@@ -1,0 +1,16 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: refactor
+x-status: draft
+x-tech_brief: false
+x-targets:
+  - app/src/main/java/com/foco/app/data/db/SchemaDrift.kt
+  - app/build.gradle.kts
+x-tests:
+  - app/src/test/java/com/foco/app/data/db/SchemaDriftTest.kt
+  - app/src/test/java/com/foco/app/data/db/NoDestructiveMigrationTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/SchemaBaselineTest.kt
+x-deps:
+  - usage-history-foundation
+  - nightly-consolidation
+x-gitref: 8aa3576
