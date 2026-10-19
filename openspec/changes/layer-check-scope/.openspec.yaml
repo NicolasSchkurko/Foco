@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-18
+x-targets:
+  - app/src/test/**
+x-tests:
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+x-deps:
+  - cross-midnight-sessions
+  - datastore-test-on-windows
+x-gitref: a8c14fe

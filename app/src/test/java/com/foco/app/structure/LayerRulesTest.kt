@@ -1,6 +1,7 @@
 package com.foco.app.structure
 
 import java.io.File
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -12,7 +13,8 @@ import org.junit.Test
  * 3. Dependencies only point downward: ui → data → domain → model.
  * 4. `data/` is Android platform access: every file imports android/androidx.
  * 5. `ui/` never reaches the platform raw — reads go through `data/` adapters.
- * 6. UI features do not import each other; shared widgets live in `ui/common/`.
+ * 6. UI features do not import each other; shared widgets live in `ui/common/`. The feature
+ *    folders are derived from the tree, so a new one falls under the rule without editing this file.
  *
  * Scans `app/src/main/java` (Gradle runs unit tests with the module dir as cwd).
  * Root-package files (`com.foco.app`, e.g. the entry activity) are exempt from the
@@ -36,14 +38,33 @@ class LayerRulesTest {
         "queryEvents(",
         "unsafeCheckOpNoThrow("
     )
-    /** Feature packages under `ui/`; imports between two of them are violations. */
-    private val uiFeatures = setOf("dashboard", "detail", "settings", "onboarding")
+    /**
+     * Carpetas compartidas bajo `ui/`: no son features. `common`, `metrics` y `theme` son las que
+     * la spec exime, y `ui/common/` es la casa del reuso entre pantallas.
+     */
+    private val sharedUiFolders = setOf("common", "metrics", "theme")
     private val uiFeatureImport = Regex("""^import\s+com\.foco\.app\.ui\.(\w+)""")
+
+    /** Una carpeta bajo `ui/` es feature si no es compartida: no hay lista que ampliar a mano. */
+    private fun isUiFeature(folder: String): Boolean = folder !in sharedUiFolders
+
+    /** Las features reales, derivadas del árbol: subcarpetas de `ui/` que no son compartidas. */
+    private fun uiFeaturesIn(sources: File): Set<String> =
+        File(sources, "com/foco/app/ui")
+            .listFiles()
+            .orEmpty()
+            .filter { it.isDirectory }
+            .map { it.name }
+            .filter(::isUiFeature)
+            .toSet()
 
     @Test
     fun packagesMatchFoldersPureLayersStayPureAndDependenciesPointDownward() {
         val sources = File("src/main/java")
         assertTrue("expected sources at ${sources.absolutePath}", sources.isDirectory)
+
+        // Las features salen del árbol: cualquier carpeta bajo `ui/` que no sea compartida.
+        val uiFeatures = uiFeaturesIn(sources)
 
         val violations = mutableListOf<String>()
         sources.walkTopDown()
@@ -107,5 +128,26 @@ class LayerRulesTest {
         if (violations.isNotEmpty()) {
             fail("Layer rules violated:\n" + violations.joinToString("\n"))
         }
+    }
+
+    @Test
+    fun theUiFeatureSetIsDerivedFromTheTreeNotFromAHandWrittenList() {
+        val sources = File("src/main/java")
+        val derived = uiFeaturesIn(sources)
+
+        // Una carpeta nueva bajo `ui/` ya cuenta como feature, sin tocar el chequeo. La lista fija
+        // anterior (`dashboard`, `detail`, `settings`, `onboarding`) dejaba "reports" fuera de la regla.
+        assertTrue("a folder that is not shared must be a feature", isUiFeature("reports"))
+
+        sharedUiFolders.forEach { assertFalse("shared '$it' must not be a feature", isUiFeature(it)) }
+
+        assertTrue(
+            "expected the current UI features, got $derived",
+            derived.containsAll(setOf("dashboard", "detail", "settings", "onboarding"))
+        )
+        assertTrue(
+            "shared folders must not be read as features, got $derived",
+            derived.none { it in sharedUiFolders }
+        )
     }
 }
