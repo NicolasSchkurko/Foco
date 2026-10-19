@@ -5,13 +5,8 @@ import com.foco.app.model.UsageEventType
 import com.foco.app.model.UsageSession
 
 /**
- * Fold puro: construye las sesiones del día a partir de eventos resumen/parada.
- *
- * - RESUMED abre una sesión; un cambio directo a otra app cierra la anterior en el instante del nuevo
- *   resume, aunque caigan en el mismo milisegundo.
- * - STOPPED (pause o stop) cierra la sesión abierta de su propio paquete, también en el mismo milisegundo.
- * - Una sesión aún abierta en [now] se cierra en [now]; las transiciones internas de la misma app no
- *   cortan la sesión, y una sesión de longitud cero no se emite.
+ * Fold puro: un cambio directo cierra la anterior en su instante y una parada cierra la del propio
+ * paquete, aunque caigan en el mismo milisegundo; las sesiones de largo cero no se emiten.
  */
 fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
     val sessions = mutableListOf<UsageSession>()
@@ -60,9 +55,8 @@ fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
 }
 
 /**
- * Recorta las sesiones a la ventana de un día. Una sesión abierta antes de [dayStart]
- * cuenta desde [dayStart], así el día vecino conserva su propia parte; lo que queda
- * fuera de la ventana se descarta.
+ * Recorta las sesiones a la ventana de un día: una abierta antes de [dayStart] cuenta desde ahí y el día
+ * vecino conserva su parte; lo que queda fuera se descarta.
  */
 fun clampSessionsToDay(
     sessions: List<UsageSession>,

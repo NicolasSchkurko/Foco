@@ -6,10 +6,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * El mapeo apariencia → modo nocturno de appcompat: es lo que lleva la elección al
- * tema de la activity y al fondo de la ventana (no solo al `darkTheme` de Compose).
- * Las constantes de appcompat son `static final`, así que la aserción corre en la JVM
- * sin framework: `applyToSystem` no se puede llamar aquí (el `android.jar` es un stub).
+ * El mapeo apariencia → modo nocturno de appcompat; las constantes son `static final`, así que la
+ * aserción corre en la JVM sin framework (`applyToSystem` no se puede llamar: `android.jar` es un stub).
  */
 class AppAppearanceTest {
 

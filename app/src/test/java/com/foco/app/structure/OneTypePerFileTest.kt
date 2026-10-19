@@ -6,12 +6,8 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 /**
- * Enforces: at most one top-level type declaration per source file, and when a
- * file declares exactly one, the file is named after it.
- *
- * Scans `app/src/main/java` (Gradle runs unit tests with the module dir as cwd).
- * Top-level declarations start at column 0; nested ones are indented and ignored.
- * Groups of top-level functions are exempt (they declare no types).
+ * Un solo tipo de nivel superior por archivo, y con el nombre del archivo; los grupos de funciones
+ * están exentos. Escanea `src/main/java` (declaraciones en columna 0; las anidadas no cuentan).
  */
 class OneTypePerFileTest {
 

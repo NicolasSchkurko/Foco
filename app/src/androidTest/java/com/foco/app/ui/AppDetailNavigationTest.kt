@@ -17,10 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Navegación al detalle: tocar una fila lo abre; el back del sistema vuelve;
- * y la flechita visible del detalle también vuelve. E2E: genera uso real
- * (Settings) antes de lanzar la app. Los textos de la app se resuelven de
- * recursos: el test no depende del idioma del device.
+ * Navegación al detalle E2E: tocar una fila lo abre, el back del sistema vuelve y la flechita visible
+ * también. Genera uso real (Settings) antes de lanzar; los textos se resuelven de recursos.
  */
 @RunWith(AndroidJUnit4::class)
 class AppDetailNavigationTest {

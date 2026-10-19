@@ -26,9 +26,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 /**
- * Punto de entrada: migra las preferencias del store legado si hace falta, aplica el
- * idioma y la apariencia guardados antes del primer frame (el tema de la activity y
- * el fondo de la ventana siguen la elección, no solo Compose) y monta el árbol Compose.
+ * Punto de entrada: migra el store legado, aplica idioma y apariencia antes del primer frame (el tema y
+ * el fondo de la ventana siguen la elección) y monta Compose.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -65,10 +64,8 @@ class MainActivity : AppCompatActivity() {
 }
 
 /**
- * Efecto con nombre: pinta el fondo de la ventana con el `surface` del tema Compose
- * (colores dinámicos incluidos), así una transición o la recreación por cambio de
- * idioma no descubre el esquema contrario. Recurso físico: el `Window` de la activity,
- * que vive lo que la activity.
+ * Efecto con nombre: pinta el fondo de la ventana con el `surface` del tema, así una transición o la
+ * recreación no descubre el esquema contrario. Recurso: el `Window` de la activity.
  */
 @Composable
 private fun WindowBackgroundEffect(window: Window, surface: Color) {

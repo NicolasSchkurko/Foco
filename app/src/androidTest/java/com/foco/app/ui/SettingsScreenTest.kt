@@ -34,20 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Ajustes: entrada/volver; el idioma se aplica al instante, persiste y Automático
- * sigue al sistema; la apariencia se elige, persiste y llega al modo nocturno de
- * appcompat (el fondo de la ventana es pasada visual, no aserción); la lista de
- * excluidas se muestra y restaura. E2E en la API 36.
- *
- * Notas de estabilidad:
- * - Aplicar el idioma recrea la activity por cambio de configuración (appcompat) y
- *   la pantalla puede volver al inicio: [ensureSettings] reabre Ajustes si hace falta.
- * - Aplicar la apariencia también puede recrear la activity (cambio de uiMode), así
- *   que después de elegirla se vuelve a llamar a [ensureSettings].
- * - Durante una recreación hay instantes sin jerarquía Compose: los chequeos usan
- *   [showsText]/[showsDescription], que tratan ese hueco como "todavía no".
- * - Los "reinicios" se hacen con close() + un launch nuevo (no `recreate()`: encadenar
- *   un recreate sobre otro deja colgado el tracking de ActivityScenario).
+ * Ajustes E2E (API 36): idioma y apariencia se aplican y persisten, excluidas se lista y restaura. Las notas de estabilidad están en `docs/mechanisms/instrumented-tests.md`.
  */
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenTest {
@@ -108,9 +95,8 @@ class SettingsScreenTest {
         }
 
     /**
-     * true si el único nodo con [label] está (o no) seleccionado. Tolera el hueco sin
-     * jerarquía y el empalme de las dos jerarquías durante una recreación (ahí
-     * `onNodeWithText` no encuentra un nodo único), así que sirve para esperar.
+     * true si el único nodo con [label] está (o no) seleccionado; tolera el hueco sin jerarquía y el
+     * empalme de las dos jerarquías durante una recreación, así que sirve para esperar.
      */
     private fun selectedRow(label: String, selected: Boolean): Boolean =
         try {

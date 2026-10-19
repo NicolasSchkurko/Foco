@@ -5,9 +5,7 @@ import android.graphics.Bitmap
 import androidx.core.graphics.drawable.toBitmap
 
 /**
- * Adaptador de lectura del PackageManager del sistema: ícono de lanzador y label
- * de una app instalada. Recurso físico: el servicio PackageManager de Android;
- * el contexto es de aplicación (vive lo que la app), sin estado propio.
+ * Lee el PackageManager (ícono y label de una app). Recurso: el servicio del sistema, sin estado propio.
  */
 class AppPackageInfo(private val context: Context) {
 

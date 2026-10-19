@@ -14,9 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El dashboard se refresca solo: al mostrarse, en cada vuelta a primer plano
- * y cada [DEFAULT_REFRESH_INTERVAL_MILLIS] mientras está visible — nunca en
- * background y sin botón manual.
+ * El dashboard se refresca solo: al mostrarse, en cada vuelta a primer plano y cada
+ * [DEFAULT_REFRESH_INTERVAL_MILLIS] mientras está visible; nunca en background y sin botón manual.
  */
 @RunWith(AndroidJUnit4::class)
 class DashboardRefreshTest {

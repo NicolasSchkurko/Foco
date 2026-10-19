@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Lista persistente de paquetes excluidos del ranking (solo datos: sin política).
- * Recurso físico: archivo `excluded_apps` (Preferences DataStore) en el almacenamiento
- * privado de la app; vive lo que la app.
+ * Paquetes excluidos del ranking (solo datos, sin política). Recurso: archivo `excluded_apps`
+ * (Preferences DataStore) privado; vive lo que la app.
  */
 class ExcludedAppsStore(private val context: Context) {
 

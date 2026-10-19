@@ -20,9 +20,8 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 /**
- * La migración del split: `language`/`appearance` viajan del store legado al nuevo,
- * se limpian del legado, las exclusiones no se tocan, y correrla de nuevo es no-op.
- * Dos DataStores reales sobre archivos temporales (sin Android).
+ * La migración del split: `language`/`appearance` viajan al store nuevo, se limpian del legado y
+ * correrla de nuevo es no-op; dos DataStores reales sobre archivos temporales (sin Android).
  */
 class SettingsMigrationTest {
 
@@ -38,11 +37,8 @@ class SettingsMigrationTest {
         )
 
     /**
-     * El artefacto Android de DataStore mueve su archivo temporal con `File.renameTo`
-     * cuando `Build.VERSION.SDK_INT < 26` — el valor que ve un test unitario, porque el
-     * `android.jar` mockeado reporta 0. En Windows `renameTo` no puede reemplazar un
-     * archivo existente, así que la segunda escritura al mismo archivo falla ahí.
-     * Ver el change `datastore-test-on-windows`.
+     * El artefacto Android de DataStore usa `File.renameTo` con `SDK_INT < 26` (lo que ve un test unitario)
+     * y en Windows eso no reemplaza un archivo existente: ver el change `datastore-test-on-windows`.
      */
     private fun assumeDataStoreCanReplaceAnExistingFile() {
         assumeFalse(

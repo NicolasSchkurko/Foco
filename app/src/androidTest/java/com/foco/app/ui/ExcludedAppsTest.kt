@@ -22,10 +22,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Mantener presionado excluye la app del ranking (el total no cambia); Deshacer
- * la trae de vuelta; y la exclusión persiste al relanzar. E2E con uso real
- * (Settings) en la API 36. Los textos de la app se resuelven de recursos:
- * el test no depende del idioma del device.
+ * Mantener presionado excluye la app del ranking (el total no cambia), Deshacer la trae de vuelta y la
+ * exclusión persiste al relanzar. E2E con uso real (Settings) en la API 36; textos de recursos.
  */
 @RunWith(AndroidJUnit4::class)
 class ExcludedAppsTest {

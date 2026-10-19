@@ -15,10 +15,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El subtítulo del dashboard cuenta los desbloqueos de hoy (marcas `KEYGUARD_HIDDEN`
- * de la misma consulta diaria). E2E: genera 2 desbloqueos reales por shell
- * (SLEEP → WAKEUP → MENU descarta el keyguard) y lee el número del subtítulo.
- * Los textos se resuelven de recursos: el test no depende del idioma del device.
+ * El subtítulo del dashboard cuenta los desbloqueos de hoy (marcas `KEYGUARD_HIDDEN` de la misma consulta
+ * diaria). E2E: genera 2 desbloqueos reales por shell (SLEEP → WAKEUP → MENU); textos de recursos.
  */
 @RunWith(AndroidJUnit4::class)
 class UnlockCountTest {

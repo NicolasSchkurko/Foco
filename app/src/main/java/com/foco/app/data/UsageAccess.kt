@@ -7,11 +7,8 @@ import android.os.Process
 import android.provider.Settings
 
 /**
- * Chequeo del permiso especial "Acceso de uso" (PACKAGE_USAGE_STATS).
- *
- * No es un permiso runtime: no existe diálogo que lo otorgue.
- * El usuario lo activa en Ajustes > Acceso especial > Acceso de uso.
- * A nivel sistema se verifica como un AppOp.
+ * Chequeo del permiso especial "Acceso de uso" (PACKAGE_USAGE_STATS): no es runtime, se activa a mano
+ * en Ajustes y a nivel sistema se verifica como un AppOp.
  */
 object UsageAccess {
 

@@ -12,9 +12,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El gate de entrada con predicado inyectado (determinista): dashboard u onboarding
- * según el permiso, y el re-chequeo al volver a primer plano en ambos sentidos.
- * Los textos se resuelven de recursos: el test no depende del idioma del device.
+ * El gate de entrada con predicado inyectado (determinista): dashboard u onboarding según el permiso y
+ * el re-chequeo al volver a primer plano, en ambos sentidos; los textos se resuelven de recursos.
  */
 @RunWith(AndroidJUnit4::class)
 class AppEntrySeamTest {

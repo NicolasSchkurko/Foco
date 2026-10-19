@@ -4,9 +4,8 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Ventana de consulta de un día: el inicio del día pedido, su fin exclusivo, desde dónde mira la
- * consulta ([lookbackStart], el inicio del día anterior) y hasta dónde llega ([effectiveEnd]).
- * Pura: la fecha y el reloj entran por parámetro.
+ * Ventana de consulta de un día: inicio, fin exclusivo, desde dónde mira ([lookbackStart], un día antes)
+ * y hasta dónde llega ([effectiveEnd]); pura, la fecha y el reloj entran por parámetro.
  */
 data class DayWindow(
     val startOfDay: Long,

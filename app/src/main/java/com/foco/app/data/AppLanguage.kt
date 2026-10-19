@@ -5,9 +5,7 @@ import androidx.core.os.LocaleListCompat
 import com.foco.app.model.LanguageOption
 
 /**
- * Aplica el idioma elegido al sistema con el backport de appcompat; en Android 13+
- * la elección también aparece en la lista de idiomas por app de los Ajustes.
- * Automático = lista vacía = idioma del dispositivo.
+ * Aplica el idioma elegido al sistema (backport de appcompat); Automático es lista vacía.
  */
 object AppLanguage {
 

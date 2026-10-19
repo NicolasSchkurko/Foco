@@ -16,9 +16,8 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Lee UsageStatsManager y mapea los eventos a planos; las sesiones del día salen del
- * fold puro ([buildSessions]) recortado al día ([clampSessionsToDay]) y de la política
- * de paquetes ([filterSessions]). No agrega nada: devuelve lo plano y la UI deriva.
+ * Lee UsageStatsManager y mapea a eventos planos; las sesiones salen del fold puro recortado al día y de
+ * la política de paquetes. No agrega nada: devuelve lo plano y la UI deriva.
  */
 class UsageRepository(private val context: Context) {
 
@@ -55,10 +54,8 @@ class UsageRepository(private val context: Context) {
         )
 
     /**
-     * Datos de un día: eventos del sistema → fold puro → recorte al día → política de paquetes.
-     * La ventana de la consulta la arma [dayWindow] (puro): mira desde el inicio del día anterior,
-     * para ver el evento que abrió una sesión que ya estaba abierta al empezar el día, y cierra en
-     * `min(fin del día, now)`. Los `KEYGUARD_HIDDEN` de la ventana del día son los desbloqueos.
+     * Eventos → fold → recorte al día → política de paquetes. La ventana la arma [dayWindow]: mira desde
+     * el inicio del día anterior y cierra en `min(fin del día, now)`; los desbloqueos son del día.
      */
     fun loadDay(date: LocalDate, now: Long = System.currentTimeMillis()): DayData {
         val window = dayWindow(date, ZoneId.systemDefault(), now)

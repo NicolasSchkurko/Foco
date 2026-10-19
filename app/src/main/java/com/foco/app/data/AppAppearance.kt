@@ -4,11 +4,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.foco.app.model.AppearanceOption
 
 /**
- * Lleva la apariencia elegida al modo nocturno global de appcompat: el tema de la
- * activity, sus recursos y el fondo estático de la ventana pasan a seguir la elección
- * (Automático = seguir al sistema), no solo el `darkTheme` de Compose. Recurso físico:
- * el modo vive en memoria del proceso mientras la app vive; la elección se lee del
- * DataStore `foco_settings` al arrancar.
+ * Lleva la elección al tema de la activity y al fondo de la ventana (no solo al `darkTheme`), y la
+ * expone como modo nocturno de appcompat: recurso en memoria del proceso, leído de `foco_settings`.
  */
 object AppAppearance {
 

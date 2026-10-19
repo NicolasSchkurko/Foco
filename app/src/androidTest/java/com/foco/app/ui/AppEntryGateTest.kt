@@ -14,10 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El gate de entrada E2E, contra el AppOp real (`appops`): frío con permiso →
- * dashboard; frío sin permiso → onboarding; cambios en vivo al volver.
- * El `appops` se setea ANTES del lanzamiento y el cleanup deja el emulador en
- * `allow` (perderlo era justo el artefacto que originó este change).
+ * El gate de entrada E2E contra el AppOp real: frío con permiso → dashboard; sin permiso → onboarding;
+ * cambios en vivo al volver. El `appops` se setea antes de lanzar y el cleanup lo deja en `allow`.
  */
 @RunWith(AndroidJUnit4::class)
 class AppEntryGateTest {

@@ -10,18 +10,8 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 /**
- * Enforces the layer rules:
- * 1. Every source lives in the folder that matches its package.
- * 2. `model/` and `domain/` do not import Android or Compose APIs.
- * 3. Dependencies only point downward: ui → data → domain → model.
- * 4. `data/` is Android platform access: every file imports android/androidx.
- * 5. `ui/` never reaches the platform raw — reads go through `data/` adapters.
- * 6. UI features do not import each other; shared widgets live in `ui/common/`. The feature
- *    folders are derived from the tree, so a new one falls under the rule without editing this file.
- *
- * Scans `app/src/main/java` (Gradle runs unit tests with the module dir as cwd).
- * Root-package files (`com.foco.app`, e.g. the entry activity) are exempt from the
- * dependency direction rule.
+ * Aplica las reglas de capas de `openspec/specs/code-structure` (carpeta ↔ paquete, pureza,
+ * dirección hacia abajo, features que no se importan). Escanea `src/main/java` (cwd = módulo).
  */
 class LayerRulesTest {
 
@@ -74,9 +64,8 @@ class LayerRulesTest {
     }
 
     /**
-     * Escanea [sources] con todas las reglas de capas y devuelve las violaciones encontradas (vacío
-     * = el árbol las respeta). La raíz entra por parámetro para poder correr las mismas reglas sobre
-     * un árbol sintético.
+     * Escanea [sources] con las reglas de capas y devuelve las violaciones (vacío = el árbol las respeta);
+     * la raíz entra por parámetro para poder correr lo mismo sobre un árbol sintético.
      */
     private fun violationsIn(sources: File): List<String> {
         assertTrue("expected sources at ${sources.absolutePath}", sources.isDirectory)

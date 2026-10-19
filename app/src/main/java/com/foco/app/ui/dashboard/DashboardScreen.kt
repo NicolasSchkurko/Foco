@@ -56,15 +56,8 @@ import kotlinx.coroutines.withContext
 const val DEFAULT_REFRESH_INTERVAL_MILLIS = 30_000L
 
 /**
- * Dashboard del día: total, actividad por hora, ranking de apps y desbloqueos.
- *
- * Carga los datos del día (sesiones + marcas de desbloqueo) y deriva las métricas
- * en la capa de UI (funciones puras en `ui/metrics/`). Los datos se actualizan solos:
- * al mostrarse y cada [refreshIntervalMillis] mientras la app está en primer plano.
- *
- * @param refreshIntervalMillis intervalo entre refrescos periódicos (los tests inyectan intervalos cortos).
- * @param loadDay seam de tests: si es null, se usa el repositorio real.
- * @param onOpenSettings abre la pantalla de Ajustes (engranaje del encabezado).
+ * Dashboard del día: total, horas, ranking y desbloqueos; las métricas se derivan en `ui/metrics/` y se
+ * refresca al mostrarse y mientras está en primer plano. `loadDay` y `refreshIntervalMillis` son seams.
  */
 @Composable
 fun DashboardScreen(

@@ -10,9 +10,8 @@ fun dayTotal(sessions: List<UsageSession>): Long =
     sessions.sumOf { it.end - it.start }
 
 /**
- * Ranking por app, ordenado por duración total descendente.
- * [excludedPackages] (exclusiones del usuario) quedan fuera del ranking,
- * pero su tiempo sigue contando en el total y en las horas.
+ * Ranking por app por duración descendente; las excluidas quedan fuera del ranking pero su tiempo sigue
+ * contando en el total y en las horas.
  */
 fun appRanking(
     sessions: List<UsageSession>,
