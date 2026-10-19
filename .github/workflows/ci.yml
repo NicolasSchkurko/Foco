@@ -16,23 +16,25 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: the label migrates to Ubuntu 26 on 2026-10-19 and
+    # a runner image change should not be what turns the suite red.
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The daemon JVM is pinned to 25 by gradle/gradle-daemon-jvm.properties,
       # so provide it here instead of letting Gradle download a toolchain.
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "25"
 
       # compileSdk = 36 (app/build.gradle.kts). Licenses are accepted by default;
       # any other SDK package the build needs is downloaded by AGP on demand.
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
         with:
           packages: "platforms;android-36"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - run: ./gradlew test
