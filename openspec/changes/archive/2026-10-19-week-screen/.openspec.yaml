@@ -4,6 +4,8 @@ x-kind: feature
 x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-19
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
 x-tech_brief: true
 x-targets:
   - app/src/main/java/com/foco/app/ui/week/WeekScreen.kt

@@ -298,12 +298,18 @@ Answer in your own words (the agent must not fill these):
 1. You tap **today's** bar and the day view shows today's live numbers; tap yesterday's and it shows
    the store's numbers — while the week's own today bar also read live. Why can today's dated view
    not simply read `sessionsFor(today)`, and what would the screen show if it did?
-   - TODO(human)
+   - **Answer (Nschkurko, 2026-10-19):** Porque `session_record` no contiene hoy, solo contiene días
+     ya cerrados y consolidados. Si leyéramos `sessionsFor(today)` quedaría como
+     `DayData(emptyList(), emptyList())`; el dashboard mostraría "Screen time: 0 s · 0 unlocks".
 2. A stored day's day view says "5 desbloqueos", read from `unlocksFor` and falling back to `0`. What
    exactly does that stored number carry, and what can it *not* tell you (or a future feature) —
    including the case where the read answers `null`?
-   - TODO(human)
+   - **Answer (Nschkurko, 2026-10-19):** Lleva un solo entero y no te puede decir cuándo ocurrieron,
+     qué app se desbloqueó después, si es un `null` o verdaderamente un cero, ni un día con
+     desbloqueos pero sin sesiones.
 3. The week opens, the store read succeeds, but the live read fails once. Describe what each of the
    seven bars shows, and say whether the user can tell today's bar apart from a day that genuinely
    has no data — and when it would be corrected.
-   - TODO(human)
+   - **Answer (Nschkurko, 2026-10-19):** La barra de hoy muestra todo en 0: sesiones y desbloqueos;
+     pero las guardadas sí muestran información. El usuario no puede distinguir la falla: no tiene un
+     estado visual propio que la distinga. Se corrige en el próximo RESUMED.

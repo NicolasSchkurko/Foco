@@ -263,7 +263,7 @@ The app SHALL read the stored per-app totals of the seven days ending at a given
 - **THEN** the read yields nothing
 
 ### Requirement: Day selection within the stored history
-The detail SHALL offer every day from today back to the oldest stored day, seven at most (the raw retention), with ‹ › controls: today read live and the previous days from storage, the forward arrow disabled at today and the back arrow at the oldest day offered.
+The detail SHALL offer every day from today back to the oldest stored day, seven at most (raw retention), with ‹ › controls stopped at today and at the oldest day: today live, earlier days from storage. The window SHALL follow the store while the detail is open.
 [@test] `app/src/test/java/com/foco/app/domain/DaySelectionTest.kt`
 [@test] `app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt`
 [@test] `app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt`
@@ -284,6 +284,10 @@ The detail SHALL offer every day from today back to the oldest stored day, seven
 - **WHEN** the chosen day is in the stored history but no longer returned by `queryEvents`
 - **THEN** the detail still shows that day's totals, chart and sessions
 
+#### Scenario: A day stored while the detail is open
+- **WHEN** a finished day is consolidated into the store while the detail is showing
+- **THEN** the selector gains that day and the back arrow reaches it, without the screen being paused and resumed
+
 ### Requirement: A failed stored read degrades instead of closing the app
 The detail SHALL keep working when a stored read fails: it shows the empty state for that day, or today alone when the stored days could not be read, and the app never closes.
 [@test] `app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt`
@@ -291,3 +295,49 @@ The detail SHALL keep working when a stored read fails: it shows the empty state
 #### Scenario: A stored read fails
 - **WHEN** reading a day's sessions or the list of stored days throws
 - **THEN** the screen answers its empty state (or today alone) and stays open
+
+### Requirement: A finished day keeps its unlock count
+The store SHALL keep every consolidated day's unlock count in its own database, next to that day's totals, derived from the same platform read that stores the day, so the count of a finished day is readable after the platform stops serving it and is never pruned with the raw sessions.
+[@test] `app/src/test/java/com/foco/app/data/StoredUnlocksTest.kt`
+[@test] `app/src/androidTest/java/com/foco/app/data/db/UnlockMigrationTest.kt`
+
+#### Scenario: A consolidated day keeps its count
+- **WHEN** a finished day with keyguard unlocks is consolidated
+- **THEN** reading that day back from the store answers its count, without asking the platform
+
+#### Scenario: The count outlives the raw rows
+- **WHEN** the day's raw sessions are pruned by a later consolidation
+- **THEN** its unlock count is still readable
+
+#### Scenario: The upgrade keeps what was stored
+- **WHEN** a database written by version 1 opens after the version 2 upgrade
+- **THEN** its sessions and totals are still there and the day's count reads as not stored
+
+### Requirement: The week view covers the last seven days
+The week view SHALL show the last seven days as one bar per day (the day's total screen time) plus the ranked per-app totals of those days, derived in the UI by pure functions; today SHALL come live from the platform, and a day without stored data SHALL read as absent, not as zero.
+[@test] `app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt`
+[@test] `app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt`
+
+#### Scenario: The seven bars
+- **WHEN** the week view opens
+- **THEN** it shows seven bars, today live and the previous six from the stored totals
+
+#### Scenario: A day with no data
+- **WHEN** a day in the window has no stored total
+- **THEN** its bar reads as absent, not as zero screen time
+
+#### Scenario: The ranking
+- **WHEN** the week has usage
+- **THEN** the apps are listed by their total over the seven days, descending
+
+### Requirement: A day bar opens that day's view
+The week view SHALL be reachable from the dashboard, the back action SHALL return to it, and tapping a day's bar SHALL open that day's view — the dashboard composition for that date, read from stored sessions — where an app row opens that app's detail for the day.
+[@test] `app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt`
+
+#### Scenario: Entry and return
+- **WHEN** the week control is used in the dashboard
+- **THEN** the week view opens and the back action returns to the dashboard
+
+#### Scenario: Opening a day
+- **WHEN** a bar is tapped
+- **THEN** that day's view opens with its total, hourly chart and ranking

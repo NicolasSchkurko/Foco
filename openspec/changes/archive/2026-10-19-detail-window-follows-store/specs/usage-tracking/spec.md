@@ -3,7 +3,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Day selection within the stored history
-The detail SHALL offer every day from today back to the oldest stored day, seven at most (the raw retention), with ‹ › controls: today read live and the previous days from storage, the forward arrow disabled at today and the back arrow at the oldest day offered. The offered window SHALL follow the store while the detail is open: a day the store gains becomes reachable without the screen being paused and resumed.
+The detail SHALL offer every day from today back to the oldest stored day, seven at most (raw retention), with ‹ › controls stopped at today and at the oldest day: today live, earlier days from storage. The window SHALL follow the store while the detail is open.
 [@test] `app/src/test/java/com/foco/app/domain/DaySelectionTest.kt`
 [@test] `app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt`
 [@test] `app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt`

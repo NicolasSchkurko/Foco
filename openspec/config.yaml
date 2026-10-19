@@ -4,6 +4,11 @@ schema: spec-anchored
 # Examples: "./gradlew test" (Linux/macOS) · "gradlew.bat test" (Windows) · "npm test" · "pytest -q"
 test_command: "gradlew.bat test"
 
+# Fast feedback: same runner, only the change's declared unit tests (--tests-of).
+# {classes} derives com.foco.*Test from app/src/test/java/**; instrumented tests
+# (app/src/androidTest/**) are not covered by `test` and stay in the full run.
+test_command_scope: "gradlew.bat test --tests {classes}"
+
 context: |
   Language: english
   All artifacts must be written in English.
