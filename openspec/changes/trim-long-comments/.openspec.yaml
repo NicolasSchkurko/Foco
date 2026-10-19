@@ -19,6 +19,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-deps:
   - boundary-check-fixture
+  - day-window-seam
   - english-default-resources
   - cross-midnight-sessions
   - same-millisecond-transitions
