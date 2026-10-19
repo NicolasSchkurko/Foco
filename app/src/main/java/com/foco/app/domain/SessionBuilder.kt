@@ -52,3 +52,18 @@ fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
 
     return sessions
 }
+
+/**
+ * Recorta las sesiones a la ventana de un día. Una sesión abierta antes de [dayStart]
+ * cuenta desde [dayStart], así el día vecino conserva su propia parte; lo que queda
+ * fuera de la ventana se descarta.
+ */
+fun clampSessionsToDay(
+    sessions: List<UsageSession>,
+    dayStart: Long,
+    dayEndExclusive: Long
+): List<UsageSession> = sessions.mapNotNull { session ->
+    val start = maxOf(session.start, dayStart)
+    val end = minOf(session.end, dayEndExclusive)
+    if (end > start) UsageSession(session.packageName, start, end) else null
+}

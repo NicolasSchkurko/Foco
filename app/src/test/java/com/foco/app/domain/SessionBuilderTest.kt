@@ -82,4 +82,93 @@ class SessionBuilderTest {
     fun `no activity yields no sessions`() {
         assertTrue(buildSessions(events = emptyList(), now = base).isEmpty())
     }
+
+    @Test
+    fun `an app already open at the day's start counts from the day's start`() {
+        val dayStart = 24 * HOUR
+        val resumedYesterday = dayStart - 10 * MINUTE
+        val folded = buildSessions(
+            listOf(
+                UsageEvent("app.a", resumedYesterday, UsageEventType.RESUMED),
+                UsageEvent("app.a", dayStart + 6 * MINUTE, UsageEventType.STOPPED)
+            ),
+            now = dayStart + 6 * MINUTE
+        )
+
+        assertEquals(
+            listOf(UsageSession("app.a", resumedYesterday, dayStart + 6 * MINUTE)),
+            folded
+        )
+        assertEquals(
+            listOf(UsageSession("app.a", dayStart, dayStart + 6 * MINUTE)),
+            clampSessionsToDay(folded, dayStart, dayStart + 24 * HOUR)
+        )
+    }
+
+    @Test
+    fun `an app still open across midnight ends at the query time`() {
+        val dayStart = 24 * HOUR
+        val folded = buildSessions(
+            listOf(UsageEvent("app.a", dayStart - 10 * MINUTE, UsageEventType.RESUMED)),
+            now = dayStart + 6 * MINUTE
+        )
+
+        assertEquals(
+            listOf(UsageSession("app.a", dayStart, dayStart + 6 * MINUTE)),
+            clampSessionsToDay(folded, dayStart, dayStart + 24 * HOUR)
+        )
+    }
+
+    @Test
+    fun `the previous day keeps its own slice and the two do not overlap`() {
+        val dayStart = 24 * HOUR
+        val resumedYesterday = dayStart - 10 * MINUTE
+        val stoppedToday = dayStart + 6 * MINUTE
+        val events = listOf(
+            UsageEvent("app.a", resumedYesterday, UsageEventType.RESUMED),
+            UsageEvent("app.a", stoppedToday, UsageEventType.STOPPED)
+        )
+        val yesterday = clampSessionsToDay(
+            buildSessions(events, now = dayStart),
+            dayStart - 24 * HOUR,
+            dayStart
+        )
+        val today = clampSessionsToDay(
+            buildSessions(events, now = stoppedToday),
+            dayStart,
+            dayStart + 24 * HOUR
+        )
+
+        assertEquals(listOf(UsageSession("app.a", resumedYesterday, dayStart)), yesterday)
+        assertEquals(listOf(UsageSession("app.a", dayStart, stoppedToday)), today)
+        assertEquals(yesterday.single().end, today.single().start)
+    }
+
+    @Test
+    fun `sessions from the lookback and a stop without an open session are dropped`() {
+        val dayStart = 24 * HOUR
+        val olderThanTheDay = listOf(UsageSession("app.a", dayStart - 5 * HOUR, dayStart - 4 * HOUR))
+        val orphanStop = buildSessions(
+            listOf(UsageEvent("app.a", dayStart + HOUR, UsageEventType.STOPPED)),
+            now = dayStart + 2 * HOUR
+        )
+
+        assertTrue(clampSessionsToDay(olderThanTheDay, dayStart, dayStart + 24 * HOUR).isEmpty())
+        assertTrue(orphanStop.isEmpty())
+        assertTrue(clampSessionsToDay(orphanStop, dayStart, dayStart + 24 * HOUR).isEmpty())
+    }
+
+    @Test
+    fun `a session inside the day is untouched by the clamp`() {
+        val dayStart = 24 * HOUR
+        val inside = buildSessions(
+            listOf(
+                UsageEvent("app.a", dayStart + HOUR, UsageEventType.RESUMED),
+                UsageEvent("app.a", dayStart + 2 * HOUR, UsageEventType.STOPPED)
+            ),
+            now = dayStart + 3 * HOUR
+        )
+
+        assertEquals(inside, clampSessionsToDay(inside, dayStart, dayStart + 24 * HOUR))
+    }
 }

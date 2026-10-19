@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import com.foco.app.domain.buildSessions
+import com.foco.app.domain.clampSessionsToDay
 import com.foco.app.domain.filterSessions
 import com.foco.app.model.UsageEvent
 import com.foco.app.model.UsageEventType
@@ -14,12 +15,9 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Lee las estadísticas de uso del sistema (UsageStatsManager) y las mapea a
- * eventos planos; las sesiones del día salen del fold puro ([buildSessions])
- * más la política de paquetes ([filterSessions]). Las marcas `KEYGUARD_HIDDEN`
- * de la misma consulta son los desbloqueos del día.
- *
- * No agrega nada: devuelve los datos planos del día y la UI deriva sus métricas.
+ * Lee UsageStatsManager y mapea los eventos a planos; las sesiones del día salen del
+ * fold puro ([buildSessions]) recortado al día ([clampSessionsToDay]) y de la política
+ * de paquetes ([filterSessions]). No agrega nada: devuelve lo plano y la UI deriva.
  */
 class UsageRepository(private val context: Context) {
 
@@ -56,18 +54,19 @@ class UsageRepository(private val context: Context) {
         )
 
     /**
-     * Datos de un día cualquiera: eventos del sistema → fold puro → política pura.
-     * Ventana `[inicio del día, min(fin del día, now)]`: para días pasados una sesión
-     * abierta se cierra al final del día; para hoy, en "ahora". Las marcas
-     * `KEYGUARD_HIDDEN` del mismo stream se devuelven aparte en [DayData.unlockTimes].
+     * Datos de un día: eventos del sistema → fold puro → recorte al día → política de paquetes.
+     * La consulta mira desde el inicio del día anterior, para ver el evento que abrió una sesión
+     * que ya estaba abierta al empezar el día; cierra en `min(fin del día, now)`. Los
+     * `KEYGUARD_HIDDEN` de la ventana del día son los desbloqueos.
      */
     fun loadDay(date: LocalDate, now: Long = System.currentTimeMillis()): DayData {
         val zone = ZoneId.systemDefault()
         val startOfDay = date.atStartOfDay(zone).toInstant().toEpochMilli()
         val dayEndExclusive = date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
         val effectiveEnd = minOf(dayEndExclusive, now)
+        val lookbackStart = date.minusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
 
-        val events = usageStats?.queryEvents(startOfDay, effectiveEnd)
+        val events = usageStats?.queryEvents(lookbackStart, effectiveEnd)
             ?: return DayData(sessions = emptyList(), unlockTimes = emptyList())
 
         val rawEvents = mutableListOf<UsageEvent>()
@@ -78,7 +77,8 @@ class UsageRepository(private val context: Context) {
 
             when (event.eventType) {
                 UsageEvents.Event.KEYGUARD_HIDDEN ->
-                    unlockTimes += event.timeStamp
+                    // La ventana de la consulta arranca ayer: sólo cuentan los del día pedido.
+                    if (event.timeStamp >= startOfDay) unlockTimes += event.timeStamp
 
                 UsageEvents.Event.ACTIVITY_RESUMED ->
                     event.packageName?.let {
@@ -95,7 +95,11 @@ class UsageRepository(private val context: Context) {
 
         return DayData(
             sessions = filterSessions(
-                sessions = buildSessions(rawEvents, now = effectiveEnd),
+                sessions = clampSessionsToDay(
+                    sessions = buildSessions(rawEvents, now = effectiveEnd),
+                    dayStart = startOfDay,
+                    dayEndExclusive = dayEndExclusive
+                ),
                 allowedPackages = launchablePackages,
                 excludedPackages = excludedPackages
             ),

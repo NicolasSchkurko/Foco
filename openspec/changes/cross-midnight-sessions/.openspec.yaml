@@ -1,0 +1,18 @@
+schema: spec-anchored
+created: 2026-10-18
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-18
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/**
+  - app/src/main/java/com/foco/app/domain/**
+  - app/src/test/**
+x-tests:
+  - app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt
+x-deps:
+  - datastore-test-on-windows
+x-gitref: 940e81e
