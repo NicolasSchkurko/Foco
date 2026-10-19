@@ -1,0 +1,15 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: refactor
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-tech_brief: false
+x-targets:
+  - app/src/main/java/com/foco/app/domain/DayWindow.kt
+  - app/src/main/java/com/foco/app/data/UsageRepository.kt
+  - app/src/test/java/com/foco/app/domain/DayWindowTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/domain/DayWindowTest.kt
+x-deps: []
+x-gitref: 6aa8009
