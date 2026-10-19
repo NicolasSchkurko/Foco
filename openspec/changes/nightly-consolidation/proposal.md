@@ -28,7 +28,7 @@ History stops depending on the user opening the app. We will know it was worth i
 
 ## Alternatives considered
 
-Option 0 is the contract this change reuses rather than rebuilds: `SessionHistoryStore.consolidate(today)` from `usage-history-foundation`, already idempotent and already the owner of the retention policy.
+Option 0 is the contract this change reuses rather than rebuilds: `SessionHistoryStore.consolidate(today)` — created by `usage-history-foundation` (already idempotent, already the owner of the retention policy) and left in its final shape by `history-storage-followups` (one calendar, `finishedDays(today)` instead of a positional `drop(1)`).
 
 | Option | Why yes | Why not / status |
 |---|---|---|
@@ -47,5 +47,5 @@ Option 0 is the contract this change reuses rather than rebuilds: `SessionHistor
 ## Impact
 
 - `tech_brief: true`: a second writer into the same tables, on a schedule the OS controls, is exactly the concurrency story a walkthrough owes.
-- Depends on `usage-history-foundation`: it shares `MainActivity.kt`, `gradle/libs.versions.toml` and `app/build.gradle.kts` with it, so the gate treats those overlaps as sequenced.
+- Depends on `usage-history-foundation` (archived, verified) and `history-storage-followups` (archived, verified, `kind: refactor`): `MainActivity.kt` is shared with both — the foundation also shares `gradle/libs.versions.toml` and `app/build.gradle.kts` — so the gate treats those overlaps as sequenced. The follow-up is the one that froze the store semantics this change's runner wraps.
 - No protected zone (`openspec/config.yaml` → `protected: []`).

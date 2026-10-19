@@ -32,4 +32,4 @@
 ## Workflow follow-up
 
 - `tech_brief: true`: `walkthrough.md` (two writers, the mutex, what Doze does to the hour, failure modes) + comprehension sign-off before archiving.
-- Depends on `usage-history-foundation`; lands after it is `verified`. Leave `status: draft` until the human accepts.
+- Depends on `usage-history-foundation` and `history-storage-followups`, both archived as `verified`; nothing is left to sequence. Leave `status: draft` until the human accepts.
