@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-18
 x-kind: fix
-x-status: draft
+x-status: verified
 x-tech_brief: false
 x-targets:
   - openspec/specs/app-settings/spec.md
@@ -11,4 +11,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
   - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
 x-deps: []
-x-gitref: 6c16929
+x-gitref: f684cdd
