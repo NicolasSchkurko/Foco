@@ -15,14 +15,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.lifecycleScope
 import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppLanguage
+import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.SettingsStore
+import com.foco.app.data.UsageRepository
 import com.foco.app.data.migrateSettingsFromLegacyDataStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.ui.App
 import com.foco.app.ui.theme.FocoTheme
+import java.time.LocalDate
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -45,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         enableEdgeToEdge()
+        consolidateHistory()
         setContent {
             val appearance by settings.appearance.collectAsState(initial = storedAppearance)
             // Picking another appearance in Settings reaches here and applies at once;
@@ -60,6 +69,31 @@ class MainActivity : AppCompatActivity() {
                 App()
             }
         }
+    }
+
+    /**
+     * Best-effort backfill: stores the finished days on IO, once per app process. A failure is not fatal —
+     * the next start retries, and today is read live from the platform anyway.
+     */
+    private fun consolidateHistory() {
+        if (!consolidating.compareAndSet(false, true)) return
+        val repository = UsageRepository(applicationContext)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                SessionHistoryStore.forApp(applicationContext) { date -> repository.loadDay(date) }
+                    .consolidate(LocalDate.now())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                // The backfill retries on the next start; nothing here is user-facing.
+            } finally {
+                consolidating.set(false)
+            }
+        }
+    }
+
+    private companion object {
+        val consolidating = AtomicBoolean(false)
     }
 }
 
