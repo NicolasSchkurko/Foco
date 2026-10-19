@@ -302,14 +302,25 @@ Answer in your own words (the agent must not fill these):
 1. A day that version 1 had already consolidated now reads as "no stored count" forever. Which table
    holds the count, which function is the one that writes counts for other days, and what exactly
    prevents that old day from ever being given one?
-   > **Answer (human):** TODO(human)
+   > **Answer (Nschkurko, 2026-10-19):** La tabla `daily_unlock` guarda el count; la que lo escribe es
+   > `SessionHistoryStore.consolidateDay(day)`. Lo que impide que el día viejo reciba un count es que
+   > `consolidateDay` nunca corre para ese día viejo, por ende el count termina siendo `null`: el día
+   > viejo ya tiene filas de totales, así que nunca llega a `consolidateDay`.
 
 2. The process is killed during a start, right after a day's totals are stored but before its count.
    Describe that day's rows afterwards, and state whether the next start repairs them — naming the
    function and the table that decide it.
-   > **Answer (human):** TODO(human)
+   > **Answer (Nschkurko, 2026-10-19):** `consolidateDay` son escrituras separadas de Room, así que si
+   > se muere el proceso `daily_unlock` se queda con cero filas; al reiniciar, `consolidate` no repara
+   > nada. La decisión la toman la función `SessionHistoryStore.consolidate` y la tabla
+   > `daily_aggregate`.
 
 3. Next week you want to persist one more number per day in the same database. Which files must
    change, and what must the new migration's SQL be equal to for
    `MigrationTestHelper.runMigrationsAndValidate` in `UnlockMigrationTest` to accept it?
-   > **Answer (human):** TODO(human)
+   > **Answer (Nschkurko, 2026-10-19):** (a) Podemos agregar una columna nueva en la tabla
+   > `daily_unlock` o agregar otra tabla. Deberíamos cambiar sí o sí `DailyUnlock`, `FocoDatabase`, el
+   > schema de `FocoDatabase`, `SessionHistoryStore` y los archivos para testing; si es una nueva
+   > tabla, un DAO y un archivo `Daily...`. (b) El SQL no tiene que ser textualmente igual a nada, pero
+   > debe producir una tabla cuyo `TableInfo` sea igual al que Room deriva de
+   > `app/schemas/com.foco.app.data.db.FocoDatabase/3.json`.
