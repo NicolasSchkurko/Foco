@@ -1,0 +1,17 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: refactor
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-tech_brief: false
+x-targets:
+  - openspec/specs/spec-tooling/spec.md
+  - openspec/specs/code-structure/spec.md
+  - ARCHITECTURE.dsl
+x-tests:
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+  - app/src/test/java/com/foco/app/data/SettingsMigrationTest.kt
+  - app/src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt
+x-deps: []
+x-gitref: 3c469f9

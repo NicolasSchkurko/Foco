@@ -19,6 +19,10 @@ workspace "Foco" "Personal Android app to track device usage per app — 100% lo
             tags "External"
         }
 
+        checks = softwareSystem "Development checks" "The repository's own verification, never application behavior: the tripwires under app/src/test/java/com/foco/app/structure/ (layer rules, the boundary check and its fixture, the base locale resources, the config shape), the gate in scripts/gates/ and the CI workflow." {
+            tags "cap:spec-tooling"
+        }
+
         user -> app "Uses"
         entry -> ui "Hosts the Compose tree"
         entry -> platform "Declared as the launcher activity: usage-access permission, launcher/home queries, predictive-back callback"
@@ -31,6 +35,7 @@ workspace "Foco" "Personal Android app to track device usage per app — 100% lo
         domain -> model "Produces"
         data -> platform "Queries events, permission state and package visibility"
         ui -> platform "Opens the system usage-access settings screen and dispatches the system back invocation"
+        checks -> app "Runs the tripwires over the app's shape, its resources and the tooling configuration"
     }
 
     views {
