@@ -19,6 +19,11 @@ private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 fun formatTimeOfDay(epochMillis: Long, zone: ZoneId = ZoneId.systemDefault()): String =
     Instant.ofEpochMilli(epochMillis).atZone(zone).format(timeFormatter)
 
+private val weekdayFormatter = DateTimeFormatter.ofPattern("EEE")
+
+/** The week bar's label: the device locale's short weekday (e.g. Mon / lun). */
+fun formatWeekday(date: LocalDate): String = weekdayFormatter.format(date)
+
 private val dayFormatter = DateTimeFormatter.ofPattern("EEE d MMM")
 
 /**

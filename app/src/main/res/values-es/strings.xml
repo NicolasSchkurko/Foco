@@ -54,6 +54,17 @@
     <string name="settings_excluded_empty">No hay apps excluidas.</string>
     <string name="settings_restore">Restaurar</string>
 
+    <!-- Week -->
+    <string name="week_title">Semana</string>
+    <string name="week_empty">Sin actividad en los últimos siete días.</string>
+    <string name="week_bar">%1$s · %2$s</string>
+    <string name="week_bar_absent">%1$s · sin datos</string>
+    <string name="day_empty">Sin actividad registrada ese día.</string>
+    <plurals name="week_days_used">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+
     <!-- Common -->
     <string name="loading">Cargando…</string>
 </resources>

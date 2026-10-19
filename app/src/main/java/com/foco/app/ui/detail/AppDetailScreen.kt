@@ -1,6 +1,5 @@
 package com.foco.app.ui.detail
 
-import android.util.Log
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,22 +48,22 @@ import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.common.appLabel
+import com.foco.app.ui.common.readOr
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.appDayDetail
 import java.time.LocalDate
 import java.time.ZoneId
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
  * One app's detail: hourly breakdown, the day's summary and the session list, with a ‹ day ›
- * selector that walks back from today to the oldest day the store has.
+ * selector that walks back from today to the oldest day the store has; [date] opens on that day.
  */
 @Composable
-fun AppDetailScreen(packageName: String) {
+fun AppDetailScreen(packageName: String, date: LocalDate? = null) {
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val repository = remember { UsageRepository(context.applicationContext) }
@@ -86,7 +85,30 @@ fun AppDetailScreen(packageName: String) {
         }
     }
 
-    val days = remember(today, storedDays) { availableDays(today, storedDays.orEmpty()) }
+    val days = remember(today, storedDays, date) {
+        val available = availableDays(today, storedDays.orEmpty())
+        // Any bar the week offers opens its day, even one the store has nothing for.
+        if (date != null && date !in available && date in today.minusDays(6)..today) {
+            (available + date).sortedDescending()
+        } else {
+            available
+        }
+    }
+
+    // The requested day is applied once, and only when the window can hold it: the stored days
+    // arrive asynchronously, and applying the request to the first (today-alone) window would land
+    // on the wrong day once the list grows. Afterwards the user's taps on the selector win.
+    var requested by remember { mutableStateOf(date) }
+    LaunchedEffect(days, storedDays) {
+        if (storedDays != null) {
+            val index = days.indexOf(requested)
+            if (index >= 0) {
+                selectedIndex = index
+                requested = null
+            }
+        }
+    }
+
     val selectedDate = days[selectedIndex]
     LaunchedEffect(packageName, selectedDate, storedDays) {
         sessions = null
@@ -283,17 +305,3 @@ fun AppDetailScreen(packageName: String) {
         }
     }
 }
-
-/**
- * One day's read that degrades instead of crashing: a failure logs and answers [fallback] (today
- * alone, or an empty day) — internal so `AppDetailReadTest` can exercise it. Cancellation propagates.
- */
-internal suspend fun <T> readOr(fallback: T, read: suspend () -> T): T =
-    try {
-        read()
-    } catch (cancelled: CancellationException) {
-        throw cancelled
-    } catch (failure: Exception) {
-        Log.w("Foco", "Day read failed", failure)
-        fallback
-    }

@@ -2,6 +2,7 @@ package com.foco.app.ui.detail
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.foco.app.model.UsageSession
+import com.foco.app.ui.common.readOr
 import java.io.IOException
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException

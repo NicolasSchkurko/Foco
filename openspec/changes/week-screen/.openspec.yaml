@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-19
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-19
 x-tech_brief: true
@@ -13,13 +13,18 @@ x-targets:
   - app/src/main/java/com/foco/app/ui/FocoNavHost.kt
   - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
   - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/AppUsageRow.kt
+  - app/src/main/java/com/foco/app/ui/common/AppUsageRow.kt
+  - app/src/main/java/com/foco/app/ui/common/ReadOr.kt
+  - app/src/main/java/com/foco/app/ui/Formatting.kt
   - app/src/main/res/values/strings.xml
   - app/src/main/res/values-es/strings.xml
 x-tests:
   - app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt
   - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt
 x-deps:
   - usage-history-foundation
   - detail-history-days
   - stored-day-unlocks
-x-gitref: 8c91b63
+x-gitref: e8a711d

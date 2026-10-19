@@ -1,4 +1,4 @@
-package com.foco.app.ui.dashboard
+package com.foco.app.ui.common
 
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -14,21 +14,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.foco.app.R
-import com.foco.app.ui.common.AppIcon
-import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.formatDuration
-import com.foco.app.ui.formatTimeOfDay
-import com.foco.app.ui.metrics.AppUsageEntry
 
+/**
+ * One app in a ranking: icon, label, its share of [maxMillis] as a bar, its time and a [caption]
+ * under it — the screen says what fits (when it was last used, or how many days it was used).
+ */
 @Composable
 fun AppUsageRow(
-    entry: AppUsageEntry,
-    totalMillis: Long,
+    packageName: String,
+    millis: Long,
+    maxMillis: Long,
+    caption: String,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
@@ -37,17 +37,17 @@ fun AppUsageRow(
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AppIcon(packageName = entry.packageName)
+        AppIcon(packageName = packageName)
         Spacer(Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = appLabel(entry.packageName),
+                text = appLabel(packageName),
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1
             )
             Spacer(Modifier.height(4.dp))
-            val fraction = if (totalMillis > 0) entry.totalMillis.toFloat() / totalMillis else 0f
+            val fraction = if (maxMillis > 0) millis.toFloat() / maxMillis else 0f
             LinearProgressIndicator(
                 progress = { fraction },
                 modifier = Modifier.fillMaxWidth()
@@ -58,11 +58,11 @@ fun AppUsageRow(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = formatDuration(entry.totalMillis),
+                text = formatDuration(millis),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = stringResource(R.string.row_last_used, formatTimeOfDay(entry.lastUsedAt)),
+                text = caption,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
