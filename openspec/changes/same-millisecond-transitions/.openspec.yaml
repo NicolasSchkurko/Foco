@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-18
 x-kind: fix
-x-status: draft
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
 x-targets:
   - app/src/main/java/com/foco/app/domain/**
   - app/src/test/**
@@ -12,4 +14,4 @@ x-deps:
   - cross-midnight-sessions
   - layer-check-scope
   - datastore-test-on-windows
-x-gitref: 04d4be5
+x-gitref: f219813

@@ -171,4 +171,45 @@ class SessionBuilderTest {
 
         assertEquals(inside, clampSessionsToDay(inside, dayStart, dayStart + 24 * HOUR))
     }
+
+    @Test
+    fun `a direct switch in the same millisecond closes the previous session at that instant`() {
+        val sessions = buildSessions(
+            listOf(
+                UsageEvent("app.a", base, UsageEventType.RESUMED),
+                UsageEvent("app.b", base, UsageEventType.RESUMED)
+            ),
+            now = base + 30 * MINUTE
+        )
+
+        // A no aporta tiempo (sesión de longitud cero, no emitida) y B queda abierta hasta "now".
+        assertEquals(listOf(UsageSession("app.b", base, base + 30 * MINUTE)), sessions)
+    }
+
+    @Test
+    fun `a stop in the same millisecond as the resume emits no session and leaves nothing open`() {
+        val sessions = buildSessions(
+            listOf(
+                UsageEvent("app.a", base, UsageEventType.RESUMED),
+                UsageEvent("app.a", base, UsageEventType.STOPPED)
+            ),
+            now = base + 30 * MINUTE
+        )
+
+        assertTrue("una sesión de longitud cero no se emite", sessions.isEmpty())
+    }
+
+    @Test
+    fun `a resume and a stop in the same millisecond leave the next package open`() {
+        val sessions = buildSessions(
+            listOf(
+                UsageEvent("app.a", base, UsageEventType.RESUMED),
+                UsageEvent("app.a", base, UsageEventType.STOPPED),
+                UsageEvent("app.b", base, UsageEventType.RESUMED)
+            ),
+            now = base + 5 * MINUTE
+        )
+
+        assertEquals(listOf(UsageSession("app.b", base, base + 5 * MINUTE)), sessions)
+    }
 }
