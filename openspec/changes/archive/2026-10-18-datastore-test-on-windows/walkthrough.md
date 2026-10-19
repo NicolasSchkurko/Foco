@@ -49,7 +49,7 @@ Lifecycle: nothing survives a run. The temp folder belongs to one test method an
 
 ## Cognitive sign-off
 
-Answered by the human on 2026-10-18 — answers transcribed verbatim (repo convention).
+Answered by the human on 2026-10-18 — answers transcribed verbatim (repo convention). The sign-off was recorded on 2026-10-19 (`understood_by`/`understood_at` in `.openspec.yaml`), when the human closed the change: the answers above were re-validated against the mechanism before recording.
 
 1. The device and the unit test run the same code — why does one pass and the other fail?
    - "Ok, entiendo. como nuestro test cae en el fallback de sdk = 0 se busca hacer un file rename
