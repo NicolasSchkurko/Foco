@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: refactor
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-tech_brief: false
+x-targets:
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+x-deps:
+  - layer-check-scope
+x-gitref: 2725949

@@ -1,10 +1,13 @@
 package com.foco.app.structure
 
 import java.io.File
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 /**
  * Enforces the layer rules:
@@ -21,6 +24,9 @@ import org.junit.Test
  * dependency direction rule.
  */
 class LayerRulesTest {
+
+    @get:Rule
+    val temp = TemporaryFolder()
 
     private val packageLine = Regex("""^package\s+([\w.]+)""")
     private val appImport = Regex("""^import\s+com\.foco\.app\.(\w+)""")
@@ -60,7 +66,19 @@ class LayerRulesTest {
 
     @Test
     fun packagesMatchFoldersPureLayersStayPureAndDependenciesPointDownward() {
-        val sources = File("src/main/java")
+        val violations = violationsIn(File("src/main/java"))
+
+        if (violations.isNotEmpty()) {
+            fail("Layer rules violated:\n" + violations.joinToString("\n"))
+        }
+    }
+
+    /**
+     * Escanea [sources] con todas las reglas de capas y devuelve las violaciones encontradas (vacío
+     * = el árbol las respeta). La raíz entra por parámetro para poder correr las mismas reglas sobre
+     * un árbol sintético.
+     */
+    private fun violationsIn(sources: File): List<String> {
         assertTrue("expected sources at ${sources.absolutePath}", sources.isDirectory)
 
         // Las features salen del árbol: cualquier carpeta bajo `ui/` que no sea compartida.
@@ -125,9 +143,7 @@ class LayerRulesTest {
                 }
             }
 
-        if (violations.isNotEmpty()) {
-            fail("Layer rules violated:\n" + violations.joinToString("\n"))
-        }
+        return violations
     }
 
     @Test
@@ -148,6 +164,42 @@ class LayerRulesTest {
         assertTrue(
             "shared folders must not be read as features, got $derived",
             derived.none { it in sharedUiFolders }
+        )
+    }
+
+    @Test
+    fun theScanReportsAViolationFromAFeatureFolderItHasNeverSeen() {
+        val root = File(temp.root, "src/main/java")
+        writeKotlinFile(root, "com/foco/app/ui/dashboard/Row.kt", "com.foco.app.ui.dashboard")
+        writeKotlinFile(
+            root, "com/foco/app/ui/common/Widget.kt", "com.foco.app.ui.common",
+            "com.foco.app.ui.dashboard.Row"
+        )
+        writeKotlinFile(
+            root, "com/foco/app/ui/reports/Reports.kt", "com.foco.app.ui.reports",
+            "com.foco.app.ui.dashboard.Row"
+        )
+
+        val violations = violationsIn(root)
+
+        assertEquals("the scan must report the new feature once: $violations", 1, violations.size)
+        assertTrue(
+            "the violation must name the file: $violations",
+            violations.single().contains("ui/reports/Reports.kt")
+        )
+        assertTrue(
+            "a shared folder must not be reported as a feature: $violations",
+            violations.none { it.startsWith("com/foco/app/ui/common/") }
+        )
+    }
+
+    /** Escribe un fuente sintético: su `package` y los [imports] que se le pasen. */
+    private fun writeKotlinFile(root: File, path: String, packageName: String, vararg imports: String) {
+        val file = File(root, path)
+        file.parentFile.mkdirs()
+        file.writeText(
+            (listOf("package $packageName") + imports.map { "import $it" })
+                .joinToString(separator = "\n", postfix = "\n")
         )
     }
 }
