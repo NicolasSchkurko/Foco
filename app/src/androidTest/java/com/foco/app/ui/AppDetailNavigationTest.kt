@@ -1,5 +1,6 @@
 package com.foco.app.ui
 
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -10,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
 import com.foco.app.R
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,6 +75,21 @@ class AppDetailNavigationTest {
             composeRule.waitUntil(timeoutMillis = 10_000) {
                 composeRule.onAllNodesWithText(string(R.string.dashboard_title)).fetchSemanticsNodes().isNotEmpty()
             }
+        }
+    }
+
+    @Test
+    fun theBackArrowSitsAtTheLeadingEdgeOfTheHeader() {
+        launchAndOpenDetail().use {
+            val back = composeRule.onNodeWithContentDescription(string(R.string.content_back))
+                .getUnclippedBoundsInRoot()
+            val identity = composeRule.onNodeWithText("Settings").getUnclippedBoundsInRoot()
+
+            assertTrue(
+                "the arrow must sit at the header's leading edge (the old inset left the node at ~24 dp): $back",
+                back.left.value <= 16f
+            )
+            assertTrue("the arrow must precede the app identity", back.left < identity.left)
         }
     }
 }

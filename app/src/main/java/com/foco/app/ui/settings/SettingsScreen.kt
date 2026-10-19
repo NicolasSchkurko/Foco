@@ -1,6 +1,7 @@
 package com.foco.app.ui.settings
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -64,21 +65,26 @@ fun SettingsScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
         ) {
             Spacer(Modifier.height(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { backDispatcher?.onBackPressed() }) {
+            // Header: la flecha al borde inicial (inset 4 dp) y el título centrado en la ventana.
+            Box(modifier = Modifier.fillMaxWidth()) {
+                IconButton(
+                    onClick = { backDispatcher?.onBackPressed() },
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 4.dp)
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.content_back)
                     )
                 }
-                Spacer(Modifier.width(4.dp))
                 Text(
                     text = stringResource(R.string.settings_title),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
 
@@ -87,6 +93,7 @@ fun SettingsScreen() {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
                     .weight(1f)
             ) {
                 item {

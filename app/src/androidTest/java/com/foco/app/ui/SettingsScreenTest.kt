@@ -3,6 +3,8 @@ package com.foco.app.ui
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -25,6 +27,7 @@ import com.foco.app.model.LanguageOption
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -208,6 +211,29 @@ class SettingsScreenTest {
         composeRule.waitUntil(timeoutMillis = 10_000) { selectedRow("Dark", selected = false) }
         composeRule.onAllNodesWithText("Automatic")[1].assertIsSelected()
         scenario.close()
+    }
+
+    @Test
+    fun theBackControlSitsAtTheLeadingEdgeAndTheTitleIsCentered() {
+        ActivityScenario.launch(MainActivity::class.java).use {
+            ensureSettings(language = "en")
+
+            val back = composeRule.onNodeWithContentDescription("Back").getUnclippedBoundsInRoot()
+            val title = composeRule.onNodeWithText("Settings").getUnclippedBoundsInRoot()
+            val root = composeRule.onRoot().getUnclippedBoundsInRoot()
+
+            // Medido: el nodo del control queda a ~8 dp con el inset nuevo y a ~24 dp con el viejo
+            // (el glyph, ~8 dp más adentro: ~16 dp contra ~32 dp). El umbral va en medio.
+            assertTrue(
+                "the arrow must sit at the header's leading edge (the old inset left the node at ~24 dp): $back",
+                back.left.value <= 16f
+            )
+            assertTrue("the arrow must precede the title", back.left < title.left)
+            val offCenter = kotlin.math.abs(
+                (title.left.value + title.right.value) / 2f - (root.left.value + root.right.value) / 2f
+            )
+            assertTrue("the title must read centered (off by $offCenter dp)", offCenter <= 16f)
+        }
     }
 
     @Test

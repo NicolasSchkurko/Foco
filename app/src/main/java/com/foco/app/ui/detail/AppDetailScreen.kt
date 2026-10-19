@@ -80,32 +80,41 @@ fun AppDetailScreen(packageName: String) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
         ) {
             Spacer(Modifier.height(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { backDispatcher?.onBackPressed() }) {
+            // Header: la flecha al borde inicial (inset 4 dp) y la identidad de la app centrada.
+            Box(modifier = Modifier.fillMaxWidth()) {
+                IconButton(
+                    onClick = { backDispatcher?.onBackPressed() },
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 4.dp)
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.content_back)
                     )
                 }
-                Spacer(Modifier.width(4.dp))
-                AppIcon(packageName = packageName)
-                Spacer(Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = appLabel(packageName),
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = detail?.let { stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis)) }
-                            ?: stringResource(R.string.loading),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AppIcon(packageName = packageName)
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = appLabel(packageName),
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = detail?.let { stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis)) }
+                                ?: stringResource(R.string.loading),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
@@ -168,7 +177,12 @@ fun AppDetailScreen(packageName: String) {
                     )
                 }
 
-                else -> {
+                else -> Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .weight(1f)
+                ) {
                     HourChart(current.hourly)
                     Spacer(Modifier.height(16.dp))
 

@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-16
 x-kind: fix
-x-status: draft
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
 x-targets:
   - app/src/main/java/com/foco/app/ui/detail/**
   - app/src/main/java/com/foco/app/ui/settings/**
@@ -13,4 +15,4 @@ x-deps:
   - app-entry-gate
   - structure-housekeeping
   - themed-window
-x-gitref: 8b5e6ad
+x-gitref: 6e121b2
