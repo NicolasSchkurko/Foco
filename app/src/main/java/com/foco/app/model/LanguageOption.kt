@@ -1,6 +1,6 @@
 package com.foco.app.model
 
-/** Idioma de la UI elegido por el usuario; `AUTO` sigue al dispositivo. */
+/** The UI language the user picked; `AUTO` follows the device. */
 enum class LanguageOption(val wire: String) {
     AUTO("auto"),
     ES("es"),

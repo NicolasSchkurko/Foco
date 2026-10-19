@@ -12,8 +12,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El gate de entrada con predicado inyectado (determinista): dashboard u onboarding según el permiso y
- * el re-chequeo al volver a primer plano, en ambos sentidos; los textos se resuelven de recursos.
+ * The entry gate with an injected predicate (deterministic): dashboard or onboarding per the permission and
+ * the re-check on returning to the foreground, both ways; the texts come from resources.
  */
 @RunWith(AndroidJUnit4::class)
 class AppEntrySeamTest {
@@ -36,7 +36,7 @@ class AppEntrySeamTest {
         composeRule.waitUntil(timeoutMillis = 10_000) { hasText(text) }
     }
 
-    /** El permiso "real" simulado: el test lo cambia entre idas y vueltas. */
+    /** The simulated "real" permission: the test flips it back and forth. */
     private var granted = false
 
     private fun showGate() {

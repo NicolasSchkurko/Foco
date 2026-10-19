@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-18
 x-kind: refactor
-x-status: draft
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
 x-tech_brief: false
 x-targets:
   - app/src/**
@@ -19,4 +21,4 @@ x-deps:
   - same-millisecond-transitions
   - layer-check-scope
   - back-arrow-inset
-x-gitref: 6c16929
+x-gitref: 43694d9

@@ -5,7 +5,7 @@ import androidx.core.os.LocaleListCompat
 import com.foco.app.model.LanguageOption
 
 /**
- * Aplica el idioma elegido al sistema (backport de appcompat); Automático es lista vacía.
+ * Applies the chosen language to the system (appcompat backport); Automatic is an empty list.
  */
 object AppLanguage {
 

@@ -1,12 +1,12 @@
 package com.foco.app.model
 
-/** Apariencia elegida por el usuario; `AUTO` sigue al tema del sistema. */
+/** The user's chosen appearance; `AUTO` follows the system theme. */
 enum class AppearanceOption(val wire: String) {
     AUTO("auto"),
     LIGHT("light"),
     DARK("dark");
 
-    /** Si `AUTO`, sigue al sistema; si no, la elección manda. */
+    /** `AUTO` follows the system; otherwise the choice wins. */
     fun isDark(systemInDarkTheme: Boolean): Boolean = when (this) {
         AUTO -> systemInDarkTheme
         LIGHT -> false

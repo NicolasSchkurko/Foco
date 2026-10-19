@@ -14,8 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El dashboard se refresca solo: al mostrarse, en cada vuelta a primer plano y cada
- * [DEFAULT_REFRESH_INTERVAL_MILLIS] mientras está visible; nunca en background y sin botón manual.
+ * The dashboard refreshes on its own: when shown, on every return to the foreground and every
+ * [DEFAULT_REFRESH_INTERVAL_MILLIS] while visible; never in the background and with no manual button.
  */
 @RunWith(AndroidJUnit4::class)
 class DashboardRefreshTest {
@@ -47,7 +47,7 @@ class DashboardRefreshTest {
         waitForLoadsAtLeast(1)
         val afterFirstShow = loads.get()
 
-        // Como volver de otra app: la app pasa a segundo plano y vuelve.
+        // How to return from another app: it goes to the background and comes back.
         composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         composeRule.waitForIdle()
         composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)

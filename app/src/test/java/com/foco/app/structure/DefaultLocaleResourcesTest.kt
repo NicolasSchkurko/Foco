@@ -6,8 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Los recursos base son inglés y el español vive en `es`: un device en un idioma sin recursos propios
- * (francés, alemán…) cae en la base y ve inglés, nunca español.
+ * The base resources are English and Spanish lives in `es`: a device whose language has no resources of
+ * its own (French, German...) falls back to the base and sees English, never Spanish.
  */
 class DefaultLocaleResourcesTest {
 

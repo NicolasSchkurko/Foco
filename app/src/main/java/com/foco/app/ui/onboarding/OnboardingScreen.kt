@@ -20,8 +20,8 @@ import com.foco.app.R
 import com.foco.app.data.UsageAccess
 
 /**
- * Se muestra cuando la app todavía no tiene el permiso de "Acceso de uso".
- * Le explica al usuario qué activar y lo lleva directo a la pantalla correcta de Ajustes.
+ * Shown while the app does not have the "Usage access" permission yet.
+ * It tells the user what to enable and takes them straight to the right Settings screen.
  */
 @Composable
 fun OnboardingScreen() {

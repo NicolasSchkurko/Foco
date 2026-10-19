@@ -5,8 +5,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Regresión del back predictivo en Android 16: sin `enableOnBackInvokedCallback="true"` el gesto se
- * pierde. Escanea `src/main/AndroidManifest.xml` (cwd = módulo).
+ * Predictive-back regression on Android 16: without `enableOnBackInvokedCallback="true"` the gesture is
+ * lost. It scans `src/main/AndroidManifest.xml` (cwd = the module).
  */
 class BackInvokedCallbackManifestTest {
 

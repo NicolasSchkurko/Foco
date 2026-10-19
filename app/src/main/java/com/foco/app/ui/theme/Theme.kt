@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 /**
- * Tema Material 3. En Android 12+ usa los colores dinámicos del fondo de pantalla;
- * en versiones anteriores cae a los esquemas por defecto.
+ * Material 3 theme. On Android 12+ it uses the wallpaper's dynamic colours;
+ * on older versions it falls back to the default schemes.
  */
 @Composable
 fun FocoTheme(

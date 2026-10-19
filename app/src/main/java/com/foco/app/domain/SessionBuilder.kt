@@ -5,13 +5,13 @@ import com.foco.app.model.UsageEventType
 import com.foco.app.model.UsageSession
 
 /**
- * Fold puro: un cambio directo cierra la anterior en su instante y una parada cierra la del propio
- * paquete, aunque caigan en el mismo milisegundo; las sesiones de largo cero no se emiten.
+ * Pure fold: a direct switch closes the previous one at that instant and a stop closes its own
+ * package's, even when they tie on the same millisecond; zero-length sessions are not emitted.
  */
 fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
     val sessions = mutableListOf<UsageSession>()
 
-    /** Emite la sesión salvo que sea de longitud cero: dos eventos en el mismo ms no cuentan. */
+    /** Emits the session unless it is zero-length: two events in the same ms do not count. */
     fun emit(packageName: String, start: Long, end: Long) {
         if (end > start) sessions += UsageSession(packageName, start, end)
     }
@@ -28,13 +28,13 @@ fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
                         openPackage = event.packageName
                         openStart = event.timestamp
                     }
-                    // Cambio directo: cierra la anterior en el instante del resume, aunque empaten.
+                    // Direct switch: closes the previous one at the resume's instant, ties included.
                     open != event.packageName && event.timestamp >= openStart -> {
                         emit(open, openStart, event.timestamp)
                         openPackage = event.packageName
                         openStart = event.timestamp
                     }
-                    // Misma app (transición interna de activities): no cortamos la sesión.
+                    // Same app (internal activity transition): the session is not cut.
                 }
             }
 
@@ -48,15 +48,15 @@ fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
         }
     }
 
-    // App en foreground en este momento: sesión abierta hasta "now".
+    // App in the foreground right now: the session stays open until "now".
     openPackage?.let { open -> emit(open, openStart, now) }
 
     return sessions
 }
 
 /**
- * Recorta las sesiones a la ventana de un día: una abierta antes de [dayStart] cuenta desde ahí y el día
- * vecino conserva su parte; lo que queda fuera se descarta.
+ * Clamps sessions to a day's window: one open before [dayStart] counts from there and the neighbouring
+ * day keeps its own slice; what falls outside is dropped.
  */
 fun clampSessionsToDay(
     sessions: List<UsageSession>,

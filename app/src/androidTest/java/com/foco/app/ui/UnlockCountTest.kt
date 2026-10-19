@@ -15,8 +15,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * El subtítulo del dashboard cuenta los desbloqueos de hoy (marcas `KEYGUARD_HIDDEN` de la misma consulta
- * diaria). E2E: genera 2 desbloqueos reales por shell (SLEEP → WAKEUP → MENU); textos de recursos.
+ * The dashboard subtitle counts today's unlocks (`KEYGUARD_HIDDEN` marks from the same daily query).
+ * E2E: it generates 2 real unlocks through the shell (SLEEP -> WAKEUP -> MENU); texts from resources.
  */
 @RunWith(AndroidJUnit4::class)
 class UnlockCountTest {
@@ -29,7 +29,7 @@ class UnlockCountTest {
     private val usageLinePrefix =
         targetContext.resources.getString(R.string.dashboard_usage_line).substringBefore(":")
 
-    /** "desbloqueo"/"unlock": la raíz que aparece en el subtítulo en cualquier idioma. */
+    /** "desbloqueo"/"unlock": the root that appears in the subtitle in any language. */
     private val unlockWord = targetContext.resources
         .getQuantityString(R.plurals.dashboard_unlocks, 2, 2)
         .replace(Regex("\\d+"), "")
@@ -78,7 +78,7 @@ class UnlockCountTest {
             val unlocks = Regex("(\\d+)\\s+" + Regex.escape(unlockWord))
                 .find(subtitle)?.groupValues?.get(1)?.toIntOrNull()
             assertTrue(
-                "el subtítulo debe mostrar el conteo de desbloqueos con N >= 2 (vi: '$subtitle')",
+                "the subtitle must show the unlock count with N >= 2 (saw: '$subtitle')",
                 unlocks != null && unlocks >= 2
             )
         }

@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Preferencias de idioma y apariencia. Recurso físico: archivo `foco_settings`
- * (Preferences DataStore) en el almacenamiento privado de la app; vive lo que la app.
+ * Language and appearance preferences. Resource: the `foco_settings` file
+ * (Preferences DataStore) in the app's private storage; lives as long as the app.
  */
 class SettingsStore(private val context: Context) {
 
@@ -32,6 +32,6 @@ class SettingsStore(private val context: Context) {
 
 internal val Context.settingsDataStore by preferencesDataStore(name = "foco_settings")
 
-/** Claves de las preferencias; compartidas con la migración desde el store legado. */
+/** Preference keys; shared with the migration from the legacy store. */
 internal val languageKey = stringPreferencesKey("language")
 internal val appearanceKey = stringPreferencesKey("appearance")

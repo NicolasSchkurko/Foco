@@ -21,7 +21,7 @@ import com.foco.app.data.AppPackageInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Ícono de la app, cargado fuera del hilo principal (la lectura corre por `data/AppPackageInfo`). */
+/** The app's icon, loaded off the main thread (the read goes through `data/AppPackageInfo`). */
 @Composable
 fun AppIcon(packageName: String, size: Dp = 40.dp) {
     val context = LocalContext.current

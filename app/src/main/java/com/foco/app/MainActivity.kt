@@ -26,8 +26,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 /**
- * Punto de entrada: migra el store legado, aplica idioma y apariencia antes del primer frame (el tema y
- * el fondo de la ventana siguen la elección) y monta Compose.
+ * Entry point: migrates the legacy store, applies language and appearance before the first frame (the theme and
+ * the window backdrop follow the choice) and mounts Compose.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -35,9 +35,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val settings = SettingsStore(applicationContext)
-        // Lectura puntual del DataStore en el arranque: la migración corre primero
-        // (una sola vez), el idioma se aplica y la apariencia se lleva al tema antes
-        // del primer frame. El valor leído arranca el estado de Compose.
+        // One-shot DataStore read at startup: the migration runs first
+        // (once), the language is applied and the appearance reaches the theme before
+        // the first frame. The value read seeds the Compose state.
         val storedAppearance = runBlocking {
             migrateSettingsFromLegacyDataStore(applicationContext)
             AppLanguage.applyToSystem(settings.language.first())
@@ -47,9 +47,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             val appearance by settings.appearance.collectAsState(initial = storedAppearance)
-            // Elegir otra apariencia en Ajustes llega hasta acá y se aplica al instante;
-            // appcompat recrea la activity si el modo cambia, y el arranque lo vuelve a
-            // aplicar. Repetir el modo vigente no hace nada (appcompat lo compara).
+            // Picking another appearance in Settings reaches here and applies at once;
+            // appcompat re-creates the activity if the mode changes, and startup applies it
+            // again. Repeating the mode in force does nothing (appcompat compares it).
             LaunchedEffect(appearance) { AppAppearance.applyToSystem(appearance) }
 
             FocoTheme(darkTheme = appearance.isDark(isSystemInDarkTheme())) {
@@ -64,8 +64,8 @@ class MainActivity : AppCompatActivity() {
 }
 
 /**
- * Efecto con nombre: pinta el fondo de la ventana con el `surface` del tema, así una transición o la
- * recreación no descubre el esquema contrario. Recurso: el `Window` de la activity.
+ * Named effect: paints the window backdrop with the theme's `surface`, so a transition or the
+ * re-creation never reveals the opposite scheme. Resource: the activity's `Window`.
  */
 @Composable
 private fun WindowBackgroundEffect(window: Window, surface: Color) {

@@ -17,8 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Navegación al detalle E2E: tocar una fila lo abre, el back del sistema vuelve y la flechita visible
- * también. Genera uso real (Settings) antes de lanzar; los textos se resuelven de recursos.
+ * Detail navigation E2E: tapping a row opens it, the system back returns and the visible arrow too.
+ * It generates real usage (Settings) before launching; the texts come from resources.
  */
 @RunWith(AndroidJUnit4::class)
 class AppDetailNavigationTest {
@@ -37,7 +37,7 @@ class AppDetailNavigationTest {
             .close()
     }
 
-    /** Permiso + uso real, lanza la app, toca la fila de Settings y espera el detalle. */
+    /** Permission + real usage, launches the app, taps the Settings row and waits for the detail. */
     private fun launchAndOpenDetail(): ActivityScenario<MainActivity> {
         shell("appops set com.foco.app android:get_usage_stats allow")
         shell("am start -a android.settings.SETTINGS")

@@ -10,8 +10,8 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 /**
- * Aplica las reglas de capas de `openspec/specs/code-structure` (carpeta ↔ paquete, pureza,
- * dirección hacia abajo, features que no se importan). Escanea `src/main/java` (cwd = módulo).
+ * Applies the layer rules of `openspec/specs/code-structure` (folder <-> package, purity,
+ * downward direction, features that do not import each other). Scans `src/main/java` (cwd = the module).
  */
 class LayerRulesTest {
 
@@ -35,16 +35,16 @@ class LayerRulesTest {
         "unsafeCheckOpNoThrow("
     )
     /**
-     * Carpetas compartidas bajo `ui/`: no son features. `common`, `metrics` y `theme` son las que
-     * la spec exime, y `ui/common/` es la casa del reuso entre pantallas.
+     * Shared folders under `ui/`: not features. `common`, `metrics` and `theme` are the ones
+     * the spec exempts, and `ui/common/` is the home of cross-screen reuse.
      */
     private val sharedUiFolders = setOf("common", "metrics", "theme")
     private val uiFeatureImport = Regex("""^import\s+com\.foco\.app\.ui\.(\w+)""")
 
-    /** Una carpeta bajo `ui/` es feature si no es compartida: no hay lista que ampliar a mano. */
+    /** A folder under `ui/` is a feature if it is not shared: there is no list to extend by hand. */
     private fun isUiFeature(folder: String): Boolean = folder !in sharedUiFolders
 
-    /** Las features reales, derivadas del árbol: subcarpetas de `ui/` que no son compartidas. */
+    /** The real features, derived from the tree: `ui/` sub-folders that are not shared. */
     private fun uiFeaturesIn(sources: File): Set<String> =
         File(sources, "com/foco/app/ui")
             .listFiles()
@@ -64,13 +64,13 @@ class LayerRulesTest {
     }
 
     /**
-     * Escanea [sources] con las reglas de capas y devuelve las violaciones (vacío = el árbol las respeta);
-     * la raíz entra por parámetro para poder correr lo mismo sobre un árbol sintético.
+     * Scans [sources] with the layer rules and returns the violations (empty = the tree respects them);
+     * the root comes in as a parameter so the same rules can run over a synthetic tree.
      */
     private fun violationsIn(sources: File): List<String> {
         assertTrue("expected sources at ${sources.absolutePath}", sources.isDirectory)
 
-        // Las features salen del árbol: cualquier carpeta bajo `ui/` que no sea compartida.
+        // The features come from the tree: any folder under `ui/` that is not shared.
         val uiFeatures = uiFeaturesIn(sources)
 
         val violations = mutableListOf<String>()
@@ -140,8 +140,8 @@ class LayerRulesTest {
         val sources = File("src/main/java")
         val derived = uiFeaturesIn(sources)
 
-        // Una carpeta nueva bajo `ui/` ya cuenta como feature, sin tocar el chequeo. La lista fija
-        // anterior (`dashboard`, `detail`, `settings`, `onboarding`) dejaba "reports" fuera de la regla.
+        // A new folder under `ui/` already counts as a feature, with no edit to the check. The old fixed list
+        // (`dashboard`, `detail`, `settings`, `onboarding`) left "reports" outside the rule.
         assertTrue("a folder that is not shared must be a feature", isUiFeature("reports"))
 
         sharedUiFolders.forEach { assertFalse("shared '$it' must not be a feature", isUiFeature(it)) }
@@ -182,7 +182,7 @@ class LayerRulesTest {
         )
     }
 
-    /** Escribe un fuente sintético: su `package` y los [imports] que se le pasen. */
+    /** Writes a synthetic source: its `package` plus the [imports] it is given. */
     private fun writeKotlinFile(root: File, path: String, packageName: String, vararg imports: String) {
         val file = File(root, path)
         file.parentFile.mkdirs()

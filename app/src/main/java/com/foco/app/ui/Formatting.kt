@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-/** 3 h 24 min / 12 min / 40 s según magnitud. */
+/** 3 h 24 min / 12 min / 40 s depending on magnitude. */
 fun formatDuration(millis: Long): String {
     if (millis < 60_000) return "${millis / 1000} s"
     val totalMinutes = millis / 60_000
@@ -22,8 +22,8 @@ fun formatTimeOfDay(epochMillis: Long, zone: ZoneId = ZoneId.systemDefault()): S
 private val dayFormatter = DateTimeFormatter.ofPattern("EEE d MMM")
 
 /**
- * Etiqueta del selector de días: hoy/ayer usan las del idioma activo; el resto, la fecha abreviada
- * según el locale del dispositivo.
+ * Day selector label: today/yesterday use the active language's; the rest, the abbreviated date
+ * according to the device's locale.
  */
 fun formatDayLabel(
     date: LocalDate,

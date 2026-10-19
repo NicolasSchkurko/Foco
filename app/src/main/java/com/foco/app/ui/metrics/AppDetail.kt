@@ -4,8 +4,8 @@ import com.foco.app.model.UsageSession
 import java.time.ZoneId
 
 /**
- * Detalle de un día para UNA app: sesiones ordenadas y resumen (total, cantidad, primera/última,
- * promedio, más larga) con su distribución horaria; null si no tiene sesiones ese día.
+ * One day's detail for ONE app: sorted sessions and summary (total, count, first/last,
+ * average, longest) with its hourly distribution; null if it has no sessions that day.
  */
 fun appDayDetail(sessions: List<UsageSession>, packageName: String, zone: ZoneId): AppDayDetail? {
     val mine = sessions.filter { it.packageName == packageName }.sortedBy { it.start }

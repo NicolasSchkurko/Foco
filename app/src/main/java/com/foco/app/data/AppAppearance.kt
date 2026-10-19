@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.foco.app.model.AppearanceOption
 
 /**
- * Lleva la elección al tema de la activity y al fondo de la ventana (no solo al `darkTheme`), y la
- * expone como modo nocturno de appcompat: recurso en memoria del proceso, leído de `foco_settings`.
+ * Carries the choice to the activity theme and the window backdrop (not only Compose's `darkTheme`), and it
+ * exposes it as appcompat's night mode: process memory, read from `foco_settings`.
  */
 object AppAppearance {
 
@@ -13,7 +13,7 @@ object AppAppearance {
         AppCompatDelegate.setDefaultNightMode(nightModeFor(option))
     }
 
-    /** Modo nocturno de appcompat que corresponde a la apariencia elegida. */
+    /** The appcompat night mode the chosen appearance maps to. */
     fun nightModeFor(option: AppearanceOption): Int = when (option) {
         AppearanceOption.AUTO -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         AppearanceOption.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO

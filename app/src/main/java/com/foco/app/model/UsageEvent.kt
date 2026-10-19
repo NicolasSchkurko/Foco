@@ -1,6 +1,6 @@
 package com.foco.app.model
 
-/** Evento crudo de primer plano, mapeado desde los eventos del sistema. */
+/** Raw foreground event, mapped from the system's events. */
 data class UsageEvent(
     val packageName: String,
     val timestamp: Long,

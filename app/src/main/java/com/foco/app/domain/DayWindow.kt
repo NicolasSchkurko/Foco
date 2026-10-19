@@ -4,8 +4,8 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Ventana de consulta de un día: inicio, fin exclusivo, desde dónde mira ([lookbackStart], un día antes)
- * y hasta dónde llega ([effectiveEnd]); pura, la fecha y el reloj entran por parámetro.
+ * A day's query window: start, exclusive end, where it looks from ([lookbackStart], one day earlier)
+ * and how far it reaches ([effectiveEnd]); pure: date and clock come in as parameters.
  */
 data class DayWindow(
     val startOfDay: Long,
@@ -14,7 +14,7 @@ data class DayWindow(
     val effectiveEnd: Long
 )
 
-/** Arma la ventana del día [date] en [zone] con el reloj [now]. */
+/** Builds the day's window for [date] in [zone] with the clock [now]. */
 fun dayWindow(date: LocalDate, zone: ZoneId, now: Long): DayWindow {
     val startOfDay = date.atStartOfDay(zone).toInstant().toEpochMilli()
     val dayEndExclusive = date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()

@@ -16,15 +16,15 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Lee UsageStatsManager y mapea a eventos planos; las sesiones salen del fold puro recortado al día y de
- * la política de paquetes. No agrega nada: devuelve lo plano y la UI deriva.
+ * Reads UsageStatsManager and maps it to flat events; sessions come from the pure fold, clamped to the day, and from
+ * the package policy. It adds nothing: flat data out, the UI derives.
  */
 class UsageRepository(private val context: Context) {
 
     private val usageStats: UsageStatsManager? =
         context.getSystemService(UsageStatsManager::class.java)
 
-    /** Apps con ícono de lanzador (filtra servicios y paquetes internos). */
+    /** Apps with a launcher icon (filters services and internal packages). */
     private val launchablePackages: Set<String> by lazy {
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         context.packageManager
@@ -33,7 +33,7 @@ class UsageRepository(private val context: Context) {
             .toSet()
     }
 
-    /** Nuestra app y la home actual no aportan al uso "de apps". */
+    /** Our own app and the current home do not count as app usage. */
     private val excludedPackages: Set<String> by lazy {
         val result = mutableSetOf(context.packageName)
         context.packageManager
@@ -46,7 +46,7 @@ class UsageRepository(private val context: Context) {
         result
     }
 
-    /** Datos del día actual. */
+    /** The current day's data. */
     fun loadToday(now: Long = System.currentTimeMillis()): DayData =
         loadDay(
             date = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate(),
@@ -54,8 +54,8 @@ class UsageRepository(private val context: Context) {
         )
 
     /**
-     * Eventos → fold → recorte al día → política de paquetes. La ventana la arma [dayWindow]: mira desde
-     * el inicio del día anterior y cierra en `min(fin del día, now)`; los desbloqueos son del día.
+     * Events -> fold -> clamp to the day -> package policy. [dayWindow] builds the window: it looks from
+     * the previous day's start and ends at `min(day end, now)`; the unlocks are that day's.
      */
     fun loadDay(date: LocalDate, now: Long = System.currentTimeMillis()): DayData {
         val window = dayWindow(date, ZoneId.systemDefault(), now)
@@ -74,7 +74,7 @@ class UsageRepository(private val context: Context) {
 
             when (event.eventType) {
                 UsageEvents.Event.KEYGUARD_HIDDEN ->
-                    // La ventana de la consulta arranca ayer: sólo cuentan los del día pedido.
+                    // The query window starts yesterday: only the requested day's unlocks count.
                     if (event.timeStamp >= startOfDay) unlockTimes += event.timeStamp
 
                 UsageEvents.Event.ACTIVITY_RESUMED ->

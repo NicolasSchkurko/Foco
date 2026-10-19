@@ -5,11 +5,11 @@ import android.graphics.Bitmap
 import androidx.core.graphics.drawable.toBitmap
 
 /**
- * Lee el PackageManager (ícono y label de una app). Recurso: el servicio del sistema, sin estado propio.
+ * Reads the PackageManager (an app's icon and label). Resource: the system service, no state of its own.
  */
 class AppPackageInfo(private val context: Context) {
 
-    /** Ícono de lanzador (96×96); `null` si el paquete no resuelve (p. ej. desinstalado). */
+    /** Launcher icon (96x96); `null` if the package does not resolve (e.g. uninstalled). */
     fun iconBitmap(packageName: String): Bitmap? =
         runCatching {
             context.packageManager
@@ -17,7 +17,7 @@ class AppPackageInfo(private val context: Context) {
                 .toBitmap(width = 96, height = 96)
         }.getOrNull()
 
-    /** Label visible de la app; cae al propio packageName si el sistema no lo resuelve. */
+    /** The app's visible label; falls back to the package name when the system does not resolve it. */
     fun label(packageName: String): String =
         runCatching {
             val manager = context.packageManager

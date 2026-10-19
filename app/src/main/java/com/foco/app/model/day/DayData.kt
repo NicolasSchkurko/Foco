@@ -3,8 +3,8 @@ package com.foco.app.model.day
 import com.foco.app.model.UsageSession
 
 /**
- * El día tal como sale de la consulta del sistema: las sesiones y las marcas de
- * desbloqueo (`KEYGUARD_HIDDEN`), en crudo. La UI deriva el conteo desde acá.
+ * A day as it comes out of the system query: the sessions and the
+ * unlock marks (`KEYGUARD_HIDDEN`), raw. The UI derives the count from here.
  */
 data class DayData(
     val sessions: List<UsageSession>,

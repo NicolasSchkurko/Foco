@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Idiomas por app que el sistema (Android 13+) muestra en Ajustes. -->
+<!-- Per-app languages the system (Android 13+) shows in Settings. -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="es" />
     <locale android:name="en" />

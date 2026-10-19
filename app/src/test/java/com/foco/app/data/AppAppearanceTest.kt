@@ -6,8 +6,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * El mapeo apariencia → modo nocturno de appcompat; las constantes son `static final`, así que la
- * aserción corre en la JVM sin framework (`applyToSystem` no se puede llamar: `android.jar` es un stub).
+ * The appearance -> appcompat night mode mapping; the constants are `static final`, so the
+ * assertion runs on the JVM without the framework (`applyToSystem` cannot be called: `android.jar` is a stub).
  */
 class AppAppearanceTest {
 

@@ -52,12 +52,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Intervalo entre refrescos automáticos mientras el dashboard está visible. */
+/** Interval between automatic refreshes while the dashboard is visible. */
 const val DEFAULT_REFRESH_INTERVAL_MILLIS = 30_000L
 
 /**
- * Dashboard del día: total, horas, ranking y desbloqueos; las métricas se derivan en `ui/metrics/` y se
- * refresca al mostrarse y mientras está en primer plano. `loadDay` y `refreshIntervalMillis` son seams.
+ * The day's dashboard: total, hours, ranking and unlocks; metrics are derived in `ui/metrics/` and it
+ * refreshes when shown and while in the foreground. `loadDay` and `refreshIntervalMillis` are seams.
  */
 @Composable
 fun DashboardScreen(
@@ -80,9 +80,9 @@ fun DashboardScreen(
     val snackbarExcluded = stringResource(R.string.excluded_snackbar)
     val undoLabel = stringResource(R.string.excluded_undo)
 
-    // repeatOnLifecycle: el ciclo corre solo mientras la pantalla está RESUMED —
-    // se relanza al volver a primer plano (refresco automático en cada vuelta)
-    // y se cancela al pausar (nada de trabajo en background).
+    // repeatOnLifecycle: the loop runs only while the screen is RESUMED —
+    // it restarts on returning to the foreground (an automatic refresh each time)
+    // and it is cancelled on pause (no work in the background).
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, refreshIntervalMillis) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -93,7 +93,7 @@ fun DashboardScreen(
         }
     }
 
-    // Exclusiones del usuario (persistidas): solo afectan al ranking.
+    // The user's exclusions (persisted): they only affect the ranking.
     LaunchedEffect(excludedStore) {
         excludedStore.excludedPackages.collect { excludedPackages = it }
     }
@@ -111,7 +111,7 @@ fun DashboardScreen(
         }
     }
 
-    // Derivación memoizada: se recalcula cuando cambian los datos o las exclusiones.
+    // Memoised derivation: it recomputes when the data or the exclusions change.
     val metrics = remember(day, excludedPackages) {
         day?.let { deriveDayMetrics(it.sessions, ZoneId.systemDefault(), excludedPackages) }
     }

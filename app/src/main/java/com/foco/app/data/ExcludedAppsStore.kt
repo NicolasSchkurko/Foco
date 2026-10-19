@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Paquetes excluidos del ranking (solo datos, sin política). Recurso: archivo `excluded_apps`
- * (Preferences DataStore) privado; vive lo que la app.
+ * Packages excluded from the ranking (data only, no policy). Resource: the `excluded_apps` file
+ * (Preferences DataStore) in private storage; lives as long as the app.
  */
 class ExcludedAppsStore(private val context: Context) {
 
@@ -20,14 +20,14 @@ class ExcludedAppsStore(private val context: Context) {
             preferences[key] ?: emptySet()
         }
 
-    /** Excluye `packageName` del ranking. */
+    /** Excludes `packageName` from the ranking. */
     suspend fun exclude(packageName: String) {
         context.excludedAppsDataStore.edit { preferences ->
             preferences[key] = (preferences[key] ?: emptySet()) + packageName
         }
     }
 
-    /** Devuelve `packageName` al ranking. */
+    /** Returns `packageName` to the ranking. */
     suspend fun restore(packageName: String) {
         context.excludedAppsDataStore.edit { preferences ->
             preferences[key] = (preferences[key] ?: emptySet()) - packageName

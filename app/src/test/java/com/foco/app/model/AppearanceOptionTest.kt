@@ -5,7 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** La apariencia elegida resuelve el `darkTheme` final: Automático sigue al sistema. */
+/** The chosen appearance resolves the final `darkTheme`: Automatic follows the system. */
 class AppearanceOptionTest {
 
     @Test

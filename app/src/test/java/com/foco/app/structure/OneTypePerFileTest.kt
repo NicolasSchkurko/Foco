@@ -6,8 +6,8 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 /**
- * Un solo tipo de nivel superior por archivo, y con el nombre del archivo; los grupos de funciones
- * están exentos. Escanea `src/main/java` (declaraciones en columna 0; las anidadas no cuentan).
+ * One top-level type per file, named after the file; groups of functions
+ * are exempt. Scans `src/main/java` (declarations at column 0; nested ones do not count).
  */
 class OneTypePerFileTest {
 

@@ -3,8 +3,8 @@ package com.foco.app.domain
 import java.time.LocalDate
 
 /**
- * Días que el selector de la pantalla de detalle puede ofrecer: hoy y los previos
- * dentro de la ventana que el sistema retiene (7 por defecto).
+ * Days the detail screen's selector can offer: today and the previous ones
+ * inside the window the system retains (7 by default).
  */
 fun availableDays(today: LocalDate, windowDays: Int = 7): List<LocalDate> {
     require(windowDays >= 1) { "windowDays must be at least 1" }

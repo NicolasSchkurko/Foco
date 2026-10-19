@@ -44,8 +44,8 @@ import com.foco.app.ui.common.appLabel
 import kotlinx.coroutines.launch
 
 /**
- * Ajustes: idioma (Automático/Español/Inglés), apariencia (Automático/Claro/Oscuro)
- * y gestión de las apps excluidas del ranking.
+ * Settings: language (Automatic/Spanish/English), appearance (Automatic/Light/Dark)
+ * and management of the apps excluded from the ranking.
  */
 @Composable
 fun SettingsScreen() {
@@ -68,7 +68,7 @@ fun SettingsScreen() {
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // Header: la flecha al borde inicial (inset 4 dp) y el título centrado en la ventana.
+            // Header: the arrow at the leading edge (4 dp inset) and the title centred in the window.
             Box(modifier = Modifier.fillMaxWidth()) {
                 IconButton(
                     onClick = { backDispatcher?.onBackPressed() },

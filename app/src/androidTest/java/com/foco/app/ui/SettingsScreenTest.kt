@@ -34,7 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Ajustes E2E (API 36): idioma y apariencia se aplican y persisten, excluidas se lista y restaura. Las notas de estabilidad están en `docs/mechanisms/instrumented-tests.md`.
+ * Settings E2E (API 36): language and appearance apply and persist, exclusions are listed and restored. The stability notes live in `docs/mechanisms/instrumented-tests.md`.
  */
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenTest {
@@ -53,12 +53,12 @@ class SettingsScreenTest {
 
     @Before
     fun setUp() {
-        // El AVD headless puede estar bloqueado: despertar y descartar el keyguard.
+        // The headless AVD may be locked: wake it and dismiss the keyguard.
         shell("input keyevent KEYCODE_WAKEUP")
         shell("wm dismiss-keyguard")
         Thread.sleep(500)
 
-        // Estado conocido para aserciones deterministas: inglés elegido (no Automático).
+        // Known state for deterministic assertions: English picked (not Automatic).
         runBlocking {
             SettingsStore(targetContext).setLanguage(LanguageOption.EN)
             SettingsStore(targetContext).setAppearance(AppearanceOption.AUTO)
@@ -79,7 +79,7 @@ class SettingsScreenTest {
         AppAppearance.applyToSystem(AppearanceOption.AUTO)
     }
 
-    /** true si hay algún nodo con ese texto; tolera el hueco sin jerarquía al recrear. */
+    /** true if any node carries that text; tolerates the hierarchy gap during a re-creation. */
     private fun showsText(text: String): Boolean =
         try {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
@@ -95,8 +95,8 @@ class SettingsScreenTest {
         }
 
     /**
-     * true si el único nodo con [label] está (o no) seleccionado; tolera el hueco sin jerarquía y el
-     * empalme de las dos jerarquías durante una recreación, así que sirve para esperar.
+     * true if the only node with [label] is (or is not) selected; tolerates the hierarchy gap and the
+     * overlap of the two hierarchies during a re-creation, so it serves as a wait.
      */
     private fun selectedRow(label: String, selected: Boolean): Boolean =
         try {
@@ -109,7 +109,7 @@ class SettingsScreenTest {
             false
         }
 
-    /** Deja la pantalla de Ajustes abierta con la UI en [language] ("es" | "en"). */
+    /** Leaves the Settings screen open with the UI in [language] ("es" | "en"). */
     private fun ensureSettings(language: String) {
         val gear = if (language == "es") "Ajustes" else "Settings"
         val section = if (language == "es") "Idioma" else "Language"
@@ -123,7 +123,7 @@ class SettingsScreenTest {
         }
     }
 
-    /** El idioma del sistema, sin el override de idioma por app. */
+    /** The system language, without the per-app language override. */
     private fun systemLanguage(): String =
         android.content.res.Resources.getSystem().configuration.locales[0].language
 
@@ -144,20 +144,20 @@ class SettingsScreenTest {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
 
-        // Elegir Español: cambia al instante (la recreación puede volver al inicio).
+        // Picking Spanish: it switches instantly (the re-creation may go back to the start).
         composeRule.onNodeWithText("Spanish").performClick()
         ensureSettings(language = "es")
 
-        // Reinicio en frío: sigue en Español.
+        // Cold restart: still in Spanish.
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "es")
 
-        // Automático: sigue al idioma del sistema.
+        // Automatic: it follows the system language.
         composeRule.onAllNodesWithText("Automático")[0].performClick()
         ensureSettings(language = if (systemIsSpanish) "es" else "en")
 
-        // Reinicio en frío: sigue al sistema.
+        // Cold restart: still follows the system.
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = if (systemIsSpanish) "es" else "en")
@@ -169,7 +169,7 @@ class SettingsScreenTest {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
 
-        // Oscuro: la elección llega al modo nocturno de appcompat (puede recrear la activity).
+        // Dark: the choice reaches appcompat's night mode (it may re-create the activity).
         composeRule.onNodeWithText("Dark").performClick()
         ensureSettings(language = "en")
         composeRule.waitUntil(timeoutMillis = 10_000) {
@@ -178,7 +178,7 @@ class SettingsScreenTest {
         composeRule.waitUntil(timeoutMillis = 10_000) { selectedRow("Dark", selected = true) }
         composeRule.onNodeWithText("Dark").assertIsSelected()
 
-        // Reinicio en frío: sigue en Oscuro, con el modo ya aplicado en el arranque.
+        // Cold restart: still Dark, with the mode already applied at startup.
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
@@ -186,14 +186,14 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Dark").assertIsSelected()
         assertEquals(AppCompatDelegate.MODE_NIGHT_YES, AppCompatDelegate.getDefaultNightMode())
 
-        // Volver a Automático (segunda opción "Automatic" = sección Apariencia).
+        // Back to Automatic (the second "Automatic" option = the Appearance section).
         composeRule.onAllNodesWithText("Automatic")[1].performClick()
         ensureSettings(language = "en")
         composeRule.waitUntil(timeoutMillis = 10_000) {
             AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-        // "Dark" solo existe en la sección Apariencia: si ya no está seleccionada, la
-        // jerarquía quedó asentada y la opción elegida es Automático.
+        // "Dark" only exists in the Appearance section: if it is no longer selected, the
+        // hierarchy has settled and the chosen option is Automatic.
         composeRule.waitUntil(timeoutMillis = 10_000) { selectedRow("Dark", selected = false) }
         composeRule.onAllNodesWithText("Automatic")[1].assertIsSelected()
         scenario.close()
@@ -208,8 +208,8 @@ class SettingsScreenTest {
             val title = composeRule.onNodeWithText("Settings").getUnclippedBoundsInRoot()
             val root = composeRule.onRoot().getUnclippedBoundsInRoot()
 
-            // Medido: el nodo del control queda a ~8 dp con el inset nuevo y a ~24 dp con el viejo
-            // (el glyph, ~8 dp más adentro: ~16 dp contra ~32 dp). El umbral va en medio.
+            // Measured: the control's node sits at ~8 dp with the new inset and ~24 dp with the old one
+            // (the glyph, ~8 dp further in: ~16 dp against ~32 dp). The threshold goes in between.
             assertTrue(
                 "the arrow must sit at the header's leading edge (the old inset left the node at ~24 dp): $back",
                 back.left.value <= 16f

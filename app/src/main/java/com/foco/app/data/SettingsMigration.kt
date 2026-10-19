@@ -7,8 +7,8 @@ import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.first
 
 /**
- * Migración one-shot: `language`/`appearance` pasan del store legado (`excluded_apps`) al propio
- * (`foco_settings`); sin claves en el legado no hace nada (idempotente).
+ * One-shot migration: `language`/`appearance` move from the legacy store (`excluded_apps`) to their own
+ * (`foco_settings`); with no keys in the legacy store it does nothing (idempotent).
  */
 suspend fun migrateSettingsFromLegacyDataStore(context: Context) {
     copySettingsFromLegacyStore(context.excludedAppsDataStore, context.settingsDataStore)

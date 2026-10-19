@@ -1,6 +1,6 @@
 package com.foco.app.ui.metrics
 
-/** Todo lo que muestra el dashboard para un día, derivado de sus sesiones. */
+/** Everything the dashboard shows for a day, derived from its sessions. */
 data class DayMetrics(
     val totalMillis: Long,
     val entries: List<AppUsageEntry>,

@@ -10,7 +10,7 @@ import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.dashboard.DashboardScreen
 import com.foco.app.ui.settings.SettingsScreen
 
-/** Rutas de la app; el gate de permiso queda afuera, en `App`. */
+/** The app's routes; the permission gate stays outside, in `App`. */
 @Composable
 fun FocoNavHost() {
     val navController = rememberNavController()

@@ -2,7 +2,7 @@ package com.foco.app.ui.metrics
 
 import com.foco.app.model.UsageSession
 
-/** Resumen de un día para UNA app: totales, extremos, promedios, horas y sus sesiones (cronológicas). */
+/** One day's summary for ONE app: totals, extremes, averages, hours and its sessions (chronological). */
 data class AppDayDetail(
     val packageName: String,
     val totalMillis: Long,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Tema base solo para el arranque: toda la UI real la dibuja Compose (FocoTheme).
+    <!-- Base theme for startup only: Compose draws the real UI (FocoTheme).
          AppCompat porque MainActivity usa el backport de idioma (AppCompatActivity). -->
     <style name="Theme.Foco" parent="Theme.AppCompat.DayNight.NoActionBar" />
 </resources>

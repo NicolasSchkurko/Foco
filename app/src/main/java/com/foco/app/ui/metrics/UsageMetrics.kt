@@ -5,13 +5,13 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
-/** Tiempo total en pantalla del día. */
+/** The day's total screen time. */
 fun dayTotal(sessions: List<UsageSession>): Long =
     sessions.sumOf { it.end - it.start }
 
 /**
- * Ranking por app por duración descendente; las excluidas quedan fuera del ranking pero su tiempo sigue
- * contando en el total y en las horas.
+ * Ranking by app, longest first; excluded apps stay out of the ranking but their time still
+ * counts in the total and in the hours.
  */
 fun appRanking(
     sessions: List<UsageSession>,
@@ -30,7 +30,7 @@ fun appRanking(
         }
         .sortedByDescending { it.totalMillis }
 
-/** Distribución por hora, repartiendo las sesiones que cruzan un límite de hora. */
+/** Hourly distribution, splitting the sessions that cross an hour boundary. */
 fun hourlyDistribution(sessions: List<UsageSession>, zone: ZoneId): List<HourBucket> {
     val buckets = LongArray(24)
     sessions.forEach { session ->
@@ -46,7 +46,7 @@ fun hourlyDistribution(sessions: List<UsageSession>, zone: ZoneId): List<HourBuc
     return buckets.mapIndexed { hour, millis -> HourBucket(hour, millis) }
 }
 
-/** Métricas completas del día; [excludedPackages] solo afecta al ranking. */
+/** The day's full metrics; [excludedPackages] only affects the ranking. */
 fun deriveDayMetrics(
     sessions: List<UsageSession>,
     zone: ZoneId,

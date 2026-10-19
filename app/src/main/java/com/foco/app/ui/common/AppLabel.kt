@@ -9,7 +9,7 @@ import com.foco.app.data.AppPackageInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Label de la app, resuelto fuera del hilo principal (los labels viven en la UI). */
+/** The app's label, resolved off the main thread (labels belong to the UI). */
 @Composable
 fun appLabel(packageName: String): String {
     val context = LocalContext.current

@@ -2,7 +2,7 @@ package com.foco.app.domain
 
 import com.foco.app.model.UsageSession
 
-/** Política pura: conserva solo las sesiones de paquetes permitidos, menos los excluidos. */
+/** Pure policy: keeps only sessions of allowed packages, minus the excluded ones. */
 fun filterSessions(
     sessions: List<UsageSession>,
     allowedPackages: Set<String>,

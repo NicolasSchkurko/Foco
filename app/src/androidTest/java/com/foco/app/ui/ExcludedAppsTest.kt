@@ -22,8 +22,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Mantener presionado excluye la app del ranking (el total no cambia), Deshacer la trae de vuelta y la
- * exclusión persiste al relanzar. E2E con uso real (Settings) en la API 36; textos de recursos.
+ * Long-press excludes the app from the ranking (the total does not change), Undo brings it back and the
+ * exclusion persists across a relaunch. E2E with real usage (Settings) on API 36; texts from resources.
  */
 @RunWith(AndroidJUnit4::class)
 class ExcludedAppsTest {
@@ -55,7 +55,7 @@ class ExcludedAppsTest {
 
     @After
     fun cleanUp() {
-        // No dejar exclusiones pegadas en el device.
+        // Leave no exclusions stuck on the device.
         runBlocking { ExcludedAppsStore(targetContext).restore(SETTINGS_PACKAGE) }
     }
 
@@ -74,14 +74,14 @@ class ExcludedAppsTest {
         }
         val totalBefore = headerText()
 
-        // Mantener presionado -> excluida del ranking, total intacto.
+        // Long-press -> excluded from the ranking, total intact.
         composeRule.onNodeWithText("Settings").performTouchInput { longClick() }
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isEmpty()
         }
         assertEquals(totalBefore, headerText())
 
-        // Deshacer -> vuelve al ranking.
+        // Undo -> back into the ranking.
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodesWithText(string(R.string.excluded_undo)).fetchSemanticsNodes().isNotEmpty()
         }
@@ -90,7 +90,7 @@ class ExcludedAppsTest {
             composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isNotEmpty()
         }
 
-        // Excluir de nuevo y relanzar: la exclusión persiste.
+        // Exclude again and relaunch: the exclusion persists.
         composeRule.onNodeWithText("Settings").performTouchInput { longClick() }
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodesWithText("Settings").fetchSemanticsNodes().isEmpty()

@@ -1,6 +1,6 @@
 package com.foco.app.ui.metrics
 
-/** Uso agregado de una app, derivado de sus sesiones (salida del ranking). */
+/** An app's aggregated usage, derived from its sessions (the ranking's output). */
 data class AppUsageEntry(
     val packageName: String,
     val totalMillis: Long,

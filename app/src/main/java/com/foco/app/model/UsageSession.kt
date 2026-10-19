@@ -1,6 +1,6 @@
 package com.foco.app.model
 
-/** Sesión de uso de una app en primer plano: [start, end) inferido de eventos de resumen/parada. */
+/** Usage session of an app in the foreground: [start, end) inferred from resume/stop events. */
 data class UsageSession(
     val packageName: String,
     val start: Long,

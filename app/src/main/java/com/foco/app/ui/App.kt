@@ -16,8 +16,8 @@ import com.foco.app.data.UsageAccess
 import com.foco.app.ui.onboarding.OnboardingScreen
 
 /**
- * Decide onboarding ↔ dashboard según el permiso de "Acceso de uso", que se activa fuera de la app y se
- * re-chequea al volver. `isUsageAccessGranted` es el seam de tests.
+ * Decides onboarding vs dashboard from the "Usage access" permission, enabled outside the app and
+ * re-checked on return. `isUsageAccessGranted` is the tests' seam.
  */
 @Composable
 fun App(isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted) {

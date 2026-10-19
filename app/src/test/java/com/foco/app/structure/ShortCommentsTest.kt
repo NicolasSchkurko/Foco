@@ -6,14 +6,14 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 /**
- * Los comentarios dicen el porqué en pocas líneas: un bloque de más de [BUDGET] líneas bajo `src/` falla
- * y se nombra; lo que valga la pena se muda a `docs/mechanisms/` con un puntero de una línea.
+ * Comments say the why in few lines: a block over [BUDGET] lines under `src/` fails
+ * and is named; what is worth keeping moves to `docs/mechanisms/` with a one-line pointer.
  */
 class ShortCommentsTest {
 
     private val commentLine = Regex("""^\s*(//|/\*|\*|<!--)""")
 
-    /** Bloques de comentario consecutivos; una línea en blanco dentro del bloque no lo corta. */
+    /** Consecutive comment blocks; a blank line inside a block does not cut it. */
     private fun blocksIn(file: File): List<String> {
         val lines = file.readLines()
         val blocks = mutableListOf<String>()

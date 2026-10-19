@@ -6,8 +6,8 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 /**
- * La config del repo no puede descartar sus propias reglas: un ítem de `rules:` sin comillas y con
- * `: ` adentro se lee como mapping y OpenSpec ignora el artefacto entero. Chequeo de forma, línea a línea.
+ * The repo config cannot drop its own rules: a `rules:` item without quotes that
+ * carries `: ` inside reads as a mapping and OpenSpec ignores the whole artifact. A line-by-line shape check.
  */
 class SpecConfigRulesTest {
 

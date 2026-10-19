@@ -68,7 +68,7 @@ class SessionBuilderTest {
         val sessions = buildSessions(
             listOf(
                 UsageEvent("app.a", base, UsageEventType.RESUMED),
-                // Cambio interno de activity dentro de la misma app.
+                // Internal activity change inside the same app.
                 UsageEvent("app.a", base + 4 * MINUTE, UsageEventType.RESUMED),
                 UsageEvent("app.a", base + 8 * MINUTE, UsageEventType.STOPPED)
             ),
@@ -182,7 +182,7 @@ class SessionBuilderTest {
             now = base + 30 * MINUTE
         )
 
-        // A no aporta tiempo (sesión de longitud cero, no emitida) y B queda abierta hasta "now".
+        // A contributes no time (zero-length session, not emitted) and B stays open until "now".
         assertEquals(listOf(UsageSession("app.b", base, base + 30 * MINUTE)), sessions)
     }
 
@@ -196,7 +196,7 @@ class SessionBuilderTest {
             now = base + 30 * MINUTE
         )
 
-        assertTrue("una sesión de longitud cero no se emite", sessions.isEmpty())
+        assertTrue("a zero-length session is not emitted", sessions.isEmpty())
     }
 
     @Test

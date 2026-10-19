@@ -52,8 +52,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Detalle de una app: desglose por hora, resumen del día y lista de sesiones,
- * con selector ‹ día › limitado a la ventana que el sistema retiene.
+ * One app's detail: hourly breakdown, the day's summary and the session list,
+ * with a ‹ day › selector limited to the window the system retains.
  */
 @Composable
 fun AppDetailScreen(packageName: String) {
@@ -83,7 +83,7 @@ fun AppDetailScreen(packageName: String) {
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // Header: la flecha al borde inicial (inset 4 dp) y la identidad de la app centrada.
+            // Header: the arrow at the leading edge (4 dp inset) and the app identity centred.
             Box(modifier = Modifier.fillMaxWidth()) {
                 IconButton(
                     onClick = { backDispatcher?.onBackPressed() },
@@ -120,7 +120,7 @@ fun AppDetailScreen(packageName: String) {
 
             Spacer(Modifier.height(12.dp))
 
-            // Selector ‹ día ›: ‹ retrocede en el tiempo, › avanza; deshabilitadas en los bordes.
+            // ‹ day › selector: ‹ goes back in time, › forward; disabled at the ends.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

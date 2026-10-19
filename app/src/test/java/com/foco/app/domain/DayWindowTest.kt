@@ -7,8 +7,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * La ventana del día: los cuatro timestamps que la consulta le pide al sistema, fijados acá.
- * Zona sin horario de verano, así "un día" es exactamente 24 h.
+ * The day's window: the four timestamps the query asks the system for, pinned here.
+ * A zone without daylight saving, so "one day" is exactly 24 h.
  */
 class DayWindowTest {
 
