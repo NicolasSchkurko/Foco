@@ -18,7 +18,7 @@ Every source file SHALL contain at most one top-level type declaration — class
 - **THEN** the structure check fails
 
 ### Requirement: Explicit layers with a pure core
-Sources SHALL live in the layer folder matching their package — `model/` (pure types), `domain/` (pure behavior), `data/` (Android platform access), `ui/` (Compose presentation) — dependencies SHALL point downward only (`ui` may use `data`; `data` may use `domain`; `domain` may use `model`; never the reverse), and `model/` and `domain/` SHALL NOT import Android or Compose APIs. Pure computation helpers SHALL live in `domain/`, never in `data/`; platform reads used by the UI (package-manager icon and label reads) SHALL be reached through `data/` adapters, never called raw from `ui/`.
+Sources SHALL live in the layer folder matching their package, and dependencies SHALL point downward only (`ui` may use `data`, `data` may use `domain`, `domain` may use `model`, never the reverse). `model/` and `domain/` SHALL stay free of Android and Compose APIs, pure helpers SHALL live in `domain/`, and platform reads the UI needs SHALL be reached through `data/` adapters.
 [@test] `app/src/test/java/com/foco/app/structure/LayerRulesTest.kt`
 
 #### Scenario: File in the wrong folder
@@ -42,7 +42,7 @@ Sources SHALL live in the layer folder matching their package — `model/` (pure
 - **THEN** the boundary check fails and names the file
 
 ### Requirement: Reorganization preserves behavior
-The reorganization SHALL NOT change observable behavior: session and metrics computations keep their results and the screens render the same information, with the existing suite passing and edited only for package moves. Internal storage reorganizations SHALL also preserve the stored user data: splitting a store SHALL migrate the existing values, and the migration SHALL be idempotent.
+The reorganization SHALL NOT change observable behavior: session and metrics computations keep their results and the screens render the same information, with the existing suite passing and edited only for package moves.
 [@test] `app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt`
 [@test] `app/src/test/java/com/foco/app/data/SettingsMigrationTest.kt`
 
@@ -56,7 +56,7 @@ The reorganization SHALL NOT change observable behavior: session and metrics com
 
 #### Scenario: Stored settings survive the storage split
 - **WHEN** the app upgrades with a language and an appearance already stored in the legacy file
-- **THEN** the first startup copies them to the new file, clears them from the legacy one, and the UI opens with the same choices
+- **THEN** the first startup copies them to the new file, clears them from the legacy one, and the UI opens with the same choices — and running the migration again changes nothing (it is idempotent)
 
 ### Requirement: Shared UI widgets live in `ui/common/`
 Widgets used by more than one screen SHALL live in `ui/common/`; each screen keeps its own widgets beside it. A file under a `ui/<feature>/` folder SHALL NOT import another `ui/<feature>/` package: cross-screen reuse goes through `ui/common/` (the `ui` root, `ui/metrics/` and `ui/theme/` stay shared).
