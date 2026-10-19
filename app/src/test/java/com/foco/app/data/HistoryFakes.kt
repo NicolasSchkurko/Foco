@@ -2,6 +2,8 @@ package com.foco.app.data
 
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.data.db.DailyAggregateDao
+import com.foco.app.data.db.DailyUnlock
+import com.foco.app.data.db.DailyUnlockDao
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
 
@@ -37,4 +39,16 @@ class FakeDailyAggregateDao : DailyAggregateDao {
 
     override suspend fun totalsFor(from: String, to: String): List<DailyAggregate> =
         rows.values.filter { it.day in from..to }.sortedWith(compareBy({ it.day }, { it.packageName }))
+}
+
+/** In-memory counts: one row per day, replaced on the day, exactly like the Room DAO. */
+class FakeDailyUnlockDao : DailyUnlockDao {
+
+    val rows = mutableMapOf<String, DailyUnlock>()
+
+    override suspend fun upsert(row: DailyUnlock) {
+        rows[row.day] = row
+    }
+
+    override suspend fun countFor(day: String): Int? = rows[day]?.count
 }

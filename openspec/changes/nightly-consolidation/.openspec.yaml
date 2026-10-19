@@ -17,4 +17,5 @@ x-tests:
 x-deps:
   - usage-history-foundation
   - history-storage-followups
+  - stored-day-unlocks
 x-gitref: 3b3c14c

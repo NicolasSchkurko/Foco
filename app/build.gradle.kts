@@ -38,6 +38,11 @@ android {
     buildFeatures {
         compose = true
     }
+
+    sourceSets {
+        // `MigrationTestHelper` reads the exported schemas as assets.
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 ksp {
@@ -47,6 +52,9 @@ ksp {
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
+    // Room 2.8's schema bundles are compiled against kotlinx.serialization 1.8; the lifecycle
+    // resolves 1.7.3, which breaks them at runtime (`typeParametersSerializers`).
+    implementation(platform(libs.kotlinx.serialization.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -69,6 +77,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.room.testing)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

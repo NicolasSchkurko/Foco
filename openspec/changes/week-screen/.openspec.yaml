@@ -12,6 +12,7 @@ x-targets:
   - app/src/main/java/com/foco/app/ui/metrics/AppWeekTotal.kt
   - app/src/main/java/com/foco/app/ui/FocoNavHost.kt
   - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
   - app/src/main/res/values/strings.xml
   - app/src/main/res/values-es/strings.xml
 x-tests:
@@ -20,4 +21,5 @@ x-tests:
 x-deps:
   - usage-history-foundation
   - detail-history-days
+  - stored-day-unlocks
 x-gitref: 8c91b63

@@ -1,0 +1,25 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: feature
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/db/DailyUnlock.kt
+  - app/src/main/java/com/foco/app/data/db/DailyUnlockDao.kt
+  - app/src/main/java/com/foco/app/data/db/FocoDatabase.kt
+  - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
+  - app/build.gradle.kts
+  - gradle/libs.versions.toml
+  - app/schemas/com.foco.app.data.db.FocoDatabase/2.json
+x-tests:
+  - app/src/test/java/com/foco/app/data/StoredUnlocksTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/UnlockMigrationTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryFakes.kt
+  - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryRetentionTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryWeekTest.kt
+x-deps:
+  - usage-history-foundation
+x-gitref: 92bde98

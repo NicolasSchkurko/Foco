@@ -14,6 +14,7 @@ class HistoryWeekTest {
     private val store = SessionHistoryStore(
         FakeSessionRecordDao(),
         aggregates,
+        FakeDailyUnlockDao(),
         { DayData(sessions = emptyList(), unlockTimes = emptyList()) }
     )
 

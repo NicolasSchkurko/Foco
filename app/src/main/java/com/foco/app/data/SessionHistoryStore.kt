@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.data.db.DailyAggregateDao
+import com.foco.app.data.db.DailyUnlock
+import com.foco.app.data.db.DailyUnlockDao
 import com.foco.app.data.db.FocoDatabase
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
@@ -20,6 +22,7 @@ import java.time.ZoneId
 class SessionHistoryStore(
     private val sessions: SessionRecordDao,
     private val aggregates: DailyAggregateDao,
+    private val unlocks: DailyUnlockDao,
     private val readDay: (LocalDate) -> DayData
 ) {
 
@@ -47,12 +50,17 @@ class SessionHistoryStore(
             .map { UsageSession(it.packageName, it.start, it.end) }
     }
 
+    /** The stored unlock count of [date]; `null` means no count was stored, `0` is a real answer. */
+    suspend fun unlocksFor(date: LocalDate): Int? = unlocks.countFor(date.toString())
+
+    /** A day with no sessions is not consolidated, so no totals and no count are stored for it. */
     private suspend fun consolidateDay(day: LocalDate) {
-        val daySessions = readDay(day).sessions
-        if (daySessions.isEmpty()) return
+        val data = readDay(day)
+        if (data.sessions.isEmpty()) return
         // Raw first: a failure before the totals leaves the day pending, so the next start retries it.
-        sessions.upsert(daySessions.map { SessionRecord(it.packageName, it.start, it.end) })
-        aggregates.upsert(totalsOf(day, daySessions))
+        sessions.upsert(data.sessions.map { SessionRecord(it.packageName, it.start, it.end) })
+        aggregates.upsert(totalsOf(day, data.sessions))
+        unlocks.upsert(DailyUnlock(day.toString(), data.unlockTimes.size))
     }
 
     private fun totalsOf(day: LocalDate, daySessions: List<UsageSession>): List<DailyAggregate> =
@@ -78,9 +86,14 @@ class SessionHistoryStore(
                     context.applicationContext,
                     FocoDatabase::class.java,
                     DATABASE_NAME
-                ).build().also { database = it }
+                ).addMigrations(FocoDatabase.MIGRATION_1_2).build().also { database = it }
             }
-            return SessionHistoryStore(db.sessionRecords(), db.dailyAggregates(), readDay)
+            return SessionHistoryStore(
+                db.sessionRecords(),
+                db.dailyAggregates(),
+                db.dailyUnlocks(),
+                readDay
+            )
         }
     }
 }

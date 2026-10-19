@@ -15,15 +15,15 @@
 
 ## 3. Navigation and the day view
 
-- [ ] 3.1 `FocoNavHost.kt`: add `week` and `day/{date}`; the back action returns to the previous screen.
-- [ ] 3.2 `DashboardScreen.kt`: accept an optional date — absent = today (current behavior, auto-refresh intact); present = read-only, data from `sessionsFor(date)`, no refresh effect. Reuse the composition; do not copy it.
+- [ ] 3.1 `FocoNavHost.kt`: add `week` and `day/{date}`; the back action returns to the previous screen. The day view's app rows open `detail/{packageName}?date={date}` — `AppDetailScreen` starts on that day and its selector still walks the stored window; without a date it starts on today, unchanged.
+- [ ] 3.2 `DashboardScreen.kt`: accept an optional date — absent = today (current behavior, auto-refresh intact); present = read-only, data from `sessionsFor(date)` plus that day's stored unlock count (`unlockCount(date)` from `stored-day-unlocks`), no refresh effect. Reuse the composition; do not copy it.
 - [ ] 3.3 Dashboard entry: a control next to the settings icon opens the week view; strings in base English and `values-es`.
 - [ ] 3.4 Keep the dashboard's existing contract intact: `DashboardRefreshTest` must stay green for today.
 
 ## 4. Instrumented tests
 
 - [ ] 4.1 `WeekScreenTest`: entry from the dashboard and back; seven bars with a seeded store; tapping a bar opens that day's view with its total and ranking; a ranking row opens the app detail for that day.
-- [ ] 4.2 Seed through the screen's data parameter (the seam the detail change adds), not through the real platform.
+- [ ] 4.2 Seed through the dashboard's existing `loadDay` seam for the live day and through the app's **real** store for stored days (as `AppDetailNavigationTest` does), never through the real platform. The seam the detail change planned was dropped on apply (its task 3.3); the dashboard's own seam is the one that exists.
 
 ## 5. Verify
 
@@ -34,4 +34,5 @@
 ## Workflow follow-up
 
 - `tech_brief: true`: `walkthrough.md` + comprehension sign-off before archiving.
-- Deps: lands after `usage-history-foundation` and `detail-history-days` are `verified`; leave `status: draft` until the human accepts.
+- Deps: lands after `usage-history-foundation`, `detail-history-days` and `stored-day-unlocks` are `verified`; leave `status: draft` until the human accepts.
+- Added after acceptance (2026-10-19, human): the day view's rows open the detail **for that day**, so `ui/detail/AppDetailScreen.kt` joins the targets; the dated day view shows the stored unlock count, which is why `stored-day-unlocks` is a dep.

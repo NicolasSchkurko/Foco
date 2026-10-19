@@ -15,7 +15,8 @@ class HistoryConsolidationTest {
     private val platform = mutableMapOf<LocalDate, DayData>()
     private val sessions = FakeSessionRecordDao()
     private val aggregates = FakeDailyAggregateDao()
-    private val store = SessionHistoryStore(sessions, aggregates, { platform[it] ?: emptyDay })
+    private val store =
+        SessionHistoryStore(sessions, aggregates, FakeDailyUnlockDao(), { platform[it] ?: emptyDay })
 
     @Test
     fun `a consolidated day is stored and read back with the same total`() = runBlocking {
