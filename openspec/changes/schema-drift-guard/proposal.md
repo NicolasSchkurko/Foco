@@ -51,7 +51,7 @@ Option 0 is the substrate this change reuses rather than rebuilds: the foundatio
 ## Impact
 
 - **Test-only (`kind: refactor`)**: no observable behavior changes; the proof is the green suite plus the three regression tests, each of which fails when its invariant is broken.
-- Depends on `usage-history-foundation` (draft): it shares `app/build.gradle.kts` with it, so the gate treats the overlap as sequenced; `app/schemas/` must exist before the baseline test can read it.
+- Depends on `usage-history-foundation` (archived): it shares `app/build.gradle.kts` with it, so the gate treats the overlap as sequenced; `app/schemas/` must exist before the baseline test can read it.
 - Also declares `nightly-consolidation` as a dep for **sequencing only**: both edit `app/build.gradle.kts` (its WorkManager dependency against the androidTest assets here), and there is no code dependency in either direction. It lands last of the two.
 - No protected zone (`openspec/config.yaml` → `protected: []`).
 - `tech_brief: false`: no dependency, no storage change, no concurrency; the mechanism above is the whole story.

@@ -7,7 +7,7 @@ import com.foco.app.data.db.DailyAggregateDao
 import com.foco.app.data.db.FocoDatabase
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
-import com.foco.app.domain.availableDays
+import com.foco.app.domain.finishedDays
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import java.time.LocalDate
@@ -20,14 +20,13 @@ import java.time.ZoneId
 class SessionHistoryStore(
     private val sessions: SessionRecordDao,
     private val aggregates: DailyAggregateDao,
-    private val readDay: (LocalDate) -> DayData,
-    private val zone: ZoneId = ZoneId.systemDefault()
+    private val readDay: (LocalDate) -> DayData
 ) {
 
     /** Stores every finished day inside the platform's window that has no totals yet, then prunes raw rows. */
     suspend fun consolidate(today: LocalDate) {
         val stored = aggregates.storedDays().toSet()
-        val pending = availableDays(today).drop(1).filterNot { it.toString() in stored }.sorted()
+        val pending = finishedDays(today).filterNot { it.toString() in stored }.sorted()
         pending.forEach { consolidateDay(it) }
         sessions.pruneBefore(rawCutoff(today))
     }
@@ -49,9 +48,9 @@ class SessionHistoryStore(
             DailyAggregate(packageName, day.toString(), list.sumOf { it.end - it.start })
         }
 
-    /** Start of the oldest day that still keeps raw rows: today and the previous six. */
+    /** Start of the oldest day that still keeps raw rows, on the same default calendar the reader uses. */
     private fun rawCutoff(today: LocalDate): Long =
-        today.minusDays(SIX_DAYS).atStartOfDay(zone).toInstant().toEpochMilli()
+        today.minusDays(SIX_DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
     companion object {
         private const val DATABASE_NAME = "foco.db"

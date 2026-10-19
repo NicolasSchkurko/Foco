@@ -41,5 +41,5 @@ Opening a day from the Week screen shows the same total the bar showed, even whe
 ## Impact
 
 - `tech_brief: true`: the read path and the "which source" rule are state semantics worth a walkthrough.
-- Depends on `usage-history-foundation` (draft): its file `SessionHistoryStore.kt` is touched, so the gate treats the overlap as sequenced.
+- Depends on `usage-history-foundation` and `history-storage-followups` (both archived): they touch `SessionHistoryStore.kt` and `AvailableDays.kt`, so the gate treats the overlap as sequenced.
 - No protected zone (`openspec/config.yaml` → `protected: []`).

@@ -1,0 +1,20 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: refactor
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-tech_brief: false
+x-targets:
+  - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
+  - app/src/main/java/com/foco/app/MainActivity.kt
+  - app/src/main/java/com/foco/app/domain/AvailableDays.kt
+  - DECISIONS.md
+x-tests:
+  - app/src/test/java/com/foco/app/data/HistoryFakes.kt
+  - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryRetentionTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryWeekTest.kt
+x-deps:
+  - usage-history-foundation
+x-gitref: 2c82050

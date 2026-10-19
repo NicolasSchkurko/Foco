@@ -15,4 +15,5 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
 x-deps:
   - usage-history-foundation
+  - history-storage-followups
 x-gitref: 8c91b63

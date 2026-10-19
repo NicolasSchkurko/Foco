@@ -16,4 +16,5 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt
 x-deps:
   - usage-history-foundation
+  - history-storage-followups
 x-gitref: 3b3c14c

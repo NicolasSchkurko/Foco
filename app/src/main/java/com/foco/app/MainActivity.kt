@@ -2,6 +2,7 @@ package com.foco.app
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Window
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -85,7 +86,8 @@ class MainActivity : AppCompatActivity() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                // The backfill retries on the next start; nothing here is user-facing.
+                // Best effort: the next start retries the unfinished days.
+                Log.w("Foco", "History backfill failed", failure)
             } finally {
                 consolidating.set(false)
             }
