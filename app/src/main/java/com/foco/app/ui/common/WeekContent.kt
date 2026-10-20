@@ -14,33 +14,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.R
-import com.foco.app.data.ExcludedAppsStore
-import com.foco.app.data.SessionHistoryStore
-import com.foco.app.data.UsageRepository
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.formatDayLabel
@@ -49,109 +36,72 @@ import com.foco.app.ui.formatWeekday
 import com.foco.app.ui.metrics.WeekDayBar
 import com.foco.app.ui.metrics.deriveWeekMetrics
 import java.time.LocalDate
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
-/** The week as one home position: bars, live/stored totals, and the ranking. The home owns the header. */
+/**
+ * The week as one home position: the bars and the ranking over the totals and the live day the home
+ * already read. It renders only; the home owns the header, the reads and the loading placeholder.
+ */
 @Composable
 fun WeekContent(
     today: LocalDate,
-    loadDay: (suspend () -> DayData)? = null,
+    totals: List<DailyAggregate>,
+    todayData: DayData,
+    excludedPackages: Set<String>,
     onDayClick: (LocalDate) -> Unit = {},
     onAppClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val repository = remember { UsageRepository(context.applicationContext) }
-    val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
-    val load by rememberUpdatedState(loadDay ?: { repository.loadDay(today) })
-
-    val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
-    var excludedPackages by remember { mutableStateOf(emptySet<String>()) }
-    var storedTotals by remember { mutableStateOf<List<DailyAggregate>?>(null) }
-    var todayData by remember { mutableStateOf<DayData?>(null) }
-
-    LaunchedEffect(store, today) {
-        storedTotals = withContext(Dispatchers.IO) {
-            readOr(emptyList<DailyAggregate>()) { store.week(today) }
-        }
-    }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner, today) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            todayData = withContext(Dispatchers.IO) {
-                readOr(DayData(emptyList(), emptyList())) { load() }
-            }
-        }
-    }
-
-    LaunchedEffect(excludedStore) {
-        excludedStore.excludedPackages.collect { excludedPackages = it }
-    }
-
-    val metrics = remember(storedTotals, todayData, excludedPackages) {
+    val metrics = remember(totals, todayData, excludedPackages, today) {
         deriveWeekMetrics(
-            storedTotals = storedTotals.orEmpty(),
+            storedTotals = totals,
             todayDate = today,
-            today = todayData ?: DayData(emptyList(), emptyList()),
+            today = todayData,
             excludedPackages = excludedPackages
         )
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        if (storedTotals == null || todayData == null) {
+        WeekBars(bars = metrics.bars, today = today, onDayClick = onDayClick)
+        Spacer(Modifier.height(24.dp))
+
+        if (metrics.ranking.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                Text(
+                    text = stringResource(R.string.week_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         } else {
-            WeekBars(bars = metrics.bars, today = today, onDayClick = onDayClick)
-            Spacer(Modifier.height(24.dp))
-
-            if (metrics.ranking.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.week_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            Text(
+                text = stringResource(R.string.dashboard_apps),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(Modifier.height(4.dp))
+            val maxAppMillis = metrics.ranking.maxOf { it.totalMillis }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(metrics.ranking, key = { it.packageName }) { app ->
+                    AppUsageRow(
+                        packageName = app.packageName,
+                        millis = app.totalMillis,
+                        maxMillis = maxAppMillis,
+                        caption = pluralStringResource(
+                            R.plurals.week_days_used,
+                            app.daysUsed,
+                            app.daysUsed
+                        ),
+                        onClick = { onAppClick(app.packageName) }
                     )
-                }
-            } else {
-                Text(
-                    text = stringResource(R.string.dashboard_apps),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(Modifier.height(4.dp))
-                val maxAppMillis = metrics.ranking.maxOf { it.totalMillis }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    items(metrics.ranking, key = { it.packageName }) { app ->
-                        AppUsageRow(
-                            packageName = app.packageName,
-                            millis = app.totalMillis,
-                            maxMillis = maxAppMillis,
-                            caption = pluralStringResource(
-                                R.plurals.week_days_used,
-                                app.daysUsed,
-                                app.daysUsed
-                            ),
-                            onClick = { onAppClick(app.packageName) }
-                        )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
-                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                 }
             }
         }

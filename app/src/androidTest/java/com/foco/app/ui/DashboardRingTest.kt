@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -16,8 +17,16 @@ import androidx.compose.ui.test.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
+import com.foco.app.data.SessionHistoryStore
+import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.math.abs
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -55,6 +64,30 @@ class DashboardRingTest {
         composeRule.runOnUiThread {
             composeRule.activity.onBackPressedDispatcher.onBackPressed()
         }
+    }
+
+    /** Stores one finished day's session behind the platform reader, as the store does at start. */
+    private fun seedStoredDay(day: LocalDate) {
+        val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + HOUR_MILLIS
+        val store = SessionHistoryStore.forApp(targetContext) { date ->
+            if (date == day) {
+                DayData(
+                    sessions = listOf(UsageSession("com.android.settings", from, from + HOUR_MILLIS)),
+                    unlockTimes = emptyList()
+                )
+            } else {
+                DayData(sessions = emptyList(), unlockTimes = emptyList())
+            }
+        }
+        runBlocking { store.consolidate(LocalDate.now()) }
+    }
+
+    /** Waits until the store offers [day], so the home's ring can move to it. */
+    private fun awaitStoredDay(day: LocalDate) {
+        val store = SessionHistoryStore.forApp(targetContext) {
+            DayData(sessions = emptyList(), unlockTimes = emptyList())
+        }
+        runBlocking { withTimeout(10_000) { store.storedDaysFlow().first { day in it } } }
     }
 
     @Test
@@ -142,5 +175,40 @@ class DashboardRingTest {
         composeRule.onNodeWithContentDescription(string(R.string.content_back)).performClick()
 
         awaitText(string(R.string.week_title))
+    }
+
+    @Test
+    fun aMoveWaitsForTodayWithoutShowingALoadingPlaceholder() {
+        val yesterday = LocalDate.now().minusDays(1)
+        seedStoredDay(yesterday)
+        awaitStoredDay(yesterday)
+
+        val gate = CompletableDeferred<Unit>()
+        composeRule.setContent {
+            FocoNavHost(loadDay = {
+                gate.await()
+                liveDay
+            })
+        }
+
+        // Cold start: nothing to show yet, so this is the only placeholder there is.
+        composeRule.onNodeWithTag("ring_loading").assertExists()
+
+        composeRule.onNodeWithContentDescription(string(R.string.day_previous)).performClick()
+        awaitText(string(R.string.day_yesterday))
+
+        // Back to today while its read is still held: yesterday stays, and nothing loads.
+        composeRule.onNodeWithContentDescription(string(R.string.day_next)).performClick()
+        composeRule.onAllNodesWithTag("ring_loading").assertCountEquals(0)
+        composeRule.onNodeWithText(string(R.string.day_yesterday)).assertExists()
+
+        gate.complete(Unit)
+
+        awaitText(string(R.string.dashboard_title))
+        composeRule.onAllNodesWithTag("ring_loading").assertCountEquals(0)
+    }
+
+    private companion object {
+        const val HOUR_MILLIS = 3_600_000L
     }
 }

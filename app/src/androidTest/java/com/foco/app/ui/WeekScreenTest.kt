@@ -20,6 +20,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -160,6 +161,31 @@ class WeekScreenTest {
         val daysUsed = storedTotals.filter { it.packageName == settings }.map { it.day }.distinct().size + 1
         awaitText(string(R.string.dashboard_apps))
         awaitText(quantity(R.plurals.week_days_used, daysUsed))
+    }
+
+    @Test
+    fun tappingAnAbsentBarOpensTheEmptyDayAndBackReturnsToTheWeek() {
+        showApp()
+        openWeek()
+
+        val stored = storedWeek().map { it.day }.toSet()
+        val absent = (1..6)
+            .map { today.minusDays(it.toLong()) }
+            .firstOrNull { it.toString() !in stored }
+        assumeTrue("the device already stores every day in the window", absent != null)
+
+        val day = absent!!
+        val description = string(R.string.week_bar_absent, dayLabel(day))
+        awaitDescription(description)
+        composeRule.onNodeWithContentDescription(description).performClick()
+
+        awaitText(dayLabel(day))
+        awaitText(string(R.string.day_empty))
+
+        composeRule.runOnUiThread {
+            composeRule.activity.onBackPressedDispatcher.onBackPressed()
+        }
+        awaitText(string(R.string.week_title))
     }
 
     @Test

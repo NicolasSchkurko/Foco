@@ -1,0 +1,24 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/RingContent.kt
+  - app/src/main/java/com/foco/app/ui/common/WeekContent.kt
+  - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/dashboard/DashboardRefreshTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/dashboard/WeekExportShareTest.kt
+  - app/src/test/java/com/foco/app/ui/dashboard/RingMotionTest.kt
+x-deps:
+  - midnight-today-rollover
+  - week-absent-bar-action
+x-gitref: 677c0be
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-20
