@@ -1,0 +1,17 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: fix
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/MainActivity.kt
+  - app/src/main/java/com/foco/app/ui/App.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/StartupLoadingTest.kt
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/StartupLoadingTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
+x-deps: []
+x-gitref: fc132b0
