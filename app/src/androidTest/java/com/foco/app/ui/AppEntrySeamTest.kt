@@ -39,10 +39,14 @@ class AppEntrySeamTest {
     /** The simulated "real" permission: the test flips it back and forth. */
     private var granted = false
 
+    /** The simulated accessibility binding: the test flips it back and forth. */
+    private var accessibilityGranted = true
+
     private fun showGate() {
         composeRule.setContent {
             App(
                 isUsageAccessGranted = { granted },
+                isAccessibilityGranted = { accessibilityGranted },
                 startupLoad = {}
             )
         }
@@ -90,5 +94,39 @@ class AppEntrySeamTest {
         granted = false
         leaveAndReturn()
         awaitText(string(R.string.onboarding_open_settings))
+    }
+
+    @Test
+    fun usageGrantedWithoutAccessibilityShowsTheAccessibilityOnboarding() {
+        granted = true
+        accessibilityGranted = false
+        showGate()
+
+        awaitText(string(R.string.onboarding_accessibility_open_settings))
+        awaitText(string(R.string.onboarding_accessibility_explanation))
+    }
+
+    @Test
+    fun accessibilityGrantedWhileAwayShowsTheDashboard() {
+        granted = true
+        accessibilityGranted = false
+        showGate()
+        awaitText(string(R.string.onboarding_accessibility_open_settings))
+
+        accessibilityGranted = true
+        leaveAndReturn()
+        awaitText(string(R.string.dashboard_title))
+    }
+
+    @Test
+    fun revokingAccessibilityWhileAwayShowsItsOnboarding() {
+        granted = true
+        accessibilityGranted = true
+        showGate()
+        awaitText(string(R.string.dashboard_title))
+
+        accessibilityGranted = false
+        leaveAndReturn()
+        awaitText(string(R.string.onboarding_accessibility_open_settings))
     }
 }

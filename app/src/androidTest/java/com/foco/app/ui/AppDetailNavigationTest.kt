@@ -49,6 +49,7 @@ class AppDetailNavigationTest {
 
     /** Permission + real usage, launches the app, taps the Settings row and waits for the detail. */
     private fun launchAndOpenDetail(): ActivityScenario<MainActivity> {
+        setAccessibilityServiceEnabled(true)
         shell("appops set com.foco.app android:get_usage_stats allow")
         shell("am start -a android.settings.SETTINGS")
         waitForSettingsForeground(composeRule)

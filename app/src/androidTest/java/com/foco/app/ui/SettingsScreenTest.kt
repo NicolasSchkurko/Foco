@@ -74,6 +74,7 @@ class SettingsScreenTest {
         AppLanguage.applyToSystem(LanguageOption.EN)
         AppAppearance.applyToSystem(AppearanceOption.AUTO)
         shell("appops set com.foco.app android:get_usage_stats allow")
+        setAccessibilityServiceEnabled(true)
     }
 
     @After

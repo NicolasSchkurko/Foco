@@ -61,6 +61,7 @@ class ExcludedAppsTest {
 
     @Test
     fun longPressExcludesUndoRestoresAndTheExclusionPersists() {
+        setAccessibilityServiceEnabled(true)
         shell("appops set com.foco.app android:get_usage_stats allow")
         shell("am start -a android.settings.SETTINGS")
         waitForSettingsForeground(composeRule)

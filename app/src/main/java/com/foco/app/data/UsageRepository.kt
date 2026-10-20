@@ -47,6 +47,9 @@ class UsageRepository(private val context: Context) {
         result
     }
 
+    /** The packages with a launcher icon, for the daily-limits list (services and internals out). */
+    fun launchablePackageNames(): Set<String> = launchablePackages.toSet()
+
     /** The current day's data. */
     fun loadToday(now: Long = System.currentTimeMillis()): DayData =
         loadDay(

@@ -11,6 +11,11 @@
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!--
       Android 11+ limita qué apps podemos "ver".
       Declaramos que queremos resolver apps de lanzador y la home actual,
@@ -68,6 +73,44 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
+
+        <!--
+          The two-minute limit monitor: a foreground service with the specialUse type on 34+,
+          a plain foreground service below it. It stops when no limit remains.
+        -->
+        <service
+            android:name=".data.UsageMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:stopWithTask="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Checks today's app usage every two minutes while a daily limit exists" />
+        </service>
+
+        <!-- Sees the foreground package and hosts the block overlay; the user enables it by hand. -->
+        <service
+            android:name=".UsageMonitorAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Brings the monitor back after a reboot, only if a limit and accessibility exist. -->
+        <receiver
+            android:name=".data.UsageMonitorBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

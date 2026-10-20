@@ -30,6 +30,9 @@
     <string name="onboarding_explanation">To measure how much you use each app, Foco needs access to usage stats. Android only lets you enable it by hand, from Settings.</string>
     <string name="onboarding_open_settings">Open Settings</string>
     <string name="onboarding_hint">Find “Foco” in the list and enable the permission. When you come back here, the screen updates on its own.</string>
+    <string name="onboarding_accessibility_explanation">To apply your daily limits, Foco needs its accessibility service: it is the only way to see which app is open and show the limit screen. Foco never reads screen content.</string>
+    <string name="onboarding_accessibility_open_settings">Open accessibility settings</string>
+    <string name="onboarding_accessibility_hint">Find Foco under “Installed apps” or “Downloaded apps”, open it and turn the service on. When you come back here, the screen updates on its own.</string>
 
     <!-- App detail -->
     <string name="content_back">Back</string>
@@ -55,6 +58,20 @@
     <string name="settings_excluded_section">Excluded apps</string>
     <string name="settings_excluded_empty">No excluded apps.</string>
     <string name="settings_restore">Restore</string>
+    <string name="settings_limits_section">App limits</string>
+    <string name="settings_limits_explanation">Block an app after a set number of minutes today. No limit means the app is never blocked.</string>
+    <string name="settings_limit_none">No limit</string>
+    <string name="settings_limit_block_now">Block immediately (0 min)</string>
+
+    <!-- Limits -->
+    <string name="accessibility_service_label">Foco daily limits</string>
+    <string name="accessibility_service_description">Sees which app is in the foreground to apply your daily limits and show the limit screen. It never reads screen content.</string>
+    <string name="limit_block_title">Daily limit reached</string>
+    <string name="limit_block_message">%1$s reached its daily limit.</string>
+    <string name="limit_block_countdown">Closing in %1$d</string>
+    <string name="usage_monitor_channel">Daily limits</string>
+    <string name="usage_monitor_notification">Daily limits are active</string>
+    <string name="usage_monitor_notification_detail">Foco checks today’s usage every two minutes.</string>
 
     <!-- Week -->
     <string name="week_title">Week</string>

@@ -38,6 +38,22 @@ internal fun waitForKeyguardUnlocked(rule: ComposeTestRule) {
 }
 
 /**
+ * Enables or disables Foco's accessibility service in the system's secure settings, the same
+ * switch the user flips in Settings. Test setup only: the entry gate requires it.
+ */
+internal fun setAccessibilityServiceEnabled(enabled: Boolean) {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    val component = "com.foco.app/com.foco.app.UsageMonitorAccessibilityService"
+    val services = if (enabled) component else "''"
+    instrumentation.uiAutomation
+        .executeShellCommand("settings put secure enabled_accessibility_services $services")
+        .close()
+    instrumentation.uiAutomation
+        .executeShellCommand("settings put secure accessibility_enabled ${if (enabled) 1 else 0}")
+        .close()
+}
+
+/**
  * Waits until Settings has been resumed long enough to count as a visible session for the
  * dashboard, then returns; this replaces the old fixed 2 s usage-generation sleep.
  */

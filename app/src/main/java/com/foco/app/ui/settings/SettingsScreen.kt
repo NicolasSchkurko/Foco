@@ -1,6 +1,11 @@
 package com.foco.app.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -35,35 +41,67 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.foco.app.R
 import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppLanguage
+import com.foco.app.data.AppLimitsStore
+import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SettingsStore
+import com.foco.app.data.UsageMonitorService
+import com.foco.app.data.UsageRepository
 import com.foco.app.model.AppearanceOption
 import com.foco.app.model.LanguageOption
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Settings: the About block, language and appearance as one row with a dropdown each, and the
- * management of the apps excluded from the ranking.
+ * Settings: the About block, language and appearance as one row with a dropdown each, the
+ * per-app daily limits and the management of the apps excluded from the ranking.
  */
 @Composable
 fun SettingsScreen() {
     val context = LocalContext.current
     val store = remember { SettingsStore(context.applicationContext) }
     val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
+    val limitsStore = remember { AppLimitsStore.forApp(context.applicationContext) }
+    val repository = remember { UsageRepository(context.applicationContext) }
     val identity = remember { AppIdentity(context.applicationContext) }
     val scope = rememberCoroutineScope()
 
     val language by store.language.collectAsState(initial = LanguageOption.AUTO)
     val appearance by store.appearance.collectAsState(initial = AppearanceOption.AUTO)
     val excluded by excludedStore.excludedPackages.collectAsState(initial = emptySet())
+    val limits by limitsStore.limitsFlow.collectAsState(initial = emptyMap())
+    val limitApps by produceState(initialValue = emptyList<Pair<String, String>>(), Unit) {
+        value = withContext(Dispatchers.IO) {
+            val info = AppPackageInfo(context.applicationContext)
+            repository.launchablePackageNames()
+                // Foco's own usage is not measured, so a limit on it would never fire.
+                .filterNot { it == context.packageName }
+                .map { packageName -> packageName to info.label(packageName) }
+                .sortedBy { (_, label) -> label.lowercase() }
+        }
+    }
+
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
@@ -126,6 +164,19 @@ fun SettingsScreen() {
                         }
                     )
                 }
+
+                appLimitsSection(
+                    apps = limitApps,
+                    limits = limits,
+                    onLimitChange = { packageName, minutes ->
+                        requestNotificationPermission()
+                        scope.launch {
+                            if (minutes == null) limitsStore.clearLimit(packageName)
+                            else limitsStore.setLimit(packageName, minutes)
+                            UsageMonitorService.sync(context.applicationContext)
+                        }
+                    }
+                )
 
                 item {
                     Spacer(Modifier.height(16.dp))

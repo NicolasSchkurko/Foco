@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Foco's accessibility service: only listens for the foreground app's window changes.
+  It cannot read window content, so it sees package names, never screen text.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/accessibility_service_description"
+    android:label="@string/accessibility_service_label"
+    android:notificationTimeout="100"
+    android:settingsActivity="com.foco.app.MainActivity" />

@@ -17,16 +17,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.foco.app.AccessibilityAccess
 import com.foco.app.R
 import com.foco.app.data.UsageAccess
 
 /**
- * Shown while the app has no "Usage access": what to enable, and the way to Settings. The Scaffold
- * shell is what gives the text the theme's content colour over the themed window.
+ * Shown while a required permission is missing: usage access first, then the accessibility
+ * service that enforcement needs. The Scaffold gives the text the theme's content colour.
  */
 @Composable
-fun OnboardingScreen() {
+fun OnboardingScreen(accessibility: Boolean = false) {
     val context = LocalContext.current
+    val explanation = if (accessibility) {
+        stringResource(R.string.onboarding_accessibility_explanation)
+    } else {
+        stringResource(R.string.onboarding_explanation)
+    }
+    val action = if (accessibility) {
+        stringResource(R.string.onboarding_accessibility_open_settings)
+    } else {
+        stringResource(R.string.onboarding_open_settings)
+    }
+    val hint = if (accessibility) {
+        stringResource(R.string.onboarding_accessibility_hint)
+    } else {
+        stringResource(R.string.onboarding_hint)
+    }
+    val intent = if (accessibility) {
+        AccessibilityAccess.settingsIntent()
+    } else {
+        UsageAccess.settingsIntent()
+    }
 
     Scaffold { innerPadding ->
         Column(
@@ -45,21 +66,21 @@ fun OnboardingScreen() {
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.onboarding_explanation),
+                text = explanation,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
 
             Spacer(Modifier.height(24.dp))
 
-            Button(onClick = { context.startActivity(UsageAccess.settingsIntent()) }) {
-                Text(stringResource(R.string.onboarding_open_settings))
+            Button(onClick = { context.startActivity(intent) }) {
+                Text(action)
             }
 
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = stringResource(R.string.onboarding_hint),
+                text = hint,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center

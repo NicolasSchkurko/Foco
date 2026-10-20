@@ -30,6 +30,9 @@
     <string name="onboarding_explanation">Para medir cuánto usás cada app, Foco necesita acceso a las estadísticas de uso. Android solo permite activarlo a mano, desde Ajustes.</string>
     <string name="onboarding_open_settings">Abrir Ajustes</string>
     <string name="onboarding_hint">Buscá «Foco» en la lista y activá el permiso. Al volver acá, la pantalla se actualiza sola.</string>
+    <string name="onboarding_accessibility_explanation">Para aplicar tus límites diarios, Foco necesita su servicio de accesibilidad: es la única forma de ver qué app está abierta y mostrar la pantalla de límite. Foco nunca lee el contenido de la pantalla.</string>
+    <string name="onboarding_accessibility_open_settings">Abrir ajustes de accesibilidad</string>
+    <string name="onboarding_accessibility_hint">Buscá Foco en «Apps instaladas» o «Apps descargadas», entrá y activá el servicio. Al volver acá, la pantalla se actualiza sola.</string>
 
     <!-- App detail -->
     <string name="content_back">Volver</string>
@@ -55,6 +58,20 @@
     <string name="settings_excluded_section">Apps excluidas</string>
     <string name="settings_excluded_empty">No hay apps excluidas.</string>
     <string name="settings_restore">Restaurar</string>
+    <string name="settings_limits_section">Límites por app</string>
+    <string name="settings_limits_explanation">Bloqueá una app después de cierta cantidad de minutos de hoy. Sin límite, la app nunca se bloquea.</string>
+    <string name="settings_limit_none">Sin límite</string>
+    <string name="settings_limit_block_now">Bloquear al abrir (0 min)</string>
+
+    <!-- Limits -->
+    <string name="accessibility_service_label">Límites diarios de Foco</string>
+    <string name="accessibility_service_description">Ve qué app está en primer plano para aplicar tus límites diarios y mostrar la pantalla de límite. Nunca lee el contenido de la pantalla.</string>
+    <string name="limit_block_title">Límite diario alcanzado</string>
+    <string name="limit_block_message">%1$s alcanzó su límite diario.</string>
+    <string name="limit_block_countdown">Cerrando en %1$d</string>
+    <string name="usage_monitor_channel">Límites diarios</string>
+    <string name="usage_monitor_notification">Los límites diarios están activos</string>
+    <string name="usage_monitor_notification_detail">Foco revisa el uso de hoy cada dos minutos.</string>
 
     <!-- Week -->
     <string name="week_title">Semana</string>

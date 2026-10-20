@@ -1,0 +1,49 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: feature
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-20
+x-tech_brief: true
+x-targets:
+  - app/src/main/AndroidManifest.xml
+  - app/src/main/res/xml/accessibility_service_config.xml
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+  - app/src/main/java/com/foco/app/MainActivity.kt
+  - app/src/main/java/com/foco/app/ui/App.kt
+  - app/src/main/java/com/foco/app/ui/onboarding/OnboardingScreen.kt
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+  - app/src/main/java/com/foco/app/ui/limits/AppLimitBlockScreen.kt
+  - app/src/main/java/com/foco/app/domain/AppLimitRules.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimit.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitDao.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitDatabase.kt
+  - app/src/main/java/com/foco/app/data/AppLimitsStore.kt
+  - app/src/main/java/com/foco/app/AccessibilityAccess.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorEvaluator.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorService.kt
+  - app/src/main/java/com/foco/app/UsageMonitorAccessibilityService.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorBootReceiver.kt
+  - app/src/main/java/com/foco/app/domain/ForegroundApp.kt
+  - app/src/main/java/com/foco/app/domain/ForegroundAppTracker.kt
+  - app/src/main/java/com/foco/app/ui/settings/AppLimitsSection.kt
+  - app/src/main/java/com/foco/app/data/UsageRepository.kt
+  - app/schemas/com.foco.app.data.db.AppLimitDatabase/1.json
+  - ARCHITECTURE.dsl
+x-tests:
+  - app/src/test/java/com/foco/app/domain/AppLimitRulesTest.kt
+  - app/src/test/java/com/foco/app/NoNetworkPermissionTest.kt
+  - app/src/test/java/com/foco/app/BackupDisabledManifestTest.kt
+  - app/src/androidTest/java/com/foco/app/data/AppLimitsStoreTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/AppLimitSchemaBaselineTest.kt
+  - app/src/androidTest/java/com/foco/app/data/UsageMonitorServiceTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitBlockTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppEntryGateTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/OnboardingContrastTest.kt
+x-deps: []
+x-gitref: f95a016

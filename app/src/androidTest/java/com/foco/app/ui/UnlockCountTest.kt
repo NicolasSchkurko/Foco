@@ -59,6 +59,7 @@ class UnlockCountTest {
 
     @Test
     fun subtitleShowsTheDaysUnlockCount() {
+        setAccessibilityServiceEnabled(true)
         shell("appops set com.foco.app android:get_usage_stats allow")
         generateUnlocks(times = 2)
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.foco.app.AccessibilityAccess
 import com.foco.app.R
 import com.foco.app.data.ConsolidationRunner
 import com.foco.app.data.UsageAccess
@@ -37,11 +38,14 @@ import kotlinx.coroutines.withContext
 @Composable
 fun App(
     isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted,
+    isAccessibilityGranted: (Context) -> Boolean = AccessibilityAccess::isGranted,
     startupLoad: (suspend () -> Unit)? = null
 ) {
     val context = LocalContext.current
     val checkGranted by rememberUpdatedState(isUsageAccessGranted)
+    val checkAccessibility by rememberUpdatedState(isAccessibilityGranted)
     var hasUsageAccess by remember { mutableStateOf(checkGranted(context)) }
+    var hasAccessibility by remember { mutableStateOf(checkAccessibility(context)) }
     var startupReady by remember { mutableStateOf(false) }
 
     val loadStartup by rememberUpdatedState(
@@ -56,14 +60,15 @@ fun App(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasUsageAccess = checkGranted(context)
+                hasAccessibility = checkAccessibility(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(hasUsageAccess) {
-        if (!hasUsageAccess) {
+    LaunchedEffect(hasUsageAccess, hasAccessibility) {
+        if (!hasUsageAccess || !hasAccessibility) {
             startupReady = false
             return@LaunchedEffect
         }
@@ -77,6 +82,7 @@ fun App(
 
     when {
         !hasUsageAccess -> OnboardingScreen()
+        !hasAccessibility -> OnboardingScreen(accessibility = true)
         !startupReady -> StartupLoadingScreen()
         else -> FocoNavHost()
     }

@@ -19,6 +19,7 @@ import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppLanguage
 import com.foco.app.data.ConsolidationScheduler
 import com.foco.app.data.SettingsStore
+import com.foco.app.data.UsageMonitorService
 import com.foco.app.data.migrateSettingsFromLegacyDataStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.ui.App
@@ -62,6 +63,13 @@ class MainActivity : AppCompatActivity() {
                 App()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The monitor starts only with a limit and accessibility; this also covers enabling
+        // accessibility in Settings and coming back.
+        UsageMonitorService.sync(applicationContext)
     }
 
 }

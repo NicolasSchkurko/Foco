@@ -9,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
 import com.foco.app.R
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,9 +50,15 @@ class AppEntryGateTest {
         shell("appops set com.foco.app android:get_usage_stats ${if (allowed) "allow" else "ignore"}")
     }
 
+    @Before
+    fun grantAccessibility() {
+        setAccessibilityServiceEnabled(true)
+    }
+
     @After
-    fun restorePermission() {
+    fun restorePermissions() {
         setUsageAccessAllowed(true)
+        setAccessibilityServiceEnabled(true)
     }
 
     private fun leaveAndReturn(scenario: ActivityScenario<MainActivity>) {
@@ -96,6 +103,30 @@ class AppEntryGateTest {
             awaitText(string(R.string.onboarding_open_settings))
 
             setUsageAccessAllowed(true)
+            leaveAndReturn(scenario)
+            awaitText(string(R.string.dashboard_title))
+        }
+    }
+
+    @Test
+    fun usageGrantedWithoutAccessibilityShowsTheAccessibilityOnboarding() {
+        setUsageAccessAllowed(true)
+        setAccessibilityServiceEnabled(false)
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            awaitText(string(R.string.onboarding_accessibility_open_settings))
+        }
+    }
+
+    @Test
+    fun accessibilityGrantedWhileAwayShowsTheDashboardOnReturn() {
+        setUsageAccessAllowed(true)
+        setAccessibilityServiceEnabled(false)
+
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            awaitText(string(R.string.onboarding_accessibility_open_settings))
+
+            setAccessibilityServiceEnabled(true)
             leaveAndReturn(scenario)
             awaitText(string(R.string.dashboard_title))
         }

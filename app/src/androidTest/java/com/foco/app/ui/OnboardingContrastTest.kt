@@ -36,25 +36,38 @@ class OnboardingContrastTest {
     private val strings = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Test
-    fun darkAppearanceKeepsTheTextLegible() = assertLegible(dark = true)
+    fun darkAppearanceKeepsTheTextLegible() = assertLegible(dark = true, accessibility = false)
 
     @Test
-    fun lightAppearanceKeepsTheTextLegible() = assertLegible(dark = false)
+    fun lightAppearanceKeepsTheTextLegible() = assertLegible(dark = false, accessibility = false)
 
-    private fun assertLegible(dark: Boolean) {
+    @Test
+    fun darkAppearanceKeepsTheAccessibilityOnboardingLegible() =
+        assertLegible(dark = true, accessibility = true)
+
+    @Test
+    fun lightAppearanceKeepsTheAccessibilityOnboardingLegible() =
+        assertLegible(dark = false, accessibility = true)
+
+    private fun assertLegible(dark: Boolean, accessibility: Boolean) {
         composeRule.setContent {
             FocoTheme(darkTheme = dark) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-                    OnboardingScreen()
+                    OnboardingScreen(accessibility = accessibility)
                 }
             }
         }
 
         val appearance = if (dark) "dark" else "light"
+        val explanationRes = if (accessibility) {
+            R.string.onboarding_accessibility_explanation
+        } else {
+            R.string.onboarding_explanation
+        }
         val background = composeRule.onRoot().captureToImage().toPixelMap()[0, 0]
         val title = contrast(composeRule.onNodeWithText("Foco").captureToImage(), background)
         val explanation = contrast(
-            composeRule.onNodeWithText(strings.getString(R.string.onboarding_explanation))
+            composeRule.onNodeWithText(strings.getString(explanationRes))
                 .captureToImage(),
             background
         )
