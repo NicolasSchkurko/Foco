@@ -11,6 +11,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.UsageMonitorEvaluator
@@ -140,15 +142,18 @@ class UsageMonitorAccessibilityService :
         reason: BlockReason,
     ) {
         val label = AppPackageInfo(this).label(packageName)
-        val lifecycleOwner =
-            object : LifecycleOwner {
-                val registry = LifecycleRegistry(this)
-                override val lifecycle: Lifecycle get() = registry
-            }
+        val lifecycleOwner = object : LifecycleOwner, SavedStateRegistryOwner {
+            val registry = LifecycleRegistry(this)
+            private val stateController = androidx.savedstate.SavedStateRegistryController.create(this)
+            override val lifecycle: Lifecycle get() = registry
+            override val savedStateRegistry: androidx.savedstate.SavedStateRegistry
+                get() = stateController.savedStateRegistry
+        }
 
         val view =
             ComposeView(this).apply {
                 setViewTreeLifecycleOwner(lifecycleOwner)
+                setViewTreeSavedStateRegistryOwner(lifecycleOwner)
                 setContent {
                     FocoTheme {
                         AppLimitBlockScreen(

@@ -18,3 +18,4 @@ openspec/evidence.json
 
 # Tooling lives outside the repo (workspace container); never re-track command copies
 .opencode/
+openspec/last-gate-report.txt
