@@ -42,7 +42,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.foco.app.R
+import com.foco.app.data.AppLimitAlertNotifier
 import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppLanguage
 import com.foco.app.data.AppLimitsStore
@@ -79,6 +82,7 @@ fun SettingsScreen() {
     val appearance by store.appearance.collectAsState(initial = AppearanceOption.AUTO)
     val excluded by excludedStore.excludedPackages.collectAsState(initial = emptySet())
     val limits by limitsStore.limitsFlow.collectAsState(initial = emptyMap())
+    val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     val limitApps by produceState(initialValue = emptyList<Pair<String, String>>(), Unit) {
         value = withContext(Dispatchers.IO) {
             val info = AppPackageInfo(context.applicationContext)
@@ -90,9 +94,18 @@ fun SettingsScreen() {
         }
     }
 
+    var notificationsEnabled by remember {
+        mutableStateOf(AppLimitAlertNotifier(context).canNotify())
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        notificationsEnabled = AppLimitAlertNotifier(context).canNotify()
+    }
+
     val notificationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { }
+    ) {
+        notificationsEnabled = AppLimitAlertNotifier(context).canNotify()
+    }
 
     fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -168,11 +181,20 @@ fun SettingsScreen() {
                 appLimitsSection(
                     apps = limitApps,
                     limits = limits,
+                    alerts = alerts,
+                    notificationsEnabled = notificationsEnabled,
                     onLimitChange = { packageName, minutes ->
                         requestNotificationPermission()
                         scope.launch {
                             if (minutes == null) limitsStore.clearLimit(packageName)
                             else limitsStore.setLimit(packageName, minutes)
+                            UsageMonitorService.sync(context.applicationContext)
+                        }
+                    },
+                    onAlertChange = { packageName, enabled ->
+                        if (enabled) requestNotificationPermission()
+                        scope.launch {
+                            limitsStore.setAlertEnabled(packageName, enabled)
                             UsageMonitorService.sync(context.applicationContext)
                         }
                     }

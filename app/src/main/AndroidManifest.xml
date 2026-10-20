@@ -111,6 +111,12 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- The Entendido action of a limit alert; explicit from our own notification. -->
+        <receiver
+            android:name=".data.AppLimitAlertDismissReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

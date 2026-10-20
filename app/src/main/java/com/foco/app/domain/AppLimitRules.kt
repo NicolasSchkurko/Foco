@@ -9,6 +9,9 @@ object AppLimitRules {
     const val STEP_MINUTES = 15
     const val MAX_MINUTES = 24 * 60
 
+    /** The warning tiers, in increasing order; the monitor notifies only the highest crossed. */
+    val ALERT_TIERS = listOf(50, 75, 90)
+
     /** The picker's values: block at open, then 15-minute steps up to 24 h. */
     fun options(): List<Int> =
         listOf(BLOCK_IMMEDIATELY_MINUTES) + (STEP_MINUTES..MAX_MINUTES step STEP_MINUTES)
@@ -23,6 +26,18 @@ object AppLimitRules {
         if (limitMinutes == null) return false
         if (limitMinutes == BLOCK_IMMEDIATELY_MINUTES) return true
         return usedSeconds >= limitMinutes * 60L
+    }
+
+    /**
+     * The alert tiers crossed at [usedSeconds] for [limitMinutes], lowest first. No limit, a zero
+     * limit, no usage and at-or-over 100 % yield none: the block owns the limit itself.
+     */
+    fun crossedAlertTiers(limitMinutes: Int?, usedSeconds: Long): List<Int> {
+        if (limitMinutes == null || limitMinutes <= BLOCK_IMMEDIATELY_MINUTES) return emptyList()
+        if (usedSeconds <= 0) return emptyList()
+        val limitSeconds = limitMinutes * 60L
+        if (usedSeconds >= limitSeconds) return emptyList()
+        return ALERT_TIERS.filter { usedSeconds * 100 >= limitSeconds * it }
     }
 
     /** The foreground seconds [packageName] accumulated in the day's clamped sessions. */

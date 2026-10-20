@@ -1,5 +1,6 @@
 package com.foco.app.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,5 +11,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "app_limit")
 data class AppLimit(
     @PrimaryKey val packageName: String,
-    val minutes: Int
+    val minutes: Int,
+    @ColumnInfo(defaultValue = "0") val alertEnabled: Boolean = false
 )

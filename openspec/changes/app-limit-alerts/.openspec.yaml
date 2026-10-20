@@ -1,0 +1,37 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: feature
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/db/AppLimit.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitDao.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitDatabase.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitAlertFired.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitAlertFiredDao.kt
+  - app/src/main/java/com/foco/app/data/AppLimitsStore.kt
+  - app/src/main/java/com/foco/app/domain/AppLimitRules.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorEvaluator.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorService.kt
+  - app/src/main/java/com/foco/app/data/AppLimitAlertNotifier.kt
+  - app/src/main/java/com/foco/app/data/AppLimitAlertDismissReceiver.kt
+  - app/src/main/AndroidManifest.xml
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+  - app/src/main/java/com/foco/app/ui/settings/AppLimitsSection.kt
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+  - app/schemas/com.foco.app.data.db.AppLimitDatabase/2.json
+x-tests:
+  - app/src/test/java/com/foco/app/domain/AppLimitAlertRulesTest.kt
+  - app/src/androidTest/java/com/foco/app/data/AppLimitAlertStoreTest.kt
+  - app/src/androidTest/java/com/foco/app/data/AppLimitAlertNotifierTest.kt
+  - app/src/androidTest/java/com/foco/app/data/UsageMonitorServiceTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt
+  - app/src/androidTest/java/com/foco/app/data/AppLimitsStoreTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/AppLimitAlertMigrationTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/AppLimitSchemaBaselineTest.kt
+x-deps:
+  - app-limits
+x-gitref: 840bf3c

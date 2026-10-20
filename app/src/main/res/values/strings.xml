@@ -62,6 +62,8 @@
     <string name="settings_limits_explanation">Block an app after a set number of minutes today. No limit means the app is never blocked.</string>
     <string name="settings_limit_none">No limit</string>
     <string name="settings_limit_block_now">Block immediately (0 min)</string>
+    <string name="settings_limit_alerts_toggle">Alerts for %1$s</string>
+    <string name="settings_limit_alerts_no_permission">Notifications are off for Foco; alerts cannot appear.</string>
 
     <!-- Limits -->
     <string name="accessibility_service_label">Foco daily limits</string>
@@ -72,6 +74,10 @@
     <string name="usage_monitor_channel">Daily limits</string>
     <string name="usage_monitor_notification">Daily limits are active</string>
     <string name="usage_monitor_notification_detail">Foco checks today’s usage every two minutes.</string>
+    <string name="limit_alert_channel">Limit alerts</string>
+    <string name="limit_alert_title">%1$s reached %2$d%% of its limit</string>
+    <string name="limit_alert_message">%1$s used %2$s of its daily limit.</string>
+    <string name="limit_alert_ack">Got it</string>
 
     <!-- Week -->
     <string name="week_title">Week</string>

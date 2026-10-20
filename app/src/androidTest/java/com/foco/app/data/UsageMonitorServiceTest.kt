@@ -11,6 +11,7 @@ import com.foco.app.MainActivity
 import com.foco.app.ui.setAccessibilityServiceEnabled
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -102,6 +103,122 @@ class UsageMonitorServiceTest {
             waitUntil { !isRunning() }
             assertFalse(isRunning())
         }
+    }
+
+    @Test
+    fun theCheckAlertsOnlyTheHighestTierAndReturnsEveryCrossedOne() {
+        val notified = mutableListOf<Int>()
+        val blocked = mutableListOf<Boolean>()
+
+        val crossed = evaluateLimitCheck(
+            foregroundPackage = "com.example.app",
+            limitMinutes = 30,
+            alertEnabled = true,
+            usedSeconds = 1_700,
+            firedTiers = emptySet(),
+            onBlock = { blocked += true },
+            onNotify = { tier, _ -> notified += tier; true }
+        )
+
+        assertEquals(listOf(90), notified)
+        assertEquals(listOf(50, 75, 90), crossed)
+        assertTrue(blocked.isEmpty())
+    }
+
+    @Test
+    fun aFiredTierDoesNotAlertTwice() {
+        val notified = mutableListOf<Int>()
+
+        val first = evaluateLimitCheck(
+            foregroundPackage = "com.example.app",
+            limitMinutes = 30,
+            alertEnabled = true,
+            usedSeconds = 1_350,
+            firedTiers = setOf(50),
+            onBlock = {},
+            onNotify = { tier, _ -> notified += tier; true }
+        )
+        assertEquals(listOf(75), notified)
+        assertEquals(listOf(50, 75), first)
+
+        notified.clear()
+        val second = evaluateLimitCheck(
+            foregroundPackage = "com.example.app",
+            limitMinutes = 30,
+            alertEnabled = true,
+            usedSeconds = 1_350,
+            firedTiers = setOf(50, 75),
+            onBlock = {},
+            onNotify = { tier, _ -> notified += tier; true }
+        )
+        assertTrue(notified.isEmpty())
+        assertTrue(second.isEmpty())
+    }
+
+    @Test
+    fun noForegroundOrNoAlertFlagNeverNotifies() {
+        val notified = mutableListOf<Int>()
+
+        val withoutForeground = evaluateLimitCheck(
+            foregroundPackage = null,
+            limitMinutes = 30,
+            alertEnabled = true,
+            usedSeconds = 1_500,
+            firedTiers = emptySet(),
+            onBlock = {},
+            onNotify = { tier, _ -> notified += tier; true }
+        )
+        val alertsOff = evaluateLimitCheck(
+            foregroundPackage = "com.example.app",
+            limitMinutes = 30,
+            alertEnabled = false,
+            usedSeconds = 1_500,
+            firedTiers = emptySet(),
+            onBlock = {},
+            onNotify = { tier, _ -> notified += tier; true }
+        )
+
+        assertTrue(notified.isEmpty())
+        assertTrue(withoutForeground.isEmpty())
+        assertTrue(alertsOff.isEmpty())
+    }
+
+    @Test
+    fun atOrOverTheLimitBlocksAndNeverNotifies() {
+        val notified = mutableListOf<Int>()
+        val blocked = mutableListOf<Boolean>()
+
+        val crossed = evaluateLimitCheck(
+            foregroundPackage = "com.example.app",
+            limitMinutes = 30,
+            alertEnabled = true,
+            usedSeconds = 1_800,
+            firedTiers = emptySet(),
+            onBlock = { blocked += true },
+            onNotify = { tier, _ -> notified += tier; true }
+        )
+
+        assertEquals(listOf(true), blocked)
+        assertTrue(notified.isEmpty())
+        assertTrue(crossed.isEmpty())
+    }
+
+    @Test
+    fun aDeniedNotificationLeavesTheTierAvailable() {
+        var attempts = 0
+
+        val crossed = evaluateLimitCheck(
+            foregroundPackage = "com.example.app",
+            limitMinutes = 30,
+            alertEnabled = true,
+            usedSeconds = 1_620,
+            firedTiers = emptySet(),
+            onBlock = {},
+            onNotify = { _, _ -> attempts += 1; false }
+        )
+
+        assertEquals(1, attempts)
+        assertTrue(crossed.isEmpty())
     }
 
     @Test

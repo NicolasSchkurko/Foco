@@ -18,6 +18,7 @@ import com.foco.app.MainActivity
 import com.foco.app.R
 import com.foco.app.domain.AppLimitRules
 import com.foco.app.domain.ForegroundApp
+import java.time.LocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -38,6 +39,7 @@ class UsageMonitorService : Service() {
 
     private val store by lazy { AppLimitsStore.forApp(this) }
     private val evaluator by lazy { UsageMonitorEvaluator(this) }
+    private val alerts by lazy { AppLimitAlertNotifier(this) }
 
     override fun onCreate() {
         super.onCreate()
@@ -71,9 +73,17 @@ class UsageMonitorService : Service() {
         }
         val packageName = ForegroundApp.currentPackage() ?: return
         val limit = store.limitFor(packageName) ?: return
-        if (AppLimitRules.isAtOrOverLimit(limit, evaluator.usedSecondsToday(packageName))) {
-            ForegroundApp.requestBlock(packageName)
-        }
+        val today = LocalDate.now()
+        val crossed = evaluateLimitCheck(
+            foregroundPackage = packageName,
+            limitMinutes = limit,
+            alertEnabled = store.alertEnabledFor(packageName),
+            usedSeconds = evaluator.usedSecondsToday(packageName),
+            firedTiers = store.firedTiers(packageName, today),
+            onBlock = { ForegroundApp.requestBlock(packageName) },
+            onNotify = { tier, minutes -> alerts.notify(packageName, tier, minutes) }
+        )
+        if (crossed.isNotEmpty()) store.markFired(packageName, today, crossed)
     }
 
     override fun onDestroy() {
@@ -150,4 +160,30 @@ class UsageMonitorService : Service() {
             context.stopService(Intent(context, UsageMonitorService::class.java))
         }
     }
+}
+
+/**
+ * One monitor check: the block at 100 %, or the highest uncrossed alert tier while the app is open.
+ * Returns the crossed tiers only when the notification was posted, so the caller marks them fired.
+ */
+internal fun evaluateLimitCheck(
+    foregroundPackage: String?,
+    limitMinutes: Int?,
+    alertEnabled: Boolean,
+    usedSeconds: Long,
+    firedTiers: Set<Int>,
+    onBlock: () -> Unit,
+    onNotify: (tier: Int, limitMinutes: Int) -> Boolean
+): List<Int> {
+    if (foregroundPackage == null || limitMinutes == null) return emptyList()
+    if (AppLimitRules.isAtOrOverLimit(limitMinutes, usedSeconds)) {
+        onBlock()
+        return emptyList()
+    }
+    if (!alertEnabled) return emptyList()
+    val crossed = AppLimitRules.crossedAlertTiers(limitMinutes, usedSeconds)
+    if (crossed.isEmpty()) return emptyList()
+    val highest = crossed.last()
+    if (highest in firedTiers) return emptyList()
+    return if (onNotify(highest, limitMinutes)) crossed else emptyList()
 }

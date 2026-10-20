@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,19 +24,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
 import com.foco.app.domain.AppLimitRules
 import com.foco.app.ui.common.AppIcon
 
 /**
- * The "App limits" settings section: one row per launchable app with its daily-limit picker.
- * [apps] are package/label pairs; a package missing from [limits] has no limit.
+ * The "App limits" settings section: one row per launchable app with its daily-limit picker and
+ * its alert toggle. [apps] are package/label pairs; a package missing from [limits] has no limit.
  */
 fun LazyListScope.appLimitsSection(
     apps: List<Pair<String, String>>,
     limits: Map<String, Int>,
-    onLimitChange: (String, Int?) -> Unit
+    alerts: Map<String, Boolean>,
+    notificationsEnabled: Boolean,
+    onLimitChange: (String, Int?) -> Unit,
+    onAlertChange: (String, Boolean) -> Unit
 ) {
     item {
         Spacer(Modifier.height(16.dp))
@@ -57,7 +63,10 @@ fun LazyListScope.appLimitsSection(
             packageName = packageName,
             label = label,
             minutes = limits[packageName],
-            onPick = { minutes -> onLimitChange(packageName, minutes) }
+            alertEnabled = alerts[packageName] == true,
+            notificationsEnabled = notificationsEnabled,
+            onPick = { minutes -> onLimitChange(packageName, minutes) },
+            onAlertChange = { enabled -> onAlertChange(packageName, enabled) }
         )
     }
 }
@@ -67,11 +76,15 @@ private fun AppLimitRow(
     packageName: String,
     label: String,
     minutes: Int?,
-    onPick: (Int?) -> Unit
+    alertEnabled: Boolean,
+    notificationsEnabled: Boolean,
+    onPick: (Int?) -> Unit,
+    onAlertChange: (Boolean) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val none = stringResource(R.string.settings_limit_none)
     val blockNow = stringResource(R.string.settings_limit_block_now)
+    val alertsLabel = stringResource(R.string.settings_limit_alerts_toggle, label)
     val options = remember(none, blockNow) {
         listOf<Pair<String, Int?>>(
             none to null,
@@ -83,24 +96,45 @@ private fun AppLimitRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
                 .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppIcon(packageName)
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1
-                )
-                Text(
-                    text = limitLabel(minutes, none, blockNow),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { expanded = true },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppIcon(packageName)
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = limitLabel(minutes, none, blockNow),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (alertEnabled && !notificationsEnabled) {
+                        Text(
+                            text = stringResource(R.string.settings_limit_alerts_no_permission),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             }
+            Switch(
+                checked = alertEnabled,
+                onCheckedChange = onAlertChange,
+                enabled = minutes != null && minutes > 0,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .semantics { contentDescription = alertsLabel }
+            )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { (optionLabel, option) ->

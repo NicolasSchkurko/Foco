@@ -16,6 +16,12 @@ interface AppLimitDao {
     @Query("SELECT minutes FROM app_limit WHERE packageName = :packageName")
     suspend fun minutesFor(packageName: String): Int?
 
+    @Query("SELECT alertEnabled FROM app_limit WHERE packageName = :packageName")
+    suspend fun alertEnabledFor(packageName: String): Boolean?
+
+    @Query("UPDATE app_limit SET alertEnabled = :enabled WHERE packageName = :packageName")
+    suspend fun setAlertEnabled(packageName: String, enabled: Boolean): Int
+
     @Query("SELECT COUNT(*) FROM app_limit")
     suspend fun count(): Int
 

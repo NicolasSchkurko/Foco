@@ -62,6 +62,8 @@
     <string name="settings_limits_explanation">Bloqueá una app después de cierta cantidad de minutos de hoy. Sin límite, la app nunca se bloquea.</string>
     <string name="settings_limit_none">Sin límite</string>
     <string name="settings_limit_block_now">Bloquear al abrir (0 min)</string>
+    <string name="settings_limit_alerts_toggle">Alertas para %1$s</string>
+    <string name="settings_limit_alerts_no_permission">Las notificaciones de Foco están desactivadas; las alertas no pueden aparecer.</string>
 
     <!-- Limits -->
     <string name="accessibility_service_label">Límites diarios de Foco</string>
@@ -72,6 +74,10 @@
     <string name="usage_monitor_channel">Límites diarios</string>
     <string name="usage_monitor_notification">Los límites diarios están activos</string>
     <string name="usage_monitor_notification_detail">Foco revisa el uso de hoy cada dos minutos.</string>
+    <string name="limit_alert_channel">Alertas de límite</string>
+    <string name="limit_alert_title">%1$s alcanzó el %2$d%% de su límite</string>
+    <string name="limit_alert_message">%1$s usó %2$s de su límite diario.</string>
+    <string name="limit_alert_ack">Entendido</string>
 
     <!-- Week -->
     <string name="week_title">Semana</string>
