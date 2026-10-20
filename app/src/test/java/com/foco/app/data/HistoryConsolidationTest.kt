@@ -91,6 +91,28 @@ class HistoryConsolidationTest {
     }
 
     @Test
+    fun `a retry with a changed read replaces the day's raw rows`() = runBlocking {
+        val first = minutes(yesterday, 0L, 1L)
+        val second = minutes(yesterday, 10L, 11L)
+        platform[yesterday] = dayWith("com.instagram.android" to first)
+        markers.failNextWrite = true
+
+        try {
+            store.consolidate(today)
+        } catch (_: IllegalStateException) {
+            // The marker failed after the raw rows and totals: the day is pending.
+        }
+
+        platform[yesterday] = dayWith("com.instagram.android" to second)
+        store.consolidate(today)
+
+        val stored = sessions.rows.values.single()
+        assertEquals(second.first, stored.start)
+        assertEquals(60_000L, stored.end - stored.start)
+        assertEquals(1, markers.rows.size)
+    }
+
+    @Test
     fun `today is never consolidated`() = runBlocking {
         platform[today] = dayWith("com.instagram.android" to minutes(today, 0L, 1L))
 

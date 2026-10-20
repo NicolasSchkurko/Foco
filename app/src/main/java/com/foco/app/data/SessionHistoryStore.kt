@@ -49,8 +49,8 @@ class SessionHistoryStore(
 
     /** The stored raw sessions of [date], half-open on the start; empty means the day has no rows. */
     suspend fun sessionsFor(date: LocalDate): List<UsageSession> {
-        val dayStart = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val nextDayStart = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val dayStart = rawStart(date)
+        val nextDayStart = rawStart(date.plusDays(1))
         return sessions.sessionsBetween(dayStart, nextDayStart)
             .map { UsageSession(it.packageName, it.start, it.end) }
     }
@@ -63,6 +63,8 @@ class SessionHistoryStore(
         val data = readDay(day)
         if (data.sessions.isEmpty()) return
         // Raw first: a failure before the marker leaves the day pending, so the next start retries it.
+        // The delete makes a retry replace an earlier read instead of merging old starts.
+        sessions.deleteBetween(rawStart(day), rawStart(day.plusDays(1)))
         sessions.upsert(data.sessions.map { SessionRecord(it.packageName, it.start, it.end) })
         aggregates.upsert(totalsOf(day, data.sessions))
         consolidatedDays.upsert(ConsolidatedDay(day.toString(), data.unlockTimes.size))
@@ -76,9 +78,12 @@ class SessionHistoryStore(
     /** The oldest day the store keeps: today and the seven days before it, so a lagging run can rebuild. */
     private fun pruneCutoffDay(today: LocalDate): LocalDate = today.minusDays(KEEP_DAYS - 1)
 
+    /** Start of [day], on the same default calendar the reader uses. */
+    private fun rawStart(day: LocalDate): Long =
+        day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
     /** Start of [cutoffDay], on the same default calendar the reader uses. */
-    private fun rawCutoff(cutoffDay: LocalDate): Long =
-        cutoffDay.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    private fun rawCutoff(cutoffDay: LocalDate): Long = rawStart(cutoffDay)
 
     companion object {
         private const val DATABASE_NAME = "foco.db"

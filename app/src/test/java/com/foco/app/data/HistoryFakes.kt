@@ -19,6 +19,12 @@ class FakeSessionRecordDao : SessionRecordDao {
         records.forEach { rows[it.packageName to it.start] = it }
     }
 
+    override suspend fun deleteBetween(from: Long, to: Long): Int {
+        val before = rows.size
+        rows.values.removeIf { it.start >= from && it.start < to }
+        return before - rows.size
+    }
+
     override suspend fun sessionsBetween(from: Long, to: Long): List<SessionRecord> =
         rows.values.filter { it.start >= from && it.start < to }.sortedBy { it.start }
 
