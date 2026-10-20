@@ -40,6 +40,23 @@ class DayRingTest {
     }
 
     @Test
+    fun `a stored day outside the seven-day window is kept but not offered`() {
+        val guard = today.minusDays(7)
+        val capped = dayRing(today, setOf(guard, today.minusDays(6), yesterday))
+
+        assertEquals(
+            listOf(
+                DayStop.Day(today),
+                DayStop.Week,
+                DayStop.Day(today.minusDays(6)),
+                DayStop.Day(yesterday)
+            ),
+            capped
+        )
+        assertEquals(DayStop.Day(today.minusDays(6)), DayStop.Week.step(capped, forward = true))
+    }
+
+    @Test
     fun `an empty store is today and the week, so the week wraps to today`() {
         val empty = dayRing(today, emptySet())
 

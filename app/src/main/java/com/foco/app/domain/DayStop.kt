@@ -8,12 +8,14 @@ sealed interface DayStop {
     data object Week : DayStop
 }
 
-/** The forward order: today, week, oldest stored day, ... , yesterday. */
+/** The forward order: today, week, oldest offered day, ... , yesterday. */
 fun dayRing(today: LocalDate, storedDays: Set<LocalDate>): List<DayStop> =
     buildList {
         add(DayStop.Day(today))
         add(DayStop.Week)
-        storedDays.filter { it < today }.sorted().forEach { add(DayStop.Day(it)) }
+        // The detail's seven-day window bounds what the ring offers: the guard day is stored, not shown.
+        val offered = availableDays(today, storedDays)
+        storedDays.filter { it in offered }.sorted().forEach { add(DayStop.Day(it)) }
     }
 
 /** One step around the ring; a vanished current position falls back to the ring's first stop. */

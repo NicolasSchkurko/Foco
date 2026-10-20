@@ -231,16 +231,37 @@ The app SHALL consolidate the day's sessions into a database in its private stor
 - **THEN** the later run stores that day, because a day without totals stays pending
 
 ### Requirement: The stored history is bounded
-The app SHALL keep raw sessions for the last seven days, prune the raw rows older than that, and keep the per-app, per-day totals of every consolidated day; pruning SHALL never remove a total.
+
+The app SHALL keep raw sessions for the last eight days — today and the seven days before it — and
+SHALL delete, on every consolidation run, every stored row older than that day: raw sessions,
+per-app daily totals and the day's marker with its unlock count.
+
 [@test] `app/src/test/java/com/foco/app/data/HistoryRetentionTest.kt`
+[@test] `app/src/test/java/com/foco/app/data/ConsolidationRetryTest.kt`
+
+#### Scenario: Pruning outside the window
+- **WHEN** a consolidation runs and rows exist for a day older than today minus seven days
+- **THEN** that day's sessions, totals and marker are deleted
+
+#### Scenario: The guard day stays
+- **WHEN** rows exist exactly for the day today minus seven days
+- **THEN** they are kept, so a lagging consolidation can still rebuild the seven-day window
+
+#### Scenario: The read window is unchanged
+- **WHEN** the week view reads the totals of the seven days ending at a day
+- **THEN** it returns the same rows as before this rule existed
+
+#### Scenario: Rows left by an older version
+- **WHEN** the store holds totals or a marker outside the window (written before this rule)
+- **THEN** the next run deletes them, so the database still shrinks
 
 #### Scenario: Pruning raw rows
-- **WHEN** a consolidation finds raw sessions older than seven days
-- **THEN** those rows are deleted and their per-app totals remain
+- **WHEN** a consolidation finds raw sessions older than the window
+- **THEN** those rows are deleted
 
 #### Scenario: Totals are kept
-- **WHEN** a day is consolidated
-- **THEN** the per-app totals for that day are stored
+- **WHEN** a day still inside the window is consolidated
+- **THEN** its per-app totals are stored and stay readable until the day leaves the window
 
 ### Requirement: Stored usage data does not leave the device
 The app SHALL declare `android:allowBackup="false"`, so no copy of the stored history is uploaded to a cloud backup or restored onto another device.
@@ -263,7 +284,11 @@ The app SHALL read the stored per-app totals of the seven days ending at a given
 - **THEN** the read yields nothing
 
 ### Requirement: Day selection within the stored history
-The detail SHALL offer every day from today back to the oldest stored day, seven at most (raw retention), with â€¹ â€º controls stopped at today and at the oldest day: today live, earlier days from storage. The window SHALL follow the store while the detail is open.
+
+The detail SHALL offer every day from today back to the oldest stored day, seven at most (today and
+the six days before it), with ‹ › controls stopped at today and at the oldest day: today live,
+earlier days from storage. The window SHALL follow the store while the detail is open.
+
 [@test] `app/src/test/java/com/foco/app/domain/DaySelectionTest.kt`
 [@test] `app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt`
 [@test] `app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt`
@@ -297,21 +322,29 @@ The detail SHALL keep working when a stored read fails: it shows the empty state
 - **THEN** the screen answers its empty state (or today alone) and stays open
 
 ### Requirement: A finished day keeps its unlock count
-The store SHALL keep every consolidated day's unlock count in the row that marks that day consolidated, derived from the same platform read that stores the day, so the count of a finished day is readable after the platform stops serving it and is never pruned with the raw sessions.
+
+The store SHALL keep every consolidated day's unlock count in that day's marker, derived from the
+same platform read that stores the day, so the count of a finished day is readable after the
+platform stops serving it. The marker and its count SHALL be deleted together once the day leaves
+the retention window.
+
 [@test] `app/src/test/java/com/foco/app/data/ConsolidatedDayTest.kt`
-[@test] `app/src/androidTest/java/com/foco/app/data/db/ConsolidationMigrationTest.kt`
 
 #### Scenario: A consolidated day keeps its count
 - **WHEN** a finished day with keyguard unlocks is consolidated
 - **THEN** reading that day back from the store answers its count, without asking the platform
 
+#### Scenario: The count leaves with its day
+- **WHEN** a day falls outside the retention window and a consolidation runs
+- **THEN** its marker is deleted with its totals and raw rows, and reading its count answers that none is stored
+
 #### Scenario: The count outlives the raw rows
-- **WHEN** the day's raw sessions are pruned by a later consolidation
-- **THEN** its unlock count is still readable
+- **WHEN** a consolidation prunes raw sessions that left the window
+- **THEN** the count of every day still inside the window keeps reading back
 
 #### Scenario: The upgrade keeps what was stored
-- **WHEN** a database written by version 2 opens after the version 3 upgrade
-- **THEN** its sessions and totals are still there, every day that stored a count still answers it, and a day that stored none reads as not stored
+- **WHEN** a database written by version 1 opens after the version 2 upgrade
+- **THEN** its sessions and totals are still there and the day's count reads as not stored
 
 ### Requirement: The week view covers the last seven days
 The week view SHALL show the last seven days as one bar per day (the day's total screen time) plus the ranked per-app totals of those days, derived in the UI by pure functions; today SHALL come live from the platform, and a day without stored data SHALL read as absent, not as zero.
@@ -516,12 +549,17 @@ The app SHALL NOT use destructive migrations â€” no `fallbackToDestructiveM
 - **THEN** it fails and names the file
 
 ### Requirement: History is consolidated without opening the app
-The app SHALL enqueue one unique periodic background job (24 h period, first run deferred to 03:00 local, no charging constraint) that consolidates the finished days and prunes raw rows, so a day stays readable even when the app is not opened for more than the raw window.
+
+The app SHALL enqueue one unique periodic background job (24 h period, first run deferred to 03:00
+local, no charging constraint) that consolidates the finished days and prunes the rows that left
+the retention window, so a day stays readable even when the app is not opened for longer than that
+window.
+
 [@test] `app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt`
 
 #### Scenario: The nightly run
 - **WHEN** the scheduled job runs
-- **THEN** the finished days are consolidated and raw rows older than seven days are pruned
+- **THEN** the finished days are consolidated and every row older than the window is pruned from the three tables
 
 #### Scenario: Scheduled once
 - **WHEN** the app starts on several different days
