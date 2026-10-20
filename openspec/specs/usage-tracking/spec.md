@@ -696,3 +696,35 @@ The app SHALL consolidate the finished days of the seven-day window when usage a
 #### Scenario: A missing permission
 - **WHEN** usage access is not granted
 - **THEN** the startup run does not start and onboarding remains the entry
+
+### Requirement: Stored days are normalized in the export
+The week export SHALL apply the same contiguous same-app `HH:mm` normalization to stored days as the app views. A stored pair that meets at the same `HH:mm` SHALL appear as one session with the earliest start and latest end; different apps or days SHALL NOT be merged.
+[@test] `app/src/test/java/com/foco/app/domain/WeekExportTest.kt`
+
+#### Scenario: A stored same-minute pair
+- **WHEN** a stored day has app A from 03:44:10 to 03:44:50 and again from 03:44:55 to 03:46:00
+- **THEN** the exported day has one A session from 03:44:10 to 03:46:00
+
+#### Scenario: Today is unchanged
+- **WHEN** today's live sessions are already normalized
+- **THEN** the export applies the same rule idempotently and still shows one session
+
+#### Scenario: Different apps or days
+- **WHEN** A ends at 03:44 and B starts at 03:44, or A ends on one day and starts at 03:44 the next
+- **THEN** the export does not merge them
+
+### Requirement: Week metrics are derived in one grouped pass
+The week metrics SHALL index the stored totals by day and package once and walk the seven-day window once, instead of re-filtering the stored rows for each day or allocating a list only to count distinct days. The ranking, totals, bars, absent states and `daysUsed` SHALL remain identical.
+[@test] `app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt`
+
+#### Scenario: The same seven days
+- **WHEN** stored totals and a live day are supplied
+- **THEN** the bars, ranking totals and `daysUsed` are the same as before the refactor
+
+#### Scenario: An empty store
+- **WHEN** no stored totals exist
+- **THEN** the seven bars are absent (except today live) and the ranking is unchanged
+
+#### Scenario: The live day
+- **WHEN** today has sessions
+- **THEN** its total uses the shared `dayTotal` and the ranking includes it once
