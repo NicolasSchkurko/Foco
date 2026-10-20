@@ -17,6 +17,9 @@ import com.foco.app.AccessibilityAccess
 import com.foco.app.MainActivity
 import com.foco.app.R
 import com.foco.app.domain.AppLimitRules
+import com.foco.app.domain.AppLimitWindowRules
+import com.foco.app.domain.AppWindow
+import com.foco.app.domain.BlockReason
 import com.foco.app.domain.ForegroundApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * Checks the foreground app's daily limit every two minutes. Resource: a foreground service and
@@ -71,11 +75,17 @@ class UsageMonitorService : Service() {
     }
 
     private suspend fun checkOnce() {
-        if (!store.hasAnyLimit()) {
+        if (!store.hasAnyLimitOrWindow()) {
             stopSelf()
             return
         }
         val packageName = ForegroundApp.currentPackage() ?: return
+        val now = System.currentTimeMillis()
+        val window = store.windowFor(packageName)
+        if (windowBlocks(now, window)) {
+            ForegroundApp.requestBlock(packageName, BlockReason.OUTSIDE_WINDOW)
+            return
+        }
         val limit = store.limitFor(packageName) ?: return
         val today = LocalDate.now()
         val crossed =
@@ -83,9 +93,9 @@ class UsageMonitorService : Service() {
                 foregroundPackage = packageName,
                 limitMinutes = limit,
                 alertEnabled = store.alertEnabledFor(packageName),
-                usedSeconds = evaluator.usedSecondsToday(packageName),
+                usedSeconds = evaluator.usedSecondsToday(packageName, now, window),
                 firedTiers = store.firedTiers(packageName, today),
-                onBlock = { ForegroundApp.requestBlock(packageName) },
+                onBlock = { ForegroundApp.requestBlock(packageName, BlockReason.LIMIT) },
                 onNotify = { tier, minutes -> alerts.notify(packageName, tier, minutes) },
             )
         if (crossed.isNotEmpty()) store.markFired(packageName, today, crossed)
@@ -150,7 +160,7 @@ class UsageMonitorService : Service() {
             val app = context.applicationContext
             syncScope.launch {
                 val needed =
-                    AppLimitsStore.forApp(app).hasAnyLimit() &&
+                    AppLimitsStore.forApp(app).hasAnyLimitOrWindow() &&
                         AccessibilityAccess.isGranted(app)
                 if (needed) start(app) else stop(app)
             }
@@ -194,3 +204,10 @@ internal fun evaluateLimitCheck(
     if (highest in firedTiers) return emptyList()
     return if (onNotify(highest, limitMinutes)) crossed else emptyList()
 }
+
+/** Whether [nowMillis] is outside [window]; no window never blocks. */
+internal fun windowBlocks(
+    nowMillis: Long,
+    window: AppWindow?,
+    zone: ZoneId = ZoneId.systemDefault(),
+): Boolean = window != null && !AppLimitWindowRules.isInside(nowMillis, window, zone)

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
+import com.foco.app.domain.AppWindow
 import com.foco.app.ui.settings.appLimitsSection
 import com.foco.app.ui.theme.FocoTheme
 import org.junit.Assert.assertEquals
@@ -32,9 +33,12 @@ class AppLimitsSettingsTest {
     private fun showSection(
         picked: (Pair<String, Int?>?) -> Unit,
         limits: Map<String, Int> = mapOf("com.example.one" to 30),
+        windows: Map<String, AppWindow> = emptyMap(),
         alerts: Map<String, Boolean> = emptyMap(),
         notificationsEnabled: Boolean = true,
         onAlert: (Pair<String, Boolean>) -> Unit = {},
+        onWindow: (String, Int, Int) -> Unit = { _, _, _ -> },
+        onWindowClear: (String) -> Unit = {},
     ) {
         composeRule.setContent {
             FocoTheme {
@@ -42,9 +46,12 @@ class AppLimitsSettingsTest {
                     appLimitsSection(
                         apps = listOf("com.example.one" to "One"),
                         limits = limits,
+                        windows = windows,
                         alerts = alerts,
                         notificationsEnabled = notificationsEnabled,
                         onLimitChange = { packageName, minutes -> picked(packageName to minutes) },
+                        onWindowChange = { packageName, start, end -> onWindow(packageName, start, end) },
+                        onWindowClear = onWindowClear,
                         onAlertChange = { packageName, enabled -> onAlert(packageName to enabled) },
                     )
                 }
@@ -100,7 +107,7 @@ class AppLimitsSettingsTest {
     @Test
     fun theAlertToggleStartsOffAndIsEnabledWithAPositiveLimit() {
         var changed: Pair<String, Boolean>? = null
-        showSection(picked = {}) { changed = it }
+        showSection(picked = {}, onAlert = { changed = it })
 
         alertToggle().assertIsDisplayed().assertIsOff().assertIsEnabled()
         alertToggle().performClick()
@@ -144,5 +151,43 @@ class AppLimitsSettingsTest {
             .onNodeWithText(
                 strings.getString(R.string.settings_limit_alerts_no_permission),
             ).assertIsDisplayed()
+    }
+
+    @Test
+    fun noWindowIsShownByDefault() {
+        showSection(picked = {})
+
+        composeRule
+            .onNodeWithText(strings.getString(R.string.settings_window_none))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun aConfiguredWindowIsShown() {
+        showSection(
+            picked = {},
+            windows = mapOf("com.example.one" to AppWindow(9 * 60, 23 * 60)),
+        )
+
+        composeRule
+            .onNodeWithText(strings.getString(R.string.settings_window_range, "09:00", "23:00"))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun pickingANewStartReportsThePair() {
+        var picked: Triple<String, Int, Int>? = null
+        showSection(
+            picked = {},
+            windows = mapOf("com.example.one" to AppWindow(9 * 60, 23 * 60)),
+            onWindow = { packageName, start, end -> picked = Triple(packageName, start, end) },
+        )
+
+        composeRule
+            .onNodeWithContentDescription(strings.getString(R.string.settings_window_from))
+            .performClick()
+        composeRule.onNodeWithText("10:00").performClick()
+
+        assertEquals(Triple("com.example.one", 10 * 60, 23 * 60), picked)
     }
 }

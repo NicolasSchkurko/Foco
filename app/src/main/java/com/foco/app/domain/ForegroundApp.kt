@@ -18,7 +18,10 @@ object ForegroundApp {
 
     fun currentPackage(): String? = tracker?.currentPackage()
 
-    fun requestBlock(packageName: String) {
-        tracker?.requestBlock(packageName)
+    fun requestBlock(
+        packageName: String,
+        reason: BlockReason,
+    ) {
+        tracker?.requestBlock(packageName, reason)
     }
 }

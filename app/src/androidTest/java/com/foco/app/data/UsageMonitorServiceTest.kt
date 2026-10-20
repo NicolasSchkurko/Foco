@@ -8,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
+import com.foco.app.domain.AppWindow
 import com.foco.app.ui.setAccessibilityServiceEnabled
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -17,6 +18,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 
 /** Limit monitor (API 36): follows the limits and the accessibility binding; starts with a limit,
  *  stops with the last, and its ongoing notification is the observable "alive" signal. */
@@ -257,6 +261,24 @@ class UsageMonitorServiceTest {
             waitUntil { isRunning() }
             assertTrue(isRunning())
         }
+    }
+
+    @Test
+    fun aWindowBlocksOutsideAndLetsTheAppThroughInside() {
+        val zone = ZoneId.of("UTC")
+        val day = LocalDate.of(2026, 10, 20)
+
+        fun at(time: String): Long =
+            day
+                .atTime(LocalTime.parse(time))
+                .atZone(zone)
+                .toInstant()
+                .toEpochMilli()
+        val window = AppWindow(9 * 60, 23 * 60)
+
+        assertFalse(windowBlocks(at("10:00"), window, zone))
+        assertTrue(windowBlocks(at("23:00"), window, zone))
+        assertFalse(windowBlocks(at("23:00"), null, zone))
     }
 
     private companion object {

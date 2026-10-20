@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
+import com.foco.app.domain.BlockReason
 import com.foco.app.ui.limits.AppLimitBlockScreen
 import com.foco.app.ui.theme.FocoTheme
 import org.junit.Assert.assertTrue
@@ -56,5 +57,24 @@ class AppLimitBlockTest {
         composeRule.mainClock.advanceTimeBy(1_100)
         composeRule.waitForIdle()
         assertTrue("the block must finish after the countdown", finished)
+    }
+
+    @Test
+    fun outsideHoursShowsItsOwnMessage() {
+        composeRule.setContent {
+            FocoTheme {
+                AppLimitBlockScreen(
+                    appName = "Instagram",
+                    reason = BlockReason.OUTSIDE_WINDOW,
+                    onFinished = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(strings.getString(R.string.window_block_title)).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                strings.getString(R.string.window_block_message, "Instagram"),
+            ).assertIsDisplayed()
     }
 }

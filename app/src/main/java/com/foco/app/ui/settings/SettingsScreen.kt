@@ -82,6 +82,7 @@ fun SettingsScreen() {
     val appearance by store.appearance.collectAsState(initial = AppearanceOption.AUTO)
     val excluded by excludedStore.excludedPackages.collectAsState(initial = emptySet())
     val limits by limitsStore.limitsFlow.collectAsState(initial = emptyMap())
+    val windows by limitsStore.windowsFlow.collectAsState(initial = emptyMap())
     val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     val limitApps by produceState(initialValue = emptyList<Pair<String, String>>(), Unit) {
         value =
@@ -188,6 +189,7 @@ fun SettingsScreen() {
                 appLimitsSection(
                     apps = limitApps,
                     limits = limits,
+                    windows = windows,
                     alerts = alerts,
                     notificationsEnabled = notificationsEnabled,
                     onLimitChange = { packageName, minutes ->
@@ -198,6 +200,18 @@ fun SettingsScreen() {
                             } else {
                                 limitsStore.setLimit(packageName, minutes)
                             }
+                            UsageMonitorService.sync(context.applicationContext)
+                        }
+                    },
+                    onWindowChange = { packageName, start, end ->
+                        scope.launch {
+                            limitsStore.setWindow(packageName, start, end)
+                            UsageMonitorService.sync(context.applicationContext)
+                        }
+                    },
+                    onWindowClear = { packageName ->
+                        scope.launch {
+                            limitsStore.clearWindow(packageName)
                             UsageMonitorService.sync(context.applicationContext)
                         }
                     },

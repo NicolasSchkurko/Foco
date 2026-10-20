@@ -5,6 +5,9 @@ interface ForegroundAppTracker {
     /** The package the host saw last, or `null` before the first window event. */
     fun currentPackage(): String?
 
-    /** Asks the host to evaluate [packageName] now (the monitor's two-minute tick). */
-    fun requestBlock(packageName: String)
+    /** Asks the host to block [packageName] now for [reason]. */
+    fun requestBlock(
+        packageName: String,
+        reason: BlockReason,
+    )
 }

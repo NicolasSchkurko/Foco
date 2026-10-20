@@ -15,15 +15,21 @@ import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.UsageMonitorEvaluator
 import com.foco.app.data.UsageMonitorService
+import com.foco.app.data.windowBlocks
 import com.foco.app.domain.AppLimitRules
+import com.foco.app.domain.AppLimitWindowRules
+import com.foco.app.domain.AppWindow
+import com.foco.app.domain.BlockReason
 import com.foco.app.domain.ForegroundApp
 import com.foco.app.domain.ForegroundAppTracker
 import com.foco.app.ui.limits.AppLimitBlockScreen
 import com.foco.app.ui.theme.FocoTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -35,6 +41,7 @@ class UsageMonitorAccessibilityService :
     ForegroundAppTracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var overlay: ComposeView? = null
+    private var boundaryJob: Job? = null
 
     @Volatile
     private var foregroundPackage: String? = null
@@ -69,6 +76,7 @@ class UsageMonitorAccessibilityService :
 
     override fun onDestroy() {
         removeOverlay()
+        boundaryJob?.cancel()
         foregroundPackage = null
         ForegroundApp.unregister(this)
         UsageMonitorService.stop(this)
@@ -78,21 +86,59 @@ class UsageMonitorAccessibilityService :
 
     override fun currentPackage(): String? = foregroundPackage
 
-    override fun requestBlock(packageName: String) {
-        evaluate(packageName)
+    override fun requestBlock(
+        packageName: String,
+        reason: BlockReason,
+    ) {
+        evaluate(packageName, reason)
     }
 
-    private fun evaluate(packageName: String) {
+    private fun evaluate(
+        packageName: String,
+        forcedReason: BlockReason? = null,
+    ) {
         scope.launch {
             if (overlay != null) return@launch
-            val limit = store.limitFor(packageName) ?: return@launch
-            val used = evaluator.usedSecondsToday(packageName)
-            if (!AppLimitRules.isAtOrOverLimit(limit, used)) return@launch
-            showBlock(packageName)
+            val now = System.currentTimeMillis()
+            val window = store.windowFor(packageName)
+            val limit = store.limitFor(packageName)
+            val used = evaluator.usedSecondsToday(packageName, now, window)
+            val reason =
+                forcedReason ?: when {
+                    windowBlocks(now, window) -> BlockReason.OUTSIDE_WINDOW
+                    AppLimitRules.isAtOrOverLimit(limit, used) -> BlockReason.LIMIT
+                    else -> null
+                }
+            if (reason == null) {
+                armBoundary(packageName, window, now)
+                return@launch
+            }
+            boundaryJob?.cancel()
+            showBlock(packageName, reason)
         }
     }
 
-    private fun showBlock(packageName: String) {
+    /** Arms the one-shot check for the next window boundary; the 2-minute tick is the fallback. */
+    private fun armBoundary(
+        packageName: String,
+        window: AppWindow?,
+        now: Long,
+    ) {
+        boundaryJob?.cancel()
+        if (window == null) return
+        val waitMillis = AppLimitWindowRules.nextBoundaryMillis(now, window) - now
+        if (waitMillis <= 0) return
+        boundaryJob =
+            scope.launch {
+                delay(waitMillis)
+                if (foregroundPackage == packageName) evaluate(packageName)
+            }
+    }
+
+    private fun showBlock(
+        packageName: String,
+        reason: BlockReason,
+    ) {
         val label = AppPackageInfo(this).label(packageName)
         val lifecycleOwner =
             object : LifecycleOwner {
@@ -105,7 +151,11 @@ class UsageMonitorAccessibilityService :
                 setViewTreeLifecycleOwner(lifecycleOwner)
                 setContent {
                     FocoTheme {
-                        AppLimitBlockScreen(appName = label, onFinished = { finishBlock() })
+                        AppLimitBlockScreen(
+                            appName = label,
+                            reason = reason,
+                            onFinished = { finishBlock() },
+                        )
                     }
                 }
             }

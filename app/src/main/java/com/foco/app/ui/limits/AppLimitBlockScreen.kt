@@ -22,17 +22,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
+import com.foco.app.domain.BlockReason
 import kotlinx.coroutines.isActive
 
 /**
- * The full-screen limit screen: names the app, states the daily limit and counts 3, 2, 1 down
- * on the frame clock, then calls [onFinished]. Resource: the accessibility overlay window.
+ * The full-screen block screen: names the app, states the reason and counts 3, 2, 1 down on the
+ * frame clock, then calls [onFinished]. Resource: the accessibility overlay window.
  */
 @Composable
 fun AppLimitBlockScreen(
     appName: String,
     onFinished: () -> Unit,
     seconds: Int = 3,
+    reason: BlockReason = BlockReason.LIMIT,
 ) {
     var remaining by remember(seconds) { mutableIntStateOf(seconds) }
 
@@ -61,13 +63,28 @@ fun AppLimitBlockScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = stringResource(R.string.limit_block_title),
+                text =
+                    stringResource(
+                        if (reason == BlockReason.OUTSIDE_WINDOW) {
+                            R.string.window_block_title
+                        } else {
+                            R.string.limit_block_title
+                        },
+                    ),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                text = stringResource(R.string.limit_block_message, appName),
+                text =
+                    stringResource(
+                        if (reason == BlockReason.OUTSIDE_WINDOW) {
+                            R.string.window_block_message
+                        } else {
+                            R.string.limit_block_message
+                        },
+                        appName,
+                    ),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
             )

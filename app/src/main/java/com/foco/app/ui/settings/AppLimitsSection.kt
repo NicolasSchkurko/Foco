@@ -16,6 +16,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,18 +30,24 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
 import com.foco.app.domain.AppLimitRules
+import com.foco.app.domain.AppLimitWindowRules
+import com.foco.app.domain.AppWindow
 import com.foco.app.ui.common.AppIcon
+import java.util.Locale
 
 /**
- * The "App limits" settings section: one row per launchable app with its daily-limit picker and
- * its alert toggle. [apps] are package/label pairs; a package missing from [limits] has no limit.
+ * One row per launchable app with its daily-limit picker, recurring window and alert toggle.
+ * [apps] are package/label pairs; a package missing from [limits]/[windows] has none configured.
  */
 fun LazyListScope.appLimitsSection(
     apps: List<Pair<String, String>>,
     limits: Map<String, Int>,
+    windows: Map<String, AppWindow>,
     alerts: Map<String, Boolean>,
     notificationsEnabled: Boolean,
     onLimitChange: (String, Int?) -> Unit,
+    onWindowChange: (String, Int, Int) -> Unit,
+    onWindowClear: (String) -> Unit,
     onAlertChange: (String, Boolean) -> Unit,
 ) {
     item {
@@ -63,9 +70,12 @@ fun LazyListScope.appLimitsSection(
             packageName = packageName,
             label = label,
             minutes = limits[packageName],
+            window = windows[packageName],
             alertEnabled = alerts[packageName] == true,
             notificationsEnabled = notificationsEnabled,
             onPick = { minutes -> onLimitChange(packageName, minutes) },
+            onWindowChange = { start, end -> onWindowChange(packageName, start, end) },
+            onWindowClear = { onWindowClear(packageName) },
             onAlertChange = { enabled -> onAlertChange(packageName, enabled) },
         )
     }
@@ -76,9 +86,12 @@ private fun AppLimitRow(
     packageName: String,
     label: String,
     minutes: Int?,
+    window: AppWindow?,
     alertEnabled: Boolean,
     notificationsEnabled: Boolean,
     onPick: (Int?) -> Unit,
+    onWindowChange: (Int, Int) -> Unit,
+    onWindowClear: () -> Unit,
     onAlertChange: (Boolean) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -121,6 +134,11 @@ private fun AppLimitRow(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    WindowControls(
+                        window = window,
+                        onWindowChange = onWindowChange,
+                        onWindowClear = onWindowClear,
+                    )
                     if (alertEnabled && !notificationsEnabled) {
                         Text(
                             text = stringResource(R.string.settings_limit_alerts_no_permission),
@@ -153,6 +171,95 @@ private fun AppLimitRow(
         }
     }
 }
+
+/**
+ * The recurring-window control: `No window`, or a start/end pair on the 15-minute grid. Picking an
+ * equal pair is ignored, so the previous window stays.
+ */
+@Composable
+private fun WindowControls(
+    window: AppWindow?,
+    onWindowChange: (Int, Int) -> Unit,
+    onWindowClear: () -> Unit,
+) {
+    val none = stringResource(R.string.settings_window_none)
+    val start = window?.startMinute ?: DEFAULT_START_MINUTE
+    val end = window?.endMinute ?: DEFAULT_END_MINUTE
+    val summary =
+        if (window == null) {
+            none
+        } else {
+            stringResource(R.string.settings_window_range, clockLabel(start), clockLabel(end))
+        }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = stringResource(R.string.settings_window_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = summary,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+        )
+        TimePicker(
+            value = start,
+            label = stringResource(R.string.settings_window_from),
+        ) { picked ->
+            if (picked != end) onWindowChange(picked, end)
+        }
+        Text(
+            text = "–",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        TimePicker(
+            value = end,
+            label = stringResource(R.string.settings_window_to),
+        ) { picked ->
+            if (start != picked) onWindowChange(start, picked)
+        }
+        if (window != null) {
+            TextButton(onClick = onWindowClear) {
+                Text(stringResource(R.string.settings_window_clear))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimePicker(
+    value: Int,
+    label: String,
+    onPick: (Int) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        TextButton(
+            onClick = { expanded = true },
+            modifier = Modifier.semantics { contentDescription = label },
+        ) {
+            Text(clockLabel(value), style = MaterialTheme.typography.bodyMedium)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            AppLimitWindowRules.options().forEach { minute ->
+                DropdownMenuItem(
+                    text = { Text(clockLabel(minute)) },
+                    onClick = {
+                        onPick(minute)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+private fun clockLabel(minute: Int): String = String.format(Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)
+
+private const val DEFAULT_START_MINUTE = 9 * 60
+private const val DEFAULT_END_MINUTE = 23 * 60
 
 /** `No limit`, `Block immediately`, `15 min`, `1 h`, `1 h 15 min` or `24 h`. */
 private fun limitLabel(

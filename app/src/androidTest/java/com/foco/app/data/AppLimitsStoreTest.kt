@@ -39,7 +39,7 @@ class AppLimitsStoreTest {
     @Test
     fun setReadAndClearOneLimit() =
         runBlocking {
-            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts())
+            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts(), database!!.appLimitWindows())
 
             store.setLimit("com.instagram.android", 30)
             assertEquals(30, store.limitFor("com.instagram.android"))
@@ -52,7 +52,7 @@ class AppLimitsStoreTest {
     @Test
     fun theFlowCarriesEveryLimitByPackage() =
         runBlocking {
-            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts())
+            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts(), database!!.appLimitWindows())
 
             store.setLimit("com.instagram.android", 30)
             store.setLimit("com.youtube", 0)
@@ -67,7 +67,7 @@ class AppLimitsStoreTest {
     @Test
     fun replacingOneLimitKeepsTheOthers() =
         runBlocking {
-            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts())
+            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts(), database!!.appLimitWindows())
             store.setLimit("com.instagram.android", 30)
             store.setLimit("com.youtube", 15)
 
@@ -80,18 +80,29 @@ class AppLimitsStoreTest {
     @Test
     fun aLimitSurvivesClosingAndReopeningTheDatabase() =
         runBlocking {
-            AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts()).setLimit("com.instagram.android", 30)
+            AppLimitsStore(
+                database!!.appLimits(),
+                database!!.appLimitAlerts(),
+                database!!.appLimitWindows(),
+            ).setLimit("com.instagram.android", 30)
             database!!.close()
 
             database = open()
 
-            assertEquals(30, AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts()).limitFor("com.instagram.android"))
+            assertEquals(
+                30,
+                AppLimitsStore(
+                    database!!.appLimits(),
+                    database!!.appLimitAlerts(),
+                    database!!.appLimitWindows(),
+                ).limitFor("com.instagram.android"),
+            )
         }
 
     @Test
     fun onlyTheSelectableGridIsStored() =
         runBlocking {
-            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts())
+            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts(), database!!.appLimitWindows())
 
             runCatching { store.setLimit("com.instagram.android", 20) }
 

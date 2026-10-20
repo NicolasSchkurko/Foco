@@ -64,12 +64,20 @@
     <string name="settings_limit_block_now">Block immediately (0 min)</string>
     <string name="settings_limit_alerts_toggle">Alerts for %1$s</string>
     <string name="settings_limit_alerts_no_permission">Notifications are off for Foco; alerts cannot appear.</string>
+    <string name="settings_window_label">Window</string>
+    <string name="settings_window_none">No window</string>
+    <string name="settings_window_from">From</string>
+    <string name="settings_window_to">To</string>
+    <string name="settings_window_clear">No window</string>
+    <string name="settings_window_range">%1$s–%2$s</string>
 
     <!-- Limits -->
     <string name="accessibility_service_label">Foco daily limits</string>
     <string name="accessibility_service_description">Sees which app is in the foreground to apply your daily limits and show the limit screen. It never reads screen content.</string>
     <string name="limit_block_title">Daily limit reached</string>
     <string name="limit_block_message">%1$s reached its daily limit.</string>
+    <string name="window_block_title">Outside allowed hours</string>
+    <string name="window_block_message">%1$s is outside its allowed hours.</string>
     <string name="limit_block_countdown">Closing in %1$d</string>
     <string name="usage_monitor_channel">Daily limits</string>
     <string name="usage_monitor_notification">Daily limits are active</string>

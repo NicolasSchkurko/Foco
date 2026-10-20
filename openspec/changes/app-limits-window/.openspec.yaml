@@ -1,0 +1,35 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: feature
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-tech_brief: true
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-20
+x-targets:
+  - app/src/main/java/com/foco/app/data/db/AppLimitDatabase.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitWindow.kt
+  - app/src/main/java/com/foco/app/data/db/AppLimitWindowDao.kt
+  - app/src/main/java/com/foco/app/data/AppLimitsStore.kt
+  - app/src/main/java/com/foco/app/domain/AppLimitWindowRules.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorEvaluator.kt
+  - app/src/main/java/com/foco/app/data/UsageMonitorService.kt
+  - app/src/main/java/com/foco/app/UsageMonitorAccessibilityService.kt
+  - app/src/main/java/com/foco/app/ui/limits/AppLimitBlockScreen.kt
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+  - app/schemas/com.foco.app.data.db.AppLimitDatabase/3.json
+x-tests:
+  - app/src/test/java/com/foco/app/domain/AppLimitWindowRulesTest.kt
+  - app/src/androidTest/java/com/foco/app/data/AppLimitWindowStoreTest.kt
+  - app/src/androidTest/java/com/foco/app/data/UsageMonitorServiceTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitBlockTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/AppLimitWindowMigrationTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/AppLimitSchemaBaselineTest.kt
+x-deps:
+  - app-limits
+  - app-limit-alerts
+x-gitref: b219d27

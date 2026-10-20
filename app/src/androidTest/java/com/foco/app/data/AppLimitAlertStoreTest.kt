@@ -38,7 +38,7 @@ class AppLimitAlertStoreTest {
 
     private fun open(): AppLimitDatabase = Room.databaseBuilder(context, AppLimitDatabase::class.java, databaseName).build()
 
-    private fun store(): AppLimitsStore = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts())
+    private fun store(): AppLimitsStore = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts(), database!!.appLimitWindows())
 
     @Test
     fun theAlertFlagStartsOff() =

@@ -64,12 +64,20 @@
     <string name="settings_limit_block_now">Bloquear al abrir (0 min)</string>
     <string name="settings_limit_alerts_toggle">Alertas para %1$s</string>
     <string name="settings_limit_alerts_no_permission">Las notificaciones de Foco están desactivadas; las alertas no pueden aparecer.</string>
+    <string name="settings_window_label">Ventana</string>
+    <string name="settings_window_none">Sin ventana</string>
+    <string name="settings_window_from">Desde</string>
+    <string name="settings_window_to">Hasta</string>
+    <string name="settings_window_clear">Sin ventana</string>
+    <string name="settings_window_range">%1$s–%2$s</string>
 
     <!-- Limits -->
     <string name="accessibility_service_label">Límites diarios de Foco</string>
     <string name="accessibility_service_description">Ve qué app está en primer plano para aplicar tus límites diarios y mostrar la pantalla de límite. Nunca lee el contenido de la pantalla.</string>
     <string name="limit_block_title">Límite diario alcanzado</string>
     <string name="limit_block_message">%1$s alcanzó su límite diario.</string>
+    <string name="window_block_title">Fuera del horario permitido</string>
+    <string name="window_block_message">%1$s está fuera de su horario permitido.</string>
     <string name="limit_block_countdown">Cerrando en %1$d</string>
     <string name="usage_monitor_channel">Límites diarios</string>
     <string name="usage_monitor_notification">Los límites diarios están activos</string>

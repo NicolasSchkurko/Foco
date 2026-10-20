@@ -1,0 +1,140 @@
+package com.foco.app.domain
+
+import com.foco.app.model.UsageSession
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+
+class AppLimitWindowRulesTest {
+    private val zone = ZoneId.of("UTC")
+    private val day = LocalDate.of(2026, 10, 20)
+
+    private fun at(time: String): Long =
+        day
+            .atTime(LocalTime.parse(time))
+            .atZone(zone)
+            .toInstant()
+            .toEpochMilli()
+
+    private fun session(
+        from: String,
+        to: String,
+    ) = UsageSession("instagram", at(from), at(to))
+
+    @Test
+    fun `only the 15-minute grid inside one day is selectable`() {
+        assertTrue(AppLimitWindowRules.isSelectable(0))
+        assertTrue(AppLimitWindowRules.isSelectable(9 * 60))
+        assertTrue(AppLimitWindowRules.isSelectable(23 * 60 + 45))
+
+        assertFalse(AppLimitWindowRules.isSelectable(7))
+        assertFalse(AppLimitWindowRules.isSelectable(20))
+        assertFalse(AppLimitWindowRules.isSelectable(-15))
+        assertFalse(AppLimitWindowRules.isSelectable(24 * 60))
+    }
+
+    @Test
+    fun `equal start and end is rejected`() {
+        assertFalse(AppLimitWindowRules.isValid(9 * 60, 9 * 60))
+        assertTrue(AppLimitWindowRules.isValid(9 * 60, 23 * 60))
+        assertTrue(AppLimitWindowRules.isValid(22 * 60, 6 * 60))
+    }
+
+    @Test
+    fun `a daytime window includes its start and excludes its end`() {
+        val window = AppWindow(9 * 60, 23 * 60)
+
+        assertFalse(AppLimitWindowRules.isInside(at("08:59"), window, zone))
+        assertTrue(AppLimitWindowRules.isInside(at("09:00"), window, zone))
+        assertTrue(AppLimitWindowRules.isInside(at("22:59"), window, zone))
+        assertFalse(AppLimitWindowRules.isInside(at("23:00"), window, zone))
+    }
+
+    @Test
+    fun `an overnight window wraps past midnight`() {
+        val window = AppWindow(22 * 60, 6 * 60)
+
+        assertFalse(AppLimitWindowRules.isInside(at("21:59"), window, zone))
+        assertTrue(AppLimitWindowRules.isInside(at("22:00"), window, zone))
+        assertTrue(AppLimitWindowRules.isInside(at("23:00"), window, zone))
+        assertTrue(AppLimitWindowRules.isInside(at("05:00"), window, zone))
+        assertFalse(AppLimitWindowRules.isInside(at("06:00"), window, zone))
+        assertFalse(AppLimitWindowRules.isInside(at("12:00"), window, zone))
+    }
+
+    @Test
+    fun `the next boundary is the end while inside and the start while outside`() {
+        val window = AppWindow(9 * 60, 23 * 60)
+
+        assertEquals(at("23:00"), AppLimitWindowRules.nextBoundaryMillis(at("10:00"), window, zone))
+        assertEquals(at("09:00"), AppLimitWindowRules.nextBoundaryMillis(at("08:00"), window, zone))
+        assertEquals(
+            day
+                .plusDays(1)
+                .atTime(LocalTime.parse("09:00"))
+                .atZone(zone)
+                .toInstant()
+                .toEpochMilli(),
+            AppLimitWindowRules.nextBoundaryMillis(at("23:30"), window, zone),
+        )
+    }
+
+    @Test
+    fun `an overnight boundary stays on the right day`() {
+        val window = AppWindow(22 * 60, 6 * 60)
+
+        assertEquals(
+            day
+                .plusDays(1)
+                .atTime(LocalTime.parse("06:00"))
+                .atZone(zone)
+                .toInstant()
+                .toEpochMilli(),
+            AppLimitWindowRules.nextBoundaryMillis(at("23:00"), window, zone),
+        )
+        assertEquals(at("22:00"), AppLimitWindowRules.nextBoundaryMillis(at("12:00"), window, zone))
+    }
+
+    @Test
+    fun `only the in-window portion of a session counts`() {
+        val window = AppWindow(9 * 60, 23 * 60)
+
+        assertEquals(60 * 60_000L, AppLimitWindowRules.inWindowMillis(session("08:00", "10:00"), window, zone))
+        assertEquals(0L, AppLimitWindowRules.inWindowMillis(session("23:00", "23:30"), window, zone))
+    }
+
+    @Test
+    fun `an overnight session counts only its in-window part`() {
+        val window = AppWindow(22 * 60, 6 * 60)
+
+        assertEquals(30 * 60_000L, AppLimitWindowRules.inWindowMillis(session("23:00", "23:30"), window, zone))
+        assertEquals(60 * 60_000L, AppLimitWindowRules.inWindowMillis(session("05:00", "07:00"), window, zone))
+        assertEquals(0L, AppLimitWindowRules.inWindowMillis(session("12:00", "13:00"), window, zone))
+    }
+
+    @Test
+    fun `the used seconds clip to the window and the package`() {
+        val sessions =
+            listOf(
+                session("08:00", "10:00"),
+                UsageSession("youtube", at("09:00"), at("10:00")),
+            )
+
+        assertEquals(
+            3600L,
+            AppLimitWindowRules.usedSeconds(sessions, "instagram", AppWindow(9 * 60, 23 * 60), zone),
+        )
+        assertEquals(
+            0L,
+            AppLimitWindowRules.usedSeconds(sessions, "instagram", AppWindow(23 * 60, 6 * 60), zone),
+        )
+        assertEquals(
+            3600L,
+            AppLimitWindowRules.usedSeconds(sessions, "youtube", AppWindow(9 * 60, 23 * 60), zone),
+        )
+    }
+}
