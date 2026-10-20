@@ -18,7 +18,7 @@ never read again, and keeping it only costs space.
 - The window keeps **today and the seven days before it (eight days)**: the seven the UI shows, plus
   one day of guard so a lagging consolidation can still rebuild the window.
 - The **read** window does not change: the week still reads seven days, the day selector still offers
-  seven at most, the ring is untouched.
+  seven at most, and the home's ring keeps the same seven — the guard day is stored, never offered.
 - The guard gets its own constant; `SIX_DAYS` keeps meaning the read window only, so the two no
   longer share one number.
 
@@ -81,6 +81,10 @@ serialized runner, and no migration is destructive.
 
 1. **Where the prune happens: on every consolidation run** — app start and the nightly job — as
    `consolidate` already does for raw rows. Decided on 2026-10-19; recorded in `DECISIONS.md`.
+2. **The ring keeps offering seven days** — the guard day is stored, never shown. Decided on
+   2026-10-20 after the device check caught the home stepping into the guard day: the detail already
+   capped at seven (`availableDays`), and the ring now reuses that same window instead of listing
+   every stored day.
 
 Still open: nothing structural — the reversal is approved (see *Conflicts* below); the change only
 awaits the human's acceptance before any code.

@@ -41,7 +41,10 @@ class AppEntrySeamTest {
 
     private fun showGate() {
         composeRule.setContent {
-            App(isUsageAccessGranted = { granted })
+            App(
+                isUsageAccessGranted = { granted },
+                startupLoad = {}
+            )
         }
     }
 

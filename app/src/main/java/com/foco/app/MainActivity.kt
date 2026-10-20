@@ -2,7 +2,6 @@ package com.foco.app
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Window
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,21 +15,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.lifecycleScope
-import com.foco.app.domain.ConsolidationOutcome
 import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppLanguage
-import com.foco.app.data.ConsolidationRunner
 import com.foco.app.data.ConsolidationScheduler
 import com.foco.app.data.SettingsStore
 import com.foco.app.data.migrateSettingsFromLegacyDataStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.ui.App
 import com.foco.app.ui.theme.FocoTheme
-import java.time.LocalDate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -54,7 +47,6 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         ConsolidationScheduler.schedule(applicationContext)
-        consolidateHistory()
         setContent {
             val appearance by settings.appearance.collectAsState(initial = storedAppearance)
             // Picking another appearance in Settings reaches here and applies at once;
@@ -68,20 +60,6 @@ class MainActivity : AppCompatActivity() {
                     surface = MaterialTheme.colorScheme.surface
                 )
                 App()
-            }
-        }
-    }
-
-    /**
-     * Best-effort backfill through the shared runner — the same door the nightly job uses, so the two
-     * never run at once. A failure is not fatal: the next start or the job retries it.
-     */
-    private fun consolidateHistory() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            when (val outcome = ConsolidationRunner.forApp(applicationContext).run(LocalDate.now())) {
-                is ConsolidationOutcome.Done -> Unit
-                is ConsolidationOutcome.Failed ->
-                    Log.w("Foco", "History backfill failed", outcome.cause)
             }
         }
     }

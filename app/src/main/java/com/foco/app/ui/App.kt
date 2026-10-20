@@ -1,29 +1,55 @@
 package com.foco.app.ui
 
 import android.content.Context
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.foco.app.R
+import com.foco.app.data.ConsolidationRunner
 import com.foco.app.data.UsageAccess
 import com.foco.app.ui.onboarding.OnboardingScreen
+import java.time.LocalDate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-/**
- * Decides onboarding vs dashboard from the "Usage access" permission, enabled outside the app and
- * re-checked on return. `isUsageAccessGranted` is the tests' seam.
- */
+/** Onboarding, the startup gate, or the home; both reads are the tests' seams. */
 @Composable
-fun App(isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted) {
+fun App(
+    isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted,
+    startupLoad: (suspend () -> Unit)? = null
+) {
     val context = LocalContext.current
     val checkGranted by rememberUpdatedState(isUsageAccessGranted)
     var hasUsageAccess by remember { mutableStateOf(checkGranted(context)) }
+    var startupReady by remember { mutableStateOf(false) }
+
+    val loadStartup by rememberUpdatedState(
+        startupLoad ?: {
+            ConsolidationRunner.forApp(context.applicationContext).run(LocalDate.now())
+            Unit
+        }
+    )
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -36,9 +62,40 @@ fun App(isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    if (hasUsageAccess) {
-        FocoNavHost()
-    } else {
-        OnboardingScreen()
+    LaunchedEffect(hasUsageAccess) {
+        if (!hasUsageAccess) {
+            startupReady = false
+            return@LaunchedEffect
+        }
+        startupReady = false
+        try {
+            withContext(Dispatchers.IO) { loadStartup() }
+        } finally {
+            startupReady = true
+        }
+    }
+
+    when {
+        !hasUsageAccess -> OnboardingScreen()
+        !startupReady -> StartupLoadingScreen()
+        else -> FocoNavHost()
+    }
+}
+
+@Composable
+private fun StartupLoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator()
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.loading),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }

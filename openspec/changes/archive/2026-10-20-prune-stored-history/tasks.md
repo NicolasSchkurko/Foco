@@ -16,12 +16,13 @@ UI still shows), then the count, then the verification pass. Lands after `consol
 
 - [x] Extend `ConsolidatedDayTest`: a count inside the window reads back; after its day leaves the window and a run prunes, reading it answers "none stored".
 - [x] Since this lands after `consolidated-day-marker`, take its archived requirement text as the base and replace only the "never pruned" clause (keep its migration scenarios and its `[@test]` paths).
+- [x] Cap the home's ring at the same seven-day window (`domain/DayStop.kt`): the guard day is stored but never offered, and `DayRingTest` pins it.
 
 ## 3. Verification
 
 - [x] Correct `docs/mechanisms/daily-unlock-count.md:126-129` ("never deleted; pruning only touches `session_record`") — it is stale the moment this lands.
 - [x] `gradlew.bat test` green (retention, consolidation, day selection, week): 119 tests, 0 failed.
-- [ ] Emulator check: seed rows older than the guard, run a consolidation, confirm all three tables shrink and the ring still shows seven days with their totals and counts.
+- [x] Emulator check (2026-10-20, today=20/10): seeded rows for 12/10 (today−8) and 13/10 (today−7), plus six finished days; a real consolidation deleted 12/10 from all three tables and kept 13/10; the ring stops at 14/10 (today−6) and the seventh ‹ wraps to the week, so the guard day is stored but not offered; the week shows seven bars.
 - [x] `openspec validate prune-stored-history --strict`, `node scripts/gates/gate-check.mjs`, `node scripts/gates/build-board.mjs`.
 
 No schema change: version stays 3, no migration, no new schema JSON.
