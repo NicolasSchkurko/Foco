@@ -151,9 +151,44 @@ Answer in your own words (the agent must not fill these):
 
 1. Where is a threshold alert decided and posted, and why does an accessibility event alone not
    produce one?
+
+   > **Answer (Nschkurko, 2026-10-20):** La alerta se decide y postea en el camino del tick de
+   > `UsageMonitorService`: cada 2 minutos pide el paquete actual a `ForegroundApp`, lee el límite y
+   > el flag de ese paquete, y llama a `evaluateLimitCheck`, que (si el límite es positivo y la
+   > alerta está activa) calcula el tier más alto cruzado con `AppLimitRules.crossedAlertTiers`,
+   > lo saltea si ya está disparado y llama al notifier, que crea el canal `limit_alerts`, arma
+   > la notificación (app, tier, límite formateado) con la acción `limit_alert_ack` y la postea. Un
+   > evento de accesibilidad solo no produce una porque el servicio de accesibilidad solo bloquea;
+   > el camino de alertas vive en el tick (decisión implícita: evita un segundo timer y una
+   > segunda consulta de UsageStats). La accesibilidad nunca postea.
+
 2. Why are tiers marked fired only after `notify` succeeds, and what happens when the user later
    grants notifications or unblocks the alert channel?
+
+   > **Answer (Nschkurko, 2026-10-20):** Porque `evaluateLimitCheck` devuelve los tiers cruzados
+   > solo cuando el notifier reporta éxito; el servicio marca los tiers como disparados únicamente
+   > entonces. Si `canNotify()` es falso (permiso denegado o canal bloqueado), no se postea y
+   > ningún tier se marca, así que al conceder el permiso o desbloquear el canal el próximo tick
+   > notifica el tier más alto cruzado y lo marca. Es at-least-once: si el proceso muere entre
+   > postear y marcar, el mismo tier puede repetirse.
+
 3. What clears the fired tiers, and why is changing the limit or the toggle enough to re-arm the
    alerts for the day?
+
+   > **Answer (Nschkurko, 2026-10-20):** Los tiers disparados se limpian con `setLimit` (borra los
+   > del día actual), `setAlertEnabled` (borra los del día actual) y `clearLimit` (borra fila y
+   > tiers). Cambiar el límite o el toggle alcanza para rearmar porque vacía el set de fired del
+   > día, así que el próximo tick vuelve a evaluar y alertar. Los días pasados quedan en la tabla
+   > pero nunca se leen; no hay pruning (a lo sumo 3 filas por app por día).
+
 4. What is the worst-case delay for an alert, and what happens at 100 % or when the app is not in
    the foreground?
+
+   > **Answer (Nschkurko, 2026-10-20):** El peor caso de demora es hasta 2 minutos (granularidad
+   > del tick). Si la app se cierra antes del tick, no se postea en ese momento; un tick posterior
+   > con la app abierta evalúa el uso acumulado. Al 100 % o más, el bloqueo se lleva el límite: el
+   > servicio pide el bloqueo existente y retorna sin alertar, aunque un tier inferior nunca se
+   > haya marcado; con límite 0 se bloquea al abrir y nunca alerta. Si la app no está en primer
+   > plano, el camino de alerta no corre: solo se evalúa cuando `ForegroundApp.currentPackage()`
+   > devuelve el paquete; el uso en segundo plano no se alerta (y si la accesibilidad aún no vio
+   > una ventana, no hay paquete ni chequeo).
