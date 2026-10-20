@@ -34,7 +34,7 @@ class WeekExportService(
             weekEnd = today,
             storedTotalsByDay = totals,
             sessionsByDay = sessions,
-            todaySessions = repository.loadToday().sessions,
+            todaySessions = repository.loadDay(today).sessions,
             labels = labels,
             zone = zone
         )

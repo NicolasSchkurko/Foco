@@ -44,10 +44,12 @@ import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.common.readOr
+import com.foco.app.ui.common.rememberCurrentDate
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.appDayDetail
+import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
@@ -59,12 +61,16 @@ import kotlinx.coroutines.withContext
  * selector that walks back from today to the oldest day the store has; [date] opens on that day.
  */
 @Composable
-fun AppDetailScreen(packageName: String, date: LocalDate? = null) {
+fun AppDetailScreen(
+    packageName: String,
+    date: LocalDate? = null,
+    clock: Clock = Clock.systemDefaultZone()
+) {
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val repository = remember { UsageRepository(context.applicationContext) }
     val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
-    val today = remember { LocalDate.now() }
+    val today = rememberCurrentDate(clock)
     var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
     var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
@@ -101,7 +107,7 @@ fun AppDetailScreen(packageName: String, date: LocalDate? = null) {
     }
 
     val selectedDate = days[selectedIndex]
-    LaunchedEffect(packageName, selectedDate, storedDays) {
+    LaunchedEffect(packageName, selectedDate, storedDays, today) {
         sessions = null
         sessions = withContext(Dispatchers.IO) {
             // Today is never consolidated, so the live read answers for it and the store for the rest.

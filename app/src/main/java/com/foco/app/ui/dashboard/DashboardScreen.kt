@@ -81,11 +81,13 @@ import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.WeekContent
 import com.foco.app.ui.common.readOr
+import com.foco.app.ui.common.rememberCurrentDate
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.DayMetrics
 import com.foco.app.ui.metrics.deriveDayMetrics
+import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
@@ -104,13 +106,14 @@ fun DashboardScreen(
     loadDay: (suspend () -> DayData)? = null,
     onAppClick: (String, LocalDate?) -> Unit = { _, _ -> },
     onOpenSettings: () -> Unit = {},
-    loadExport: (suspend () -> String)? = null
+    loadExport: (suspend () -> String)? = null,
+    clock: Clock = Clock.systemDefaultZone()
 ) {
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
     val store = remember { SessionHistoryStore.forApp(context.applicationContext) { day -> repository.loadDay(day) } }
-    val today = remember { LocalDate.now() }
-    val load by rememberUpdatedState(loadDay ?: { repository.loadToday() })
+    val today = rememberCurrentDate(clock)
+    val load by rememberUpdatedState(loadDay ?: { repository.loadDay(today) })
 
     val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
     var excludedPackages by remember { mutableStateOf(emptySet<String>()) }
@@ -179,7 +182,7 @@ fun DashboardScreen(
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner, refreshIntervalMillis, dayDate) {
+    LaunchedEffect(lifecycleOwner, refreshIntervalMillis, dayDate, today) {
         if (dayDate == null) {
             day = null
             return@LaunchedEffect

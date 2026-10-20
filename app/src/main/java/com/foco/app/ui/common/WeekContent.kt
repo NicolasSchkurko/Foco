@@ -64,7 +64,7 @@ fun WeekContent(
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
     val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
-    val load by rememberUpdatedState(loadDay ?: { repository.loadToday() })
+    val load by rememberUpdatedState(loadDay ?: { repository.loadDay(today) })
 
     val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
     var excludedPackages by remember { mutableStateOf(emptySet<String>()) }
@@ -78,7 +78,7 @@ fun WeekContent(
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
+    LaunchedEffect(lifecycleOwner, today) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             todayData = withContext(Dispatchers.IO) {
                 readOr(DayData(emptyList(), emptyList())) { load() }
