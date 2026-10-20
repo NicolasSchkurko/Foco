@@ -118,15 +118,15 @@
 - **File**: `foco.db` in private storage (`DATABASE_NAME`, `SessionHistoryStore.kt:78`), opened once
   per process by `Room.databaseBuilder` with a `@Volatile` + `synchronized` double check
   (`SessionHistoryStore.kt:85-99`), registering `MIGRATION_1_2` at `:91`.
-- **Tables**: `session_record` (raw, pruned; `SessionRecordDao.kt:12-19`), `daily_aggregate`
-  (per-app/day totals; `DailyAggregate.kt:9-13`), `daily_unlock` (per-day count).
-- **Keys**: `daily_unlock` has PK `day`, an ISO text date from `LocalDate.toString()`
-  (`SessionHistoryStore.kt:65`), the same format as `DailyAggregate.kt:12`, so it sorts and compares
+- **Tables**: `session_record` (raw), `daily_aggregate` (per-app/day totals) and `consolidated_day`
+  (per-day marker carrying the unlock count) — all three pruned by the same cutoff.
+- **Keys**: `consolidated_day` has PK `day`, an ISO text date from `LocalDate.toString()`
+  (`SessionHistoryStore.kt:69`), the same format as `DailyAggregate`, so it sorts and compares
   as text.
-- **Lifecycle**: the row is created during consolidation (`SessionHistoryStore.kt:65`), replaced if
-  the day is consolidated again (`DailyUnlockDao.kt:12-13`), and never deleted; pruning only touches
-  `session_record` (`SessionRecordDao.kt:18-19`, called at `SessionHistoryStore.kt:36`). It grows
-  one row per consolidated day, with no time limit.
+- **Lifecycle**: the row is created during consolidation (`SessionHistoryStore.kt:69`), replaced if
+  the day is consolidated again, and deleted with its day once the day leaves the retained days —
+  today and the seven before it (`SessionHistoryStore.kt:37-40`). It grows one row per consolidated
+  day, up to eight days.
 - **Writers**: one, `consolidateDay` (`SessionHistoryStore.kt:59-66`), reached only from
   `consolidate` (`:32-37`), reached only from `MainActivity.kt:79-95`.
 - **Readers**: `unlocksFor` (`SessionHistoryStore.kt:56`) from the dated dashboard

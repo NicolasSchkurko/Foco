@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
-/** Per-app, per-day totals: what survives pruning and what the week view reads. */
+/** Per-app, per-day totals of the retained days: what the week view reads; deleted with their day. */
 @Dao
 interface DailyAggregateDao {
 
@@ -22,4 +22,7 @@ interface DailyAggregateDao {
 
     @Query("SELECT * FROM daily_aggregate WHERE day >= :from AND day <= :to ORDER BY day, packageName")
     suspend fun totalsFor(from: String, to: String): List<DailyAggregate>
+
+    @Query("DELETE FROM daily_aggregate WHERE day < :cutoffDay")
+    suspend fun deleteBefore(cutoffDay: String): Int
 }

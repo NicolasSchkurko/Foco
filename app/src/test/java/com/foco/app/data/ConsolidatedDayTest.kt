@@ -1,5 +1,7 @@
 package com.foco.app.data
 
+import com.foco.app.data.db.ConsolidatedDay
+import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import java.time.LocalDate
@@ -7,11 +9,12 @@ import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The marker of a finished day: written with the day's totals, readable back without the platform,
- * and untouched by the pruning that removes the raw rows.
+ * The marker of a finished day: written with the day's totals and readable back without the
+ * platform, until its day leaves the retention window and the next run deletes it.
  */
 class ConsolidatedDayTest {
 
@@ -63,15 +66,32 @@ class ConsolidatedDayTest {
     }
 
     @Test
-    fun `the count outlives the raw rows`() = runBlocking {
+    fun `a day inside the window keeps its count while older days are pruned`() = runBlocking {
+        platform[yesterday] = dayWithUnlocks(4)
+        store.consolidate(today)
+        val oldDay = today.minusDays(9)
+        markers.rows[oldDay.toString()] = ConsolidatedDay(oldDay.toString(), 1)
+        aggregates.rows["com.old" to oldDay.toString()] =
+            DailyAggregate("com.old", oldDay.toString(), 1_000)
+
+        store.consolidate(today.plusDays(1))
+
+        assertEquals(4, store.unlocksFor(yesterday))
+        assertNull(store.unlocksFor(oldDay))
+        assertTrue(aggregates.rows.keys.none { it.second == oldDay.toString() })
+    }
+
+    @Test
+    fun `a day outside the window loses its marker and count`() = runBlocking {
         platform[yesterday] = dayWithUnlocks(4)
         store.consolidate(today)
 
-        // A later consolidation prunes the raw rows of the previous day and keeps its marker.
         store.consolidate(today.plusDays(8))
 
-        assertEquals(0, sessions.rows.size)
-        assertEquals(4, store.unlocksFor(yesterday))
+        assertNull(store.unlocksFor(yesterday))
+        assertTrue(markers.rows.isEmpty())
+        assertTrue(aggregates.rows.isEmpty())
+        assertTrue(sessions.rows.isEmpty())
     }
 
     private fun dayWithUnlocks(count: Int): DayData {

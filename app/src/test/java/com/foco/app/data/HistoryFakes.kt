@@ -49,6 +49,14 @@ class FakeDailyAggregateDao : DailyAggregateDao {
     override suspend fun totalsFor(from: String, to: String): List<DailyAggregate> =
         rows.values.filter { it.day in from..to }.sortedWith(compareBy({ it.day }, { it.packageName }))
 
+    override suspend fun deleteBefore(cutoffDay: String): Int {
+        val before = rows.size
+        rows.values.removeIf { it.day < cutoffDay }
+        val removed = before - rows.size
+        if (removed > 0) writes.value++
+        return removed
+    }
+
     private fun daysNow(): List<String> = rows.keys.map { it.second }.distinct()
 }
 
@@ -74,4 +82,12 @@ class FakeConsolidatedDayDao : ConsolidatedDayDao {
     override fun storedDaysFlow(): Flow<List<String>> = writes.map { rows.keys.toList() }
 
     override suspend fun countFor(day: String): Int? = rows[day]?.count
+
+    override suspend fun deleteBefore(cutoffDay: String): Int {
+        val before = rows.size
+        rows.keys.removeIf { it < cutoffDay }
+        val removed = before - rows.size
+        if (removed > 0) writes.value++
+        return removed
+    }
 }

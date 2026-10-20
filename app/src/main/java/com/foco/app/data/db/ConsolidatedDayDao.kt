@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
-/** One marker per finished day; the count may be unknown (null). No delete: retention keeps it. */
+/** One marker per finished day; the count may be unknown (null). Deleted with its day's rows. */
 @Dao
 interface ConsolidatedDayDao {
 
@@ -21,4 +21,7 @@ interface ConsolidatedDayDao {
 
     @Query("SELECT `count` FROM consolidated_day WHERE day = :day")
     suspend fun countFor(day: String): Int?
+
+    @Query("DELETE FROM consolidated_day WHERE day < :cutoffDay")
+    suspend fun deleteBefore(cutoffDay: String): Int
 }

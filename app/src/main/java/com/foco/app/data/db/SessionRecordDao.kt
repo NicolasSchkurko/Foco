@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
-/** Raw sessions of the days already consolidated; pruned once they leave the seven-day window. */
+/** Raw sessions of the days already consolidated; deleted once their day leaves the retained days. */
 @Dao
 interface SessionRecordDao {
 

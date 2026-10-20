@@ -1,5 +1,6 @@
 package com.foco.app.data
 
+import com.foco.app.data.db.ConsolidatedDay
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.model.UsageSession
@@ -8,6 +9,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HistoryRetentionTest {
@@ -22,20 +24,35 @@ class HistoryRetentionTest {
         SessionHistoryStore(sessions, aggregates, markers, { platform[it] ?: emptyDay })
 
     @Test
-    fun `pruning deletes raw rows older than seven days and keeps their totals`() = runBlocking {
+    fun `pruning deletes every row of a day older than the window`() = runBlocking {
         val oldDay = today.minusDays(8)
         val start = at(oldDay, 60_000)
         sessions.rows["com.old" to start] = SessionRecord("com.old", start, start + 5_000)
         aggregates.rows["com.old" to oldDay.toString()] =
             DailyAggregate("com.old", oldDay.toString(), 5_000)
+        markers.rows[oldDay.toString()] = ConsolidatedDay(oldDay.toString(), 3)
 
         store.consolidate(today)
 
-        assertEquals(0, sessions.rows.size)
-        assertEquals(
-            5_000L,
-            aggregates.rows.getValue("com.old" to oldDay.toString()).totalMillis
-        )
+        assertTrue(sessions.rows.isEmpty())
+        assertTrue(aggregates.rows.isEmpty())
+        assertTrue(markers.rows.isEmpty())
+    }
+
+    @Test
+    fun `the guard day keeps its rows in all three tables`() = runBlocking {
+        val guardDay = today.minusDays(7)
+        val start = at(guardDay, 60_000)
+        sessions.rows["com.guard" to start] = SessionRecord("com.guard", start, start + 5_000)
+        aggregates.rows["com.guard" to guardDay.toString()] =
+            DailyAggregate("com.guard", guardDay.toString(), 5_000)
+        markers.rows[guardDay.toString()] = ConsolidatedDay(guardDay.toString(), 2)
+
+        store.consolidate(today)
+
+        assertEquals(1, sessions.rows.size)
+        assertEquals(1, aggregates.rows.size)
+        assertEquals(1, markers.rows.size)
     }
 
     @Test

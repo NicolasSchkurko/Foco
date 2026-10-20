@@ -1,0 +1,26 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: feature
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-targets:
+  - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
+  - app/src/main/java/com/foco/app/data/db/SessionRecordDao.kt
+  - app/src/main/java/com/foco/app/data/db/DailyAggregateDao.kt
+  - app/src/main/java/com/foco/app/data/db/ConsolidatedDayDao.kt
+  - app/src/test/java/com/foco/app/data/HistoryRetentionTest.kt
+  - app/src/test/java/com/foco/app/data/ConsolidationRetryTest.kt
+  - app/src/test/java/com/foco/app/data/ConsolidatedDayTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryFakes.kt
+  - docs/mechanisms/daily-unlock-count.md
+x-tests:
+  - app/src/test/java/com/foco/app/data/HistoryRetentionTest.kt
+  - app/src/test/java/com/foco/app/data/ConsolidationRetryTest.kt
+  - app/src/test/java/com/foco/app/data/ConsolidatedDayTest.kt
+  - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
+  - app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt
+x-deps:
+  - consolidated-day-marker
+x-gitref: 0afda29
+x-tech_brief: true

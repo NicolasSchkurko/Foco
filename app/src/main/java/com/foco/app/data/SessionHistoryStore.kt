@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Consolidates the finished days the platform still serves into the app's database, then prunes.
- * Resource: `foco.db` in private storage; created on first use, lives as long as the app.
+ * Consolidates the finished days the platform still serves into `foco.db` (private storage, created
+ * on first use, lives as long as the app), keeps today and the seven days before it, prunes the rest.
  */
 class SessionHistoryStore(
     private val sessions: SessionRecordDao,
@@ -33,7 +33,10 @@ class SessionHistoryStore(
         val stored = consolidatedDays.storedDays().toSet()
         val pending = finishedDays(today).filterNot { it.toString() in stored }.sorted()
         pending.forEach { consolidateDay(it) }
-        sessions.pruneBefore(rawCutoff(today))
+        val cutoffDay = pruneCutoffDay(today)
+        sessions.pruneBefore(rawCutoff(cutoffDay))
+        aggregates.deleteBefore(cutoffDay.toString())
+        consolidatedDays.deleteBefore(cutoffDay.toString())
     }
 
     /** Per-app totals of the seven days ending at [until], oldest first. */
@@ -70,13 +73,17 @@ class SessionHistoryStore(
             DailyAggregate(packageName, day.toString(), list.sumOf { it.end - it.start })
         }
 
-    /** Start of the oldest day that still keeps raw rows, on the same default calendar the reader uses. */
-    private fun rawCutoff(today: LocalDate): Long =
-        today.minusDays(SIX_DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    /** The oldest day the store keeps: today and the seven days before it, so a lagging run can rebuild. */
+    private fun pruneCutoffDay(today: LocalDate): LocalDate = today.minusDays(KEEP_DAYS - 1)
+
+    /** Start of [cutoffDay], on the same default calendar the reader uses. */
+    private fun rawCutoff(cutoffDay: LocalDate): Long =
+        cutoffDay.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
     companion object {
         private const val DATABASE_NAME = "foco.db"
         private const val SIX_DAYS = 6L
+        private const val KEEP_DAYS = 8L
 
         @Volatile
         private var database: FocoDatabase? = null
