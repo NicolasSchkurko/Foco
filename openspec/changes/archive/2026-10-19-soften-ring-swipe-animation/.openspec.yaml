@@ -1,0 +1,20 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/RingMotion.kt
+  - app/src/main/java/com/foco/app/data/MotionScale.kt
+  - app/src/test/java/com/foco/app/ui/dashboard/RingMotionTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/ui/dashboard/RingMotionTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
+x-deps: []
+x-gitref: 73b5270

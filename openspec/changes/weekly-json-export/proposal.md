@@ -37,7 +37,7 @@ Add an **Export JSON** action to the home's week position, in the header while t
 ```
 
 - All seven days are present; a day without activity has `"apps": []`.
-- Sessions are raw records, including sub-second ones. The export does **not** apply the screen's 1 s visibility rule or the excluded-apps preference; it is a record, not the week ranking.
+- Sessions use the normalized records: contiguous same-app sessions that meet at the same `HH:mm` are merged, while standalone sub-second sessions are kept. The export does **not** apply the screen's 1 s visibility rule or the excluded-apps preference; it is a record, not the week ranking.
 - If a day has a stored total for an app but its raw rows are gone, the app keeps its stored total with `"sessionsAvailable": false` and `"sessions": []`.
 - Timestamps are ISO-8601 with the local offset; durations are milliseconds. The JSON is pretty-printed with two spaces.
 

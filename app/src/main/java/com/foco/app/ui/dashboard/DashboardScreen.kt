@@ -2,6 +2,9 @@ package com.foco.app.ui.dashboard
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -52,12 +55,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.R
 import com.foco.app.data.ExcludedAppsStore
+import com.foco.app.data.MotionScale
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DayStop
@@ -109,6 +114,8 @@ fun DashboardScreen(
     var stopKey by rememberSaveable { mutableStateOf(DayStop.Day(today).key()) }
     var historyKeys by rememberSaveable { mutableStateOf("") }
     var slideDirection by remember { mutableIntStateOf(1) }
+    var softMotion by remember { mutableStateOf(false) }
+    val motionScale = remember { MotionScale(context.applicationContext).scale() }
     val ring = remember(today, storedDays) { dayRing(today, storedDays) }
     val stop = remember(stopKey, today) { dayStopFromKey(stopKey) ?: DayStop.Day(today) }
     val dayDate = (stop as? DayStop.Day)?.date
@@ -125,23 +132,25 @@ fun DashboardScreen(
         historyKeys = keys.joinToString("\n")
     }
 
-    fun moveTo(target: DayStop, direction: Int? = null) {
+    fun moveTo(target: DayStop, direction: Int? = null, soft: Boolean = false) {
         if (target.key() == stopKey || ring.none { it.key() == target.key() }) return
         val from = ring.indexOfFirst { it.key() == stopKey }
         val to = ring.indexOfFirst { it.key() == target.key() }
         slideDirection = direction ?: if (from >= 0 && to > from) 1 else -1
+        softMotion = soft
         setHistory(history() + stopKey)
         stopKey = target.key()
     }
 
     fun moveStep(forward: Boolean) {
-        moveTo(stop.step(ring, forward), direction = if (forward) 1 else -1)
+        moveTo(stop.step(ring, forward), direction = if (forward) 1 else -1, soft = true)
     }
 
     fun goBack() {
         val visited = history()
         if (visited.isEmpty()) return
         slideDirection = -1
+        softMotion = false
         stopKey = visited.last()
         setHistory(visited.dropLast(1))
     }
@@ -330,13 +339,41 @@ fun DashboardScreen(
                     targetState = stopKey,
                     transitionSpec = {
                         val forward = slideDirection >= 0
-                        val enter = slideInHorizontally { width ->
-                            if (forward) width / 4 else -width / 4
-                        } + fadeIn()
-                        val exit = slideOutHorizontally { width ->
-                            if (forward) -width / 4 else width / 4
-                        } + fadeOut()
-                        enter togetherWith exit
+                        when {
+                            motionScale <= 0f ->
+                                EnterTransition.None togetherWith ExitTransition.None
+
+                            softMotion -> {
+                                val duration = RingMotion.durationMillis(motionScale)
+                                val slide = tween<IntOffset>(
+                                    durationMillis = duration,
+                                    easing = RingMotion.softEasing
+                                )
+                                val fade = tween<Float>(
+                                    durationMillis = duration,
+                                    easing = RingMotion.softEasing
+                                )
+                                val enter = slideInHorizontally(animationSpec = slide) { width ->
+                                    if (forward) width / RingMotion.SOFT_SLIDE_DIVISOR
+                                    else -width / RingMotion.SOFT_SLIDE_DIVISOR
+                                } + fadeIn(animationSpec = fade)
+                                val exit = slideOutHorizontally(animationSpec = slide) { width ->
+                                    if (forward) -width / RingMotion.SOFT_SLIDE_DIVISOR
+                                    else width / RingMotion.SOFT_SLIDE_DIVISOR
+                                } + fadeOut(animationSpec = fade)
+                                enter togetherWith exit
+                            }
+
+                            else -> {
+                                val enter = slideInHorizontally { width ->
+                                    if (forward) width / 4 else -width / 4
+                                } + fadeIn()
+                                val exit = slideOutHorizontally { width ->
+                                    if (forward) -width / 4 else width / 4
+                                } + fadeOut()
+                                enter togetherWith exit
+                            }
+                        }
                     },
                     label = "day-ring",
                     modifier = Modifier.fillMaxSize()

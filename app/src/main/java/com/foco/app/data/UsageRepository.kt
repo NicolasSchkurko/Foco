@@ -8,6 +8,7 @@ import com.foco.app.domain.buildSessions
 import com.foco.app.domain.clampSessionsToDay
 import com.foco.app.domain.dayWindow
 import com.foco.app.domain.filterSessions
+import com.foco.app.domain.mergeContiguousSessions
 import com.foco.app.model.UsageEvent
 import com.foco.app.model.UsageEventType
 import com.foco.app.model.day.DayData
@@ -90,16 +91,17 @@ class UsageRepository(private val context: Context) {
             }
         }
 
-        return DayData(
-            sessions = filterSessions(
-                sessions = clampSessionsToDay(
-                    sessions = buildSessions(rawEvents, now = effectiveEnd),
-                    dayStart = startOfDay,
-                    dayEndExclusive = dayEndExclusive
-                ),
-                allowedPackages = launchablePackages,
-                excludedPackages = excludedPackages
+        val sessions = filterSessions(
+            sessions = clampSessionsToDay(
+                sessions = buildSessions(rawEvents, now = effectiveEnd),
+                dayStart = startOfDay,
+                dayEndExclusive = dayEndExclusive
             ),
+            allowedPackages = launchablePackages,
+            excludedPackages = excludedPackages
+        )
+        return DayData(
+            sessions = mergeContiguousSessions(sessions, ZoneId.systemDefault()),
             unlockTimes = unlockTimes
         )
     }

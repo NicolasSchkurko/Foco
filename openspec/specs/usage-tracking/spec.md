@@ -1,4 +1,4 @@
-# usage-tracking Specification
+﻿# usage-tracking Specification
 
 ## Purpose
 Track device usage per app as time sessions for the current day, and derive the dashboard's numbers (day total, hourly activity, per-app ranking) from those sessions.
@@ -11,7 +11,7 @@ The system SHALL build per-app usage sessions (package, start, end) for the day 
 
 #### Scenario: Direct switch between apps
 - **WHEN** app A resumes at 10:00 and app B resumes at 10:05
-- **THEN** A yields the session 10:00–10:05 and B's session starts at 10:05
+- **THEN** A yields the session 10:00â€“10:05 and B's session starts at 10:05
 
 #### Scenario: A direct switch inside the same millisecond
 - **WHEN** app A resumes and app B resumes at the same millisecond
@@ -42,7 +42,7 @@ The system SHALL keep only sessions whose package has a launcher icon, excluding
 - **THEN** neither is present in the returned sessions
 
 ### Requirement: Dashboard metrics are derived in the UI from sessions
-The dashboard SHALL derive its numbers — day total, hourly distribution (splitting sessions that cross an hour boundary) and per-app ranking (sorted by total duration, descending) — in the UI layer, from the session list, using pure computations verifiable by unit tests. Presentation formats SHALL remain those of `Formatting.kt`.
+The dashboard SHALL derive its numbers â€” day total, hourly distribution (splitting sessions that cross an hour boundary) and per-app ranking (sorted by total duration, descending) â€” in the UI layer, from the session list, using pure computations verifiable by unit tests. Presentation formats SHALL remain those of `Formatting.kt`.
 [@test] `app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt`
 
 #### Scenario: Day total
@@ -102,7 +102,7 @@ Tapping an app in the ranking SHALL open a detail view for that app, and the sys
 - **THEN** the dashboard is shown again
 
 ### Requirement: The detail shows the app's hourly breakdown
-The detail SHALL show the selected app's usage distributed by hour (00–23) for the chosen day, splitting sessions that cross an hour boundary, using the same representation as the dashboard's day chart.
+The detail SHALL show the selected app's usage distributed by hour (00â€“23) for the chosen day, splitting sessions that cross an hour boundary, using the same representation as the dashboard's day chart.
 [@test] `app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt`
 
 #### Scenario: Only the selected app counts
@@ -118,7 +118,7 @@ The detail SHALL show, for the chosen app and day: total time, number of session
 [@test] `app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt`
 
 #### Scenario: Typical day
-- **WHEN** the app has sessions 10:00–10:30 and 11:00–11:50
+- **WHEN** the app has sessions 10:00â€“10:30 and 11:00â€“11:50
 - **THEN** total is 1 h 20 min, count is 2, first is 10:00, last is 11:50, average is 40 min, longest is 50 min, and the list shows both sessions in order
 
 #### Scenario: Day without data
@@ -194,7 +194,7 @@ The dashboard SHALL show how many times the keyguard was dismissed today, derive
 - **THEN** the unlock count is re-derived from the same query and the same day window
 
 ### Requirement: A session already open at the day's start counts from the day's start
-Usage sessions SHALL include an app that was already in the foreground when the day began: the day's query SHALL look back to the start of the previous day — one day, not further — and the resulting session SHALL be clamped to the day's start so the previous day keeps its own slice.
+Usage sessions SHALL include an app that was already in the foreground when the day began: the day's query SHALL look back to the start of the previous day â€” one day, not further â€” and the resulting session SHALL be clamped to the day's start so the previous day keeps its own slice.
 [@test] `app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt`
 
 #### Scenario: An app open across midnight
@@ -207,7 +207,7 @@ Usage sessions SHALL include an app that was already in the foreground when the 
 
 #### Scenario: An app open for more than a day
 - **WHEN** an app has been in the foreground since two days ago and is closed today
-- **THEN** its opening event falls outside the one-day lookback, so today yields no session for it — the bound is deliberate, not an oversight
+- **THEN** its opening event falls outside the one-day lookback, so today yields no session for it â€” the bound is deliberate, not an oversight
 
 ### Requirement: The day's data outlives the platform's retention
 The app SHALL consolidate the day's sessions into a database in its private storage, so a day stays readable after the platform drops it from `queryEvents`; a record's identity SHALL be its package and start, so consolidating the same day twice leaves the same rows.
@@ -263,7 +263,7 @@ The app SHALL read the stored per-app totals of the seven days ending at a given
 - **THEN** the read yields nothing
 
 ### Requirement: Day selection within the stored history
-The detail SHALL offer every day from today back to the oldest stored day, seven at most (raw retention), with ‹ › controls stopped at today and at the oldest day: today live, earlier days from storage. The window SHALL follow the store while the detail is open.
+The detail SHALL offer every day from today back to the oldest stored day, seven at most (raw retention), with â€¹ â€º controls stopped at today and at the oldest day: today live, earlier days from storage. The window SHALL follow the store while the detail is open.
 [@test] `app/src/test/java/com/foco/app/domain/DaySelectionTest.kt`
 [@test] `app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt`
 [@test] `app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt`
@@ -331,7 +331,7 @@ The week view SHALL show the last seven days as one bar per day (the day's total
 - **THEN** the apps are listed by their total over the seven days, descending
 
 ### Requirement: A day bar opens that day's view
-The week view SHALL be reachable from the dashboard and SHALL be one position of the home's ring; tapping a day's bar SHALL move the home to that day's position — the dashboard composition for that date, read from stored sessions — where an app row opens that app's detail for the day.
+The week view SHALL be reachable from the dashboard and SHALL be one position of the home's ring; tapping a day's bar SHALL move the home to that day's position â€” the dashboard composition for that date, read from stored sessions â€” where an app row opens that app's detail for the day.
 [@test] `app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt`
 
 #### Scenario: Entry and return
@@ -360,7 +360,7 @@ The home, the week and a dated day SHALL share one header composable with the ti
 - **THEN** the arrow inset, the title style and the row height are the same values on every screen
 
 ### Requirement: The home changes the day in place
-The home SHALL read one day at a time and change it in place, without stacking a screen: a horizontal swipe anywhere on the content and the visible ‹ › controls SHALL each move one position of the day ring, and the back action SHALL retrace the positions visited.
+The home SHALL read one day at a time and change it in place, without stacking a screen: a horizontal swipe anywhere on the content and the visible â€¹ â€º controls SHALL each move one position of the day ring, and the back action SHALL retrace the positions visited.
 [@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt`
 
 #### Scenario: A swipe moves one day
@@ -368,7 +368,7 @@ The home SHALL read one day at a time and change it in place, without stacking a
 - **THEN** the home shows the neighbouring day of the ring, with its own total, chart and ranking
 
 #### Scenario: The arrows move the same way
-- **WHEN** the user taps ‹ or ›
+- **WHEN** the user taps â€¹ or â€º
 - **THEN** the home moves exactly one position in the same direction as the matching swipe
 
 #### Scenario: Back walks the positions visited
@@ -400,22 +400,32 @@ The ring SHALL hold today, the week, the oldest stored day and every finished da
 - **THEN** the ring is today and the week, and forward from the week returns to today
 
 ### Requirement: Moving a ring position is animated
-The home SHALL animate a change of ring position with a short horizontal slide and fade, using the
-travel direction: forward for `›` and a left swipe, back for `‹` and a right swipe, and the ring
-direction for a bar or the calendar.
+The home SHALL animate a ring-position change with a short horizontal slide and fade in the travel direction. Swipe and arrow moves SHALL use a 320 ms tween (scaled by the system animator duration), an eighth-width slide and ease-out; bar, calendar and back keep the existing slide/fade. At scale 0 no transition SHALL run.
 [@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt`
+[@test] `app/src/test/java/com/foco/app/ui/dashboard/RingMotionTest.kt`
 
 #### Scenario: Forward and back
 - **WHEN** the user moves one position forward and then back
-- **THEN** the content slides in from the forward side and then from the back side, while the header
-  and the arrows stay in place
+- **THEN** the content slides in from the forward side and then from the back side, while the header and the arrows stay in place
 
 #### Scenario: A bar shortcut
 - **WHEN** a week bar moves the home to that day
 - **THEN** the content animates in the bar's ring direction instead of hard-cutting
 
+#### Scenario: Swipe and arrows are soft
+- **WHEN** the user moves one position with a swipe or an arrow at scale 1
+- **THEN** the content slides in by an eighth of the width over 320 ms with ease-out and fade, while the header and the arrows stay in place
+
+#### Scenario: Reduced motion
+- **WHEN** the system animator duration scale is 0
+- **THEN** the position changes without a slide or fade
+
+#### Scenario: Other entry paths
+- **WHEN** a bar, the calendar or the back action changes the position
+- **THEN** the existing directional slide/fade runs instead of the soft swipe spec
+
 ### Requirement: The usage legend sits between the arrows
-The screen-time and unlock line SHALL render between the `‹` and `›` controls, centered; the title
+The screen-time and unlock line SHALL render between the `â€¹` and `â€º` controls, centered; the title
 SHALL sit in the header without that subtitle, vertically centered with the calendar and settings
 actions.
 [@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt`
@@ -494,7 +504,7 @@ The app SHALL verify that the database's declared version has a committed export
 - **THEN** the verification reports no drift
 
 ### Requirement: Schema changes never wipe the stored history
-The app SHALL NOT use destructive migrations — no `fallbackToDestructiveMigration` call in the production sources — and every version bump SHALL ship a migration while the previous schema stays committed.
+The app SHALL NOT use destructive migrations â€” no `fallbackToDestructiveMigration` call in the production sources â€” and every version bump SHALL ship a migration while the previous schema stays committed.
 [@test] `app/src/test/java/com/foco/app/data/db/NoDestructiveMigrationTest.kt`
 
 #### Scenario: No destructive fallback
@@ -544,3 +554,30 @@ A run that cannot finish SHALL leave the stored data unchanged, SHALL NOT prune 
 #### Scenario: Pruning follows consolidation
 - **WHEN** the days older than the raw window were consolidated successfully
 - **THEN** only then are their raw rows deleted
+
+### Requirement: Contiguous same-app sessions are normalized
+After the fold, sessions of the same app that meet at the same local `HH:mm` on the same day SHALL be merged into one from the earliest start to the latest end, transitively; different apps or different local days SHALL NOT be merged. The normalization SHALL apply to the live day build and to the app detail read; stored rows may remain raw.
+[@test] `app/src/test/java/com/foco/app/domain/SessionMergeTest.kt`
+[@test] `app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt`
+
+#### Scenario: The same displayed minute
+- **WHEN** app A ends at 03:44:10 and app A starts again at 03:44:55
+- **THEN** the detail shows one A session from 03:44:10, not two rows
+
+#### Scenario: A chain
+- **WHEN** A runs 04:00â€“04:30 and then 04:30â€“04:45
+- **THEN** A has one 04:00â€“04:45 session and a session count of one
+
+#### Scenario: Different app or day
+- **WHEN** A ends at 03:44 and B starts at 03:44, or A ends on one day and starts at 03:44 the next
+- **THEN** the sessions are not merged
+
+#### Scenario: Stored rows without a migration
+- **WHEN** an already-stored day contains two contiguous A rows
+- **THEN** the detail read merges them, while the raw rows and daily totals stay unchanged
+
+#### Scenario: Visibility after the merge
+- **WHEN** two contiguous A pieces are 500 ms each
+- **THEN** the merged 1 s session is visible under the existing sub-second rule
+
+

@@ -25,6 +25,8 @@ x-tests:
 x-deps:
   - day-ring-navigation
   - home-ring-polish
+  - merge-contiguous-sessions
+  - soften-ring-swipe-animation
   - nightly-consolidation
   - schema-drift-guard
 x-gitref: da3845a

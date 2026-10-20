@@ -57,6 +57,34 @@ class AppDetailMetricsTest {
     }
 
     @Test
+    fun `contiguous sessions of the same app are one`() {
+        val sessions = listOf(
+            UsageSession("app.a", at(10, 0), at(10, 30)),
+            UsageSession("app.a", at(10, 30), at(10, 45))
+        )
+
+        val detail = appDayDetail(sessions, "app.a", zone)!!
+
+        assertEquals(45 * 60_000L, detail.totalMillis)
+        assertEquals(1, detail.sessionCount)
+        assertEquals(45 * 60_000L, detail.averageMillis)
+        assertEquals(45 * 60_000L, detail.longestMillis)
+        assertEquals(1, detail.sessions.size)
+    }
+
+    @Test
+    fun `two contiguous sub-second pieces become one visible session`() {
+        val first = UsageSession("app.a", at(9, 0), at(9, 0) + 500)
+        val second = UsageSession("app.a", at(9, 0) + 500, at(9, 0) + 1_000)
+        val detail = appDayDetail(listOf(first, second), "app.a", zone)!!
+
+        assertEquals(1_000L, detail.totalMillis)
+        assertEquals(1, detail.sessionCount)
+        assertEquals(1_000L, detail.averageMillis)
+        assertEquals(1_000L, detail.longestMillis)
+    }
+
+    @Test
     fun `day without data yields null`() {
         assertNull(appDayDetail(listOf(UsageSession("app.b", at(9, 0), at(9, 1))), "app.a", zone))
     }

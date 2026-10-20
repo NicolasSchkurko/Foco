@@ -27,9 +27,9 @@ Each day entry SHALL contain `totalMillis` and `apps`; each app SHALL contain `p
 - **WHEN** a day has a stored total for an app but no raw session rows
 - **THEN** the app is present with the stored total, `sessionsAvailable: false` and `sessions: []`
 
-#### Scenario: Raw records, not the ranking
-- **WHEN** a session lasts less than 1 s or belongs to an app excluded from the ranking
-- **THEN** it is still present in the JSON; the export does not apply the screen's visibility or exclusion filters
+#### Scenario: Normalized records, not the ranking
+- **WHEN** two same-app sessions meet at the same `HH:mm`, a session lasts less than 1 s, or an app is excluded from the ranking
+- **THEN** contiguous ones are one, a standalone sub-second session is still present, excluded apps stay, and the export applies no visibility or exclusion filters
 
 #### Scenario: A name that needs escaping
 - **WHEN** an app label contains a quote, a backslash or a control character
