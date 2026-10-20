@@ -1,0 +1,26 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: architecture
+x-status: draft
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/db/ConsolidatedDay.kt
+  - app/src/main/java/com/foco/app/data/db/ConsolidatedDayDao.kt
+  - app/src/main/java/com/foco/app/data/db/FocoDatabase.kt
+  - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
+  - app/src/main/java/com/foco/app/data/db/DailyUnlock.kt
+  - app/src/main/java/com/foco/app/data/db/DailyUnlockDao.kt
+  - app/schemas/com.foco.app.data.db.FocoDatabase/3.json
+x-tests:
+  - app/src/test/java/com/foco/app/data/ConsolidatedDayTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryFakes.kt
+  - app/src/test/java/com/foco/app/data/HistoryRetentionTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryWeekTest.kt
+  - app/src/androidTest/java/com/foco/app/data/db/ConsolidationMigrationTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+x-deps:
+  - stored-day-unlocks
+  - week-screen
+  - detail-window-follows-store
+x-gitref: da3845a

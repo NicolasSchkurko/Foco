@@ -331,13 +331,176 @@ The week view SHALL show the last seven days as one bar per day (the day's total
 - **THEN** the apps are listed by their total over the seven days, descending
 
 ### Requirement: A day bar opens that day's view
-The week view SHALL be reachable from the dashboard, the back action SHALL return to it, and tapping a day's bar SHALL open that day's view — the dashboard composition for that date, read from stored sessions — where an app row opens that app's detail for the day.
+The week view SHALL be reachable from the dashboard and SHALL be one position of the home's ring; tapping a day's bar SHALL move the home to that day's position — the dashboard composition for that date, read from stored sessions — where an app row opens that app's detail for the day.
 [@test] `app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt`
 
 #### Scenario: Entry and return
 - **WHEN** the week control is used in the dashboard
-- **THEN** the week view opens and the back action returns to the dashboard
+- **THEN** the home shows the week position, with no back control to leave it and no screen stacked
 
 #### Scenario: Opening a day
 - **WHEN** a bar is tapped
-- **THEN** that day's view opens with its total, hourly chart and ranking
+- **THEN** the home shows that day with its total, hourly chart and ranking
+
+### Requirement: One header for every screen
+The home, the week and a dated day SHALL share one header composable with the title and its actions and no back control; settings and an app's detail SHALL render through it with a back control at the leading edge, 4 dp inset, title centred.
+[@test] `app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt`
+[@test] `app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt`
+
+#### Scenario: A peer screen offers no back control
+- **WHEN** the week or a dated day is shown
+- **THEN** its header carries the title and its actions and no back control
+
+#### Scenario: A submenu keeps its back control
+- **WHEN** settings or an app's detail is shown
+- **THEN** the back control sits at the leading edge with a 4 dp inset and the title is centred
+
+#### Scenario: One geometry everywhere
+- **WHEN** any screen header is measured
+- **THEN** the arrow inset, the title style and the row height are the same values on every screen
+
+### Requirement: The home changes the day in place
+The home SHALL read one day at a time and change it in place, without stacking a screen: a horizontal swipe anywhere on the content and the visible ‹ › controls SHALL each move one position of the day ring, and the back action SHALL retrace the positions visited.
+[@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt`
+
+#### Scenario: A swipe moves one day
+- **WHEN** the user swipes horizontally over the home's content
+- **THEN** the home shows the neighbouring day of the ring, with its own total, chart and ranking
+
+#### Scenario: The arrows move the same way
+- **WHEN** the user taps ‹ or ›
+- **THEN** the home moves exactly one position in the same direction as the matching swipe
+
+#### Scenario: Back walks the positions visited
+- **WHEN** the home has moved through two positions and the system back action is used
+- **THEN** the home returns to the position visited before, one step per back, and from today with nothing behind it, back leaves the app
+
+#### Scenario: Settings returns to what was being viewed
+- **WHEN** settings is opened from a position and closed with its back control
+- **THEN** the home shows the position it was showing before settings was opened
+
+### Requirement: The day ring wraps through the week
+The ring SHALL hold today, the week, the oldest stored day and every finished day between them; the step forward from today SHALL land on the week, the step forward from the week on the oldest stored day, and the step back from the oldest stored day on the week.
+[@test] `app/src/test/java/com/foco/app/domain/DayRingTest.kt`
+
+#### Scenario: Forward from today
+- **WHEN** the home is on today and the user steps forward
+- **THEN** the week is shown
+
+#### Scenario: Forward from the week
+- **WHEN** the home is on the week and the user steps forward
+- **THEN** the oldest stored day is shown
+
+#### Scenario: Back from the oldest day
+- **WHEN** the home is on the oldest stored day and the user steps back
+- **THEN** the week is shown
+
+#### Scenario: A store with no finished days
+- **WHEN** the store holds no finished day
+- **THEN** the ring is today and the week, and forward from the week returns to today
+
+### Requirement: Moving a ring position is animated
+The home SHALL animate a change of ring position with a short horizontal slide and fade, using the
+travel direction: forward for `›` and a left swipe, back for `‹` and a right swipe, and the ring
+direction for a bar or the calendar.
+[@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt`
+
+#### Scenario: Forward and back
+- **WHEN** the user moves one position forward and then back
+- **THEN** the content slides in from the forward side and then from the back side, while the header
+  and the arrows stay in place
+
+#### Scenario: A bar shortcut
+- **WHEN** a week bar moves the home to that day
+- **THEN** the content animates in the bar's ring direction instead of hard-cutting
+
+### Requirement: The usage legend sits between the arrows
+The screen-time and unlock line SHALL render between the `‹` and `›` controls, centered; the title
+SHALL sit in the header without that subtitle, vertically centered with the calendar and settings
+actions.
+[@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt`
+
+#### Scenario: Legend geometry
+- **WHEN** the home shows a day with a usage line
+- **THEN** the line's bounds sit between the two arrow bounds and the title's vertical center matches
+  the trailing actions
+
+#### Scenario: The week has no usage line
+- **WHEN** the home is on the week stop
+- **THEN** the arrows remain visible with no day usage line and the week title is centered
+
+### Requirement: Sub-second sessions are not visible in app views
+The app SHALL treat a session shorter than 1000 ms as not visible: it SHALL NOT appear in the dashboard ranking or the app detail session list, and the detail summary SHALL be derived only from visible sessions.
+[@test] `app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt`
+[@test] `app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt`
+
+#### Scenario: A sub-second session beside a visible one
+- **WHEN** an app has a 2000 ms session and a 500 ms session
+- **THEN** the dashboard lists the app with 2000 ms, and the detail lists only the 2000 ms session with a count of one
+
+#### Scenario: An app with only sub-second time
+- **WHEN** an app's only session lasts 500 ms
+- **THEN** it does not appear in the dashboard ranking, and its detail shows the empty state
+
+#### Scenario: The visibility boundary
+- **WHEN** a session lasts exactly 1000 ms
+- **THEN** it is visible and the app appears with 1 s
+
+### Requirement: Apps whose total rounds to zero are absent from app rankings
+The dashboard and week rankings SHALL omit an app whose visible total is below 1000 ms; for stored week data, an app whose stored total across the window is below 1000 ms SHALL be omitted.
+[@test] `app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt`
+[@test] `app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt`
+
+#### Scenario: Only sub-second live time
+- **WHEN** an app has only a 500 ms live session in the week
+- **THEN** the week ranking omits it
+
+#### Scenario: Only sub-second stored time
+- **WHEN** an app's stored week total is 500 ms
+- **THEN** the week ranking omits it
+
+#### Scenario: Visible total across the window
+- **WHEN** an app's visible total is at least 1000 ms
+- **THEN** the week ranking includes it
+
+### Requirement: Non-app aggregates keep the full time
+The day total, hourly distribution and week day bars SHALL continue to include sub-second sessions; only app rankings and the app detail session list are filtered.
+[@test] `app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt`
+[@test] `app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt`
+
+#### Scenario: A sub-second session still counts in the day
+- **WHEN** the day contains a 500 ms session
+- **THEN** the day total and hourly distribution still include its 500 ms, while no app row is produced for it
+
+#### Scenario: A sub-second session still counts in the week bar
+- **WHEN** a stored or live day contains a 500 ms session
+- **THEN** that day's bar still includes the 500 ms, while the app ranking hides the app
+
+### Requirement: The committed schema cannot drift silently
+The app SHALL verify that the database's declared version has a committed exported schema and that its committed identity hash matches the one the open database reports, so an entity edit without a version bump, or a bump without an export, fails the build.
+[@test] `app/src/test/java/com/foco/app/data/db/SchemaDriftTest.kt`
+[@test] `app/src/androidTest/java/com/foco/app/data/db/SchemaBaselineTest.kt`
+
+#### Scenario: An entity edited without a version bump
+- **WHEN** the committed schema of the declared version carries a different identity hash than the open database reports
+- **THEN** the verification reports drift and names the version
+
+#### Scenario: A version bumped without an exported schema
+- **WHEN** the declared version has no committed schema file
+- **THEN** the verification reports the missing export
+
+#### Scenario: The baseline is consistent
+- **WHEN** the declared version has its committed schema and both identity hashes agree
+- **THEN** the verification reports no drift
+
+### Requirement: Schema changes never wipe the stored history
+The app SHALL NOT use destructive migrations — no `fallbackToDestructiveMigration` call in the production sources — and every version bump SHALL ship a migration while the previous schema stays committed.
+[@test] `app/src/test/java/com/foco/app/data/db/NoDestructiveMigrationTest.kt`
+
+#### Scenario: No destructive fallback
+- **WHEN** the production sources are scanned
+- **THEN** no call to `fallbackToDestructiveMigration` exists
+
+#### Scenario: The check bites
+- **WHEN** the scan runs against a source tree that contains the call
+- **THEN** it fails and names the file
