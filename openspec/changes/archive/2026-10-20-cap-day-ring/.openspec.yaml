@@ -1,4 +1,4 @@
-schema: spec-anchored
+﻿schema: spec-anchored
 created: 2026-10-20
 x-kind: fix
 x-status: verified
@@ -9,4 +9,5 @@ x-targets:
   - app/src/test/java/com/foco/app/domain/DayRingTest.kt
 x-tests:
   - app/src/test/java/com/foco/app/domain/DayRingTest.kt
+x-gitref: babffd6
 x-tech_brief: false

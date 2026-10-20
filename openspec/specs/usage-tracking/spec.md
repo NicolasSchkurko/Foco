@@ -413,7 +413,7 @@ The home SHALL read one day at a time and change it in place, without stacking a
 - **THEN** the home shows the position it was showing before settings was opened
 
 ### Requirement: The day ring wraps through the week
-The ring SHALL hold today, the week, the oldest stored day and every finished day between them; the step forward from today SHALL land on the week, the step forward from the week on the oldest stored day, and the step back from the oldest stored day on the week.
+The ring SHALL hold today, the week, the oldest stored day inside the seven-day window and every finished day between them; the step forward from today SHALL land on the week, the step forward from the week on the oldest stored day, and the step back from the oldest stored day on the week.
 [@test] `app/src/test/java/com/foco/app/domain/DayRingTest.kt`
 
 #### Scenario: Forward from today
@@ -422,7 +422,7 @@ The ring SHALL hold today, the week, the oldest stored day and every finished da
 
 #### Scenario: Forward from the week
 - **WHEN** the home is on the week and the user steps forward
-- **THEN** the oldest stored day is shown
+- **THEN** the oldest stored day inside the window is shown
 
 #### Scenario: Back from the oldest day
 - **WHEN** the home is on the oldest stored day and the user steps back
@@ -431,6 +431,10 @@ The ring SHALL hold today, the week, the oldest stored day and every finished da
 #### Scenario: A store with no finished days
 - **WHEN** the store holds no finished day
 - **THEN** the ring is today and the week, and forward from the week returns to today
+
+#### Scenario: The guard day stays out of the ring
+- **WHEN** the store holds a day older than today minus six (the guard day kept for a lagging run)
+- **THEN** the ring offers today and the six days before it, and the guard day is not reachable
 
 ### Requirement: Moving a ring position is animated
 The home SHALL animate a ring-position change with a short horizontal slide and fade in the travel direction. Swipe and arrow moves SHALL use a 320 ms tween (scaled by the system animator duration), an eighth-width slide and ease-out; bar, calendar and back keep the existing slide/fade. At scale 0 no transition SHALL run.
