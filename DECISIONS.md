@@ -387,6 +387,13 @@
 - **Consequences:** the change keeps one open decision (the version source: the `PackageManager` adapter is proposed), so it stays `draft` and cannot reach `verified` until that is answered. `LICENSE` joins the targets; the gate now reports the two `strings.xml` overlaps as "sequenced by deps". No code is written by this record: the selector rewrite still lands on its own branch and one apply.
 - **Refs:** `openspec/changes/settings-about-and-pickers/.openspec.yaml` -> `openspec/changes/settings-about-and-pickers/proposal.md` -> `LICENSE` -> `openspec/changes/weekly-json-export/.openspec.yaml` -> `scripts/gates/gate-check.mjs:92-137`
 
+## [2026-10-19] The About version comes from the PackageManager
+
+- **Context:** `settings-about-and-pickers` carried a last open decision: where the version shown in the About block comes from — `PackageManager`, `BuildConfig.VERSION_NAME` or a literal. The change's tasks already described a `data/AppIdentity.kt` reading the installed package, but the answer is the human's.
+- **Decision (human):** on 2026-10-19, asked between the three options, answered "A": the installed `versionName` through `PackageManager.getPackageInfo()`, behind `data/AppIdentity.kt`. No build flag, no literal, and `app/build.gradle.kts` stays free of the export's overlap.
+- **Consequences:** the open decision is removed from the change and `AppIdentity.versionName()` returns a nullable `String?` (the package can fail to resolve), so the block falls back to an "unknown" label. The change moves to `accepted` + `applying`: its code is merged in `main`, but the instrumented language-pick test is still red, so it is not `verified` and cannot be archived until that pick persists.
+- **Refs:** `openspec/changes/settings-about-and-pickers/.openspec.yaml` -> `app/src/main/java/com/foco/app/data/AppIdentity.kt` -> `app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt` -> `app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt`
+
 ## [2026-10-19] `prune-stored-history`: the prune runs on both consolidation triggers
 
 - **Context:** The change that bounds every stored table to the eight-day window left one open question: where the delete runs. The request said "en cada worker", which read literally means only the nightly `ConsolidationWorker`; but the app-start trigger (`MainActivity.kt:81`) calls the same `SessionHistoryStore.consolidate` through `ConsolidationRunner`, and it is the only one that fires when the job cannot (Doze, battery savers, a force-stop), so a worker-only prune would let the database grow through exactly the weeks it is meant to bound.

@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-19
 x-kind: feature
-x-status: draft
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-status: verified
 x-targets:
   - LICENSE
   - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
@@ -14,9 +16,7 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt
 x-deps:
   - weekly-json-export
-x-gitref: dbc05ae
+x-gitref: c3d3c92
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
 x-tech_brief: true
-x-open_decisions:
-  - question: "Where does the version come from: PackageManager, BuildConfig or a literal?"
-    target: app/src/main/java/com/foco/app/data/AppIdentity.kt
-    proposal: "PackageManager.getPackageInfo().versionName through a data/ adapter (recommended): the installed truth, no build flag, and app/build.gradle.kts stays free of the weekly-json-export overlap."

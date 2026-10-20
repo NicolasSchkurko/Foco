@@ -6,10 +6,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onFirst
@@ -108,7 +110,7 @@ class SettingsScreenTest {
         }
         // Picking a language re-creates the activity mid-gesture: the injection may fail after the
         // effect is delivered, so the caller asserts the result (the row or the locale) instead.
-        composeRule.onAllNodesWithText(option).onFirst().performClick()
+        composeRule.onNode(hasText(option) and hasAnyAncestor(isPopup())).performClick()
     }
 
     /** Leaves the Settings screen open with the UI in [language] ("es" | "en"). */
