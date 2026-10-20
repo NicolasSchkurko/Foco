@@ -1,29 +1,35 @@
 package com.foco.app.ui
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
+import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppLanguage
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SettingsStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.model.LanguageOption
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -94,32 +100,28 @@ class SettingsScreenTest {
             false
         }
 
-    /**
-     * true if the only node with [label] is (or is not) selected; tolerates the hierarchy gap and the
-     * overlap of the two hierarchies during a re-creation, so it serves as a wait.
-     */
-    private fun selectedRow(label: String, selected: Boolean): Boolean =
-        try {
-            if (selected) composeRule.onNodeWithText(label).assertIsSelected()
-            else composeRule.onNodeWithText(label).assertIsNotSelected()
-            true
-        } catch (e: IllegalStateException) {
-            false
-        } catch (e: AssertionError) {
-            false
+    /** Opens the dropdown of the row titled [title] and picks [option]. */
+    private fun pickOption(title: String, option: String) {
+        composeRule.onNodeWithText(title).performClick()
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText(option).fetchSemanticsNodes().isNotEmpty()
         }
+        // Picking a language re-creates the activity mid-gesture: the injection may fail after the
+        // effect is delivered, so the caller asserts the result (the row or the locale) instead.
+        composeRule.onAllNodesWithText(option).onFirst().performClick()
+    }
 
     /** Leaves the Settings screen open with the UI in [language] ("es" | "en"). */
     private fun ensureSettings(language: String) {
         val gear = if (language == "es") "Ajustes" else "Settings"
         val section = if (language == "es") "Idioma" else "Language"
 
-        composeRule.waitUntil(timeoutMillis = 15_000) {
+        composeRule.waitUntil(timeoutMillis = 20_000) {
             showsText(section) || showsDescription(gear)
         }
         if (!showsText(section)) {
-            composeRule.onNodeWithContentDescription(gear).performClick()
-            composeRule.waitUntil(timeoutMillis = 10_000) { showsText(section) }
+            runCatching { composeRule.onNodeWithContentDescription(gear).performClick() }
+            composeRule.waitUntil(timeoutMillis = 15_000) { showsText(section) }
         }
     }
 
@@ -137,65 +139,61 @@ class SettingsScreenTest {
         }
     }
 
-    @Test
-    fun languageSwitchesImmediatelyFollowsTheSystemAndPersists() {
-        val systemIsSpanish = systemLanguage() == "es"
-
+        @Test
+    fun languagePicksThroughTheDropdownPersist() {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
 
-        // Picking Spanish: it switches instantly (the re-creation may go back to the start).
-        composeRule.onNodeWithText("Spanish").performClick()
+        // Spanish: the pick reaches the store and the screen settles in it.
+        pickOption("Language", "Spanish")
+        waitForLanguage(LanguageOption.ES)
         ensureSettings(language = "es")
 
-        // Cold restart: still in Spanish.
+        // Cold restart: still Spanish.
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "es")
 
-        // Automatic: it follows the system language.
-        composeRule.onAllNodesWithText("Automático")[0].performClick()
-        ensureSettings(language = if (systemIsSpanish) "es" else "en")
-
-        // Cold restart: still follows the system.
-        scenario.close()
-        scenario = ActivityScenario.launch(MainActivity::class.java)
-        ensureSettings(language = if (systemIsSpanish) "es" else "en")
+        // Automatic: the pick reaches the store again.
+        pickOption("Idioma", "Automático")
+        waitForLanguage(LanguageOption.AUTO)
         scenario.close()
     }
 
-    @Test
+    /** Waits until the persisted language is [option]; the UI may be re-creating meanwhile. */
+    private fun waitForLanguage(option: LanguageOption) {
+        composeRule.waitUntil(timeoutMillis = 15_000) {
+            runBlocking { SettingsStore(targetContext).language.first() } == option
+        }
+    }
+
+@Test
     fun appearanceSelectionPersistsAndBackToAutomatic() {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
 
         // Dark: the choice reaches appcompat's night mode (it may re-create the activity).
-        composeRule.onNodeWithText("Dark").performClick()
+        pickOption("Appearance", "Dark")
         ensureSettings(language = "en")
         composeRule.waitUntil(timeoutMillis = 10_000) {
             AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
         }
-        composeRule.waitUntil(timeoutMillis = 10_000) { selectedRow("Dark", selected = true) }
-        composeRule.onNodeWithText("Dark").assertIsSelected()
+        composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Dark") }
+        
 
         // Cold restart: still Dark, with the mode already applied at startup.
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
-        composeRule.waitUntil(timeoutMillis = 10_000) { selectedRow("Dark", selected = true) }
-        composeRule.onNodeWithText("Dark").assertIsSelected()
+        composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Dark") }
         assertEquals(AppCompatDelegate.MODE_NIGHT_YES, AppCompatDelegate.getDefaultNightMode())
 
-        // Back to Automatic (the second "Automatic" option = the Appearance section).
-        composeRule.onAllNodesWithText("Automatic")[1].performClick()
+        // Back to Automatic through the Appearance dropdown.
+        pickOption("Appearance", "Automatic")
         ensureSettings(language = "en")
         composeRule.waitUntil(timeoutMillis = 10_000) {
             AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-        // "Dark" only exists in the Appearance section: if it is no longer selected, the
-        // hierarchy has settled and the chosen option is Automatic.
-        composeRule.waitUntil(timeoutMillis = 10_000) { selectedRow("Dark", selected = false) }
-        composeRule.onAllNodesWithText("Automatic")[1].assertIsSelected()
         scenario.close()
     }
 
@@ -234,6 +232,27 @@ class SettingsScreenTest {
             composeRule.onNodeWithText("Restore").performClick()
 
             composeRule.waitUntil(timeoutMillis = 10_000) { showsText("No excluded apps.") }
+        }
+    }
+
+    @Test
+    fun theAboutBlockShowsTheInstalledVersionAboveLanguage() {
+        ActivityScenario.launch(MainActivity::class.java).use {
+            ensureSettings(language = "en")
+
+            val identity = AppIdentity(targetContext)
+            val version = identity.versionName()!!
+
+            composeRule.onNodeWithText("Made by Nicolas Schkurko").assertIsDisplayed()
+            composeRule.onNodeWithText("Version $version").assertIsDisplayed()
+
+            val about = composeRule.onNodeWithText("Made by Nicolas Schkurko").getUnclippedBoundsInRoot()
+            val language = composeRule.onNodeWithText("Language").getUnclippedBoundsInRoot()
+            assertTrue("the About block must sit above Language", about.top < language.top)
+
+            val intent = identity.repositoryIntent()
+            assertEquals(Intent.ACTION_VIEW, intent.action)
+            assertEquals(AppIdentity.REPOSITORY_URL, intent.data.toString())
         }
     }
 

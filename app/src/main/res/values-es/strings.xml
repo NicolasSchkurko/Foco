@@ -71,6 +71,12 @@
     <string name="week_export">Exportar JSON</string>
     <string name="week_export_error">No se pudo exportar la semana</string>
 
+    <!-- About -->
+    <string name="settings_about_credit">Hecho por Nicolas Schkurko</string>
+    <string name="settings_about_version">Versión %1$s</string>
+    <string name="settings_about_version_unknown">desconocida</string>
+    <string name="settings_about_repository">Repositorio</string>
+
     <!-- Common -->
     <string name="loading">Cargando…</string>
 </resources>
