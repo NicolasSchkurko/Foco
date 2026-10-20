@@ -22,5 +22,5 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt
 x-deps:
   - consolidated-day-marker
-x-gitref: 0afda29
+x-gitref: f2fbcaf
 x-tech_brief: true

@@ -3,8 +3,8 @@
 An Android app (personal project) to:
 
 1. **Track** how much and *when* you use each app (Digital Wellbeing style, but with your own rules).
-2. Add **limits and friction** (reminders, forced waits) to reduce automatic usage.
-3. **Block Reels / Shorts** (infinite-scroll content) inside Instagram, TikTok and YouTube.
+2. Set **per-app daily limits** and optional popup alerts.
+3. Add **optional friction at app open** — wait, breathe, solve a simple math problem — built as independent, composable modules.
 
 Stack: **Kotlin + Jetpack Compose**. Everything local — no accounts, no servers.
 
@@ -16,8 +16,9 @@ Stack: **Kotlin + Jetpack Compose**. Everything local — no accounts, no server
 
 ## Current status
 
-- ✅ **Phase 1 (this scaffold)**: day tracker — total usage, hourly activity and app ranking, with onboarding for the "Usage Access" permission.
-- ⏭️ Phases 2 to 5 (limits, friction, Reels blocking): see **[PLAN.md](PLAN.md)**.
+- ✅ **Day tracker**: total usage, hourly activity, app ranking and the "Usage Access" onboarding.
+- ✅ **History**: Room-backed sessions, week view, app detail and the consolidation markers.
+- ⏭️ **App limits, optional alerts and modular friction** (Phases 3–4): see **[PLAN.md](PLAN.md)**.
 
 ## Requirements
 
@@ -48,20 +49,19 @@ If your manufacturer is slow to show the app in that list, leave Settings and co
 Foco/
 ├── app/
 │   ├── build.gradle.kts              # module: SDK, dependencies
+│   ├── schemas/                      # Room migration baselines
 │   └── src/main/
-│       ├── AndroidManifest.xml       # special permission + queries + activity
-│       ├── res/                      # icon, base theme, strings
+│       ├── AndroidManifest.xml       # permissions + queries + activity
+│       ├── res/                      # icons, themes, strings
 │       └── java/com/foco/app/
 │           ├── MainActivity.kt       # entry point: onboarding ↔ dashboard
-│           ├── UsageAccess.kt        # "Usage Access" permission check
-│           ├── data/
-│           │   ├── UsageModels.kt    # models (day, app, hour)
-│           │   └── UsageRepository.kt# queries UsageStatsManager, builds sessions
-│           └── ui/
-│               ├── OnboardingScreen.kt
-│               ├── DashboardScreen.kt# hourly chart + app ranking
-│               ├── Formatting.kt     # duration "3 h 24 min", time "14:32"
-│               └── theme/Theme.kt    # Material 3 (+ dynamic color)
+│           ├── data/                 # UsageRepository, SessionHistoryStore,
+│           │                         # preferences and Room DAOs/entities
+│           ├── domain/               # sessions, ring, filtering, exports
+│           ├── model/                # pure types (UsageSession, DayData, …)
+│           └── ui/                   # dashboard, week, detail, settings,
+│                                     # onboarding, common widgets, metrics
+├── openspec/                         # living specs, changes and archive
 ├── gradle/libs.versions.toml         # version catalog
 ├── PLAN.md                           # phased implementation plan
 └── gradlew / gradlew.bat             # Gradle wrapper
@@ -85,7 +85,7 @@ CI (`.github/workflows/ci.yml`) runs `./gradlew test` on Linux for every push to
 - `UsageStatsManager.queryEvents()` returns system events (`ACTIVITY_RESUMED` / `ACTIVITY_PAUSED`).
 - `UsageRepository` turns them into **sessions** (app, start, end), drops apps without a launcher icon, the home screen and Foco itself, and builds two views: ranking by app and distribution by hour.
 - The `PACKAGE_USAGE_STATS` permission is declared in the manifest and checked as an **AppOp** (`UsageAccess.isGranted`).
-- Data is queried on the fly (the system already stores it); own persistence arrives in Phase 2 with Room.
+- Today is read live from the platform; finished days are consolidated into the app's Room history (`session_record`, `daily_aggregate`, `consolidated_day`) so they survive the platform's retention window.
 
 ## Common issues
 

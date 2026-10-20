@@ -34,5 +34,5 @@ Be lazy about the solution, never about the change: finish every caller, test an
 
 ## Project context
 
-- **Foco**: personal Android app (Kotlin + Jetpack Compose, Material 3), 100% local — no accounts or servers. Phases in `PLAN.md` (1 tracker ✅ · 2 Room history · 3 limits/friction · 4 Reels blocking).
-- Code in `app/src/main/java/com/foco/app/` (`data/`, `ui/`). Build: Android Studio or `gradlew.bat assembleDebug`. Tests: JVM tests under `app/src/test/`; `test_command` = `gradlew.bat test` in `openspec/config.yaml`.
+- **Foco**: personal Android app (Kotlin + Jetpack Compose, Material 3), 100% local — no accounts or servers. Phases in `PLAN.md` (1 tracker ✅ · 2 Room history ✅ · 3 app limits and optional alerts · 4 modular friction at app open).
+- Code in `app/src/main/java/com/foco/app/` (`model/`, `domain/`, `data/`, `ui/`). Build: Android Studio or `gradlew.bat assembleDebug`. Tests: JVM tests under `app/src/test/`; `test_command` = `gradlew.bat test` in `openspec/config.yaml`.

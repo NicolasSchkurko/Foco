@@ -1,4 +1,4 @@
-# PLAN — Foco (tracker + limits + Reels blocking)
+# PLAN — Foco (tracker + app limits + friction)
 
 Phased implementation plan. Each phase ends with something usable and a concrete
 "done" criterion. The goal is to learn Android by building, not the other way around.
@@ -6,17 +6,20 @@ Phased implementation plan. Each phase ends with something usable and a concrete
 ## Core idea
 
 Beating infinite scroll is not done with walls (people bypass them), but with
-**friction**: every decision to open the app costs a few seconds and requires
-intention. The tracker is the mirror; friction is the tool.
+**friction**: when you enable it, every decision to open the app costs a few
+seconds and requires intention. The tracker is the mirror; friction is the tool.
+A full stop appears only when you turn on a daily limit.
 
 ## Design principles
 
-1. **Friction before walls.** Waits, breathing pauses, "write why" — change the
-   decision, do not declare war on the user.
+1. **Friction by default; a wall only when you ask for it.** Waits, breathing
+   pauses, math — change the decision, do not declare war on the user. A daily
+   limit is the one explicit wall, and only while it is active.
 2. **Everything local.** No accounts or servers: usage data stays on the phone.
-3. **The platform rules.** Android has no API to "block part of another app".
-   Everything Reels-related is built by reading the UI, it is heuristic, and it
-   needs maintenance. The design assumes that (rules engine, not hardcoded logic).
+3. **The platform rules.** Android has no public API to block part of another
+   app. App-level limits, alerts and overlays need UsageStats plus
+   accessibility/overlay. Build a modular launch signal and intervention engine,
+   not one-off rules tied to one app's UI.
 4. **Usable phases.** No three months without trying anything on the phone.
 
 ## Target architecture (where everything goes)
@@ -27,17 +30,17 @@ intention. The tracker is the mirror; friction is the tool.
 | `UsageRepository` (`data/`) | Read UsageStatsManager → sessions | 1 ✅ |
 | Room (`data/db/`) | Own history, budgets, rules | 2 |
 | `UsageMonitorService` (FGS) | Track ongoing usage, trigger limits | 3 |
-| `FrictionOverlay` | Friction screen over the target app | 3 |
-| `LimitEngine` | Per-app/hour budgets + notifications | 3 |
-| `ReelsBlockerService` (Accessibility) | Detect Reels/Shorts and act | 4 |
-| `rules.json` (`assets/`) | Selectors and actions per app/version | 4 |
+| `LimitEngine` | Per-app daily budgets + optional alerts | 3 |
+| `AppLaunchSignal` | Detect the foreground app (UsageStats/accessibility) | 3 |
+| `FrictionHost` | Overlay foundation; full block at an active limit | 3 |
+| `InterventionEngine` + `InterventionRegistry` | Ordered wait/breathe/math modules at open | 3-4 |
 
 ---
 
 ## Phase 0 — Environment
 
-- [ ] Install Android Studio; open `Foco`; first build on the phone.
-- [ ] USB debugging on the phone; accept the prompt from the PC.
+- [x] Install Android Studio; open `Foco`; first build on the phone.
+- [x] USB debugging on the phone; accept the prompt from the PC.
 - [ ] (For Phase 3) Disable battery optimization for Foco.
 
 **Done when:** the dashboard runs on your phone and you see your real usage.
@@ -63,79 +66,67 @@ with yesterday, CSV export, "today" widget.
 
 Goal: stop depending on what the system retains (limited) and get a base for limits.
 
-- [ ] Entities: `SessionRecord` (pkg, start, end) and `DailyAggregate` (pkg, day, total).
-- [ ] `WorkManager`: nightly job that consolidates the day and cleans up old raw data.
-- [ ] **Week** screen: bars per day + totals per app.
-- [ ] Schema migration from day one (good habit).
+- [x] Entities: `SessionRecord` (pkg, start, end) and `DailyAggregate` (pkg, day, total).
+- [x] `WorkManager`: nightly job that consolidates the day and cleans up old raw data.
+- [x] **Week** screen: bars per day + totals per app.
+- [x] Schema migration from day one (good habit).
 
 New concepts: Room (DAO + Flow), WorkManager, migrations.
 
 **Done when:** 7+ days of history visible, survives reboots.
 
-## Phase 3 — Limits, reminders and friction
+## Phase 3 — App limits, alerts and the friction host
 
-Goal: per-app budgets and real friction when going over. **This is where the
-foreground service appears.**
+Goal: per-app daily limits, optional popup alerts, and the overlay foundation for
+the full block. **This is where the foreground service appears.**
 
-- [ ] Per-app budget (e.g. Instagram 30 min/day), configurable in Settings.
+- [ ] Per-app daily limit (e.g. Instagram 30 min/day), configurable in Settings;
+      an app with no limit is never blocked.
 - [ ] `UsageMonitorService` (foreground, `specialUse` type — mandatory since Android 14):
       tick every 15-30 s with UsageStats + accessibility for real time.
       Lightweight alternative: `WorkManager` every 15 min (enough for limits, not for instantaneity).
-- [ ] Notifications: own channel + `POST_NOTIFICATIONS` permission (Android 13+).
-- [ ] **Friction overlay** (`SYSTEM_ALERT_WINDOW` + `TYPE_APPLICATION_OVERLAY`):
-      full-screen over the target app with:
-        - 10 s countdown before enabling "Open anyway",
-        - "write why you're opening it" option,
-        - "5 more minutes" exception mode with a cost (wait + record).
-- [ ] UX reference patterns: **one sec**, **ScreenZen**.
+- [ ] `LimitEngine`: when an app crosses its active daily limit, show a full-block
+      screen; when the limit is disabled or absent, do not block.
+- [ ] Alerts: optional popup at the configured threshold (notification or small
+      overlay), only while alerts are enabled for that app; `POST_NOTIFICATIONS`
+      on Android 13+.
+- [ ] **FrictionHost** (`SYSTEM_ALERT_WINDOW` + `TYPE_APPLICATION_OVERLAY` or an
+      accessibility overlay): the full-screen host for the limit block. The
+      intervention modules arrive in Phase 4; no content-specific UI reading.
+- [ ] UX reference patterns: **one sec**, **ScreenZen**, **Opal**.
 
-**Done when:** if you go over the Instagram limit, the phone really stops you
-and giving in costs (a little).
+**Done when:** if you reach an active Instagram limit, the phone really stops you;
+if the limit is off, nothing happens; an alert appears only when you enabled it.
 
-## Phase 4 — Reels / Shorts blocking (the artisanal part)
+## Phase 4 — Modular friction at app open
 
-Goal: opening Reels is not an option. There is no API: the UI is read with an
-**AccessibilityService**.
+Goal: optional friction **at app open**, built from independent modules, without
+reading or hardcoding another app's UI.
 
-- [ ] `ReelsBlockerService` with `accessibility-service` config XML.
-- [ ] Detection: `onAccessibilityEvent` (`TYPE_WINDOW_STATE_CHANGED` /
-      `TYPE_WINDOW_CONTENT_CHANGED`) → bounded BFS over `rootInActiveWindow`,
-      matching by `viewIdResourceName` (regex), text and `contentDescription`.
-- [ ] **Rules engine** in `assets/rules.json` (so you don't recompile for every Instagram change):
-      ```json
-      {
-        "package": "com.instagram.android",
-        "match": {
-          "viewIdRegex": ".*clips.*",
-          "textAny": ["Reels"],
-          "descAny": ["Reels", "Clips"]
-        },
-        "action": "back"
-      }
-      ```
-- [ ] Actions: `BACK` and, if still blocked after ~300 ms, `HOME`.
-- [ ] Anti false positives: whitelist (story viewer, DMs), 1 s debounce,
-      decision recorded in a local log (last N).
-- [ ] Anti-impulse: disabling the service requires a PIN.
+- [ ] `Intervention` contract and `InterventionRegistry`: a module knows how to
+      present itself and returns whether it was completed or abandoned.
+- [ ] `InterventionPlan` per app: order and optional chain; enabled/disabled per
+      app, with a global default.
+- [ ] First modules: wait X seconds, breathe, simple math. They are independent:
+      adding one is a class + registry entry + strings, not a core change.
+- [ ] At app open, if friction is enabled for that app, run the plan in the
+      `FrictionHost`; if friction is off, the app opens normally.
+- [ ] No hidden friction: the settings screen names which modules are active and
+      the user can turn each one off.
+- [ ] Anti-impulse options: disabling the host or the limit may require a PIN;
+      the behavior is recorded locally.
 - [ ] Sideloaded (Android 13+): a manually installed app needs
-      "Allow restricted settings" to be able to enable Accessibility.
-- [ ] Test with logcat + a real test per app (Instagram, TikTok, YouTube).
+      "Allow restricted settings" to enable accessibility.
 
-Open source references: `duartebarbosadev/Scrolless`,
-`JacobX0126/shorts-blocker-android` (the latter documents exactly these
-decisions, including the BACK→HOME escalation and the PIN).
-
-**Done when:** opening Reels sends you back to the feed consistently, without
-breaking the rest of the app (chats, stories, profile).
+**Done when:** wait, breathe and math work independently; enabling friction at
+open runs the chosen plan; adding another module does not touch the engine.
 
 ## Phase 5 — Hardening (optional)
 
 - [ ] **Device owner** (once, via adb: `adb shell dpm set-device-owner`):
-      `DevicePolicyManager.setPackagesSuspended()` blocks apps at the system level,
-      no heuristics. Careful: your app must be able to deactivate itself afterwards
-      (`clearDeviceOwnerApp()`).
-- [ ] Or root + LSPosed if the bug has bitten you (direct hook into the Reels screen:
-      the most robust thing there is, but it requires root).
+      `DevicePolicyManager.setPackagesSuspended()` is an optional, stronger version
+      of the full block; it has no heuristics. Careful: your app must be able to
+      deactivate itself afterwards (`clearDeviceOwnerApp()`).
 - [ ] Distribution: `adb install` or build a signed APK. Google's developer
       verification (in progress 2026-2027) **does not affect** adb installs or
       direct sideloading for now; to share with up to 20 devices there is a free
@@ -147,8 +138,11 @@ breaking the rest of the app (chats, stories, profile).
 
 - **OEMs:** some manufacturers kill background services relentlessly; that is why
   Foco is excluded from battery optimization and the limits path does not depend on exact real time.
-- **Instagram changes the UI:** hence JSON rules + decision log; expect
-  periodic maintenance of Phase 4.
+- **Permissions can disappear:** if accessibility/overlay access is revoked, the
+  full block stops working; the plan must say so in Settings and keep the app
+  usable as a tracker.
+- **Friction fatigue:** if friction is always on it becomes noise. It is opt-in per
+  app, and the settings say exactly which modules run.
 - **Play Store:** accessibility + overlay together is a high-scrutiny area. This
   project is for personal use: it is installed over USB, it is not published.
 - **Battery:** the cost is paid by the Phase 3 foreground service; it is measured and tuned there.
@@ -159,4 +153,4 @@ breaking the rest of the app (chats, stories, profile).
 - Key docs: `UsageStatsManager`, `AppOpsManager`, `AccessibilityService`,
   `TYPE_APPLICATION_OVERLAY`, `DevicePolicyManager.setPackagesSuspended`,
   foreground service types (`specialUse`).
-- Apps to study their UX: **one sec**, **ScreenZen**, **Scrolless**.
+- Apps to study their UX: **one sec**, **ScreenZen**, **Opal**.
