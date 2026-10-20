@@ -11,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HistoryConsolidationTest {
@@ -20,8 +21,9 @@ class HistoryConsolidationTest {
     private val platform = mutableMapOf<LocalDate, DayData>()
     private val sessions = FakeSessionRecordDao()
     private val aggregates = FakeDailyAggregateDao()
+    private val markers = FakeConsolidatedDayDao()
     private val store =
-        SessionHistoryStore(sessions, aggregates, FakeDailyUnlockDao(), { platform[it] ?: emptyDay })
+        SessionHistoryStore(sessions, aggregates, markers, { platform[it] ?: emptyDay })
 
     @Test
     fun `a consolidated day is stored and read back with the same total`() = runBlocking {
@@ -60,10 +62,32 @@ class HistoryConsolidationTest {
         store.consolidate(today)
         val firstSessions = sessions.rows.values.toList()
         val firstTotals = aggregates.rows.values.toList()
+        markers.rows.clear()
         store.consolidate(today)
 
         assertEquals(firstSessions, sessions.rows.values.toList())
         assertEquals(firstTotals, aggregates.rows.values.toList())
+        assertEquals(1, markers.rows.size)
+    }
+
+    @Test
+    fun `a failed marker leaves the day pending and the next run stores the count`() = runBlocking {
+        platform[yesterday] = dayWith("com.instagram.android" to minutes(yesterday, 0L, 1L))
+        markers.failNextWrite = true
+
+        var failed = false
+        try {
+            store.consolidate(today)
+        } catch (failure: IllegalStateException) {
+            failed = true
+        }
+
+        assertTrue("the marker write must fail", failed)
+        assertEquals(0, markers.rows.size)
+        store.consolidate(today)
+
+        assertEquals(1, markers.rows.size)
+        assertEquals(0, store.unlocksFor(yesterday))
     }
 
     @Test

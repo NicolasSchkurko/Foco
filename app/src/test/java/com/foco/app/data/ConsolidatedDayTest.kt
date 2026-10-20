@@ -10,19 +10,19 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * The stored unlock count of a finished day: written with the day's totals, readable back without
- * the platform, and untouched by the pruning that removes the raw rows.
+ * The marker of a finished day: written with the day's totals, readable back without the platform,
+ * and untouched by the pruning that removes the raw rows.
  */
-class StoredUnlocksTest {
+class ConsolidatedDayTest {
 
     private val today = LocalDate.of(2026, 10, 19)
     private val yesterday = today.minusDays(1)
     private val platform = mutableMapOf<LocalDate, DayData>()
     private val sessions = FakeSessionRecordDao()
     private val aggregates = FakeDailyAggregateDao()
-    private val unlocks = FakeDailyUnlockDao()
+    private val markers = FakeConsolidatedDayDao()
     private val store =
-        SessionHistoryStore(sessions, aggregates, unlocks, { platform[it] ?: emptyDay })
+        SessionHistoryStore(sessions, aggregates, markers, { platform[it] ?: emptyDay })
 
     @Test
     fun `a consolidated day keeps its unlock count`() = runBlocking {
@@ -30,7 +30,7 @@ class StoredUnlocksTest {
 
         store.consolidate(today)
 
-        assertEquals(3, unlocks.rows.getValue(yesterday.toString()).count)
+        assertEquals(3, markers.rows.getValue(yesterday.toString()).count)
         assertEquals(3, store.unlocksFor(yesterday))
     }
 
@@ -40,7 +40,7 @@ class StoredUnlocksTest {
 
         store.consolidate(today)
 
-        assertEquals(0, unlocks.rows.getValue(yesterday.toString()).count)
+        assertEquals(0, markers.rows.getValue(yesterday.toString()).count)
         assertEquals(0, store.unlocksFor(yesterday))
     }
 
@@ -50,15 +50,15 @@ class StoredUnlocksTest {
     }
 
     @Test
-    fun `consolidating the same day again keeps one count`() = runBlocking {
+    fun `consolidating the same day again keeps one marker`() = runBlocking {
         platform[yesterday] = dayWithUnlocks(3)
         store.consolidate(today)
-        // Only the totals are cleared, so the day counts as pending and the write runs a second time.
-        aggregates.rows.clear()
+        // The marker is what makes the day pending again; the totals alone no longer do.
+        markers.rows.clear()
 
         store.consolidate(today)
 
-        assertEquals(1, unlocks.rows.size)
+        assertEquals(1, markers.rows.size)
         assertEquals(3, store.unlocksFor(yesterday))
     }
 
@@ -67,7 +67,7 @@ class StoredUnlocksTest {
         platform[yesterday] = dayWithUnlocks(4)
         store.consolidate(today)
 
-        // A later consolidation prunes the raw rows of the previous day and keeps its count.
+        // A later consolidation prunes the raw rows of the previous day and keeps its marker.
         store.consolidate(today.plusDays(8))
 
         assertEquals(0, sessions.rows.size)

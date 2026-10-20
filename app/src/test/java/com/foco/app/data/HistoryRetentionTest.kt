@@ -17,8 +17,9 @@ class HistoryRetentionTest {
     private val platform = mutableMapOf<LocalDate, DayData>()
     private val sessions = FakeSessionRecordDao()
     private val aggregates = FakeDailyAggregateDao()
+    private val markers = FakeConsolidatedDayDao()
     private val store =
-        SessionHistoryStore(sessions, aggregates, FakeDailyUnlockDao(), { platform[it] ?: emptyDay })
+        SessionHistoryStore(sessions, aggregates, markers, { platform[it] ?: emptyDay })
 
     @Test
     fun `pruning deletes raw rows older than seven days and keeps their totals`() = runBlocking {

@@ -25,7 +25,7 @@ class ConsolidationRetryTest {
             val store = SessionHistoryStore(
                 sessions,
                 aggregates,
-                FakeDailyUnlockDao()
+                FakeConsolidatedDayDao()
             ) { throw IllegalStateException("platform busy") }
             val runner = ConsolidationRunner({ day -> store.consolidate(day) })
 
@@ -43,7 +43,7 @@ class ConsolidationRetryTest {
         val oldRow = SessionRecord("app.a", oldDay.toEpochDay() * 86_400_000L, 0L)
         sessions.rows[oldRow.packageName to oldRow.start] = oldRow
         val start = today.minusDays(1).toEpochDay() * 86_400_000L
-        val store = SessionHistoryStore(sessions, aggregates, FakeDailyUnlockDao()) { day ->
+        val store = SessionHistoryStore(sessions, aggregates, FakeConsolidatedDayDao()) { day ->
             if (day == today.minusDays(1)) {
                 DayData(listOf(UsageSession("app.a", start, start + 60_000L)), emptyList())
             } else {

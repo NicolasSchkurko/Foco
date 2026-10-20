@@ -2,10 +2,10 @@ package com.foco.app.data
 
 import android.content.Context
 import androidx.room.Room
+import com.foco.app.data.db.ConsolidatedDay
+import com.foco.app.data.db.ConsolidatedDayDao
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.data.db.DailyAggregateDao
-import com.foco.app.data.db.DailyUnlock
-import com.foco.app.data.db.DailyUnlockDao
 import com.foco.app.data.db.FocoDatabase
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
@@ -24,13 +24,13 @@ import kotlinx.coroutines.flow.map
 class SessionHistoryStore(
     private val sessions: SessionRecordDao,
     private val aggregates: DailyAggregateDao,
-    private val unlocks: DailyUnlockDao,
+    private val consolidatedDays: ConsolidatedDayDao,
     private val readDay: (LocalDate) -> DayData
 ) {
 
-    /** Stores every finished day inside the platform's window that has no totals yet, then prunes raw rows. */
+    /** Stores every finished day inside the platform's window that has no marker yet, then prunes. */
     suspend fun consolidate(today: LocalDate) {
-        val stored = aggregates.storedDays().toSet()
+        val stored = consolidatedDays.storedDays().toSet()
         val pending = finishedDays(today).filterNot { it.toString() in stored }.sorted()
         pending.forEach { consolidateDay(it) }
         sessions.pruneBefore(rawCutoff(today))
@@ -40,9 +40,9 @@ class SessionHistoryStore(
     suspend fun week(until: LocalDate): List<DailyAggregate> =
         aggregates.totalsFor(until.minusDays(SIX_DAYS).toString(), until.toString())
 
-    /** The days the store has totals for: what bounds the detail's day selector, as a stream. */
+    /** The days the store has a marker for: what bounds the detail's day selector, as a stream. */
     fun storedDaysFlow(): Flow<Set<LocalDate>> =
-        aggregates.storedDaysFlow().map { days -> days.map { LocalDate.parse(it) }.toSet() }
+        consolidatedDays.storedDaysFlow().map { days -> days.map { LocalDate.parse(it) }.toSet() }
 
     /** The stored raw sessions of [date], half-open on the start; empty means the day has no rows. */
     suspend fun sessionsFor(date: LocalDate): List<UsageSession> {
@@ -53,16 +53,16 @@ class SessionHistoryStore(
     }
 
     /** The stored unlock count of [date]; `null` means no count was stored, `0` is a real answer. */
-    suspend fun unlocksFor(date: LocalDate): Int? = unlocks.countFor(date.toString())
+    suspend fun unlocksFor(date: LocalDate): Int? = consolidatedDays.countFor(date.toString())
 
-    /** A day with no sessions is not consolidated, so no totals and no count are stored for it. */
+    /** A day with no sessions is not consolidated, so no totals and no marker are stored for it. */
     private suspend fun consolidateDay(day: LocalDate) {
         val data = readDay(day)
         if (data.sessions.isEmpty()) return
-        // Raw first: a failure before the totals leaves the day pending, so the next start retries it.
+        // Raw first: a failure before the marker leaves the day pending, so the next start retries it.
         sessions.upsert(data.sessions.map { SessionRecord(it.packageName, it.start, it.end) })
         aggregates.upsert(totalsOf(day, data.sessions))
-        unlocks.upsert(DailyUnlock(day.toString(), data.unlockTimes.size))
+        consolidatedDays.upsert(ConsolidatedDay(day.toString(), data.unlockTimes.size))
     }
 
     private fun totalsOf(day: LocalDate, daySessions: List<UsageSession>): List<DailyAggregate> =
@@ -88,12 +88,14 @@ class SessionHistoryStore(
                     context.applicationContext,
                     FocoDatabase::class.java,
                     DATABASE_NAME
-                ).addMigrations(FocoDatabase.MIGRATION_1_2).build().also { database = it }
+                ).addMigrations(FocoDatabase.MIGRATION_1_2, FocoDatabase.MIGRATION_2_3)
+                    .build()
+                    .also { database = it }
             }
             return SessionHistoryStore(
                 db.sessionRecords(),
                 db.dailyAggregates(),
-                db.dailyUnlocks(),
+                db.consolidatedDays(),
                 readDay
             )
         }

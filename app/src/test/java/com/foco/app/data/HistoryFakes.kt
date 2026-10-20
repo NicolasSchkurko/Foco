@@ -1,9 +1,9 @@
 package com.foco.app.data
 
+import com.foco.app.data.db.ConsolidatedDay
+import com.foco.app.data.db.ConsolidatedDayDao
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.data.db.DailyAggregateDao
-import com.foco.app.data.db.DailyUnlock
-import com.foco.app.data.db.DailyUnlockDao
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
 import kotlinx.coroutines.flow.Flow
@@ -52,14 +52,26 @@ class FakeDailyAggregateDao : DailyAggregateDao {
     private fun daysNow(): List<String> = rows.keys.map { it.second }.distinct()
 }
 
-/** In-memory counts: one row per day, replaced on the day, exactly like the Room DAO. */
-class FakeDailyUnlockDao : DailyUnlockDao {
+/** In-memory markers: one row per day, replaced on the day, with a switch to fail a write. */
+class FakeConsolidatedDayDao : ConsolidatedDayDao {
 
-    val rows = mutableMapOf<String, DailyUnlock>()
+    val rows = mutableMapOf<String, ConsolidatedDay>()
+    var failNextWrite = false
 
-    override suspend fun upsert(row: DailyUnlock) {
+    private val writes = MutableStateFlow(0)
+
+    override suspend fun upsert(row: ConsolidatedDay) {
+        if (failNextWrite) {
+            failNextWrite = false
+            error("marker write failed")
+        }
         rows[row.day] = row
+        writes.value++
     }
+
+    override suspend fun storedDays(): List<String> = rows.keys.toList()
+
+    override fun storedDaysFlow(): Flow<List<String>> = writes.map { rows.keys.toList() }
 
     override suspend fun countFor(day: String): Int? = rows[day]?.count
 }
