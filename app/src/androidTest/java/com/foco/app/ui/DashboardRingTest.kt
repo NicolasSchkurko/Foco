@@ -20,9 +20,6 @@ import com.foco.app.R
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
-import java.time.LocalDate
-import java.time.ZoneId
-import kotlin.math.abs
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -31,11 +28,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.math.abs
 
 /** The home ring: arrows, both swipes, the calendar control, back retracing and Settings. */
 @RunWith(AndroidJUnit4::class)
 class DashboardRingTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -44,11 +43,15 @@ class DashboardRingTest {
 
     private fun string(resId: Int): String = targetContext.resources.getString(resId)
 
-    private fun string(resId: Int, vararg args: Any): String =
-        targetContext.resources.getString(resId, *args)
+    private fun string(
+        resId: Int,
+        vararg args: Any,
+    ): String = targetContext.resources.getString(resId, *args)
 
-    private fun quantity(resId: Int, count: Int): String =
-        targetContext.resources.getQuantityString(resId, count, count)
+    private fun quantity(
+        resId: Int,
+        count: Int,
+    ): String = targetContext.resources.getQuantityString(resId, count, count)
 
     private fun showApp() {
         composeRule.setContent { FocoNavHost(loadDay = { liveDay }) }
@@ -69,24 +72,26 @@ class DashboardRingTest {
     /** Stores one finished day's session behind the platform reader, as the store does at start. */
     private fun seedStoredDay(day: LocalDate) {
         val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + HOUR_MILLIS
-        val store = SessionHistoryStore.forApp(targetContext) { date ->
-            if (date == day) {
-                DayData(
-                    sessions = listOf(UsageSession("com.android.settings", from, from + HOUR_MILLIS)),
-                    unlockTimes = emptyList()
-                )
-            } else {
-                DayData(sessions = emptyList(), unlockTimes = emptyList())
+        val store =
+            SessionHistoryStore.forApp(targetContext) { date ->
+                if (date == day) {
+                    DayData(
+                        sessions = listOf(UsageSession("com.android.settings", from, from + HOUR_MILLIS)),
+                        unlockTimes = emptyList(),
+                    )
+                } else {
+                    DayData(sessions = emptyList(), unlockTimes = emptyList())
+                }
             }
-        }
         runBlocking { store.consolidate(LocalDate.now()) }
     }
 
     /** Waits until the store offers [day], so the home's ring can move to it. */
     private fun awaitStoredDay(day: LocalDate) {
-        val store = SessionHistoryStore.forApp(targetContext) {
-            DayData(sessions = emptyList(), unlockTimes = emptyList())
-        }
+        val store =
+            SessionHistoryStore.forApp(targetContext) {
+                DayData(sessions = emptyList(), unlockTimes = emptyList())
+            }
         runBlocking { withTimeout(10_000) { store.storedDaysFlow().first { day in it } } }
     }
 
@@ -133,32 +138,41 @@ class DashboardRingTest {
     @Test
     fun theUsageLegendSitsBetweenTheArrowsAndTheTitleAlignsWithTheActions() {
         showApp()
-        val usage = string(
-            R.string.dashboard_usage_line,
-            formatDuration(0),
-            quantity(R.plurals.dashboard_unlocks, 0)
-        )
+        val usage =
+            string(
+                R.string.dashboard_usage_line,
+                formatDuration(0),
+                quantity(R.plurals.dashboard_unlocks, 0),
+            )
         awaitText(usage)
 
-        val previous = composeRule.onNodeWithContentDescription(string(R.string.day_previous))
-            .getUnclippedBoundsInRoot()
-        val next = composeRule.onNodeWithContentDescription(string(R.string.day_next))
-            .getUnclippedBoundsInRoot()
+        val previous =
+            composeRule
+                .onNodeWithContentDescription(string(R.string.day_previous))
+                .getUnclippedBoundsInRoot()
+        val next =
+            composeRule
+                .onNodeWithContentDescription(string(R.string.day_next))
+                .getUnclippedBoundsInRoot()
         val legend = composeRule.onNodeWithText(usage).getUnclippedBoundsInRoot()
-        val title = composeRule.onNodeWithText(string(R.string.dashboard_title))
-            .getUnclippedBoundsInRoot()
-        val settings = composeRule.onNodeWithContentDescription(string(R.string.settings_title))
-            .getUnclippedBoundsInRoot()
+        val title =
+            composeRule
+                .onNodeWithText(string(R.string.dashboard_title))
+                .getUnclippedBoundsInRoot()
+        val settings =
+            composeRule
+                .onNodeWithContentDescription(string(R.string.settings_title))
+                .getUnclippedBoundsInRoot()
 
         assertTrue(
             "the usage legend must sit between the arrows: $legend",
-            legend.left.value >= previous.right.value && legend.right.value <= next.left.value
+            legend.left.value >= previous.right.value && legend.right.value <= next.left.value,
         )
         val titleCenter = (title.top.value + title.bottom.value) / 2f
         val actionCenter = (settings.top.value + settings.bottom.value) / 2f
         assertTrue(
             "the title must be vertically centered with the actions (off by ${abs(titleCenter - actionCenter)} dp)",
-            abs(titleCenter - actionCenter) <= 16f
+            abs(titleCenter - actionCenter) <= 16f,
         )
     }
 

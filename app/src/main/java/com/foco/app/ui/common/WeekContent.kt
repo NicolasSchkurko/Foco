@@ -49,16 +49,17 @@ fun WeekContent(
     excludedPackages: Set<String>,
     onDayClick: (LocalDate) -> Unit = {},
     onAppClick: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    val metrics = remember(totals, todayData, excludedPackages, today) {
-        deriveWeekMetrics(
-            storedTotals = totals,
-            todayDate = today,
-            today = todayData,
-            excludedPackages = excludedPackages
-        )
-    }
+    val metrics =
+        remember(totals, todayData, excludedPackages, today) {
+            deriveWeekMetrics(
+                storedTotals = totals,
+                todayDate = today,
+                today = todayData,
+                excludedPackages = excludedPackages,
+            )
+        }
 
     Column(modifier = modifier.fillMaxSize()) {
         WeekBars(bars = metrics.bars, today = today, onDayClick = onDayClick)
@@ -66,40 +67,43 @@ fun WeekContent(
 
         if (metrics.ranking.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = stringResource(R.string.week_empty),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {
             Text(
                 text = stringResource(R.string.dashboard_apps),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Spacer(Modifier.height(4.dp))
             val maxAppMillis = metrics.ranking.maxOf { it.totalMillis }
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
             ) {
                 items(metrics.ranking, key = { it.packageName }) { app ->
                     AppUsageRow(
                         packageName = app.packageName,
                         millis = app.totalMillis,
                         maxMillis = maxAppMillis,
-                        caption = pluralStringResource(
-                            R.plurals.week_days_used,
-                            app.daysUsed,
-                            app.daysUsed
-                        ),
-                        onClick = { onAppClick(app.packageName) }
+                        caption =
+                            pluralStringResource(
+                                R.plurals.week_days_used,
+                                app.daysUsed,
+                                app.daysUsed,
+                            ),
+                        onClick = { onAppClick(app.packageName) },
                     )
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                 }
@@ -110,23 +114,28 @@ fun WeekContent(
 
 /** The seven bars in one row, oldest first; the tallest one fills the track. */
 @Composable
-private fun WeekBars(bars: List<WeekDayBar>, today: LocalDate, onDayClick: (LocalDate) -> Unit) {
-    val maxMillis = bars
-        .filter { it.state != WeekDayBar.State.Absent }
-        .maxOfOrNull { it.totalMillis }
-        ?: 0L
+private fun WeekBars(
+    bars: List<WeekDayBar>,
+    today: LocalDate,
+    onDayClick: (LocalDate) -> Unit,
+) {
+    val maxMillis =
+        bars
+            .filter { it.state != WeekDayBar.State.Absent }
+            .maxOfOrNull { it.totalMillis }
+            ?: 0L
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Bottom,
     ) {
         bars.forEach { bar ->
             WeekBar(
                 bar = bar,
                 maxMillis = maxMillis,
                 today = today,
-                onClick = { onDayClick(bar.date) }
+                onClick = { onDayClick(bar.date) },
             )
         }
     }
@@ -137,54 +146,67 @@ private fun WeekBars(bars: List<WeekDayBar>, today: LocalDate, onDayClick: (Loca
  * gap never reads as a zero) and its weekday and day of month below. One tappable, readable node.
  */
 @Composable
-private fun WeekBar(bar: WeekDayBar, maxMillis: Long, today: LocalDate, onClick: () -> Unit) {
-    val dayLabel = formatDayLabel(
-        bar.date,
-        today,
-        stringResource(R.string.day_today),
-        stringResource(R.string.day_yesterday)
-    )
-    val description = if (bar.state == WeekDayBar.State.Absent) {
-        stringResource(R.string.week_bar_absent, dayLabel)
-    } else {
-        stringResource(R.string.week_bar, dayLabel, formatDuration(bar.totalMillis))
-    }
+private fun WeekBar(
+    bar: WeekDayBar,
+    maxMillis: Long,
+    today: LocalDate,
+    onClick: () -> Unit,
+) {
+    val dayLabel =
+        formatDayLabel(
+            bar.date,
+            today,
+            stringResource(R.string.day_today),
+            stringResource(R.string.day_yesterday),
+        )
+    val description =
+        if (bar.state == WeekDayBar.State.Absent) {
+            stringResource(R.string.week_bar_absent, dayLabel)
+        } else {
+            stringResource(R.string.week_bar, dayLabel, formatDuration(bar.totalMillis))
+        }
     val absent = bar.state == WeekDayBar.State.Absent
     val fraction = if (maxMillis > 0) bar.totalMillis.toFloat() / maxMillis else 0f
 
     Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .semantics { contentDescription = description },
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(onClick = onClick)
+                .semantics { contentDescription = description },
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .width(28.dp)
-                .height(120.dp),
-            contentAlignment = Alignment.BottomCenter
+            modifier =
+                Modifier
+                    .width(28.dp)
+                    .height(120.dp),
+            contentAlignment = Alignment.BottomCenter,
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (absent) 4.dp else maxOf(4.dp, 120.dp * fraction))
-                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                    .background(
-                        if (absent) MaterialTheme.colorScheme.surfaceVariant
-                        else MaterialTheme.colorScheme.primary
-                    )
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(if (absent) 4.dp else maxOf(4.dp, 120.dp * fraction))
+                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                        .background(
+                            if (absent) {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                        ),
             )
         }
         Spacer(Modifier.height(4.dp))
         Text(
             text = formatWeekday(bar.date),
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelSmall,
         )
         Text(
             text = bar.date.dayOfMonth.toString(),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

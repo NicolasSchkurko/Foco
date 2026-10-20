@@ -7,12 +7,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.foco.app.model.day.DayData
-import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * The dashboard refreshes on its own: when shown, on every return to the foreground and every
@@ -20,7 +20,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class DashboardRefreshTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -33,7 +32,7 @@ class DashboardRefreshTest {
                 loadDay = {
                     loads.incrementAndGet()
                     DayData(sessions = emptyList(), unlockTimes = emptyList())
-                }
+                },
             )
         }
     }
@@ -73,12 +72,13 @@ class DashboardRefreshTest {
         composeRule.waitForIdle()
 
         // Six intervals at 100 ms: wait for a refresh event instead of sleeping through them.
-        val refreshed = try {
-            composeRule.waitUntil(timeoutMillis = 600) { loads.get() > frozen }
-            true
-        } catch (_: ComposeTimeoutException) {
-            false
-        }
+        val refreshed =
+            try {
+                composeRule.waitUntil(timeoutMillis = 600) { loads.get() > frozen }
+                true
+            } catch (_: ComposeTimeoutException) {
+                false
+            }
         assertFalse("the dashboard must not refresh in the background", refreshed)
     }
 

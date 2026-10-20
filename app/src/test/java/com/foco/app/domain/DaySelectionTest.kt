@@ -1,15 +1,14 @@
 package com.foco.app.domain
 
-import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.LocalDate
 
 /**
  * The selector's window comes from the stored history: today and every day back to the oldest
  * stored one inside the raw retention.
  */
 class DaySelectionTest {
-
     private val today = LocalDate.of(2026, 10, 16)
 
     /** The days [daysBack] behind today, shaped as the store's day set is. */
@@ -32,7 +31,7 @@ class DaySelectionTest {
 
         assertEquals(
             listOf(today, today.minusDays(1), today.minusDays(2), today.minusDays(3)),
-            days
+            days,
         )
     }
 
@@ -42,7 +41,7 @@ class DaySelectionTest {
 
         assertEquals(
             listOf(today, today.minusDays(1), today.minusDays(2), today.minusDays(3), today.minusDays(4)),
-            days
+            days,
         )
         assertEquals(today.minusDays(4), days.last())
     }
@@ -65,7 +64,7 @@ class DaySelectionTest {
     fun `respects a custom window`() {
         assertEquals(
             listOf(today, today.minusDays(1)),
-            availableDays(today, storedDays(1, 2), windowDays = 2)
+            availableDays(today, storedDays(1, 2), windowDays = 2),
         )
         assertEquals(listOf(today), availableDays(today, storedDays(1), windowDays = 1))
     }
@@ -79,9 +78,9 @@ class DaySelectionTest {
                 today.minusDays(3),
                 today.minusDays(4),
                 today.minusDays(5),
-                today.minusDays(6)
+                today.minusDays(6),
             ),
-            finishedDays(today)
+            finishedDays(today),
         )
         assertEquals(emptyList<LocalDate>(), finishedDays(today, windowDays = 1))
     }

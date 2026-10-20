@@ -27,8 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -94,14 +94,14 @@ import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.DayMetrics
 import com.foco.app.ui.metrics.deriveDayMetrics
-import java.time.Clock
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Clock
+import java.time.LocalDate
+import java.time.ZoneId
 
 /** Interval between automatic refreshes while the live day is visible. */
 const val DEFAULT_REFRESH_INTERVAL_MILLIS = 30_000L
@@ -120,15 +120,17 @@ fun DashboardScreen(
     clock: Clock = Clock.systemDefaultZone(),
     createRepository: (Context) -> UsageRepository = { UsageRepository(it) },
     createHistoryStore: (Context, (LocalDate) -> DayData) -> SessionHistoryStore =
-        { appContext, readDay -> SessionHistoryStore.forApp(appContext, readDay) }
+        { appContext, readDay -> SessionHistoryStore.forApp(appContext, readDay) },
 ) {
     val context = LocalContext.current
-    val repository = remember(context.applicationContext) {
-        createRepository(context.applicationContext)
-    }
-    val store = remember(context.applicationContext, repository) {
-        createHistoryStore(context.applicationContext) { day -> repository.loadDay(day) }
-    }
+    val repository =
+        remember(context.applicationContext) {
+            createRepository(context.applicationContext)
+        }
+    val store =
+        remember(context.applicationContext, repository) {
+            createHistoryStore(context.applicationContext) { day -> repository.loadDay(day) }
+        }
     val today = rememberCurrentDate(clock)
     val load by rememberUpdatedState(loadDay ?: { repository.loadDay(today) })
 
@@ -142,9 +144,10 @@ fun DashboardScreen(
     val ring = remember(today, storedDays) { dayRing(today, storedDays) }
     // Two positions: the arrows, bars, history and back move the requested one; the header and the
     // content follow the shown one, which advances only once that content is in memory.
-    val dashboardState = rememberSaveable(saver = dashboardStateSaver(DayStop.Day(today))) {
-        DashboardState(DayStop.Day(today))
-    }
+    val dashboardState =
+        rememberSaveable(saver = dashboardStateSaver(DayStop.Day(today))) {
+            DashboardState(DayStop.Day(today))
+        }
     val state by dashboardState.snapshot.collectAsState()
     val requested = state.ring.current
     val requestedKey = requested.key()
@@ -162,7 +165,11 @@ fun DashboardScreen(
     val undoLabel = stringResource(R.string.excluded_undo)
     val exportError = stringResource(R.string.week_export_error)
 
-    fun moveTo(target: DayStop, direction: Int? = null, soft: Boolean = false) {
+    fun moveTo(
+        target: DayStop,
+        direction: Int? = null,
+        soft: Boolean = false,
+    ) {
         val shortcutDay = target is DayStop.Day && target.date in today.minusDays(6)..today
         dashboardState.moveTo(target, ring, shortcutDay, direction, soft)
     }
@@ -182,8 +189,7 @@ fun DashboardScreen(
     }
 
     LaunchedEffect(ring, requestedKey, today) {
-        fun insideWindow(dayStop: DayStop): Boolean =
-            dayStop is DayStop.Day && dayStop.date in today.minusDays(6)..today
+        fun insideWindow(dayStop: DayStop): Boolean = dayStop is DayStop.Day && dayStop.date in today.minusDays(6)..today
 
         dashboardState.retain(ring, ::insideWindow, DayStop.Day(today))
     }
@@ -208,20 +214,22 @@ fun DashboardScreen(
         val date = (target as? DayStop.Day)?.date ?: return@LaunchedEffect
         if (date == today) return@LaunchedEffect
         if (ringContent.containsKey(target.key())) return@LaunchedEffect
-        val stored = withContext(Dispatchers.IO) {
-            val sessions = readOr(emptyList<UsageSession>()) { store.sessionsFor(date) }
-            val unlocks = readOr(0) { store.unlocksFor(date) ?: 0 }
-            RingContent.Day(DayData(sessions, emptyList()), unlocks)
-        }
+        val stored =
+            withContext(Dispatchers.IO) {
+                val sessions = readOr(emptyList<UsageSession>()) { store.sessionsFor(date) }
+                val unlocks = readOr(0) { store.unlocksFor(date) ?: 0 }
+                RingContent.Day(DayData(sessions, emptyList()), unlocks)
+            }
         ringContent[target.key()] = stored
     }
 
     LaunchedEffect(store, today, weekRequested) {
         if (!weekRequested) return@LaunchedEffect
         if (weekTotalsDay == today && ringContent[weekKey] is RingContent.Week) return@LaunchedEffect
-        val totals = withContext(Dispatchers.IO) {
-            readOr(emptyList<DailyAggregate>()) { store.week(today) }
-        }
+        val totals =
+            withContext(Dispatchers.IO) {
+                readOr(emptyList<DailyAggregate>()) { store.week(today) }
+            }
         ringContent[weekKey] = RingContent.Week(totals)
         weekTotalsDay = today
     }
@@ -229,11 +237,15 @@ fun DashboardScreen(
     // Bounded by the ring; the two positions on screen keep their entry for the exit side.
     LaunchedEffect(ring, today) {
         val keep = ring.mapTo(mutableSetOf<String>()) { it.key() } + todayKey + requestedKey + shownKey
-        ringContent.keys.toList().filter { it !in keep }.forEach { ringContent.remove(it) }
+        ringContent.keys
+            .toList()
+            .filter { it !in keep }
+            .forEach { ringContent.remove(it) }
     }
 
-    val requestedReady = ringContent.containsKey(requestedKey) &&
-        (!weekRequested || ringContent[todayKey] is RingContent.Day)
+    val requestedReady =
+        ringContent.containsKey(requestedKey) &&
+            (!weekRequested || ringContent[todayKey] is RingContent.Day)
     LaunchedEffect(requestedKey, requestedReady) {
         if (requestedReady) dashboardState.showCurrent()
     }
@@ -245,10 +257,11 @@ fun DashboardScreen(
     val onExclude: (String) -> Unit = { packageName ->
         scope.launch {
             excludedStore.exclude(packageName)
-            val result = snackbarHostState.showSnackbar(
-                message = snackbarExcluded,
-                actionLabel = undoLabel
-            )
+            val result =
+                snackbarHostState.showSnackbar(
+                    message = snackbarExcluded,
+                    actionLabel = undoLabel,
+                )
             if (result == SnackbarResult.ActionPerformed) {
                 excludedStore.restore(packageName)
             }
@@ -260,55 +273,62 @@ fun DashboardScreen(
     var exporting by remember { mutableStateOf(false) }
 
     // The export seam: the tests drive the success and failure paths without the platform.
-    val exportJson: suspend () -> String = loadExport ?: {
-        val service = WeekExportService(
-            context = context.applicationContext,
-            labels = AppPackageInfo(context.applicationContext)::label
-        )
-        weekExportJson(service.export(today))
-    }
+    val exportJson: suspend () -> String =
+        loadExport ?: {
+            val service =
+                WeekExportService(
+                    context = context.applicationContext,
+                    labels = AppPackageInfo(context.applicationContext)::label,
+                )
+            weekExportJson(service.export(today))
+        }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
         ) {
             Spacer(Modifier.height(16.dp))
 
             val shownDay = ringContent[shownKey] as? RingContent.Day
-            val shownMetrics = remember(shownDay, excludedPackages) {
-                shownDay?.let {
-                    deriveDayMetrics(it.data.sessions, ZoneId.systemDefault(), excludedPackages)
+            val shownMetrics =
+                remember(shownDay, excludedPackages) {
+                    shownDay?.let {
+                        deriveDayMetrics(it.data.sessions, ZoneId.systemDefault(), excludedPackages)
+                    }
                 }
-            }
 
-            val title = when (shown) {
-                DayStop.Week -> stringResource(R.string.week_title)
-                is DayStop.Day -> if (shown.date == today) {
-                    stringResource(R.string.dashboard_title)
-                } else {
-                    formatDayLabel(
-                        shown.date,
-                        today,
-                        stringResource(R.string.day_today),
-                        stringResource(R.string.day_yesterday)
-                    )
+            val title =
+                when (shown) {
+                    DayStop.Week -> stringResource(R.string.week_title)
+                    is DayStop.Day ->
+                        if (shown.date == today) {
+                            stringResource(R.string.dashboard_title)
+                        } else {
+                            formatDayLabel(
+                                shown.date,
+                                today,
+                                stringResource(R.string.day_today),
+                                stringResource(R.string.day_yesterday),
+                            )
+                        }
                 }
-            }
-            val subtitle = if (shownDay != null && shownMetrics != null) {
-                stringResource(
-                    R.string.dashboard_usage_line,
-                    formatDuration(shownMetrics.totalMillis),
-                    pluralStringResource(
-                        R.plurals.dashboard_unlocks,
-                        shownDay.unlocks,
-                        shownDay.unlocks
+            val subtitle =
+                if (shownDay != null && shownMetrics != null) {
+                    stringResource(
+                        R.string.dashboard_usage_line,
+                        formatDuration(shownMetrics.totalMillis),
+                        pluralStringResource(
+                            R.plurals.dashboard_unlocks,
+                            shownDay.unlocks,
+                            shownDay.unlocks,
+                        ),
                     )
-                )
-            } else {
-                null
-            }
+                } else {
+                    null
+                }
 
             ScreenHeader(
                 title = title,
@@ -324,7 +344,7 @@ fun DashboardScreen(
                                         val json = withContext(Dispatchers.IO) { exportJson() }
                                         val uri = writeWeekExport(context, json, today)
                                         context.startActivity(
-                                            Intent.createChooser(weekExportShareIntent(uri), null)
+                                            Intent.createChooser(weekExportShareIntent(uri), null),
                                         )
                                     } catch (cancelled: CancellationException) {
                                         throw cancelled
@@ -334,44 +354,45 @@ fun DashboardScreen(
                                         exporting = false
                                     }
                                 }
-                            }
+                            },
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Share,
-                                contentDescription = exportLabel
+                                contentDescription = exportLabel,
                             )
                         }
                     }
                     IconButton(onClick = { moveTo(DayStop.Week) }) {
                         Icon(
                             imageVector = Icons.Filled.DateRange,
-                            contentDescription = stringResource(R.string.week_title)
+                            contentDescription = stringResource(R.string.week_title),
                         )
                     }
                     IconButton(onClick = onOpenSettings) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = stringResource(R.string.settings_title)
+                            contentDescription = stringResource(R.string.settings_title),
                         )
                     }
-                }
+                },
             )
 
             val previous = stringResource(R.string.day_previous)
             val next = stringResource(R.string.day_next)
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(
                     onClick = { moveStep(forward = false) },
-                    modifier = Modifier.semantics { contentDescription = previous }
+                    modifier = Modifier.semantics { contentDescription = previous },
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
                 if (subtitle != null) {
@@ -381,18 +402,18 @@ fun DashboardScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        maxLines = 2
+                        maxLines = 2,
                     )
                 } else {
                     Spacer(Modifier.weight(1f))
                 }
                 IconButton(
                     onClick = { moveStep(forward = true) },
-                    modifier = Modifier.semantics { contentDescription = next }
+                    modifier = Modifier.semantics { contentDescription = next },
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }
@@ -400,29 +421,30 @@ fun DashboardScreen(
             Spacer(Modifier.height(8.dp))
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 20.dp)
-                    .testTag("dashboard_content")
-                    .pointerInput(ring, requestedKey) {
-                        var totalDrag = 0f
-                        detectHorizontalDragGestures(
-                            onDragStart = { totalDrag = 0f },
-                            onHorizontalDrag = { change, amount ->
-                                change.consume()
-                                totalDrag += amount
-                            },
-                            onDragEnd = {
-                                when {
-                                    totalDrag <= -swipeThreshold -> moveStep(forward = true)
-                                    totalDrag >= swipeThreshold -> moveStep(forward = false)
-                                }
-                                totalDrag = 0f
-                            },
-                            onDragCancel = { totalDrag = 0f }
-                        )
-                    }
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(horizontal = 20.dp)
+                        .testTag("dashboard_content")
+                        .pointerInput(ring, requestedKey) {
+                            var totalDrag = 0f
+                            detectHorizontalDragGestures(
+                                onDragStart = { totalDrag = 0f },
+                                onHorizontalDrag = { change, amount ->
+                                    change.consume()
+                                    totalDrag += amount
+                                },
+                                onDragEnd = {
+                                    when {
+                                        totalDrag <= -swipeThreshold -> moveStep(forward = true)
+                                        totalDrag >= swipeThreshold -> moveStep(forward = false)
+                                    }
+                                    totalDrag = 0f
+                                },
+                                onDragCancel = { totalDrag = 0f },
+                            )
+                        },
             ) {
                 AnimatedContent(
                     targetState = shownKey,
@@ -434,38 +456,50 @@ fun DashboardScreen(
 
                             softMotion -> {
                                 val duration = RingMotion.durationMillis(motionScale)
-                                val slide = tween<IntOffset>(
-                                    durationMillis = duration,
-                                    easing = RingMotion.softEasing
-                                )
-                                val fade = tween<Float>(
-                                    durationMillis = duration,
-                                    easing = RingMotion.softEasing
-                                )
-                                val enter = slideInHorizontally(animationSpec = slide) { width ->
-                                    if (forward) width / RingMotion.SOFT_SLIDE_DIVISOR
-                                    else -width / RingMotion.SOFT_SLIDE_DIVISOR
-                                } + fadeIn(animationSpec = fade)
-                                val exit = slideOutHorizontally(animationSpec = slide) { width ->
-                                    if (forward) -width / RingMotion.SOFT_SLIDE_DIVISOR
-                                    else width / RingMotion.SOFT_SLIDE_DIVISOR
-                                } + fadeOut(animationSpec = fade)
+                                val slide =
+                                    tween<IntOffset>(
+                                        durationMillis = duration,
+                                        easing = RingMotion.softEasing,
+                                    )
+                                val fade =
+                                    tween<Float>(
+                                        durationMillis = duration,
+                                        easing = RingMotion.softEasing,
+                                    )
+                                val enter =
+                                    slideInHorizontally(animationSpec = slide) { width ->
+                                        if (forward) {
+                                            width / RingMotion.SOFT_SLIDE_DIVISOR
+                                        } else {
+                                            -width / RingMotion.SOFT_SLIDE_DIVISOR
+                                        }
+                                    } + fadeIn(animationSpec = fade)
+                                val exit =
+                                    slideOutHorizontally(animationSpec = slide) { width ->
+                                        if (forward) {
+                                            -width / RingMotion.SOFT_SLIDE_DIVISOR
+                                        } else {
+                                            width / RingMotion.SOFT_SLIDE_DIVISOR
+                                        }
+                                    } + fadeOut(animationSpec = fade)
                                 enter togetherWith exit
                             }
 
                             else -> {
-                                val enter = slideInHorizontally { width ->
-                                    if (forward) width / 4 else -width / 4
-                                } + fadeIn()
-                                val exit = slideOutHorizontally { width ->
-                                    if (forward) -width / 4 else width / 4
-                                } + fadeOut()
+                                val enter =
+                                    slideInHorizontally { width ->
+                                        if (forward) width / 4 else -width / 4
+                                    } + fadeIn()
+                                val exit =
+                                    slideOutHorizontally { width ->
+                                        if (forward) -width / 4 else width / 4
+                                    } + fadeOut()
                                 enter togetherWith exit
                             }
                         }
                     },
                     label = "day-ring",
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) { targetKey ->
                     when (val target = dayStopFromKey(targetKey) ?: DayStop.Day(today)) {
                         DayStop.Week -> {
@@ -481,7 +515,7 @@ fun DashboardScreen(
                                     excludedPackages = excludedPackages,
                                     onDayClick = { date -> moveTo(DayStop.Day(date)) },
                                     onAppClick = { packageName -> onAppClick(packageName, null) },
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
                                 )
                             }
                         }
@@ -491,19 +525,20 @@ fun DashboardScreen(
                             if (dayContent == null) {
                                 RingLoading()
                             } else {
-                                val targetMetrics = remember(dayContent, excludedPackages) {
-                                    deriveDayMetrics(
-                                        dayContent.data.sessions,
-                                        ZoneId.systemDefault(),
-                                        excludedPackages
-                                    )
-                                }
+                                val targetMetrics =
+                                    remember(dayContent, excludedPackages) {
+                                        deriveDayMetrics(
+                                            dayContent.data.sessions,
+                                            ZoneId.systemDefault(),
+                                            excludedPackages,
+                                        )
+                                    }
                                 DayDashboardContent(
                                     metrics = targetMetrics,
                                     date = target.date,
                                     today = today,
                                     onExclude = onExclude,
-                                    onAppClick = onAppClick
+                                    onAppClick = onAppClick,
                                 )
                             }
                         }
@@ -520,24 +555,26 @@ private fun DayDashboardContent(
     date: LocalDate,
     today: LocalDate,
     onExclude: (String) -> Unit,
-    onAppClick: (String, LocalDate?) -> Unit
+    onAppClick: (String, LocalDate?) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         if (metrics.entries.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = if (date == today) {
-                        stringResource(R.string.dashboard_empty)
-                    } else {
-                        stringResource(R.string.day_empty)
-                    },
+                    text =
+                        if (date == today) {
+                            stringResource(R.string.dashboard_empty)
+                        } else {
+                            stringResource(R.string.day_empty)
+                        },
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {
@@ -545,25 +582,27 @@ private fun DayDashboardContent(
             Spacer(Modifier.height(20.dp))
             Text(
                 text = stringResource(R.string.dashboard_apps),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Spacer(Modifier.height(4.dp))
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
             ) {
                 items(metrics.entries, key = { it.packageName }) { entry ->
                     AppUsageRow(
                         packageName = entry.packageName,
                         millis = entry.totalMillis,
                         maxMillis = metrics.totalMillis,
-                        caption = stringResource(
-                            R.string.row_last_used,
-                            formatTimeOfDay(entry.lastUsedAt)
-                        ),
+                        caption =
+                            stringResource(
+                                R.string.row_last_used,
+                                formatTimeOfDay(entry.lastUsedAt),
+                            ),
                         onClick = { onAppClick(entry.packageName, date) },
-                        onLongClick = { onExclude(entry.packageName) }
+                        onLongClick = { onExclude(entry.packageName) },
                     )
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                 }
@@ -576,10 +615,11 @@ private fun DayDashboardContent(
 @Composable
 private fun RingLoading() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .testTag(RING_LOADING_TAG),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .testTag(RING_LOADING_TAG),
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator()
     }
@@ -593,7 +633,7 @@ private fun dashboardStateSaver(fallback: DayStop): Saver<DashboardState, Any> =
                 snapshot.ring.current.key(),
                 snapshot.shown.key(),
                 snapshot.slideDirection.toString(),
-                snapshot.softMotion.toString()
+                snapshot.softMotion.toString(),
             ) + snapshot.ring.history.map { it.key() }
         },
         restore = { values ->
@@ -604,7 +644,7 @@ private fun dashboardStateSaver(fallback: DayStop): Saver<DashboardState, Any> =
                 shown = shown,
                 history = values.drop(4).mapNotNull(::dayStopFromKey),
                 slideDirection = values.getOrNull(2)?.toIntOrNull() ?: 1,
-                softMotion = values.getOrNull(3)?.toBooleanStrictOrNull() ?: false
+                softMotion = values.getOrNull(3)?.toBooleanStrictOrNull() ?: false,
             )
-        }
+        },
     )

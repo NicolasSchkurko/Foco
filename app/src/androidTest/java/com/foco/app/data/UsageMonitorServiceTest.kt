@@ -22,7 +22,6 @@ import org.junit.runner.RunWith
  *  stops with the last, and its ongoing notification is the observable "alive" signal. */
 @RunWith(AndroidJUnit4::class)
 class UsageMonitorServiceTest {
-
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
     private val store = AppLimitsStore.forApp(context)
     private val notifications = context.getSystemService(NotificationManager::class.java)
@@ -43,7 +42,8 @@ class UsageMonitorServiceTest {
     }
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()
@@ -88,7 +88,7 @@ class UsageMonitorServiceTest {
             assertTrue(
                 notifications.activeNotifications.any {
                     it.notification.channelId == CHANNEL_ID
-                }
+                },
             )
         }
     }
@@ -110,15 +110,19 @@ class UsageMonitorServiceTest {
         val notified = mutableListOf<Int>()
         val blocked = mutableListOf<Boolean>()
 
-        val crossed = evaluateLimitCheck(
-            foregroundPackage = "com.example.app",
-            limitMinutes = 30,
-            alertEnabled = true,
-            usedSeconds = 1_700,
-            firedTiers = emptySet(),
-            onBlock = { blocked += true },
-            onNotify = { tier, _ -> notified += tier; true }
-        )
+        val crossed =
+            evaluateLimitCheck(
+                foregroundPackage = "com.example.app",
+                limitMinutes = 30,
+                alertEnabled = true,
+                usedSeconds = 1_700,
+                firedTiers = emptySet(),
+                onBlock = { blocked += true },
+                onNotify = { tier, _ ->
+                    notified += tier
+                    true
+                },
+            )
 
         assertEquals(listOf(90), notified)
         assertEquals(listOf(50, 75, 90), crossed)
@@ -129,28 +133,36 @@ class UsageMonitorServiceTest {
     fun aFiredTierDoesNotAlertTwice() {
         val notified = mutableListOf<Int>()
 
-        val first = evaluateLimitCheck(
-            foregroundPackage = "com.example.app",
-            limitMinutes = 30,
-            alertEnabled = true,
-            usedSeconds = 1_350,
-            firedTiers = setOf(50),
-            onBlock = {},
-            onNotify = { tier, _ -> notified += tier; true }
-        )
+        val first =
+            evaluateLimitCheck(
+                foregroundPackage = "com.example.app",
+                limitMinutes = 30,
+                alertEnabled = true,
+                usedSeconds = 1_350,
+                firedTiers = setOf(50),
+                onBlock = {},
+                onNotify = { tier, _ ->
+                    notified += tier
+                    true
+                },
+            )
         assertEquals(listOf(75), notified)
         assertEquals(listOf(50, 75), first)
 
         notified.clear()
-        val second = evaluateLimitCheck(
-            foregroundPackage = "com.example.app",
-            limitMinutes = 30,
-            alertEnabled = true,
-            usedSeconds = 1_350,
-            firedTiers = setOf(50, 75),
-            onBlock = {},
-            onNotify = { tier, _ -> notified += tier; true }
-        )
+        val second =
+            evaluateLimitCheck(
+                foregroundPackage = "com.example.app",
+                limitMinutes = 30,
+                alertEnabled = true,
+                usedSeconds = 1_350,
+                firedTiers = setOf(50, 75),
+                onBlock = {},
+                onNotify = { tier, _ ->
+                    notified += tier
+                    true
+                },
+            )
         assertTrue(notified.isEmpty())
         assertTrue(second.isEmpty())
     }
@@ -159,24 +171,32 @@ class UsageMonitorServiceTest {
     fun noForegroundOrNoAlertFlagNeverNotifies() {
         val notified = mutableListOf<Int>()
 
-        val withoutForeground = evaluateLimitCheck(
-            foregroundPackage = null,
-            limitMinutes = 30,
-            alertEnabled = true,
-            usedSeconds = 1_500,
-            firedTiers = emptySet(),
-            onBlock = {},
-            onNotify = { tier, _ -> notified += tier; true }
-        )
-        val alertsOff = evaluateLimitCheck(
-            foregroundPackage = "com.example.app",
-            limitMinutes = 30,
-            alertEnabled = false,
-            usedSeconds = 1_500,
-            firedTiers = emptySet(),
-            onBlock = {},
-            onNotify = { tier, _ -> notified += tier; true }
-        )
+        val withoutForeground =
+            evaluateLimitCheck(
+                foregroundPackage = null,
+                limitMinutes = 30,
+                alertEnabled = true,
+                usedSeconds = 1_500,
+                firedTiers = emptySet(),
+                onBlock = {},
+                onNotify = { tier, _ ->
+                    notified += tier
+                    true
+                },
+            )
+        val alertsOff =
+            evaluateLimitCheck(
+                foregroundPackage = "com.example.app",
+                limitMinutes = 30,
+                alertEnabled = false,
+                usedSeconds = 1_500,
+                firedTiers = emptySet(),
+                onBlock = {},
+                onNotify = { tier, _ ->
+                    notified += tier
+                    true
+                },
+            )
 
         assertTrue(notified.isEmpty())
         assertTrue(withoutForeground.isEmpty())
@@ -188,15 +208,19 @@ class UsageMonitorServiceTest {
         val notified = mutableListOf<Int>()
         val blocked = mutableListOf<Boolean>()
 
-        val crossed = evaluateLimitCheck(
-            foregroundPackage = "com.example.app",
-            limitMinutes = 30,
-            alertEnabled = true,
-            usedSeconds = 1_800,
-            firedTiers = emptySet(),
-            onBlock = { blocked += true },
-            onNotify = { tier, _ -> notified += tier; true }
-        )
+        val crossed =
+            evaluateLimitCheck(
+                foregroundPackage = "com.example.app",
+                limitMinutes = 30,
+                alertEnabled = true,
+                usedSeconds = 1_800,
+                firedTiers = emptySet(),
+                onBlock = { blocked += true },
+                onNotify = { tier, _ ->
+                    notified += tier
+                    true
+                },
+            )
 
         assertEquals(listOf(true), blocked)
         assertTrue(notified.isEmpty())
@@ -207,15 +231,19 @@ class UsageMonitorServiceTest {
     fun aDeniedNotificationLeavesTheTierAvailable() {
         var attempts = 0
 
-        val crossed = evaluateLimitCheck(
-            foregroundPackage = "com.example.app",
-            limitMinutes = 30,
-            alertEnabled = true,
-            usedSeconds = 1_620,
-            firedTiers = emptySet(),
-            onBlock = {},
-            onNotify = { _, _ -> attempts += 1; false }
-        )
+        val crossed =
+            evaluateLimitCheck(
+                foregroundPackage = "com.example.app",
+                limitMinutes = 30,
+                alertEnabled = true,
+                usedSeconds = 1_620,
+                firedTiers = emptySet(),
+                onBlock = {},
+                onNotify = { _, _ ->
+                    attempts += 1
+                    false
+                },
+            )
 
         assertEquals(1, attempts)
         assertTrue(crossed.isEmpty())

@@ -1,9 +1,7 @@
 package com.foco.app.data
 
-import com.foco.app.domain.ConsolidationOutcome
-
 import android.content.Context
-import java.time.LocalDate
+import com.foco.app.domain.ConsolidationOutcome
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -12,6 +10,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.time.LocalDate
 
 /**
  * The one door to `SessionHistoryStore.consolidate`, shared by the app start and the nightly job:
@@ -20,25 +19,27 @@ import kotlinx.coroutines.sync.withLock
 class ConsolidationRunner(
     private val consolidate: suspend (LocalDate) -> Unit,
     private val gate: Mutex = Mutex(),
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) {
     private var inFlight: Deferred<ConsolidationOutcome>? = null
 
     suspend fun run(today: LocalDate): ConsolidationOutcome {
-        val job = gate.withLock {
-            inFlight ?: scope.async {
-                try {
-                    consolidate(today)
-                    ConsolidationOutcome.Done
-                } catch (cancelled: CancellationException) {
-                    throw cancelled
-                } catch (failure: Throwable) {
-                    ConsolidationOutcome.Failed(failure)
-                } finally {
-                    gate.withLock { inFlight = null }
-                }
-            }.also { inFlight = it }
-        }
+        val job =
+            gate.withLock {
+                inFlight ?: scope
+                    .async {
+                        try {
+                            consolidate(today)
+                            ConsolidationOutcome.Done
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (failure: Throwable) {
+                            ConsolidationOutcome.Failed(failure)
+                        } finally {
+                            gate.withLock { inFlight = null }
+                        }
+                    }.also { inFlight = it }
+            }
         return job.await()
     }
 
@@ -47,12 +48,14 @@ class ConsolidationRunner(
         private var shared: ConsolidationRunner? = null
 
         /** The process-wide runner over the app's store, reading the days from the platform. */
-        fun forApp(context: Context): ConsolidationRunner = shared ?: synchronized(this) {
-            shared ?: ConsolidationRunner(consolidate = { day ->
-                val repository = UsageRepository(context.applicationContext)
-                SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) }
-                    .consolidate(day)
-            }).also { shared = it }
-        }
+        fun forApp(context: Context): ConsolidationRunner =
+            shared ?: synchronized(this) {
+                shared ?: ConsolidationRunner(consolidate = { day ->
+                    val repository = UsageRepository(context.applicationContext)
+                    SessionHistoryStore
+                        .forApp(context.applicationContext) { date -> repository.loadDay(date) }
+                        .consolidate(day)
+                }).also { shared = it }
+            }
     }
 }

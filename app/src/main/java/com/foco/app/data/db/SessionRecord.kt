@@ -11,5 +11,5 @@ import androidx.room.Index
 data class SessionRecord(
     val packageName: String,
     val start: Long,
-    val end: Long
+    val end: Long,
 )

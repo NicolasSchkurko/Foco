@@ -1,13 +1,12 @@
 package com.foco.app.domain
 
-import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.LocalDate
 
 class DayRingTest {
-
     private val today = LocalDate.of(2026, 10, 19)
     private val oldest = today.minusDays(3)
     private val yesterday = today.minusDays(1)
@@ -21,9 +20,9 @@ class DayRingTest {
                 DayStop.Week,
                 DayStop.Day(oldest),
                 DayStop.Day(today.minusDays(2)),
-                DayStop.Day(yesterday)
+                DayStop.Day(yesterday),
             ),
-            ring
+            ring,
         )
     }
 
@@ -49,9 +48,9 @@ class DayRingTest {
                 DayStop.Day(today),
                 DayStop.Week,
                 DayStop.Day(today.minusDays(6)),
-                DayStop.Day(yesterday)
+                DayStop.Day(yesterday),
             ),
-            capped
+            capped,
         )
         assertEquals(DayStop.Day(today.minusDays(6)), DayStop.Week.step(capped, forward = true))
     }
@@ -97,10 +96,11 @@ class DayRingTest {
 
     @Test
     fun `a vanished current position falls back to today and leaves the valid history`() {
-        val vanished = DayRingState(
-            current = DayStop.Day(oldest),
-            history = listOf(DayStop.Week, DayStop.Day(oldest))
-        ).retain(dayRing(today, emptySet()), today)
+        val vanished =
+            DayRingState(
+                current = DayStop.Day(oldest),
+                history = listOf(DayStop.Week, DayStop.Day(oldest)),
+            ).retain(dayRing(today, emptySet()), today)
 
         assertEquals(DayStop.Day(today), vanished.current)
         assertEquals(listOf(DayStop.Week), vanished.history)

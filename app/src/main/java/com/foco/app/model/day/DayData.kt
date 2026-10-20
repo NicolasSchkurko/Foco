@@ -8,5 +8,5 @@ import com.foco.app.model.UsageSession
  */
 data class DayData(
     val sessions: List<UsageSession>,
-    val unlockTimes: List<Long>
+    val unlockTimes: List<Long>,
 )

@@ -6,7 +6,8 @@ import com.foco.app.model.UsageSession
 fun filterSessions(
     sessions: List<UsageSession>,
     allowedPackages: Set<String>,
-    excludedPackages: Set<String>
-): List<UsageSession> = sessions.filter {
-    it.packageName in allowedPackages && it.packageName !in excludedPackages
-}
+    excludedPackages: Set<String>,
+): List<UsageSession> =
+    sessions.filter {
+        it.packageName in allowedPackages && it.packageName !in excludedPackages
+    }

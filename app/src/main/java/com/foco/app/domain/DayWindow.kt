@@ -11,17 +11,31 @@ data class DayWindow(
     val startOfDay: Long,
     val dayEndExclusive: Long,
     val lookbackStart: Long,
-    val effectiveEnd: Long
+    val effectiveEnd: Long,
 )
 
 /** Builds the day's window for [date] in [zone] with the clock [now]. */
-fun dayWindow(date: LocalDate, zone: ZoneId, now: Long): DayWindow {
+fun dayWindow(
+    date: LocalDate,
+    zone: ZoneId,
+    now: Long,
+): DayWindow {
     val startOfDay = date.atStartOfDay(zone).toInstant().toEpochMilli()
-    val dayEndExclusive = date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+    val dayEndExclusive =
+        date
+            .plusDays(1)
+            .atStartOfDay(zone)
+            .toInstant()
+            .toEpochMilli()
     return DayWindow(
         startOfDay = startOfDay,
         dayEndExclusive = dayEndExclusive,
-        lookbackStart = date.minusDays(1).atStartOfDay(zone).toInstant().toEpochMilli(),
-        effectiveEnd = minOf(dayEndExclusive, now)
+        lookbackStart =
+            date
+                .minusDays(1)
+                .atStartOfDay(zone)
+                .toInstant()
+                .toEpochMilli(),
+        effectiveEnd = minOf(dayEndExclusive, now),
     )
 }

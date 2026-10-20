@@ -9,5 +9,5 @@ import androidx.room.Entity
 @Entity(tableName = "consolidated_day", primaryKeys = ["day"])
 data class ConsolidatedDay(
     val day: String,
-    val count: Int?
+    val count: Int?,
 )

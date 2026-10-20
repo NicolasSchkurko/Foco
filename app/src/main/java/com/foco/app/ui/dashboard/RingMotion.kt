@@ -12,6 +12,5 @@ object RingMotion {
     val softEasing: Easing = FastOutSlowInEasing
 
     /** The 320 ms base scaled by the system animator duration scale, never zero. */
-    fun durationMillis(scale: Float): Int =
-        (SOFT_DURATION_MILLIS * scale).roundToInt().coerceAtLeast(1)
+    fun durationMillis(scale: Float): Int = (SOFT_DURATION_MILLIS * scale).roundToInt().coerceAtLeast(1)
 }

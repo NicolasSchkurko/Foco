@@ -1,16 +1,15 @@
 package com.foco.app.structure
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import java.io.File
 
 /**
  * Comments say the why in few lines: a block over [BUDGET] lines under `src/` fails
  * and is named; what is worth keeping moves to `docs/mechanisms/` with a one-line pointer.
  */
 class ShortCommentsTest {
-
     private val commentLine = Regex("""^\s*(//|/\*|\*|<!--)""")
 
     /** Consecutive comment blocks; a blank line inside a block does not cut it. */
@@ -45,7 +44,8 @@ class ShortCommentsTest {
         assertTrue("expected sources at ${sources.absolutePath}", sources.isDirectory)
 
         val violations = mutableListOf<String>()
-        sources.walkTopDown()
+        sources
+            .walkTopDown()
             .filter { it.isFile && it.extension in setOf("kt", "xml") }
             .forEach { file ->
                 val relative = file.relativeTo(sources).path.replace('\\', '/')

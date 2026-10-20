@@ -10,5 +10,5 @@ import androidx.room.Entity
 data class DailyAggregate(
     val packageName: String,
     val day: String,
-    val totalMillis: Long
+    val totalMillis: Long,
 )

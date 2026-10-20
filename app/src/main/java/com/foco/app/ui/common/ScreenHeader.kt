@@ -33,28 +33,30 @@ fun ScreenHeader(
     subtitle: String? = null,
     onBack: (() -> Unit)? = null,
     titleLeading: @Composable (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         if (onBack != null) {
             IconButton(
                 onClick = onBack,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 4.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 4.dp),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.content_back)
+                    contentDescription = stringResource(R.string.content_back),
                 )
             }
         }
 
         Row(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 56.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 56.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (titleLeading != null) {
                 titleLeading()
@@ -62,14 +64,14 @@ fun ScreenHeader(
             }
             val centered = titleLeading == null
             Column(
-                horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start
+                horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    textAlign = if (centered) TextAlign.Center else TextAlign.Start
+                    textAlign = if (centered) TextAlign.Center else TextAlign.Start,
                 )
                 if (subtitle != null) {
                     Text(
@@ -78,7 +80,7 @@ fun ScreenHeader(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        textAlign = if (centered) TextAlign.Center else TextAlign.Start
+                        textAlign = if (centered) TextAlign.Center else TextAlign.Start,
                     )
                 }
             }
@@ -86,7 +88,7 @@ fun ScreenHeader(
 
         Row(
             modifier = Modifier.align(Alignment.CenterEnd),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             actions()
         }

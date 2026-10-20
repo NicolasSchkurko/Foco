@@ -1,14 +1,13 @@
 package com.foco.app.data.db
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 class NoDestructiveMigrationTest {
-
     @get:Rule
     val temporary = TemporaryFolder()
 
@@ -29,7 +28,7 @@ class NoDestructiveMigrationTest {
         File(root, "Offender.kt").writeText(
             "Room.databaseBuilder(context, Db::class.java, \"x\")\n" +
                 "    .fallbackToDestructiveMigration()\n" +
-                "    .build()"
+                "    .build()",
         )
 
         val offenders = offendersIn(root)
@@ -38,7 +37,8 @@ class NoDestructiveMigrationTest {
     }
 
     private fun offendersIn(root: File): List<String> =
-        root.walkTopDown()
+        root
+            .walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .filter { it.readText().contains("fallbackToDestructiveMigration") }
             .map { it.relativeTo(root).path }

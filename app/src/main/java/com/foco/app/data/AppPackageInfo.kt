@@ -7,8 +7,9 @@ import androidx.core.graphics.drawable.toBitmap
 /**
  * Reads the PackageManager (an app's icon and label). Resource: the system service, no state of its own.
  */
-class AppPackageInfo(private val context: Context) {
-
+class AppPackageInfo(
+    private val context: Context,
+) {
     /** Launcher icon (96x96); `null` if the package does not resolve (e.g. uninstalled). */
     fun iconBitmap(packageName: String): Bitmap? =
         runCatching {

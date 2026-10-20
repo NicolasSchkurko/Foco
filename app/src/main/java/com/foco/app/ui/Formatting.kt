@@ -16,8 +16,10 @@ fun formatDuration(millis: Long): String {
 
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-fun formatTimeOfDay(epochMillis: Long, zone: ZoneId = ZoneId.systemDefault()): String =
-    Instant.ofEpochMilli(epochMillis).atZone(zone).format(timeFormatter)
+fun formatTimeOfDay(
+    epochMillis: Long,
+    zone: ZoneId = ZoneId.systemDefault(),
+): String = Instant.ofEpochMilli(epochMillis).atZone(zone).format(timeFormatter)
 
 private val weekdayFormatter = DateTimeFormatter.ofPattern("EEE")
 
@@ -34,9 +36,10 @@ fun formatDayLabel(
     date: LocalDate,
     today: LocalDate,
     todayLabel: String,
-    yesterdayLabel: String
-): String = when (date) {
-    today -> todayLabel
-    today.minusDays(1) -> yesterdayLabel
-    else -> dayFormatter.format(date)
-}
+    yesterdayLabel: String,
+): String =
+    when (date) {
+        today -> todayLabel
+        today.minusDays(1) -> yesterdayLabel
+        else -> dayFormatter.format(date)
+    }

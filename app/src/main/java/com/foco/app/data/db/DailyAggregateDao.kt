@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 /** Per-app, per-day totals of the retained days: what the week view reads; deleted with their day. */
 @Dao
 interface DailyAggregateDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(rows: List<DailyAggregate>)
 
@@ -21,7 +20,10 @@ interface DailyAggregateDao {
     fun storedDaysFlow(): Flow<List<String>>
 
     @Query("SELECT * FROM daily_aggregate WHERE day >= :from AND day <= :to ORDER BY day, packageName")
-    suspend fun totalsFor(from: String, to: String): List<DailyAggregate>
+    suspend fun totalsFor(
+        from: String,
+        to: String,
+    ): List<DailyAggregate>
 
     @Query("DELETE FROM daily_aggregate WHERE day < :cutoffDay")
     suspend fun deleteBefore(cutoffDay: String): Int

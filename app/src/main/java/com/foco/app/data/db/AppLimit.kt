@@ -12,5 +12,5 @@ import androidx.room.PrimaryKey
 data class AppLimit(
     @PrimaryKey val packageName: String,
     val minutes: Int,
-    @ColumnInfo(defaultValue = "0") val alertEnabled: Boolean = false
+    @ColumnInfo(defaultValue = "0") val alertEnabled: Boolean = false,
 )

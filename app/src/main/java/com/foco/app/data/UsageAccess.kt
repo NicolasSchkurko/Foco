@@ -11,14 +11,14 @@ import android.provider.Settings
  * in Settings, and the system verifies it as an AppOp.
  */
 object UsageAccess {
-
     fun isGranted(context: Context): Boolean {
         val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
-        val mode = appOps.checkOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            Process.myUid(),
-            context.packageName
-        )
+        val mode =
+            appOps.checkOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                context.packageName,
+            )
         return mode == AppOpsManager.MODE_ALLOWED
     }
 

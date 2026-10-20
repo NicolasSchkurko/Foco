@@ -5,5 +5,5 @@ data class AppUsageEntry(
     val packageName: String,
     val totalMillis: Long,
     val lastUsedAt: Long,
-    val sessions: Int
+    val sessions: Int,
 )

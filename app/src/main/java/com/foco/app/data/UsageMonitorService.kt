@@ -18,7 +18,6 @@ import com.foco.app.MainActivity
 import com.foco.app.R
 import com.foco.app.domain.AppLimitRules
 import com.foco.app.domain.ForegroundApp
-import java.time.LocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,13 +26,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /**
  * Checks the foreground app's daily limit every two minutes. Resource: a foreground service and
  * its ongoing notification; lives while at least one limit and the accessibility service exist.
  */
 class UsageMonitorService : Service() {
-
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var ticker: Job? = null
 
@@ -48,17 +47,22 @@ class UsageMonitorService : Service() {
             this,
             NOTIFICATION_ID,
             notification(),
-            foregroundType()
+            foregroundType(),
         )
-        ticker = scope.launch {
-            while (isActive) {
-                checkOnce()
-                delay(TICK_MILLIS)
+        ticker =
+            scope.launch {
+                while (isActive) {
+                    checkOnce()
+                    delay(TICK_MILLIS)
+                }
             }
-        }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         if (!AccessibilityAccess.isGranted(this)) {
             stopSelf()
             return START_NOT_STICKY
@@ -74,15 +78,16 @@ class UsageMonitorService : Service() {
         val packageName = ForegroundApp.currentPackage() ?: return
         val limit = store.limitFor(packageName) ?: return
         val today = LocalDate.now()
-        val crossed = evaluateLimitCheck(
-            foregroundPackage = packageName,
-            limitMinutes = limit,
-            alertEnabled = store.alertEnabledFor(packageName),
-            usedSeconds = evaluator.usedSecondsToday(packageName),
-            firedTiers = store.firedTiers(packageName, today),
-            onBlock = { ForegroundApp.requestBlock(packageName) },
-            onNotify = { tier, minutes -> alerts.notify(packageName, tier, minutes) }
-        )
+        val crossed =
+            evaluateLimitCheck(
+                foregroundPackage = packageName,
+                limitMinutes = limit,
+                alertEnabled = store.alertEnabledFor(packageName),
+                usedSeconds = evaluator.usedSecondsToday(packageName),
+                firedTiers = store.firedTiers(packageName, today),
+                onBlock = { ForegroundApp.requestBlock(packageName) },
+                onNotify = { tier, minutes -> alerts.notify(packageName, tier, minutes) },
+            )
         if (crossed.isNotEmpty()) store.markFired(packageName, today, crossed)
     }
 
@@ -96,7 +101,8 @@ class UsageMonitorService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun notification(): Notification =
-        NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat
+            .Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(getString(R.string.usage_monitor_notification))
             .setContentText(getString(R.string.usage_monitor_notification_detail))
@@ -111,7 +117,7 @@ class UsageMonitorService : Service() {
             this,
             0,
             Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE,
         )
 
     private fun createChannel() {
@@ -120,8 +126,8 @@ class UsageMonitorService : Service() {
             NotificationChannel(
                 CHANNEL_ID,
                 getString(R.string.usage_monitor_channel),
-                NotificationManager.IMPORTANCE_LOW
-            )
+                NotificationManager.IMPORTANCE_LOW,
+            ),
         )
     }
 
@@ -143,8 +149,9 @@ class UsageMonitorService : Service() {
         fun sync(context: Context) {
             val app = context.applicationContext
             syncScope.launch {
-                val needed = AppLimitsStore.forApp(app).hasAnyLimit() &&
-                    AccessibilityAccess.isGranted(app)
+                val needed =
+                    AppLimitsStore.forApp(app).hasAnyLimit() &&
+                        AccessibilityAccess.isGranted(app)
                 if (needed) start(app) else stop(app)
             }
         }
@@ -152,7 +159,7 @@ class UsageMonitorService : Service() {
         private fun start(context: Context) {
             ContextCompat.startForegroundService(
                 context,
-                Intent(context, UsageMonitorService::class.java)
+                Intent(context, UsageMonitorService::class.java),
             )
         }
 
@@ -173,7 +180,7 @@ internal fun evaluateLimitCheck(
     usedSeconds: Long,
     firedTiers: Set<Int>,
     onBlock: () -> Unit,
-    onNotify: (tier: Int, limitMinutes: Int) -> Boolean
+    onNotify: (tier: Int, limitMinutes: Int) -> Boolean,
 ): List<Int> {
     if (foregroundPackage == null || limitMinutes == null) return emptyList()
     if (AppLimitRules.isAtOrOverLimit(limitMinutes, usedSeconds)) {

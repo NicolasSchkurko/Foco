@@ -1,22 +1,24 @@
 package com.foco.app.domain
 
-import java.time.LocalDate
-import java.time.ZoneId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * The day's window: the four timestamps the query asks the system for, pinned here.
  * A zone without daylight saving, so "one day" is exactly 24 h.
  */
 class DayWindowTest {
-
     private val zone = ZoneId.of("America/Argentina/Buenos_Aires")
     private val date = LocalDate.of(2026, 10, 18)
 
-    private fun at(day: LocalDate, hour: Int = 0, minute: Int = 0): Long =
-        day.atStartOfDay(zone).toInstant().toEpochMilli() + hour * HOUR + minute * MINUTE
+    private fun at(
+        day: LocalDate,
+        hour: Int = 0,
+        minute: Int = 0,
+    ): Long = day.atStartOfDay(zone).toInstant().toEpochMilli() + hour * HOUR + minute * MINUTE
 
     @Test
     fun `the day boundaries are the requested date in the zone`() {
@@ -42,7 +44,7 @@ class DayWindowTest {
         assertEquals(at(date.minusDays(1)), window.lookbackStart)
         assertEquals(
             window.dayEndExclusive - window.startOfDay,
-            window.startOfDay - window.lookbackStart
+            window.startOfDay - window.lookbackStart,
         )
     }
 

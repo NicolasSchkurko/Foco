@@ -6,7 +6,6 @@ import org.junit.Assert.assertSame
 import org.junit.Test
 
 class RingMotionTest {
-
     @Test
     fun `the soft spec is fixed at 320 ms and an eighth of the width`() {
         assertEquals(320, RingMotion.SOFT_DURATION_MILLIS)

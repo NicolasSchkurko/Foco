@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class ExportSession(
     val start: String,
     val end: String,
-    val durationMillis: Long
+    val durationMillis: Long,
 )

@@ -7,11 +7,12 @@ import kotlinx.coroutines.withTimeoutOrNull
 internal suspend fun <T> withStartupTimeout(
     timeoutMillis: Long,
     fallback: () -> T,
-    block: suspend () -> T
-): T = try {
-    withTimeoutOrNull(timeoutMillis) { block() } ?: fallback()
-} catch (cancelled: CancellationException) {
-    throw cancelled
-} catch (_: Throwable) {
-    fallback()
-}
+    block: suspend () -> T,
+): T =
+    try {
+        withTimeoutOrNull(timeoutMillis) { block() } ?: fallback()
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Throwable) {
+        fallback()
+    }

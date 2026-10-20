@@ -3,8 +3,6 @@ package com.foco.app.ui.detail
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.readOr
-import java.io.IOException
-import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
@@ -18,18 +16,20 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
+import java.time.LocalDate
 
 /** The screen's degraded read on device: it answers the fallback, and cancellation still propagates. */
 @RunWith(AndroidJUnit4::class)
 class AppDetailReadTest {
-
     @Test
-    fun aFailedReadIsAnsweredWithTheFallback() = runBlocking {
-        val storeBusy = IOException("the store is busy")
+    fun aFailedReadIsAnsweredWithTheFallback() =
+        runBlocking {
+            val storeBusy = IOException("the store is busy")
 
-        assertEquals(emptySet<LocalDate>(), readOr(emptySet<LocalDate>()) { throw storeBusy })
-        assertEquals(emptyList<UsageSession>(), readOr(emptyList<UsageSession>()) { throw storeBusy })
-    }
+            assertEquals(emptySet<LocalDate>(), readOr(emptySet<LocalDate>()) { throw storeBusy })
+            assertEquals(emptyList<UsageSession>(), readOr(emptyList<UsageSession>()) { throw storeBusy })
+        }
 
     @Test
     fun cancellationStillPropagates() {
@@ -45,41 +45,46 @@ class AppDetailReadTest {
     }
 
     @Test
-    fun aFailedStreamIsAnsweredWithTheFallback() = runBlocking {
-        val storeBusy = IOException("the store is busy")
-        val failing = flow {
-            emit(setOf(LocalDate.of(2026, 10, 18)))
-            throw storeBusy
-        }
+    fun aFailedStreamIsAnsweredWithTheFallback() =
+        runBlocking {
+            val storeBusy = IOException("the store is busy")
+            val failing =
+                flow {
+                    emit(setOf(LocalDate.of(2026, 10, 18)))
+                    throw storeBusy
+                }
 
-        assertEquals(
-            listOf(setOf(LocalDate.of(2026, 10, 18)), emptySet<LocalDate>()),
-            failing.readOr(emptySet<LocalDate>()).toList()
-        )
-    }
+            assertEquals(
+                listOf(setOf(LocalDate.of(2026, 10, 18)), emptySet<LocalDate>()),
+                failing.readOr(emptySet<LocalDate>()).toList(),
+            )
+        }
 
     @Test
-    fun aCancelledCollectionIsNotAnsweredWithTheFallback() = runBlocking {
-        val seen = mutableListOf<Set<LocalDate>>()
-        val first = CompletableDeferred<Unit>()
-        val ticker = flow {
-            emit(setOf(LocalDate.of(2026, 10, 18)))
-            awaitCancellation()
-        }
+    fun aCancelledCollectionIsNotAnsweredWithTheFallback() =
+        runBlocking {
+            val seen = mutableListOf<Set<LocalDate>>()
+            val first = CompletableDeferred<Unit>()
+            val ticker =
+                flow {
+                    emit(setOf(LocalDate.of(2026, 10, 18)))
+                    awaitCancellation()
+                }
 
-        val job = launch {
-            ticker.readOr(emptySet<LocalDate>()).collect {
-                seen += it
-                first.complete(Unit)
-            }
-        }
-        first.await()
-        job.cancelAndJoin()
+            val job =
+                launch {
+                    ticker.readOr(emptySet<LocalDate>()).collect {
+                        seen += it
+                        first.complete(Unit)
+                    }
+                }
+            first.await()
+            job.cancelAndJoin()
 
-        assertEquals(
-            "a cancelled collection must not be answered with the fallback",
-            listOf(setOf(LocalDate.of(2026, 10, 18))),
-            seen
-        )
-    }
+            assertEquals(
+                "a cancelled collection must not be answered with the fallback",
+                listOf(setOf(LocalDate.of(2026, 10, 18))),
+                seen,
+            )
+        }
 }

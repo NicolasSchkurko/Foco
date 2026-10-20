@@ -13,22 +13,25 @@ import java.time.ZoneId
 class WeekExportService(
     context: Context,
     private val labels: (String) -> String,
-    private val zone: ZoneId = ZoneId.systemDefault()
+    private val zone: ZoneId = ZoneId.systemDefault(),
 ) {
     private val repository = UsageRepository(context.applicationContext)
-    private val store = SessionHistoryStore.forApp(context.applicationContext) { day ->
-        repository.loadDay(day)
-    }
+    private val store =
+        SessionHistoryStore.forApp(context.applicationContext) { day ->
+            repository.loadDay(day)
+        }
 
     suspend fun export(today: LocalDate): WeekExport {
         val stored = store.week(today)
-        val totals = stored
-            .groupBy { LocalDate.parse(it.day) }
-            .mapValues { (_, rows) -> rows.associate { it.packageName to it.totalMillis } }
-        val sessions = (1L..6L).associate { back ->
-            val date = today.minusDays(back)
-            date to store.sessionsFor(date)
-        }
+        val totals =
+            stored
+                .groupBy { LocalDate.parse(it.day) }
+                .mapValues { (_, rows) -> rows.associate { it.packageName to it.totalMillis } }
+        val sessions =
+            (1L..6L).associate { back ->
+                val date = today.minusDays(back)
+                date to store.sessionsFor(date)
+            }
         return buildWeekExport(
             weekStart = today.minusDays(6),
             weekEnd = today,
@@ -36,7 +39,7 @@ class WeekExportService(
             sessionsByDay = sessions,
             todaySessions = repository.loadDay(today).sessions,
             labels = labels,
-            zone = zone
+            zone = zone,
         )
     }
 }

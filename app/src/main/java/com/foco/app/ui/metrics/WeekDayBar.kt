@@ -6,7 +6,7 @@ import java.time.LocalDate
 data class WeekDayBar(
     val date: LocalDate,
     val totalMillis: Long,
-    val state: State
+    val state: State,
 ) {
     /** Absence is a case of its own: a day the store has nothing for is not a zero. */
     enum class State { Live, Stored, Absent }

@@ -1,16 +1,15 @@
 package com.foco.app.structure
 
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 /**
  * The base resources are English and Spanish lives in `es`: a device whose language has no resources of
  * its own (French, German...) falls back to the base and sees English, never Spanish.
  */
 class DefaultLocaleResourcesTest {
-
     private val baseFile = File("src/main/res/values/strings.xml")
     private val spanishFile = File("src/main/res/values-es/strings.xml")
 
@@ -24,10 +23,14 @@ class DefaultLocaleResourcesTest {
     private fun keysIn(file: File): Set<String> {
         assertTrue("expected $file", file.isFile)
         val text = file.readText()
-        val strings = Regex("""<string name="([^"]+)"""")
-            .findAll(text).map { it.groupValues[1] }
-        val plurals = Regex("""<plurals name="([^"]+)"""")
-            .findAll(text).map { it.groupValues[1] }
+        val strings =
+            Regex("""<string name="([^"]+)"""")
+                .findAll(text)
+                .map { it.groupValues[1] }
+        val plurals =
+            Regex("""<plurals name="([^"]+)"""")
+                .findAll(text)
+                .map { it.groupValues[1] }
         return (strings + plurals).toSet()
     }
 

@@ -10,12 +10,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
 import com.foco.app.ui.theme.FocoTheme
-import java.io.File
-import java.time.LocalDate
 import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.time.LocalDate
 
 /**
  * Category: export UI (API 36). A failed export shows the error on the week position and shares no
@@ -23,7 +23,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class WeekExportShareTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -40,17 +39,21 @@ class WeekExportShareTest {
             }
         }
 
-        composeRule.onNodeWithContentDescription(context.getString(R.string.week_title))
+        composeRule
+            .onNodeWithContentDescription(context.getString(R.string.week_title))
             .performClick()
         composeRule.waitUntil(timeoutMillis = 10_000) {
-            composeRule.onAllNodesWithContentDescription(context.getString(R.string.week_export))
+            composeRule
+                .onAllNodesWithContentDescription(context.getString(R.string.week_export))
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
-        composeRule.onNodeWithContentDescription(context.getString(R.string.week_export))
+        composeRule
+            .onNodeWithContentDescription(context.getString(R.string.week_export))
             .performClick()
 
-        composeRule.onNodeWithText(context.getString(R.string.week_export_error))
+        composeRule
+            .onNodeWithText(context.getString(R.string.week_export_error))
             .assertIsDisplayed()
         assertFalse(file.exists())
     }

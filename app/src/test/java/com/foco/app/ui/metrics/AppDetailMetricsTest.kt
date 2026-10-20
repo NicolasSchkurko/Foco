@@ -1,25 +1,27 @@
 package com.foco.app.ui.metrics
 
 import com.foco.app.model.UsageSession
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 class AppDetailMetricsTest {
-
     private val zone = ZoneOffset.UTC
 
-    private fun at(hour: Int, minute: Int): Long =
-        ZonedDateTime.of(2026, 10, 16, hour, minute, 0, 0, zone).toInstant().toEpochMilli()
+    private fun at(
+        hour: Int,
+        minute: Int,
+    ): Long = ZonedDateTime.of(2026, 10, 16, hour, minute, 0, 0, zone).toInstant().toEpochMilli()
 
     @Test
     fun `only the selected app counts`() {
-        val sessions = listOf(
-            UsageSession("app.a", at(10, 0), at(10, 30)),
-            UsageSession("app.b", at(11, 0), at(11, 50))
-        )
+        val sessions =
+            listOf(
+                UsageSession("app.a", at(10, 0), at(10, 30)),
+                UsageSession("app.b", at(11, 0), at(11, 50)),
+            )
 
         val detail = appDayDetail(sessions, "app.a", zone)!!
 
@@ -40,10 +42,11 @@ class AppDetailMetricsTest {
 
     @Test
     fun `typical day summarizes and lists sessions in order`() {
-        val sessions = listOf(
-            UsageSession("app.a", at(11, 0), at(11, 50)),
-            UsageSession("app.a", at(10, 0), at(10, 30)) // fuera de orden a propósito
-        )
+        val sessions =
+            listOf(
+                UsageSession("app.a", at(11, 0), at(11, 50)),
+                UsageSession("app.a", at(10, 0), at(10, 30)), // fuera de orden a propósito
+            )
 
         val detail = appDayDetail(sessions, "app.a", zone)!!
 
@@ -58,10 +61,11 @@ class AppDetailMetricsTest {
 
     @Test
     fun `contiguous sessions of the same app are one`() {
-        val sessions = listOf(
-            UsageSession("app.a", at(10, 0), at(10, 30)),
-            UsageSession("app.a", at(10, 30), at(10, 45))
-        )
+        val sessions =
+            listOf(
+                UsageSession("app.a", at(10, 0), at(10, 30)),
+                UsageSession("app.a", at(10, 30), at(10, 45)),
+            )
 
         val detail = appDayDetail(sessions, "app.a", zone)!!
 
@@ -91,10 +95,11 @@ class AppDetailMetricsTest {
 
     @Test
     fun `the detail lists only visible sessions and summarizes them`() {
-        val sessions = listOf(
-            UsageSession("app.a", at(9, 0), at(9, 0) + 2_000),
-            UsageSession("app.a", at(10, 0), at(10, 0) + 500)
-        )
+        val sessions =
+            listOf(
+                UsageSession("app.a", at(9, 0), at(9, 0) + 2_000),
+                UsageSession("app.a", at(10, 0), at(10, 0) + 500),
+            )
 
         val detail = appDayDetail(sessions, "app.a", zone)!!
 

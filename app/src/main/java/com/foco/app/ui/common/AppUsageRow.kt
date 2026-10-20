@@ -28,14 +28,15 @@ fun AppUsageRow(
     maxMillis: Long,
     caption: String,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AppIcon(packageName = packageName)
         Spacer(Modifier.width(12.dp))
@@ -44,13 +45,13 @@ fun AppUsageRow(
             Text(
                 text = appLabel(packageName),
                 style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1
+                maxLines = 1,
             )
             Spacer(Modifier.height(4.dp))
             val fraction = if (maxMillis > 0) millis.toFloat() / maxMillis else 0f
             LinearProgressIndicator(
                 progress = { fraction },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
@@ -59,12 +60,12 @@ fun AppUsageRow(
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = formatDuration(millis),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
             Text(
                 text = caption,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

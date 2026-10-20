@@ -7,7 +7,7 @@ import java.time.LocalDate
 /** Everything the week view shows: the day bars, oldest first, and the apps' seven-day totals. */
 data class WeekMetrics(
     val bars: List<WeekDayBar>,
-    val ranking: List<AppWeekTotal>
+    val ranking: List<AppWeekTotal>,
 )
 
 /**
@@ -19,7 +19,7 @@ fun deriveWeekMetrics(
     todayDate: LocalDate,
     today: DayData,
     excludedPackages: Set<String> = emptySet(),
-    windowDays: Int = 7
+    windowDays: Int = 7,
 ): WeekMetrics {
     require(windowDays >= 1) { "windowDays must be at least 1" }
 
@@ -35,35 +35,38 @@ fun deriveWeekMetrics(
         }
     }
 
-    val bars = (windowDays - 1 downTo 0).map { daysBack ->
-        val date = todayDate.minusDays(daysBack.toLong())
-        if (date == todayDate) {
-            WeekDayBar(date, dayTotal(today.sessions), WeekDayBar.State.Live)
-        } else {
-            val total = storedByDay[date.toString()]
-            if (total == null) {
-                WeekDayBar(date, 0L, WeekDayBar.State.Absent)
+    val bars =
+        (windowDays - 1 downTo 0).map { daysBack ->
+            val date = todayDate.minusDays(daysBack.toLong())
+            if (date == todayDate) {
+                WeekDayBar(date, dayTotal(today.sessions), WeekDayBar.State.Live)
             } else {
-                WeekDayBar(date, total, WeekDayBar.State.Stored)
+                val total = storedByDay[date.toString()]
+                if (total == null) {
+                    WeekDayBar(date, 0L, WeekDayBar.State.Absent)
+                } else {
+                    WeekDayBar(date, total, WeekDayBar.State.Stored)
+                }
             }
         }
-    }
 
-    val liveByPackage = visibleSessions(today.sessions)
-        .filter { it.packageName !in excludedPackages }
-        .groupBy { it.packageName }
-        .mapValues { (_, sessions) -> dayTotal(sessions) to 1 }
+    val liveByPackage =
+        visibleSessions(today.sessions)
+            .filter { it.packageName !in excludedPackages }
+            .groupBy { it.packageName }
+            .mapValues { (_, sessions) -> dayTotal(sessions) to 1 }
 
-    val ranking = (storedByPackage.keys + liveByPackage.keys).map { packageName ->
-        val live = liveByPackage[packageName]
-        AppWeekTotal(
-            packageName = packageName,
-            totalMillis = (storedByPackage[packageName] ?: 0L) + (live?.first ?: 0L),
-            daysUsed = (storedDaysByPackage[packageName]?.size ?: 0) + (live?.second ?: 0)
-        )
-    }
-        .filter { it.totalMillis >= MIN_VISIBLE_SESSION_MILLIS }
-        .sortedByDescending { it.totalMillis }
+    val ranking =
+        (storedByPackage.keys + liveByPackage.keys)
+            .map { packageName ->
+                val live = liveByPackage[packageName]
+                AppWeekTotal(
+                    packageName = packageName,
+                    totalMillis = (storedByPackage[packageName] ?: 0L) + (live?.first ?: 0L),
+                    daysUsed = (storedDaysByPackage[packageName]?.size ?: 0) + (live?.second ?: 0),
+                )
+            }.filter { it.totalMillis >= MIN_VISIBLE_SESSION_MILLIS }
+            .sortedByDescending { it.totalMillis }
 
     return WeekMetrics(bars = bars, ranking = ranking)
 }

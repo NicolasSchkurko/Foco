@@ -1,16 +1,15 @@
 package com.foco.app.structure
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import java.io.File
 
 /**
  * The repo config cannot drop its own rules: a `rules:` item without quotes that
  * carries `: ` inside reads as a mapping and OpenSpec ignores the whole artifact. A line-by-line shape check.
  */
 class SpecConfigRulesTest {
-
     @Test
     fun everyRulesItemIsAQuotedScalar() {
         val config = File("../openspec/config.yaml")
@@ -29,15 +28,16 @@ class SpecConfigRulesTest {
         }
 
         assertTrue("expected rules items in the config", items.isNotEmpty())
-        val violations = items.filter { (_, item) ->
-            !(item.startsWith("\"") || item.startsWith("'"))
-        }
+        val violations =
+            items.filter { (_, item) ->
+                !(item.startsWith("\"") || item.startsWith("'"))
+            }
         if (violations.isNotEmpty()) {
             fail(
                 "Rules the tooling would silently drop:\n" +
                     violations.joinToString("\n") { (line, item) ->
                         "  openspec/config.yaml:$line: unquoted item (a ': ' inside it reads as a mapping) → $item"
-                    }
+                    },
             )
         }
     }

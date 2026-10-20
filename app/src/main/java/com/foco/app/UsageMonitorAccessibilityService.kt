@@ -30,8 +30,9 @@ import kotlinx.coroutines.launch
  * The app's accessibility entry point: reads the foreground package, hosts the three-second block
  * overlay and answers the monitor. Resource: the accessibility binding; lives while enabled.
  */
-class UsageMonitorAccessibilityService : AccessibilityService(), ForegroundAppTracker {
-
+class UsageMonitorAccessibilityService :
+    AccessibilityService(),
+    ForegroundAppTracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var overlay: ComposeView? = null
 
@@ -93,28 +94,31 @@ class UsageMonitorAccessibilityService : AccessibilityService(), ForegroundAppTr
 
     private fun showBlock(packageName: String) {
         val label = AppPackageInfo(this).label(packageName)
-        val lifecycleOwner = object : LifecycleOwner {
-            val registry = LifecycleRegistry(this)
-            override val lifecycle: Lifecycle get() = registry
-        }
+        val lifecycleOwner =
+            object : LifecycleOwner {
+                val registry = LifecycleRegistry(this)
+                override val lifecycle: Lifecycle get() = registry
+            }
 
-        val view = ComposeView(this).apply {
-            setViewTreeLifecycleOwner(lifecycleOwner)
-            setContent {
-                FocoTheme {
-                    AppLimitBlockScreen(appName = label, onFinished = { finishBlock() })
+        val view =
+            ComposeView(this).apply {
+                setViewTreeLifecycleOwner(lifecycleOwner)
+                setContent {
+                    FocoTheme {
+                        AppLimitBlockScreen(appName = label, onFinished = { finishBlock() })
+                    }
                 }
             }
-        }
 
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        )
+        val params =
+            WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT,
+            )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             params.layoutInDisplayCutoutMode =
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES

@@ -8,11 +8,18 @@ import com.foco.app.model.UsageSession
  * Pure fold: a direct switch closes the previous one at that instant and a stop closes its own
  * package's, even when they tie on the same millisecond; zero-length sessions are not emitted.
  */
-fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
+fun buildSessions(
+    events: List<UsageEvent>,
+    now: Long,
+): List<UsageSession> {
     val sessions = mutableListOf<UsageSession>()
 
     /** Emits the session unless it is zero-length: two events in the same ms do not count. */
-    fun emit(packageName: String, start: Long, end: Long) {
+    fun emit(
+        packageName: String,
+        start: Long,
+        end: Long,
+    ) {
         if (end > start) sessions += UsageSession(packageName, start, end)
     }
 
@@ -61,9 +68,10 @@ fun buildSessions(events: List<UsageEvent>, now: Long): List<UsageSession> {
 fun clampSessionsToDay(
     sessions: List<UsageSession>,
     dayStart: Long,
-    dayEndExclusive: Long
-): List<UsageSession> = sessions.mapNotNull { session ->
-    val start = maxOf(session.start, dayStart)
-    val end = minOf(session.end, dayEndExclusive)
-    if (end > start) UsageSession(session.packageName, start, end) else null
-}
+    dayEndExclusive: Long,
+): List<UsageSession> =
+    sessions.mapNotNull { session ->
+        val start = maxOf(session.start, dayStart)
+        val end = minOf(session.end, dayEndExclusive)
+        if (end > start) UsageSession(session.packageName, start, end) else null
+    }

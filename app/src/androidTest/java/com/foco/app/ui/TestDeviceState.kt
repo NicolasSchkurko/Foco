@@ -24,16 +24,25 @@ internal fun waitForDeviceAwakeAndUnlocked(rule: ComposeTestRule) {
 }
 
 /** Waits for the screen state a `KEYCODE_SLEEP`/`KEYCODE_WAKEUP` should produce. */
-internal fun waitForInteractive(rule: ComposeTestRule, interactive: Boolean) {
-    val power = InstrumentationRegistry.getInstrumentation().targetContext
-        .getSystemService(PowerManager::class.java)
+internal fun waitForInteractive(
+    rule: ComposeTestRule,
+    interactive: Boolean,
+) {
+    val power =
+        InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .getSystemService(PowerManager::class.java)
     rule.waitUntil(timeoutMillis = 5_000) { power.isInteractive == interactive }
 }
 
 /** Waits for the keyguard to report unlocked after `MENU` or `dismiss-keyguard`. */
 internal fun waitForKeyguardUnlocked(rule: ComposeTestRule) {
-    val keyguard = InstrumentationRegistry.getInstrumentation().targetContext
-        .getSystemService(KeyguardManager::class.java)
+    val keyguard =
+        InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .getSystemService(KeyguardManager::class.java)
     rule.waitUntil(timeoutMillis = 5_000) { !keyguard.isKeyguardLocked }
 }
 
@@ -76,10 +85,11 @@ internal fun waitForSettingsForeground(rule: ComposeTestRule) {
 /** Waits until Settings has left the foreground so its usage session is closed. */
 internal fun waitForSettingsBackground(rule: ComposeTestRule) {
     rule.waitUntil(timeoutMillis = 5_000) {
-        lastSettingsEvent()?.first in setOf(
-            UsageEvents.Event.ACTIVITY_PAUSED,
-            UsageEvents.Event.ACTIVITY_STOPPED
-        )
+        lastSettingsEvent()?.first in
+            setOf(
+                UsageEvents.Event.ACTIVITY_PAUSED,
+                UsageEvents.Event.ACTIVITY_STOPPED,
+            )
     }
 }
 

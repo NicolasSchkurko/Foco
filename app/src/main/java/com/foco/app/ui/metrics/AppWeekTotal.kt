@@ -4,5 +4,5 @@ package com.foco.app.ui.metrics
 data class AppWeekTotal(
     val packageName: String,
     val totalMillis: Long,
-    val daysUsed: Int
+    val daysUsed: Int,
 )

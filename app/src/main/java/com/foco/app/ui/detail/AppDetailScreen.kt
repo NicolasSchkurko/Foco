@@ -49,12 +49,12 @@ import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.appDayDetail
-import java.time.Clock
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
+import java.time.Clock
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * One app's detail: hourly breakdown, the day's summary and the session list, with a ‹ day ›
@@ -64,7 +64,7 @@ import kotlinx.coroutines.withContext
 fun AppDetailScreen(
     packageName: String,
     date: LocalDate? = null,
-    clock: Clock = Clock.systemDefaultZone()
+    clock: Clock = Clock.systemDefaultZone(),
 ) {
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -82,15 +82,16 @@ fun AppDetailScreen(
         store.storedDaysFlow().readOr(emptySet<LocalDate>()).collect { storedDays = it }
     }
 
-    val days = remember(today, storedDays, date) {
-        val available = availableDays(today, storedDays.orEmpty())
-        // Any bar the week offers opens its day, even one the store has nothing for.
-        if (date != null && date !in available && date in today.minusDays(6)..today) {
-            (available + date).sortedDescending()
-        } else {
-            available
+    val days =
+        remember(today, storedDays, date) {
+            val available = availableDays(today, storedDays.orEmpty())
+            // Any bar the week offers opens its day, even one the store has nothing for.
+            if (date != null && date !in available && date in today.minusDays(6)..today) {
+                (available + date).sortedDescending()
+            } else {
+                available
+            }
         }
-    }
 
     // The requested day is applied once, and only when the window can hold it: the stored days
     // arrive asynchronously, and applying the request to the first (today-alone) window would land
@@ -109,38 +110,42 @@ fun AppDetailScreen(
     val selectedDate = days[selectedIndex]
     LaunchedEffect(packageName, selectedDate, storedDays, today) {
         sessions = null
-        sessions = withContext(Dispatchers.IO) {
-            // Today is never consolidated, so the live read answers for it and the store for the rest.
-            // A failed read answers an empty day, which is the empty state the screen already has.
-            readOr(emptyList<UsageSession>()) {
-                when (daySource(selectedDate, today, storedDays.orEmpty())) {
-                    DaySource.Live -> repository.loadDay(selectedDate).sessions
-                    DaySource.Stored -> store.sessionsFor(selectedDate)
-                    DaySource.Absent -> emptyList()
+        sessions =
+            withContext(Dispatchers.IO) {
+                // Today is never consolidated, so the live read answers for it and the store for the rest.
+                // A failed read answers an empty day, which is the empty state the screen already has.
+                readOr(emptyList<UsageSession>()) {
+                    when (daySource(selectedDate, today, storedDays.orEmpty())) {
+                        DaySource.Live -> repository.loadDay(selectedDate).sessions
+                        DaySource.Stored -> store.sessionsFor(selectedDate)
+                        DaySource.Absent -> emptyList()
+                    }
                 }
             }
-        }
     }
 
-    val detail = remember(sessions, packageName) {
-        sessions?.let { appDayDetail(it, packageName, ZoneId.systemDefault()) }
-    }
+    val detail =
+        remember(sessions, packageName) {
+            sessions?.let { appDayDetail(it, packageName, ZoneId.systemDefault()) }
+        }
 
     Scaffold { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
         ) {
             Spacer(Modifier.height(16.dp))
 
             ScreenHeader(
                 title = appLabel(packageName),
-                subtitle = detail?.let {
-                    stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis))
-                } ?: stringResource(R.string.loading),
+                subtitle =
+                    detail?.let {
+                        stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis))
+                    } ?: stringResource(R.string.loading),
                 onBack = { backDispatcher?.onBackPressed() },
-                titleLeading = { AppIcon(packageName = packageName) }
+                titleLeading = { AppIcon(packageName = packageName) },
             )
 
             Spacer(Modifier.height(12.dp))
@@ -149,28 +154,29 @@ fun AppDetailScreen(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
             ) {
                 IconButton(
                     onClick = { selectedIndex++ },
-                    enabled = selectedIndex < days.lastIndex
+                    enabled = selectedIndex < days.lastIndex,
                 ) {
                     Text("‹", style = MaterialTheme.typography.titleLarge)
                 }
                 Text(
-                    text = formatDayLabel(
-                        selectedDate,
-                        today,
-                        stringResource(R.string.day_today),
-                        stringResource(R.string.day_yesterday)
-                    ),
+                    text =
+                        formatDayLabel(
+                            selectedDate,
+                            today,
+                            stringResource(R.string.day_today),
+                            stringResource(R.string.day_yesterday),
+                        ),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.width(150.dp),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
                 IconButton(
                     onClick = { selectedIndex-- },
-                    enabled = selectedIndex > 0
+                    enabled = selectedIndex > 0,
                 ) {
                     Text("›", style = MaterialTheme.typography.titleLarge)
                 }
@@ -180,98 +186,108 @@ fun AppDetailScreen(
 
             val current = detail
             when {
-                sessions == null -> Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-
-                current == null -> Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.detail_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                else -> Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .weight(1f)
-                ) {
-                    HourChart(current.hourly)
-                    Spacer(Modifier.height(16.dp))
-
-                    Text(
-                        text = stringResource(R.string.detail_summary),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    val summary = listOf(
-                        stringResource(R.string.detail_total) to formatDuration(current.totalMillis),
-                        stringResource(R.string.detail_sessions) to current.sessionCount.toString(),
-                        stringResource(R.string.detail_first) to formatTimeOfDay(current.firstStart),
-                        stringResource(R.string.detail_last) to formatTimeOfDay(current.lastEnd),
-                        stringResource(R.string.detail_average) to formatDuration(current.averageMillis),
-                        stringResource(R.string.detail_longest) to formatDuration(current.longestMillis)
-                    )
-                    summary.forEach { (label, value) ->
-                        Row(
-                            modifier = Modifier
+                sessions == null ->
+                    Box(
+                        modifier =
+                            Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 2.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(text = value, style = MaterialTheme.typography.bodyMedium)
-                        }
+                                .weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
                     }
 
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.detail_sessions),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
+                current == null ->
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        items(current.sessions) { session ->
+                        Text(
+                            text = stringResource(R.string.detail_empty),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                else ->
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .weight(1f),
+                    ) {
+                        HourChart(current.hourly)
+                        Spacer(Modifier.height(16.dp))
+
+                        Text(
+                            text = stringResource(R.string.detail_summary),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        val summary =
+                            listOf(
+                                stringResource(R.string.detail_total) to formatDuration(current.totalMillis),
+                                stringResource(R.string.detail_sessions) to current.sessionCount.toString(),
+                                stringResource(R.string.detail_first) to formatTimeOfDay(current.firstStart),
+                                stringResource(R.string.detail_last) to formatTimeOfDay(current.lastEnd),
+                                stringResource(R.string.detail_average) to formatDuration(current.averageMillis),
+                                stringResource(R.string.detail_longest) to formatDuration(current.longestMillis),
+                            )
+                        summary.forEach { (label, value) ->
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Text(
-                                    text = "${formatTimeOfDay(session.start)} – ${formatTimeOfDay(session.end)}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Text(
-                                    text = formatDuration(session.end - session.start),
+                                    text = label,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                                Text(text = value, style = MaterialTheme.typography.bodyMedium)
                             }
-                            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(R.string.detail_sessions),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        LazyColumn(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                        ) {
+                            items(current.sessions) { session ->
+                                Row(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        text = "${formatTimeOfDay(session.start)} – ${formatTimeOfDay(session.end)}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                    Text(
+                                        text = formatDuration(session.end - session.start),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                            }
                         }
                     }
-                }
             }
         }
     }

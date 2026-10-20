@@ -17,7 +17,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class SchemaBaselineTest {
-
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val databaseName = "schema-baseline-test.db"
@@ -29,15 +28,19 @@ class SchemaBaselineTest {
 
     @Test
     fun theCommittedSchemaMatchesTheOpenDatabase() {
-        val database = Room.databaseBuilder(context, FocoDatabase::class.java, databaseName)
-            .addMigrations(FocoDatabase.MIGRATION_1_2)
-            .build()
-        val version = database.openHelper.readableDatabase
-            .query("PRAGMA user_version")
-            .use { cursor -> if (cursor.moveToFirst()) cursor.getInt(0) else 0 }
-        val runtimeHash = database.openHelper.readableDatabase
-            .query("SELECT identity_hash FROM room_master_table")
-            .use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+        val database =
+            Room
+                .databaseBuilder(context, FocoDatabase::class.java, databaseName)
+                .addMigrations(FocoDatabase.MIGRATION_1_2)
+                .build()
+        val version =
+            database.openHelper.readableDatabase
+                .query("PRAGMA user_version")
+                .use { cursor -> if (cursor.moveToFirst()) cursor.getInt(0) else 0 }
+        val runtimeHash =
+            database.openHelper.readableDatabase
+                .query("SELECT identity_hash FROM room_master_table")
+                .use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
         database.close()
 
         val committed = committedSchemas()
@@ -67,6 +70,5 @@ class SchemaBaselineTest {
             }
     }
 
-    private fun identityHashOf(json: String): String? =
-        Regex("\"identityHash\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
+    private fun identityHashOf(json: String): String? = Regex("\"identityHash\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
 }

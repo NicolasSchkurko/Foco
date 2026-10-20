@@ -11,11 +11,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.delay
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import kotlinx.coroutines.delay
 
 /**
  * The current local date, refreshed on resume and at the next midnight; [clock] is the test seam.
@@ -27,9 +27,10 @@ fun rememberCurrentDate(clock: Clock = Clock.systemDefaultZone()): LocalDate {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) today = LocalDate.now(latestClock)
-        }
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) today = LocalDate.now(latestClock)
+            }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }

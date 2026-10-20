@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class WeekExport(
     val weekStart: String,
     val weekEnd: String,
-    val days: List<ExportDay>
+    val days: List<ExportDay>,
 )

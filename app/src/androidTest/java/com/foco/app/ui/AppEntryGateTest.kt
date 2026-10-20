@@ -20,7 +20,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class AppEntryGateTest {
-
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
@@ -40,7 +39,8 @@ class AppEntryGateTest {
     }
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()

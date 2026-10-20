@@ -1,6 +1,5 @@
 package com.foco.app.structure
 
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -8,32 +7,36 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 /**
  * Applies the layer rules of `openspec/specs/code-structure` (folder <-> package, purity,
  * downward direction, features that do not import each other). Scans `src/main/java` (cwd = the module).
  */
 class LayerRulesTest {
-
     @get:Rule
     val temp = TemporaryFolder()
 
     private val packageLine = Regex("""^package\s+([\w.]+)""")
     private val appImport = Regex("""^import\s+com\.foco\.app\.(\w+)""")
     private val frameworkImport = Regex("""^import\s+(android|androidx)\.""")
-    private val forbiddenLayers = mapOf(
-        "model" to setOf("domain", "data", "ui"),
-        "domain" to setOf("data", "ui"),
-        "data" to setOf("ui"),
-        "ui" to emptySet<String>()
-    )
+    private val forbiddenLayers =
+        mapOf(
+            "model" to setOf("domain", "data", "ui"),
+            "domain" to setOf("data", "ui"),
+            "data" to setOf("ui"),
+            "ui" to emptySet<String>(),
+        )
+
     /** Raw platform calls forbidden in `ui/` (heuristic marker scan). */
-    private val rawPlatformMarkers = listOf(
-        "packageManager.",
-        "getSystemService(",
-        "queryEvents(",
-        "unsafeCheckOpNoThrow("
-    )
+    private val rawPlatformMarkers =
+        listOf(
+            "packageManager.",
+            "getSystemService(",
+            "queryEvents(",
+            "unsafeCheckOpNoThrow(",
+        )
+
     /**
      * Shared folders under `ui/`: not features. `common`, `metrics` and `theme` are the ones
      * the spec exempts, and `ui/common/` is the home of cross-screen reuse.
@@ -74,7 +77,8 @@ class LayerRulesTest {
         val uiFeatures = uiFeaturesIn(sources)
 
         val violations = mutableListOf<String>()
-        sources.walkTopDown()
+        sources
+            .walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .forEach { file ->
                 val relative = file.relativeTo(sources).path.replace('\\', '/')
@@ -97,12 +101,14 @@ class LayerRulesTest {
                 val imports = lines.filter { it.startsWith("import ") }
 
                 if (layer == "model" || layer == "domain") {
-                    imports.filter { frameworkImport.containsMatchIn(it) }
+                    imports
+                        .filter { frameworkImport.containsMatchIn(it) }
                         .forEach { violations += "$relative: pure layer '$layer' imports a framework API → $it" }
                 }
 
                 if (layer == "data" && imports.none { frameworkImport.containsMatchIn(it) }) {
-                    violations += "$relative: 'data' layer is Android platform access — a file without android/androidx imports belongs in 'domain/'"
+                    violations +=
+                        "$relative: 'data' layer is Android platform access — a file without android/androidx imports belongs in 'domain/'"
                 }
 
                 if (layer == "ui") {
@@ -148,11 +154,11 @@ class LayerRulesTest {
 
         assertTrue(
             "expected the current UI features, got $derived",
-            derived.containsAll(setOf("dashboard", "detail", "settings", "onboarding"))
+            derived.containsAll(setOf("dashboard", "detail", "settings", "onboarding")),
         )
         assertTrue(
             "shared folders must not be read as features, got $derived",
-            derived.none { it in sharedUiFolders }
+            derived.none { it in sharedUiFolders },
         )
     }
 
@@ -161,12 +167,16 @@ class LayerRulesTest {
         val root = File(temp.root, "src/main/java")
         writeKotlinFile(root, "com/foco/app/ui/dashboard/Row.kt", "com.foco.app.ui.dashboard")
         writeKotlinFile(
-            root, "com/foco/app/ui/common/Widget.kt", "com.foco.app.ui.common",
-            "com.foco.app.ui.dashboard.Row"
+            root,
+            "com/foco/app/ui/common/Widget.kt",
+            "com.foco.app.ui.common",
+            "com.foco.app.ui.dashboard.Row",
         )
         writeKotlinFile(
-            root, "com/foco/app/ui/reports/Reports.kt", "com.foco.app.ui.reports",
-            "com.foco.app.ui.dashboard.Row"
+            root,
+            "com/foco/app/ui/reports/Reports.kt",
+            "com.foco.app.ui.reports",
+            "com.foco.app.ui.dashboard.Row",
         )
 
         val violations = violationsIn(root)
@@ -174,21 +184,26 @@ class LayerRulesTest {
         assertEquals("the scan must report the new feature once: $violations", 1, violations.size)
         assertTrue(
             "the violation must name the file: $violations",
-            violations.single().contains("ui/reports/Reports.kt")
+            violations.single().contains("ui/reports/Reports.kt"),
         )
         assertTrue(
             "a shared folder must not be reported as a feature: $violations",
-            violations.none { it.startsWith("com/foco/app/ui/common/") }
+            violations.none { it.startsWith("com/foco/app/ui/common/") },
         )
     }
 
     /** Writes a synthetic source: its `package` plus the [imports] it is given. */
-    private fun writeKotlinFile(root: File, path: String, packageName: String, vararg imports: String) {
+    private fun writeKotlinFile(
+        root: File,
+        path: String,
+        packageName: String,
+        vararg imports: String,
+    ) {
         val file = File(root, path)
         file.parentFile?.mkdirs()
         file.writeText(
             (listOf("package $packageName") + imports.map { "import $it" })
-                .joinToString(separator = "\n", postfix = "\n")
+                .joinToString(separator = "\n", postfix = "\n"),
         )
     }
 }

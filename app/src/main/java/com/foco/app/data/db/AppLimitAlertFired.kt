@@ -8,10 +8,10 @@ import androidx.room.Entity
  */
 @Entity(
     tableName = "app_limit_alert_fired",
-    primaryKeys = ["packageName", "day", "tier"]
+    primaryKeys = ["packageName", "day", "tier"],
 )
 data class AppLimitAlertFired(
     val packageName: String,
     val day: String,
-    val tier: Int
+    val tier: Int,
 )

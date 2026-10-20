@@ -5,7 +5,6 @@ package com.foco.app.domain
  * the data layer never reaches up into the UI (or the entry layer) to ask.
  */
 object ForegroundApp {
-
     @Volatile
     private var tracker: ForegroundAppTracker? = null
 

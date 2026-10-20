@@ -11,8 +11,9 @@ import kotlinx.coroutines.flow.map
  * Packages excluded from the ranking (data only, no policy). Resource: the `excluded_apps` file
  * (Preferences DataStore) in private storage; lives as long as the app.
  */
-class ExcludedAppsStore(private val context: Context) {
-
+class ExcludedAppsStore(
+    private val context: Context,
+) {
     private val key = stringSetPreferencesKey("excluded_packages")
 
     val excludedPackages: Flow<Set<String>> =

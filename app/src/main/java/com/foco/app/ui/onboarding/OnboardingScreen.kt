@@ -28,39 +28,44 @@ import com.foco.app.data.UsageAccess
 @Composable
 fun OnboardingScreen(accessibility: Boolean = false) {
     val context = LocalContext.current
-    val explanation = if (accessibility) {
-        stringResource(R.string.onboarding_accessibility_explanation)
-    } else {
-        stringResource(R.string.onboarding_explanation)
-    }
-    val action = if (accessibility) {
-        stringResource(R.string.onboarding_accessibility_open_settings)
-    } else {
-        stringResource(R.string.onboarding_open_settings)
-    }
-    val hint = if (accessibility) {
-        stringResource(R.string.onboarding_accessibility_hint)
-    } else {
-        stringResource(R.string.onboarding_hint)
-    }
-    val intent = if (accessibility) {
-        AccessibilityAccess.settingsIntent()
-    } else {
-        UsageAccess.settingsIntent()
-    }
+    val explanation =
+        if (accessibility) {
+            stringResource(R.string.onboarding_accessibility_explanation)
+        } else {
+            stringResource(R.string.onboarding_explanation)
+        }
+    val action =
+        if (accessibility) {
+            stringResource(R.string.onboarding_accessibility_open_settings)
+        } else {
+            stringResource(R.string.onboarding_open_settings)
+        }
+    val hint =
+        if (accessibility) {
+            stringResource(R.string.onboarding_accessibility_hint)
+        } else {
+            stringResource(R.string.onboarding_hint)
+        }
+    val intent =
+        if (accessibility) {
+            AccessibilityAccess.settingsIntent()
+        } else {
+            UsageAccess.settingsIntent()
+        }
 
     Scaffold { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(32.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(32.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = "Foco",
-                style = MaterialTheme.typography.displaySmall
+                style = MaterialTheme.typography.displaySmall,
             )
 
             Spacer(Modifier.height(16.dp))
@@ -68,7 +73,7 @@ fun OnboardingScreen(accessibility: Boolean = false) {
             Text(
                 text = explanation,
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
 
             Spacer(Modifier.height(24.dp))
@@ -83,7 +88,7 @@ fun OnboardingScreen(accessibility: Boolean = false) {
                 text = hint,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }

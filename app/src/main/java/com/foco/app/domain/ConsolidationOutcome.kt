@@ -4,5 +4,7 @@ package com.foco.app.domain
 sealed interface ConsolidationOutcome {
     data object Done : ConsolidationOutcome
 
-    data class Failed(val cause: Throwable) : ConsolidationOutcome
+    data class Failed(
+        val cause: Throwable,
+    ) : ConsolidationOutcome
 }

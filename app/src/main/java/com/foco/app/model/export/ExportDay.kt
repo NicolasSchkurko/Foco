@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class ExportDay(
     val date: String,
     val totalMillis: Long,
-    val apps: List<ExportApp>
+    val apps: List<ExportApp>,
 )

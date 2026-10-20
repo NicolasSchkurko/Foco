@@ -7,8 +7,10 @@ import androidx.core.app.NotificationManagerCompat
 
 /** The Entendido action: removes the alert notification and changes nothing else. */
 class AppLimitAlertDismissReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action != ACTION_DISMISS) return
         val id = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
         if (id >= 0) NotificationManagerCompat.from(context).cancel(id)

@@ -20,7 +20,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class UnlockCountTest {
-
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
@@ -30,14 +29,16 @@ class UnlockCountTest {
         targetContext.resources.getString(R.string.dashboard_usage_line).substringBefore(":")
 
     /** "desbloqueo"/"unlock": the root that appears in the subtitle in any language. */
-    private val unlockWord = targetContext.resources
-        .getQuantityString(R.plurals.dashboard_unlocks, 2, 2)
-        .replace(Regex("\\d+"), "")
-        .trim()
-        .removeSuffix("s")
+    private val unlockWord =
+        targetContext.resources
+            .getQuantityString(R.plurals.dashboard_unlocks, 2, 2)
+            .replace(Regex("\\d+"), "")
+            .trim()
+            .removeSuffix("s")
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()
@@ -70,22 +71,31 @@ class UnlockCountTest {
 
         ActivityScenario.launch(MainActivity::class.java).use {
             composeRule.waitUntil(timeoutMillis = 15_000) {
-                composeRule.onAllNodesWithText(unlockWord, substring = true)
-                    .fetchSemanticsNodes().isNotEmpty()
+                composeRule
+                    .onAllNodesWithText(unlockWord, substring = true)
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
 
-            val subtitle = composeRule.onAllNodesWithText(usageLinePrefix, substring = true)
-                .fetchSemanticsNodes()
-                .firstOrNull()
-                ?.config?.getOrNull(SemanticsProperties.Text)
-                ?.joinToString(" ") { it.text }
-                .orEmpty()
+            val subtitle =
+                composeRule
+                    .onAllNodesWithText(usageLinePrefix, substring = true)
+                    .fetchSemanticsNodes()
+                    .firstOrNull()
+                    ?.config
+                    ?.getOrNull(SemanticsProperties.Text)
+                    ?.joinToString(" ") { it.text }
+                    .orEmpty()
 
-            val unlocks = Regex("(\\d+)\\s+" + Regex.escape(unlockWord))
-                .find(subtitle)?.groupValues?.get(1)?.toIntOrNull()
+            val unlocks =
+                Regex("(\\d+)\\s+" + Regex.escape(unlockWord))
+                    .find(subtitle)
+                    ?.groupValues
+                    ?.get(1)
+                    ?.toIntOrNull()
             assertTrue(
                 "the subtitle must show the unlock count with N >= 2 (saw: '$subtitle')",
-                unlocks != null && unlocks >= 2
+                unlocks != null && unlocks >= 2,
             )
         }
     }

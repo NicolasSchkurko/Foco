@@ -41,19 +41,19 @@ fun LazyListScope.appLimitsSection(
     alerts: Map<String, Boolean>,
     notificationsEnabled: Boolean,
     onLimitChange: (String, Int?) -> Unit,
-    onAlertChange: (String, Boolean) -> Unit
+    onAlertChange: (String, Boolean) -> Unit,
 ) {
     item {
         Spacer(Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.settings_limits_section),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = stringResource(R.string.settings_limits_explanation),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(8.dp))
     }
@@ -66,7 +66,7 @@ fun LazyListScope.appLimitsSection(
             alertEnabled = alerts[packageName] == true,
             notificationsEnabled = notificationsEnabled,
             onPick = { minutes -> onLimitChange(packageName, minutes) },
-            onAlertChange = { enabled -> onAlertChange(packageName, enabled) }
+            onAlertChange = { enabled -> onAlertChange(packageName, enabled) },
         )
     }
 }
@@ -79,31 +79,34 @@ private fun AppLimitRow(
     alertEnabled: Boolean,
     notificationsEnabled: Boolean,
     onPick: (Int?) -> Unit,
-    onAlertChange: (Boolean) -> Unit
+    onAlertChange: (Boolean) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val none = stringResource(R.string.settings_limit_none)
     val blockNow = stringResource(R.string.settings_limit_block_now)
     val alertsLabel = stringResource(R.string.settings_limit_alerts_toggle, label)
-    val options = remember(none, blockNow) {
-        listOf<Pair<String, Int?>>(
-            none to null,
-            blockNow to AppLimitRules.BLOCK_IMMEDIATELY_MINUTES
-        ) + AppLimitRules.options().drop(1).map { limitLabel(it, none, blockNow) to it }
-    }
+    val options =
+        remember(none, blockNow) {
+            listOf<Pair<String, Int?>>(
+                none to null,
+                blockNow to AppLimitRules.BLOCK_IMMEDIATELY_MINUTES,
+            ) + AppLimitRules.options().drop(1).map { limitLabel(it, none, blockNow) to it }
+        }
 
     Box {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { expanded = true },
-                verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .clickable { expanded = true },
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 AppIcon(packageName)
                 Spacer(Modifier.width(12.dp))
@@ -111,18 +114,18 @@ private fun AppLimitRow(
                     Text(
                         text = label,
                         style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                     Text(
                         text = limitLabel(minutes, none, blockNow),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (alertEnabled && !notificationsEnabled) {
                         Text(
                             text = stringResource(R.string.settings_limit_alerts_no_permission),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
                         )
                     }
                 }
@@ -131,9 +134,10 @@ private fun AppLimitRow(
                 checked = alertEnabled,
                 onCheckedChange = onAlertChange,
                 enabled = minutes != null && minutes > 0,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .semantics { contentDescription = alertsLabel }
+                modifier =
+                    Modifier
+                        .padding(start = 8.dp)
+                        .semantics { contentDescription = alertsLabel },
             )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -143,7 +147,7 @@ private fun AppLimitRow(
                     onClick = {
                         onPick(option)
                         expanded = false
-                    }
+                    },
                 )
             }
         }
@@ -151,7 +155,11 @@ private fun AppLimitRow(
 }
 
 /** `No limit`, `Block immediately`, `15 min`, `1 h`, `1 h 15 min` or `24 h`. */
-private fun limitLabel(minutes: Int?, none: String, blockNow: String): String {
+private fun limitLabel(
+    minutes: Int?,
+    none: String,
+    blockNow: String,
+): String {
     if (minutes == null) return none
     if (minutes == AppLimitRules.BLOCK_IMMEDIATELY_MINUTES) return blockNow
     val hours = minutes / 60

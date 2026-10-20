@@ -15,7 +15,6 @@ import org.junit.runner.RunWith
 /** The startup gate: the home is not mounted until the history load finishes. */
 @RunWith(AndroidJUnit4::class)
 class StartupLoadingTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -36,14 +35,14 @@ class StartupLoadingTest {
         composeRule.setContent {
             App(
                 isUsageAccessGranted = { true },
-                startupLoad = { load.await() }
+                startupLoad = { load.await() },
             )
         }
 
         composeRule.waitUntil(timeoutMillis = 10_000) { hasText(string(R.string.loading)) }
         assertTrue(
             "the home must not be mounted while the startup load runs",
-            !hasText(string(R.string.dashboard_title))
+            !hasText(string(R.string.dashboard_title)),
         )
 
         load.complete(Unit)

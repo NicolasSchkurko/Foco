@@ -4,5 +4,5 @@ package com.foco.app.ui.metrics
 data class DayMetrics(
     val totalMillis: Long,
     val entries: List<AppUsageEntry>,
-    val hourly: List<HourBucket>
+    val hourly: List<HourBucket>,
 )

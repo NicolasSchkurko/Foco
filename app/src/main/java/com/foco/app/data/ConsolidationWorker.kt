@@ -1,16 +1,16 @@
 package com.foco.app.data
 
-import com.foco.app.domain.ConsolidationOutcome
-
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.foco.app.domain.ConsolidationOutcome
 import java.time.LocalDate
 
 /** The nightly job: consolidates through the shared runner and asks for a retry when it fails. */
-class ConsolidationWorker(context: Context, params: WorkerParameters) :
-    CoroutineWorker(context, params) {
-
+class ConsolidationWorker(
+    context: Context,
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result =
         when (runnerFor(applicationContext).run(LocalDate.now())) {
             is ConsolidationOutcome.Done -> Result.success()

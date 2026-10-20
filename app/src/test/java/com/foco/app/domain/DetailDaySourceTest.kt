@@ -1,12 +1,11 @@
 package com.foco.app.domain
 
-import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.LocalDate
 
 /** The read rule that decides, per day, whether the detail goes live, to the store, or nowhere. */
 class DetailDaySourceTest {
-
     private val today = LocalDate.of(2026, 10, 19)
     private val storedDays = setOf(today.minusDays(1), today.minusDays(3))
 

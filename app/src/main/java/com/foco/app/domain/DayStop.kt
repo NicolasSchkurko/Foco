@@ -4,12 +4,18 @@ import java.time.LocalDate
 
 /** A stop in the home's day ring: one day or the week summary. */
 sealed interface DayStop {
-    data class Day(val date: LocalDate) : DayStop
+    data class Day(
+        val date: LocalDate,
+    ) : DayStop
+
     data object Week : DayStop
 }
 
 /** The forward order: today, week, oldest offered day, ... , yesterday. */
-fun dayRing(today: LocalDate, storedDays: Set<LocalDate>): List<DayStop> =
+fun dayRing(
+    today: LocalDate,
+    storedDays: Set<LocalDate>,
+): List<DayStop> =
     buildList {
         add(DayStop.Day(today))
         add(DayStop.Week)
@@ -19,7 +25,10 @@ fun dayRing(today: LocalDate, storedDays: Set<LocalDate>): List<DayStop> =
     }
 
 /** One step around the ring; a vanished current position falls back to the ring's first stop. */
-fun DayStop.step(ring: List<DayStop>, forward: Boolean): DayStop {
+fun DayStop.step(
+    ring: List<DayStop>,
+    forward: Boolean,
+): DayStop {
     if (ring.isEmpty()) return this
     val index = ring.indexOf(this)
     if (index < 0) return ring.first()
@@ -28,16 +37,19 @@ fun DayStop.step(ring: List<DayStop>, forward: Boolean): DayStop {
 }
 
 /** Stable key for saveable UI state; dates are ISO-8601. */
-fun DayStop.key(): String = when (this) {
-    DayStop.Week -> "week"
-    is DayStop.Day -> "day:$date"
-}
+fun DayStop.key(): String =
+    when (this) {
+        DayStop.Week -> "week"
+        is DayStop.Day -> "day:$date"
+    }
 
 /** Parses a [key] back to a stop; null when it is not a ring key. */
-fun dayStopFromKey(key: String): DayStop? = when {
-    key == "week" -> DayStop.Week
-    key.startsWith("day:") -> runCatching {
-        DayStop.Day(LocalDate.parse(key.removePrefix("day:")))
-    }.getOrNull()
-    else -> null
-}
+fun dayStopFromKey(key: String): DayStop? =
+    when {
+        key == "week" -> DayStop.Week
+        key.startsWith("day:") ->
+            runCatching {
+                DayStop.Day(LocalDate.parse(key.removePrefix("day:")))
+            }.getOrNull()
+        else -> null
+    }

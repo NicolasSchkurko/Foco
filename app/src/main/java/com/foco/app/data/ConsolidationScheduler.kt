@@ -13,14 +13,18 @@ import java.util.concurrent.TimeUnit
  * across starts. Resource: the WorkManager database, in the app's private storage.
  */
 object ConsolidationScheduler {
-
     private const val UNIQUE_NAME = "consolidate-and-prune"
 
-    fun schedule(context: Context, now: ZonedDateTime = ZonedDateTime.now()) {
-        val request = PeriodicWorkRequestBuilder<ConsolidationWorker>(24, TimeUnit.HOURS)
-            .setInitialDelay(delayToNextThree(now))
-            .build()
-        WorkManager.getInstance(context)
+    fun schedule(
+        context: Context,
+        now: ZonedDateTime = ZonedDateTime.now(),
+    ) {
+        val request =
+            PeriodicWorkRequestBuilder<ConsolidationWorker>(24, TimeUnit.HOURS)
+                .setInitialDelay(delayToNextThree(now))
+                .build()
+        WorkManager
+            .getInstance(context)
             .enqueueUniquePeriodicWork(UNIQUE_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
     }
 

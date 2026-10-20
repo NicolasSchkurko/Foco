@@ -37,7 +37,6 @@ private const val TAG = "MainActivity"
  * the window backdrop follow the choice) and mounts Compose.
  */
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -45,19 +44,20 @@ class MainActivity : AppCompatActivity() {
         // One-shot DataStore read at startup: the migration runs first
         // (once), the language is applied and the appearance reaches the theme before
         // the first frame. The value read seeds the Compose state.
-        val storedAppearance = runBlocking {
-            withStartupTimeout(
-                timeoutMillis = STARTUP_TIMEOUT_MILLIS,
-                fallback = {
-                    Log.w(TAG, "Settings startup timed out or failed; using defaults")
-                    AppearanceOption.AUTO
+        val storedAppearance =
+            runBlocking {
+                withStartupTimeout(
+                    timeoutMillis = STARTUP_TIMEOUT_MILLIS,
+                    fallback = {
+                        Log.w(TAG, "Settings startup timed out or failed; using defaults")
+                        AppearanceOption.AUTO
+                    },
+                ) {
+                    migrateSettingsFromLegacyDataStore(applicationContext)
+                    AppLanguage.applyToSystem(settings.language.first())
+                    settings.appearance.first().also { AppAppearance.applyToSystem(it) }
                 }
-            ) {
-                migrateSettingsFromLegacyDataStore(applicationContext)
-                AppLanguage.applyToSystem(settings.language.first())
-                settings.appearance.first().also { AppAppearance.applyToSystem(it) }
             }
-        }
 
         enableEdgeToEdge()
         ConsolidationScheduler.schedule(applicationContext)
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             FocoTheme(darkTheme = appearance.isDark(isSystemInDarkTheme())) {
                 WindowBackgroundEffect(
                     window = window,
-                    surface = MaterialTheme.colorScheme.surface
+                    surface = MaterialTheme.colorScheme.surface,
                 )
                 App()
             }
@@ -84,7 +84,6 @@ class MainActivity : AppCompatActivity() {
         // accessibility in Settings and coming back.
         UsageMonitorService.sync(applicationContext)
     }
-
 }
 
 /**
@@ -92,7 +91,10 @@ class MainActivity : AppCompatActivity() {
  * re-creation never reveals the opposite scheme. Resource: the activity's `Window`.
  */
 @Composable
-private fun WindowBackgroundEffect(window: Window, surface: Color) {
+private fun WindowBackgroundEffect(
+    window: Window,
+    surface: Color,
+) {
     SideEffect {
         window.setBackgroundDrawable(ColorDrawable(surface.toArgb()))
     }

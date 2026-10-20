@@ -23,13 +23,17 @@ import kotlinx.coroutines.withContext
 
 /** The app's icon, loaded off the main thread (the read goes through `data/AppPackageInfo`). */
 @Composable
-fun AppIcon(packageName: String, size: Dp = 40.dp) {
+fun AppIcon(
+    packageName: String,
+    size: Dp = 40.dp,
+) {
     val context = LocalContext.current
     val packageInfo = remember { AppPackageInfo(context.applicationContext) }
     val bitmap by produceState<ImageBitmap?>(initialValue = null, packageName) {
-        value = withContext(Dispatchers.IO) {
-            packageInfo.iconBitmap(packageName)?.asImageBitmap()
-        }
+        value =
+            withContext(Dispatchers.IO) {
+                packageInfo.iconBitmap(packageName)?.asImageBitmap()
+            }
     }
 
     val current = bitmap
@@ -37,14 +41,15 @@ fun AppIcon(packageName: String, size: Dp = 40.dp) {
         Image(
             bitmap = current,
             contentDescription = null,
-            modifier = Modifier.size(size)
+            modifier = Modifier.size(size),
         )
     } else {
         Box(
-            modifier = Modifier
-                .size(size)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+            modifier =
+                Modifier
+                    .size(size)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
         )
     }
 }

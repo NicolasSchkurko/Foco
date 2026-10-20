@@ -9,5 +9,5 @@ data class ExportApp(
     val appName: String,
     val totalMillis: Long,
     val sessionsAvailable: Boolean,
-    val sessions: List<ExportSession>
+    val sessions: List<ExportSession>,
 )

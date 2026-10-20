@@ -30,16 +30,16 @@ import com.foco.app.R
 import com.foco.app.data.ConsolidationRunner
 import com.foco.app.data.UsageAccess
 import com.foco.app.ui.onboarding.OnboardingScreen
-import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 /** Onboarding, the startup gate, or the home; both reads are the tests' seams. */
 @Composable
 fun App(
     isUsageAccessGranted: (Context) -> Boolean = UsageAccess::isGranted,
     isAccessibilityGranted: (Context) -> Boolean = AccessibilityAccess::isGranted,
-    startupLoad: (suspend () -> Unit)? = null
+    startupLoad: (suspend () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val checkGranted by rememberUpdatedState(isUsageAccessGranted)
@@ -52,17 +52,18 @@ fun App(
         startupLoad ?: {
             ConsolidationRunner.forApp(context.applicationContext).run(LocalDate.now())
             Unit
-        }
+        },
     )
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                hasUsageAccess = checkGranted(context)
-                hasAccessibility = checkAccessibility(context)
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    hasUsageAccess = checkGranted(context)
+                    hasAccessibility = checkAccessibility(context)
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -92,7 +93,7 @@ fun App(
 private fun StartupLoadingScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator()
@@ -100,7 +101,7 @@ private fun StartupLoadingScreen() {
             Text(
                 text = stringResource(R.string.loading),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

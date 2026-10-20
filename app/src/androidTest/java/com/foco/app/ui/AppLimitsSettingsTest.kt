@@ -24,7 +24,6 @@ import org.junit.runner.RunWith
 /** Category: settings limits (API 36). The section lists apps and persists the picked minutes. */
 @RunWith(AndroidJUnit4::class)
 class AppLimitsSettingsTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -35,7 +34,7 @@ class AppLimitsSettingsTest {
         limits: Map<String, Int> = mapOf("com.example.one" to 30),
         alerts: Map<String, Boolean> = emptyMap(),
         notificationsEnabled: Boolean = true,
-        onAlert: (Pair<String, Boolean>) -> Unit = {}
+        onAlert: (Pair<String, Boolean>) -> Unit = {},
     ) {
         composeRule.setContent {
             FocoTheme {
@@ -46,16 +45,17 @@ class AppLimitsSettingsTest {
                         alerts = alerts,
                         notificationsEnabled = notificationsEnabled,
                         onLimitChange = { packageName, minutes -> picked(packageName to minutes) },
-                        onAlertChange = { packageName, enabled -> onAlert(packageName to enabled) }
+                        onAlertChange = { packageName, enabled -> onAlert(packageName to enabled) },
                     )
                 }
             }
         }
     }
 
-    private fun alertToggle() = composeRule.onNodeWithContentDescription(
-        strings.getString(R.string.settings_limit_alerts_toggle, "One")
-    )
+    private fun alertToggle() =
+        composeRule.onNodeWithContentDescription(
+            strings.getString(R.string.settings_limit_alerts_toggle, "One"),
+        )
 
     @Test
     fun theRowShowsItsCurrentLimitAndPicksAStep() {
@@ -89,9 +89,10 @@ class AppLimitsSettingsTest {
         showSection(picked = { picked = it })
 
         composeRule.onNodeWithText("One").performClick()
-        composeRule.onNodeWithText(
-            strings.getString(R.string.settings_limit_block_now)
-        ).performClick()
+        composeRule
+            .onNodeWithText(
+                strings.getString(R.string.settings_limit_block_now),
+            ).performClick()
 
         assertEquals("com.example.one" to 0, picked)
     }
@@ -125,7 +126,7 @@ class AppLimitsSettingsTest {
     fun theStoredAlertChoiceIsShown() {
         showSection(
             picked = {},
-            alerts = mapOf("com.example.one" to true)
+            alerts = mapOf("com.example.one" to true),
         )
 
         alertToggle().assertIsOn()
@@ -136,11 +137,12 @@ class AppLimitsSettingsTest {
         showSection(
             picked = {},
             alerts = mapOf("com.example.one" to true),
-            notificationsEnabled = false
+            notificationsEnabled = false,
         )
 
-        composeRule.onNodeWithText(
-            strings.getString(R.string.settings_limit_alerts_no_permission)
-        ).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                strings.getString(R.string.settings_limit_alerts_no_permission),
+            ).assertIsDisplayed()
     }
 }

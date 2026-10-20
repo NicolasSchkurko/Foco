@@ -11,13 +11,13 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.foco.app.ui.common.rememberCurrentDate
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 
 /**
  * The current date is a screen input: it must roll over on resume and at midnight while the app is
@@ -25,7 +25,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class TodayRolloverTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -81,7 +80,10 @@ class TodayRolloverTest {
         override val lifecycle: Lifecycle get() = registry
     }
 
-    private class MutableClock(initial: Instant, private val zone: ZoneId) : Clock() {
+    private class MutableClock(
+        initial: Instant,
+        private val zone: ZoneId,
+    ) : Clock() {
         @Volatile
         var current: Instant = initial
 

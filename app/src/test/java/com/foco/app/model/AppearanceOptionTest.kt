@@ -7,7 +7,6 @@ import org.junit.Test
 
 /** The chosen appearance resolves the final `darkTheme`: Automatic follows the system. */
 class AppearanceOptionTest {
-
     @Test
     fun `auto follows the system`() {
         assertTrue(AppearanceOption.AUTO.isDark(systemInDarkTheme = true))

@@ -4,28 +4,24 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
-import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppAppearance
+import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppLanguage
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SettingsStore
@@ -46,14 +42,14 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenTest {
-
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()
@@ -104,7 +100,10 @@ class SettingsScreenTest {
         }
 
     /** Opens the dropdown of the row titled [title] and picks [option]. */
-    private fun pickOption(title: String, option: String) {
+    private fun pickOption(
+        title: String,
+        option: String,
+    ) {
         composeRule.onNodeWithText(title).performClick()
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodesWithText(option).fetchSemanticsNodes().isNotEmpty()
@@ -130,7 +129,10 @@ class SettingsScreenTest {
 
     /** The system language, without the per-app language override. */
     private fun systemLanguage(): String =
-        android.content.res.Resources.getSystem().configuration.locales[0].language
+        android.content.res.Resources
+            .getSystem()
+            .configuration.locales[0]
+            .language
 
     @Test
     fun entryAndBackReturnsToTheDashboard() {
@@ -142,7 +144,7 @@ class SettingsScreenTest {
         }
     }
 
-        @Test
+    @Test
     fun languagePicksThroughTheDropdownPersist() {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
@@ -170,7 +172,7 @@ class SettingsScreenTest {
         }
     }
 
-@Test
+    @Test
     fun appearanceSelectionPersistsAndBackToAutomatic() {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
         ensureSettings(language = "en")
@@ -182,7 +184,6 @@ class SettingsScreenTest {
             AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
         }
         composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Dark") }
-        
 
         // Cold restart: still Dark, with the mode already applied at startup.
         scenario.close()
@@ -213,12 +214,13 @@ class SettingsScreenTest {
             // (the glyph, ~8 dp further in: ~16 dp against ~32 dp). The threshold goes in between.
             assertTrue(
                 "the arrow must sit at the header's leading edge (the old inset left the node at ~24 dp): $back",
-                back.left.value <= 16f
+                back.left.value <= 16f,
             )
             assertTrue("the arrow must precede the title", back.left < title.left)
-            val offCenter = kotlin.math.abs(
-                (title.left.value + title.right.value) / 2f - (root.left.value + root.right.value) / 2f
-            )
+            val offCenter =
+                kotlin.math.abs(
+                    (title.left.value + title.right.value) / 2f - (root.left.value + root.right.value) / 2f,
+                )
             assertTrue("the title must read centered (off by $offCenter dp)", offCenter <= 16f)
         }
     }

@@ -8,9 +8,9 @@ import com.foco.app.data.db.AppLimitAlertFiredDao
 import com.foco.app.data.db.AppLimitDao
 import com.foco.app.data.db.AppLimitDatabase
 import com.foco.app.domain.AppLimitRules
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 
 /**
  * The daily limits and their alert state. Resource: `limits.db` (Room) in private storage; created
@@ -18,9 +18,8 @@ import kotlinx.coroutines.flow.map
  */
 class AppLimitsStore(
     private val limits: AppLimitDao,
-    private val alertFired: AppLimitAlertFiredDao
+    private val alertFired: AppLimitAlertFiredDao,
 ) {
-
     /** Every configured limit, keyed by package; a missing key means no limit. */
     val limitsFlow: Flow<Map<String, Int>> =
         limits.limitsFlow().map { rows -> rows.associate { it.packageName to it.minutes } }
@@ -31,8 +30,7 @@ class AppLimitsStore(
 
     suspend fun limitFor(packageName: String): Int? = limits.minutesFor(packageName)
 
-    suspend fun alertEnabledFor(packageName: String): Boolean =
-        limits.alertEnabledFor(packageName) ?: false
+    suspend fun alertEnabledFor(packageName: String): Boolean = limits.alertEnabledFor(packageName) ?: false
 
     suspend fun hasAnyLimit(): Boolean = limits.count() > 0
 
@@ -43,7 +41,7 @@ class AppLimitsStore(
     suspend fun setLimit(
         packageName: String,
         minutes: Int,
-        day: LocalDate = LocalDate.now()
+        day: LocalDate = LocalDate.now(),
     ) {
         require(AppLimitRules.isSelectable(minutes)) { "not a selectable limit: $minutes" }
         val keepAlerts = alertEnabledFor(packageName) && minutes > 0
@@ -61,7 +59,7 @@ class AppLimitsStore(
     suspend fun setAlertEnabled(
         packageName: String,
         enabled: Boolean,
-        day: LocalDate = LocalDate.now()
+        day: LocalDate = LocalDate.now(),
     ) {
         val minutes = limits.minutesFor(packageName) ?: return
         if (enabled && minutes <= 0) return
@@ -69,10 +67,16 @@ class AppLimitsStore(
         alertFired.clearDay(packageName, day.toString())
     }
 
-    suspend fun firedTiers(packageName: String, day: LocalDate): Set<Int> =
-        alertFired.tiers(packageName, day.toString()).toSet()
+    suspend fun firedTiers(
+        packageName: String,
+        day: LocalDate,
+    ): Set<Int> = alertFired.tiers(packageName, day.toString()).toSet()
 
-    suspend fun markFired(packageName: String, day: LocalDate, tiers: List<Int>) {
+    suspend fun markFired(
+        packageName: String,
+        day: LocalDate,
+        tiers: List<Int>,
+    ) {
         alertFired.mark(tiers.map { AppLimitAlertFired(packageName, day.toString(), it) })
     }
 
@@ -89,15 +93,17 @@ class AppLimitsStore(
 
         /** The app's store over its private limits database. */
         fun forApp(context: Context): AppLimitsStore {
-            val db = database ?: synchronized(this) {
-                database ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AppLimitDatabase::class.java,
-                    DATABASE_NAME
-                ).addMigrations(AppLimitDatabase.MIGRATION_1_2)
-                    .build()
-                    .also { database = it }
-            }
+            val db =
+                database ?: synchronized(this) {
+                    database ?: Room
+                        .databaseBuilder(
+                            context.applicationContext,
+                            AppLimitDatabase::class.java,
+                            DATABASE_NAME,
+                        ).addMigrations(AppLimitDatabase.MIGRATION_1_2)
+                        .build()
+                        .also { database = it }
+                }
             return AppLimitsStore(db.appLimits(), db.appLimitAlerts())
         }
     }

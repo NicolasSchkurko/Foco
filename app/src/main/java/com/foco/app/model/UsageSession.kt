@@ -4,5 +4,5 @@ package com.foco.app.model
 data class UsageSession(
     val packageName: String,
     val start: Long,
-    val end: Long
+    val end: Long,
 )

@@ -12,5 +12,5 @@ data class AppDayDetail(
     val averageMillis: Long,
     val longestMillis: Long,
     val hourly: List<HourBucket>,
-    val sessions: List<UsageSession>
+    val sessions: List<UsageSession>,
 )

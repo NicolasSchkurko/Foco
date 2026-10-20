@@ -9,8 +9,10 @@ import android.content.Intent
  * boot and only starts the foreground service when a limit and accessibility are present.
  */
 class UsageMonitorBootReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent?) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent?,
+    ) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             UsageMonitorService.sync(context)
         }

@@ -16,7 +16,6 @@ import org.junit.runner.RunWith
 /** Category: notifications (API 36). One alert, one Entendido action, and no fake when denied. */
 @RunWith(AndroidJUnit4::class)
 class AppLimitAlertNotifierTest {
-
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
     private val notifications = context.getSystemService(NotificationManager::class.java)
 
@@ -33,7 +32,8 @@ class AppLimitAlertNotifierTest {
     }
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()
@@ -64,13 +64,20 @@ class AppLimitAlertNotifierTest {
         assertEquals(1, notification.actions.size)
         assertEquals(
             context.getString(R.string.limit_alert_ack),
-            notification.actions.single().title.toString()
+            notification.actions
+                .single()
+                .title
+                .toString(),
         )
 
-        notification.actions.single().actionIntent.send()
+        notification.actions
+            .single()
+            .actionIntent
+            .send()
         waitUntil { activeAlert() == null }
     }
 
-    private fun activeAlert() = notifications.activeNotifications
-        .firstOrNull { it.notification.channelId == AppLimitAlertNotifier.CHANNEL_ID }
+    private fun activeAlert() =
+        notifications.activeNotifications
+            .firstOrNull { it.notification.channelId == AppLimitAlertNotifier.CHANNEL_ID }
 }

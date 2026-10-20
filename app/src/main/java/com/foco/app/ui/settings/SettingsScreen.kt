@@ -45,9 +45,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.foco.app.R
-import com.foco.app.data.AppLimitAlertNotifier
 import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppLanguage
+import com.foco.app.data.AppLimitAlertNotifier
 import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.ExcludedAppsStore
@@ -84,14 +84,16 @@ fun SettingsScreen() {
     val limits by limitsStore.limitsFlow.collectAsState(initial = emptyMap())
     val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     val limitApps by produceState(initialValue = emptyList<Pair<String, String>>(), Unit) {
-        value = withContext(Dispatchers.IO) {
-            val info = AppPackageInfo(context.applicationContext)
-            repository.launchablePackageNames()
-                // Foco's own usage is not measured, so a limit on it would never fire.
-                .filterNot { it == context.packageName }
-                .map { packageName -> packageName to info.label(packageName) }
-                .sortedBy { (_, label) -> label.lowercase() }
-        }
+        value =
+            withContext(Dispatchers.IO) {
+                val info = AppPackageInfo(context.applicationContext)
+                repository
+                    .launchablePackageNames()
+                    // Foco's own usage is not measured, so a limit on it would never fire.
+                    .filterNot { it == context.packageName }
+                    .map { packageName -> packageName to info.label(packageName) }
+                    .sortedBy { (_, label) -> label.lowercase() }
+            }
     }
 
     var notificationsEnabled by remember {
@@ -101,11 +103,12 @@ fun SettingsScreen() {
         notificationsEnabled = AppLimitAlertNotifier(context).canNotify()
     }
 
-    val notificationPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        notificationsEnabled = AppLimitAlertNotifier(context).canNotify()
-    }
+    val notificationPermission =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) {
+            notificationsEnabled = AppLimitAlertNotifier(context).canNotify()
+        }
 
     fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -120,29 +123,31 @@ fun SettingsScreen() {
 
     Scaffold { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
         ) {
             Spacer(Modifier.height(16.dp))
 
             ScreenHeader(
                 title = stringResource(R.string.settings_title),
-                onBack = { backDispatcher?.onBackPressed() }
+                onBack = { backDispatcher?.onBackPressed() },
             )
 
             Spacer(Modifier.height(8.dp))
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .weight(1f)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .weight(1f),
             ) {
                 item {
                     AboutBlock(
                         version = identity.versionName(),
-                        onOpenRepository = { context.startActivity(identity.repositoryIntent()) }
+                        onOpenRepository = { context.startActivity(identity.repositoryIntent()) },
                     )
                     Spacer(Modifier.height(16.dp))
                 }
@@ -151,15 +156,16 @@ fun SettingsScreen() {
                     DropdownRow(
                         title = stringResource(R.string.settings_language_section),
                         value = languageLabel(language),
-                        options = LanguageOption.entries.map { option ->
-                            languageLabel(option) to {
-                                // The pick re-creates the activity: the write must not be cancelled with it.
-                                scope.launch {
-                                    withContext(NonCancellable) { store.setLanguage(option) }
-                                    AppLanguage.applyToSystem(option)
+                        options =
+                            LanguageOption.entries.map { option ->
+                                languageLabel(option) to {
+                                    // The pick re-creates the activity: the write must not be cancelled with it.
+                                    scope.launch {
+                                        withContext(NonCancellable) { store.setLanguage(option) }
+                                        AppLanguage.applyToSystem(option)
+                                    }
                                 }
-                            }
-                        }
+                            },
                     )
                 }
 
@@ -168,13 +174,14 @@ fun SettingsScreen() {
                     DropdownRow(
                         title = stringResource(R.string.settings_appearance_section),
                         value = appearanceLabel(appearance),
-                        options = AppearanceOption.entries.map { option ->
-                            appearanceLabel(option) to {
-                                scope.launch {
-                                    withContext(NonCancellable) { store.setAppearance(option) }
+                        options =
+                            AppearanceOption.entries.map { option ->
+                                appearanceLabel(option) to {
+                                    scope.launch {
+                                        withContext(NonCancellable) { store.setAppearance(option) }
+                                    }
                                 }
-                            }
-                        }
+                            },
                     )
                 }
 
@@ -186,8 +193,11 @@ fun SettingsScreen() {
                     onLimitChange = { packageName, minutes ->
                         requestNotificationPermission()
                         scope.launch {
-                            if (minutes == null) limitsStore.clearLimit(packageName)
-                            else limitsStore.setLimit(packageName, minutes)
+                            if (minutes == null) {
+                                limitsStore.clearLimit(packageName)
+                            } else {
+                                limitsStore.setLimit(packageName, minutes)
+                            }
                             UsageMonitorService.sync(context.applicationContext)
                         }
                     },
@@ -197,7 +207,7 @@ fun SettingsScreen() {
                             limitsStore.setAlertEnabled(packageName, enabled)
                             UsageMonitorService.sync(context.applicationContext)
                         }
-                    }
+                    },
                 )
 
                 item {
@@ -207,17 +217,18 @@ fun SettingsScreen() {
                         Text(
                             text = stringResource(R.string.settings_excluded_empty),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
 
                 items(excluded.sorted()) { packageName ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         AppIcon(packageName = packageName)
                         Spacer(Modifier.width(12.dp))
@@ -225,7 +236,7 @@ fun SettingsScreen() {
                             text = appLabel(packageName),
                             style = MaterialTheme.typography.bodyLarge,
                             maxLines = 1,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                         TextButton(onClick = { scope.launch { excludedStore.restore(packageName) } }) {
                             Text(stringResource(R.string.settings_restore))
@@ -239,27 +250,32 @@ fun SettingsScreen() {
 
 /** The About block: credit, installed version and the way to the repository. */
 @Composable
-private fun AboutBlock(version: String?, onOpenRepository: () -> Unit) {
+private fun AboutBlock(
+    version: String?,
+    onOpenRepository: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(R.string.settings_about_credit),
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = stringResource(
-                R.string.settings_about_version,
-                version ?: stringResource(R.string.settings_about_version_unknown)
-            ),
+            text =
+                stringResource(
+                    R.string.settings_about_version,
+                    version ?: stringResource(R.string.settings_about_version_unknown),
+                ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(4.dp))
         TextButton(onClick = onOpenRepository) {
@@ -270,28 +286,33 @@ private fun AboutBlock(version: String?, onOpenRepository: () -> Unit) {
 
 /** One setting: its title, the active label and a chevron that opens the anchored dropdown. */
 @Composable
-private fun DropdownRow(title: String, value: String, options: List<Pair<String, () -> Unit>>) {
+private fun DropdownRow(
+    title: String,
+    value: String,
+    options: List<Pair<String, () -> Unit>>,
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Box {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
-                .padding(vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true }
+                    .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleMedium)
                 Text(
                     text = value,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null
+                contentDescription = null,
             )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -301,7 +322,7 @@ private fun DropdownRow(title: String, value: String, options: List<Pair<String,
                     onClick = {
                         onSelect()
                         expanded = false
-                    }
+                    },
                 )
             }
         }
@@ -315,15 +336,17 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun languageLabel(option: LanguageOption): String = when (option) {
-    LanguageOption.AUTO -> stringResource(R.string.settings_option_auto)
-    LanguageOption.ES -> stringResource(R.string.settings_language_es)
-    LanguageOption.EN -> stringResource(R.string.settings_language_en)
-}
+private fun languageLabel(option: LanguageOption): String =
+    when (option) {
+        LanguageOption.AUTO -> stringResource(R.string.settings_option_auto)
+        LanguageOption.ES -> stringResource(R.string.settings_language_es)
+        LanguageOption.EN -> stringResource(R.string.settings_language_en)
+    }
 
 @Composable
-private fun appearanceLabel(option: AppearanceOption): String = when (option) {
-    AppearanceOption.AUTO -> stringResource(R.string.settings_option_auto)
-    AppearanceOption.LIGHT -> stringResource(R.string.settings_option_light)
-    AppearanceOption.DARK -> stringResource(R.string.settings_option_dark)
-}
+private fun appearanceLabel(option: AppearanceOption): String =
+    when (option) {
+        AppearanceOption.AUTO -> stringResource(R.string.settings_option_auto)
+        AppearanceOption.LIGHT -> stringResource(R.string.settings_option_light)
+        AppearanceOption.DARK -> stringResource(R.string.settings_option_dark)
+    }

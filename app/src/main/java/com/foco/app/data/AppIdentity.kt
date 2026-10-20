@@ -8,8 +8,9 @@ import android.net.Uri
  * The app's identity for the About block: the repository address and the installed version.
  * Resource: the PackageManager, read-only, no state of its own.
  */
-class AppIdentity(private val context: Context) {
-
+class AppIdentity(
+    private val context: Context,
+) {
     /** The installed version name; null when the package manager does not resolve it. */
     fun versionName(): String? =
         runCatching {

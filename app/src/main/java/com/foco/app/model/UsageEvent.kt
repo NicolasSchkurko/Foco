@@ -4,5 +4,5 @@ package com.foco.app.model
 data class UsageEvent(
     val packageName: String,
     val timestamp: Long,
-    val type: UsageEventType
+    val type: UsageEventType,
 )

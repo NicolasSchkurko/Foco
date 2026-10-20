@@ -31,24 +31,29 @@ fun HourChart(hourly: List<HourBucket>) {
         val maxMillis = hourly.maxOf { it.millis }.coerceAtLeast(1L)
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(72.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.Bottom,
         ) {
             hourly.forEach { bucket ->
                 val fraction = (bucket.millis.toFloat() / maxMillis).coerceIn(0f, 1f)
                 val minVisible = if (bucket.millis > 0) 0.04f else 0.015f
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(fraction.coerceAtLeast(minVisible))
-                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                        .background(
-                            if (bucket.millis > 0) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight(fraction.coerceAtLeast(minVisible))
+                            .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                            .background(
+                                if (bucket.millis > 0) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
+                            ),
                 )
             }
         }
@@ -57,13 +62,13 @@ fun HourChart(hourly: List<HourBucket>) {
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             listOf("0", "6", "12", "18", "23").forEach {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

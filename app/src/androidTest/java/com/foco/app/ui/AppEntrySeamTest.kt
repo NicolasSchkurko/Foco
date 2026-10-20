@@ -17,7 +17,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class AppEntrySeamTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -47,7 +46,7 @@ class AppEntrySeamTest {
             App(
                 isUsageAccessGranted = { granted },
                 isAccessibilityGranted = { accessibilityGranted },
-                startupLoad = {}
+                startupLoad = {},
             )
         }
     }

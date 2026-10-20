@@ -20,8 +20,9 @@ import java.time.ZoneId
  * Reads UsageStatsManager and maps it to flat events; sessions come from the pure fold, clamped to the day, and from
  * the package policy. It adds nothing: flat data out, the UI derives.
  */
-class UsageRepository(private val context: Context) {
-
+class UsageRepository(
+    private val context: Context,
+) {
     private val usageStats: UsageStatsManager? =
         context.getSystemService(UsageStatsManager::class.java)
 
@@ -40,9 +41,9 @@ class UsageRepository(private val context: Context) {
         context.packageManager
             .resolveActivity(
                 Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
-                0
-            )
-            ?.activityInfo?.packageName
+                0,
+            )?.activityInfo
+            ?.packageName
             ?.let { result += it }
         result
     }
@@ -54,21 +55,25 @@ class UsageRepository(private val context: Context) {
     fun loadToday(now: Long = System.currentTimeMillis()): DayData =
         loadDay(
             date = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate(),
-            now = now
+            now = now,
         )
 
     /**
      * Events -> fold -> clamp to the day -> package policy. [dayWindow] builds the window: it looks from
      * the previous day's start and ends at `min(day end, now)`; the unlocks are that day's.
      */
-    fun loadDay(date: LocalDate, now: Long = System.currentTimeMillis()): DayData {
+    fun loadDay(
+        date: LocalDate,
+        now: Long = System.currentTimeMillis(),
+    ): DayData {
         val window = dayWindow(date, ZoneId.systemDefault(), now)
         val startOfDay = window.startOfDay
         val dayEndExclusive = window.dayEndExclusive
         val effectiveEnd = window.effectiveEnd
 
-        val events = usageStats?.queryEvents(window.lookbackStart, effectiveEnd)
-            ?: return DayData(sessions = emptyList(), unlockTimes = emptyList())
+        val events =
+            usageStats?.queryEvents(window.lookbackStart, effectiveEnd)
+                ?: return DayData(sessions = emptyList(), unlockTimes = emptyList())
 
         val rawEvents = mutableListOf<UsageEvent>()
         val unlockTimes = mutableListOf<Long>()
@@ -87,25 +92,28 @@ class UsageRepository(private val context: Context) {
                     }
 
                 UsageEvents.Event.ACTIVITY_PAUSED,
-                UsageEvents.Event.ACTIVITY_STOPPED ->
+                UsageEvents.Event.ACTIVITY_STOPPED,
+                ->
                     event.packageName?.let {
                         rawEvents += UsageEvent(it, event.timeStamp, UsageEventType.STOPPED)
                     }
             }
         }
 
-        val sessions = filterSessions(
-            sessions = clampSessionsToDay(
-                sessions = buildSessions(rawEvents, now = effectiveEnd),
-                dayStart = startOfDay,
-                dayEndExclusive = dayEndExclusive
-            ),
-            allowedPackages = launchablePackages,
-            excludedPackages = excludedPackages
-        )
+        val sessions =
+            filterSessions(
+                sessions =
+                    clampSessionsToDay(
+                        sessions = buildSessions(rawEvents, now = effectiveEnd),
+                        dayStart = startOfDay,
+                        dayEndExclusive = dayEndExclusive,
+                    ),
+                allowedPackages = launchablePackages,
+                excludedPackages = excludedPackages,
+            )
         return DayData(
             sessions = mergeContiguousSessions(sessions, ZoneId.systemDefault()),
-            unlockTimes = unlockTimes
+            unlockTimes = unlockTimes,
         )
     }
 }

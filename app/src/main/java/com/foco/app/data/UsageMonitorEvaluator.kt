@@ -9,9 +9,10 @@ import com.foco.app.domain.AppLimitRules
  */
 class UsageMonitorEvaluator(
     context: Context,
-    private val usage: UsageRepository = UsageRepository(context)
+    private val usage: UsageRepository = UsageRepository(context),
 ) {
-
-    fun usedSecondsToday(packageName: String, now: Long = System.currentTimeMillis()): Long =
-        AppLimitRules.usedSeconds(usage.loadToday(now).sessions, packageName)
+    fun usedSecondsToday(
+        packageName: String,
+        now: Long = System.currentTimeMillis(),
+    ): Long = AppLimitRules.usedSeconds(usage.loadToday(now).sessions, packageName)
 }

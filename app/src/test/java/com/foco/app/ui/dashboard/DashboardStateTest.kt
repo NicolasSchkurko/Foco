@@ -1,14 +1,13 @@
 package com.foco.app.ui.dashboard
 
 import com.foco.app.domain.DayStop
-import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.LocalDate
 
 class DashboardStateTest {
-
     private val today = LocalDate.of(2026, 10, 20)
     private val yesterday = today.minusDays(1)
     private val ring = listOf(DayStop.Day(today), DayStop.Week, DayStop.Day(yesterday))
@@ -23,7 +22,10 @@ class DashboardStateTest {
 
         assertTrue(state.goBack())
         assertEquals(DayStop.Day(today), state.value.ring.current)
-        assertTrue(state.value.ring.history.isEmpty())
+        assertTrue(
+            state.value.ring.history
+                .isEmpty(),
+        )
     }
 
     @Test
@@ -33,7 +35,10 @@ class DashboardStateTest {
 
         assertFalse(state.moveTo(outside, ring, isShortcut = false))
         assertEquals(DayStop.Day(today), state.value.ring.current)
-        assertTrue(state.value.ring.history.isEmpty())
+        assertTrue(
+            state.value.ring.history
+                .isEmpty(),
+        )
     }
 
     @Test

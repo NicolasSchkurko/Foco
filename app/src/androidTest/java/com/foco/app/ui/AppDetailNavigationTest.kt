@@ -16,8 +16,6 @@ import com.foco.app.R
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -25,6 +23,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * Detail navigation E2E: tapping a row opens it, the system back returns and the visible arrow too.
@@ -32,7 +32,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class AppDetailNavigationTest {
-
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
@@ -41,7 +40,8 @@ class AppDetailNavigationTest {
     private fun string(resId: Int): String = targetContext.resources.getString(resId)
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()
@@ -90,13 +90,15 @@ class AppDetailNavigationTest {
     @Test
     fun theBackArrowSitsAtTheLeadingEdgeOfTheHeader() {
         launchAndOpenDetail().use {
-            val back = composeRule.onNodeWithContentDescription(string(R.string.content_back))
-                .getUnclippedBoundsInRoot()
+            val back =
+                composeRule
+                    .onNodeWithContentDescription(string(R.string.content_back))
+                    .getUnclippedBoundsInRoot()
             val identity = composeRule.onNodeWithText("Settings").getUnclippedBoundsInRoot()
 
             assertTrue(
                 "the arrow must sit at the header's leading edge (the old inset left the node at ~24 dp): $back",
-                back.left.value <= 16f
+                back.left.value <= 16f,
             )
             assertTrue("the arrow must precede the app identity", back.left < identity.left)
         }
@@ -130,7 +132,7 @@ class AppDetailNavigationTest {
             val sessionRow = "${formatTimeOfDay(start)} – ${formatTimeOfDay(end)}"
             assertTrue(
                 "the stored session of the day must be listed: $sessionRow",
-                composeRule.onAllNodesWithText(sessionRow).fetchSemanticsNodes().isNotEmpty()
+                composeRule.onAllNodesWithText(sessionRow).fetchSemanticsNodes().isNotEmpty(),
             )
         }
     }
@@ -152,9 +154,10 @@ class AppDetailNavigationTest {
             }
 
             // Every day the window is missing, down to the retention floor, now lands in the store.
-            val gained = generateSequence(today.minusDays(reached + 1L)) { it.minusDays(1) }
-                .takeWhile { it >= today.minusDays(6) }
-                .toList()
+            val gained =
+                generateSequence(today.minusDays(reached + 1L)) { it.minusDays(1) }
+                    .takeWhile { it >= today.minusDays(6) }
+                    .toList()
             assumeTrue("the store already holds the whole window", gained.isNotEmpty())
             gained.forEach { day ->
                 val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + 9 * HOUR
@@ -177,14 +180,19 @@ class AppDetailNavigationTest {
     }
 
     /** Stores one day's session in the app's own store, behind the platform reader. */
-    private fun seedInStore(day: LocalDate, from: Long, to: Long) {
-        val store = SessionHistoryStore.forApp(targetContext) { date ->
-            if (date == day) {
-                DayData(listOf(UsageSession("com.android.settings", from, to)), unlockTimes = emptyList())
-            } else {
-                emptyDay
+    private fun seedInStore(
+        day: LocalDate,
+        from: Long,
+        to: Long,
+    ) {
+        val store =
+            SessionHistoryStore.forApp(targetContext) { date ->
+                if (date == day) {
+                    DayData(listOf(UsageSession("com.android.settings", from, to)), unlockTimes = emptyList())
+                } else {
+                    emptyDay
+                }
             }
-        }
         runBlocking { store.consolidate(LocalDate.now()) }
     }
 
@@ -195,8 +203,11 @@ class AppDetailNavigationTest {
 
     /** Whether the back arrow can still walk one day back. */
     private fun backArrowEnabled(): Boolean =
-        !composeRule.onNodeWithText("‹").fetchSemanticsNode()
-            .config.contains(SemanticsProperties.Disabled)
+        !composeRule
+            .onNodeWithText("‹")
+            .fetchSemanticsNode()
+            .config
+            .contains(SemanticsProperties.Disabled)
 
     /** Waits for the back arrow to be enabled, taps it once and lets the screen settle. */
     private fun tapBackArrow() {

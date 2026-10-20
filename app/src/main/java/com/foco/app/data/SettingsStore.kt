@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.map
  * Language and appearance preferences. Resource: the `foco_settings` file
  * (Preferences DataStore) in the app's private storage; lives as long as the app.
  */
-class SettingsStore(private val context: Context) {
-
+class SettingsStore(
+    private val context: Context,
+) {
     val language: Flow<LanguageOption> =
         context.settingsDataStore.data.map { LanguageOption.fromWire(it[languageKey]) }
 

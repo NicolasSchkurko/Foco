@@ -16,8 +16,6 @@ import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -25,6 +23,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * The week view on device: entry from the dashboard and back, the seven bars (today live, the
@@ -32,7 +32,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class WeekScreenTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -55,18 +54,23 @@ class WeekScreenTest {
 
     private fun string(resId: Int): String = targetContext.resources.getString(resId)
 
-    private fun string(resId: Int, vararg args: Any): String =
-        targetContext.resources.getString(resId, *args)
+    private fun string(
+        resId: Int,
+        vararg args: Any,
+    ): String = targetContext.resources.getString(resId, *args)
 
-    private fun quantity(resId: Int, count: Int): String =
-        targetContext.resources.getQuantityString(resId, count, count)
+    private fun quantity(
+        resId: Int,
+        count: Int,
+    ): String = targetContext.resources.getQuantityString(resId, count, count)
 
-    private fun dayLabel(date: LocalDate): String = formatDayLabel(
-        date,
-        today,
-        string(R.string.day_today),
-        string(R.string.day_yesterday)
-    )
+    private fun dayLabel(date: LocalDate): String =
+        formatDayLabel(
+            date,
+            today,
+            string(R.string.day_today),
+            string(R.string.day_yesterday),
+        )
 
     /** The live day comes through the seam: the platform is never read and no activity is launched. */
     private fun showApp() {
@@ -92,20 +96,24 @@ class WeekScreenTest {
     }
 
     /** Stores one day's session in the app's own store, behind the platform reader. */
-    private fun seedStoredDay(day: LocalDate, from: Long, to: Long) {
-        val store = SessionHistoryStore.forApp(targetContext) { date ->
-            if (date == day) {
-                DayData(listOf(UsageSession(settings, from, to)), emptyList())
-            } else {
-                DayData(emptyList(), emptyList())
+    private fun seedStoredDay(
+        day: LocalDate,
+        from: Long,
+        to: Long,
+    ) {
+        val store =
+            SessionHistoryStore.forApp(targetContext) { date ->
+                if (date == day) {
+                    DayData(listOf(UsageSession(settings, from, to)), emptyList())
+                } else {
+                    DayData(emptyList(), emptyList())
+                }
             }
-        }
         runBlocking { store.consolidate(today) }
     }
 
     /** The read-only store over the app's database. */
-    private fun store(): SessionHistoryStore =
-        SessionHistoryStore.forApp(targetContext) { DayData(emptyList(), emptyList()) }
+    private fun store(): SessionHistoryStore = SessionHistoryStore.forApp(targetContext) { DayData(emptyList(), emptyList()) }
 
     private fun storedWeek(): List<DailyAggregate> = runBlocking { store().week(today) }
 
@@ -134,21 +142,24 @@ class WeekScreenTest {
         // The expected description of every bar, day by day: today live, a stored day summed from
         // its rows and a day the store has nothing for absent (never a duration of zero).
         val storedTotals = storedWeek()
-        val unseeded = (1..6).map { today.minusDays(it.toLong()) }
-            .filter { date -> storedTotals.none { it.day == date.toString() } }
-        val expected = (6 downTo 0).map { back ->
-            val date = today.minusDays(back.toLong())
-            val rows = storedTotals.filter { it.day == date.toString() }
-            when {
-                date == today ->
-                    string(R.string.week_bar, dayLabel(date), formatDuration(liveTo - liveFrom))
+        val unseeded =
+            (1..6)
+                .map { today.minusDays(it.toLong()) }
+                .filter { date -> storedTotals.none { it.day == date.toString() } }
+        val expected =
+            (6 downTo 0).map { back ->
+                val date = today.minusDays(back.toLong())
+                val rows = storedTotals.filter { it.day == date.toString() }
+                when {
+                    date == today ->
+                        string(R.string.week_bar, dayLabel(date), formatDuration(liveTo - liveFrom))
 
-                rows.isNotEmpty() ->
-                    string(R.string.week_bar, dayLabel(date), formatDuration(rows.sumOf { it.totalMillis }))
+                    rows.isNotEmpty() ->
+                        string(R.string.week_bar, dayLabel(date), formatDuration(rows.sumOf { it.totalMillis }))
 
-                else -> string(R.string.week_bar_absent, dayLabel(date))
+                    else -> string(R.string.week_bar_absent, dayLabel(date))
+                }
             }
-        }
         expected.forEach { awaitDescription(it) }
 
         // Every day the store has nothing for reads "no data", never a zero duration. A device whose
@@ -158,7 +169,12 @@ class WeekScreenTest {
             awaitDescription(string(R.string.week_bar_absent, dayLabel(it)))
         }
 
-        val daysUsed = storedTotals.filter { it.packageName == settings }.map { it.day }.distinct().size + 1
+        val daysUsed =
+            storedTotals
+                .filter { it.packageName == settings }
+                .map { it.day }
+                .distinct()
+                .size + 1
         awaitText(string(R.string.dashboard_apps))
         awaitText(quantity(R.plurals.week_days_used, daysUsed))
     }
@@ -169,9 +185,10 @@ class WeekScreenTest {
         openWeek()
 
         val stored = storedWeek().map { it.day }.toSet()
-        val absent = (1..6)
-            .map { today.minusDays(it.toLong()) }
-            .firstOrNull { it.toString() !in stored }
+        val absent =
+            (1..6)
+                .map { today.minusDays(it.toLong()) }
+                .firstOrNull { it.toString() !in stored }
         assumeTrue("the device already stores every day in the window", absent != null)
 
         val day = absent!!
@@ -195,9 +212,10 @@ class WeekScreenTest {
 
         val dayTotal = storedWeek().filter { it.day == day.toString() }.sumOf { it.totalMillis }
         val storedUnlocks = runBlocking { store().unlocksFor(day) } ?: 0
-        val settingsTotal = runBlocking { store().sessionsFor(day) }
-            .filter { it.packageName == settings }
-            .sumOf { it.end - it.start }
+        val settingsTotal =
+            runBlocking { store().sessionsFor(day) }
+                .filter { it.packageName == settings }
+                .sumOf { it.end - it.start }
         assertTrue("the seeded day must keep its app's sessions: $settingsTotal", settingsTotal > 0)
 
         showApp()
@@ -213,8 +231,8 @@ class WeekScreenTest {
             string(
                 R.string.dashboard_usage_line,
                 formatDuration(dayTotal),
-                quantity(R.plurals.dashboard_unlocks, storedUnlocks)
-            )
+                quantity(R.plurals.dashboard_unlocks, storedUnlocks),
+            ),
         )
         awaitText(string(R.string.chart_hourly))
         awaitText(string(R.string.dashboard_apps))
@@ -229,7 +247,11 @@ class WeekScreenTest {
     }
 
     /** One day's instant at the given hour and minute, on the device's own calendar. */
-    private fun at(day: LocalDate, hour: Int, minute: Int = 0): Long =
+    private fun at(
+        day: LocalDate,
+        hour: Int,
+        minute: Int = 0,
+    ): Long =
         day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() +
             hour * HOUR_MILLIS + minute * 60_000L
 

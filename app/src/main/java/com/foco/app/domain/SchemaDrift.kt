@@ -8,19 +8,20 @@ fun schemaDrift(
     declaredVersion: Int,
     committedVersions: Set<Int>,
     committedIdentityHash: String?,
-    runtimeIdentityHash: String?
-): String? = when {
-    declaredVersion !in committedVersions ->
-        "version $declaredVersion has no committed schema export"
+    runtimeIdentityHash: String?,
+): String? =
+    when {
+        declaredVersion !in committedVersions ->
+            "version $declaredVersion has no committed schema export"
 
-    committedIdentityHash.isNullOrBlank() ->
-        "version $declaredVersion has no identity hash in its committed schema"
+        committedIdentityHash.isNullOrBlank() ->
+            "version $declaredVersion has no identity hash in its committed schema"
 
-    runtimeIdentityHash.isNullOrBlank() ->
-        "the open database reports no identity hash"
+        runtimeIdentityHash.isNullOrBlank() ->
+            "the open database reports no identity hash"
 
-    committedIdentityHash != runtimeIdentityHash ->
-        "version $declaredVersion drifted: committed $committedIdentityHash, database $runtimeIdentityHash"
+        committedIdentityHash != runtimeIdentityHash ->
+            "version $declaredVersion drifted: committed $committedIdentityHash, database $runtimeIdentityHash"
 
-    else -> null
-}
+        else -> null
+    }

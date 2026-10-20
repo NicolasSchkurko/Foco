@@ -25,14 +25,15 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
             DashboardScreen(
                 loadDay = loadDay,
                 onAppClick = { packageName, date ->
-                    val route = if (date == null) {
-                        "detail/$packageName"
-                    } else {
-                        "detail/$packageName?date=$date"
-                    }
+                    val route =
+                        if (date == null) {
+                            "detail/$packageName"
+                        } else {
+                            "detail/$packageName?date=$date"
+                        }
                     navController.navigate(route)
                 },
-                onOpenSettings = { navController.navigate("settings") }
+                onOpenSettings = { navController.navigate("settings") },
             )
         }
 
@@ -42,20 +43,23 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
 
         composable(
             route = "detail/{packageName}?date={date}",
-            arguments = listOf(
-                navArgument("packageName") { type = NavType.StringType },
-                navArgument("date") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            )
+            arguments =
+                listOf(
+                    navArgument("packageName") { type = NavType.StringType },
+                    navArgument("date") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
         ) { backStackEntry ->
             AppDetailScreen(
                 packageName = backStackEntry.arguments?.getString("packageName").orEmpty(),
-                date = backStackEntry.arguments?.getString("date")
-                    ?.takeIf { it.isNotEmpty() }
-                    ?.let(LocalDate::parse)
+                date =
+                    backStackEntry.arguments
+                        ?.getString("date")
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.let(LocalDate::parse),
             )
         }
     }

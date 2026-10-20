@@ -27,7 +27,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class ExcludedAppsTest {
-
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
@@ -38,14 +37,16 @@ class ExcludedAppsTest {
     private val usageLinePrefix = string(R.string.dashboard_usage_line).substringBefore(":")
 
     private fun shell(command: String) {
-        InstrumentationRegistry.getInstrumentation()
+        InstrumentationRegistry
+            .getInstrumentation()
             .uiAutomation
             .executeShellCommand(command)
             .close()
     }
 
     private fun headerText(): String =
-        composeRule.onAllNodesWithText(usageLinePrefix, substring = true)
+        composeRule
+            .onAllNodesWithText(usageLinePrefix, substring = true)
             .fetchSemanticsNodes()
             .first()
             .config

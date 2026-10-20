@@ -1,17 +1,15 @@
 package com.foco.app.data
 
-import com.foco.app.domain.ConsolidationOutcome
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
-import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
 
 /**
  * Category: background job (API 36). Builds the real worker with `work-testing` and points it at a
@@ -19,7 +17,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class ConsolidationWorkerTest {
-
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @After
@@ -28,24 +25,26 @@ class ConsolidationWorkerTest {
     }
 
     @Test
-    fun aRunConsolidatesTheFinishedDaysAndSucceeds() = runBlocking {
-        val days = mutableListOf<LocalDate>()
-        ConsolidationWorker.runnerFor = { ConsolidationRunner({ day -> days += day }) }
+    fun aRunConsolidatesTheFinishedDaysAndSucceeds() =
+        runBlocking {
+            val days = mutableListOf<LocalDate>()
+            ConsolidationWorker.runnerFor = { ConsolidationRunner({ day -> days += day }) }
 
-        val result = TestListenableWorkerBuilder<ConsolidationWorker>(context).build().doWork()
+            val result = TestListenableWorkerBuilder<ConsolidationWorker>(context).build().doWork()
 
-        assertEquals(ListenableWorker.Result.success(), result)
-        assertEquals(1, days.size)
-    }
-
-    @Test
-    fun aFailingRunAsksForARetry() = runBlocking {
-        ConsolidationWorker.runnerFor = {
-            ConsolidationRunner({ throw IllegalStateException("platform busy") })
+            assertEquals(ListenableWorker.Result.success(), result)
+            assertEquals(1, days.size)
         }
 
-        val result = TestListenableWorkerBuilder<ConsolidationWorker>(context).build().doWork()
+    @Test
+    fun aFailingRunAsksForARetry() =
+        runBlocking {
+            ConsolidationWorker.runnerFor = {
+                ConsolidationRunner({ throw IllegalStateException("platform busy") })
+            }
 
-        assertEquals(ListenableWorker.Result.retry(), result)
-    }
+            val result = TestListenableWorkerBuilder<ConsolidationWorker>(context).build().doWork()
+
+            assertEquals(ListenableWorker.Result.retry(), result)
+        }
 }

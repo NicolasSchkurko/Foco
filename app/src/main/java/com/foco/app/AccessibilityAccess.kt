@@ -11,20 +11,21 @@ import android.text.TextUtils
  * Settings. Resource: the system accessibility binding; no state of its own.
  */
 object AccessibilityAccess {
-
     /** Whether Foco's accessibility service is in the system's enabled list. */
     fun isGranted(context: Context): Boolean {
-        val enabled = Settings.Secure.getInt(
-            context.contentResolver,
-            Settings.Secure.ACCESSIBILITY_ENABLED,
-            0
-        ) == 1
+        val enabled =
+            Settings.Secure.getInt(
+                context.contentResolver,
+                Settings.Secure.ACCESSIBILITY_ENABLED,
+                0,
+            ) == 1
         if (!enabled) return false
 
-        val services = Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        ) ?: return false
+        val services =
+            Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            ) ?: return false
 
         val expected = ComponentName(context, UsageMonitorAccessibilityService::class.java)
         val splitter = TextUtils.SimpleStringSplitter(':')

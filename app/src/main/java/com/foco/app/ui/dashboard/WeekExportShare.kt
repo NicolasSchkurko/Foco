@@ -8,7 +8,11 @@ import java.io.File
 import java.time.LocalDate
 
 /** Writes the export as a transient cache file and answers the read-only URI that shares it. */
-fun writeWeekExport(context: Context, json: String, weekEnd: LocalDate): Uri {
+fun writeWeekExport(
+    context: Context,
+    json: String,
+    weekEnd: LocalDate,
+): Uri {
     val directory = File(context.cacheDir, "week-exports").apply { mkdirs() }
     val file = File(directory, "foco-week-$weekEnd.json")
     file.writeText(json, Charsets.UTF_8)

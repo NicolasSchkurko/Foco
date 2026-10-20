@@ -7,7 +7,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AppLimitRulesTest {
-
     @Test
     fun `a package without a limit is never blocked`() {
         assertFalse(AppLimitRules.isAtOrOverLimit(null, 0))
@@ -38,10 +37,11 @@ class AppLimitRulesTest {
 
     @Test
     fun `only the package's own sessions count`() {
-        val sessions = listOf(
-            UsageSession("instagram", 0, 10 * 60_000L),
-            UsageSession("youtube", 10 * 60_000L, 40 * 60_000L)
-        )
+        val sessions =
+            listOf(
+                UsageSession("instagram", 0, 10 * 60_000L),
+                UsageSession("youtube", 10 * 60_000L, 40 * 60_000L),
+            )
 
         assertEquals(10 * 60L, AppLimitRules.usedSeconds(sessions, "instagram"))
         assertEquals(30 * 60L, AppLimitRules.usedSeconds(sessions, "youtube"))

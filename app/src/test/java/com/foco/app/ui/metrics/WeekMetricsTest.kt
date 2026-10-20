@@ -3,21 +3,25 @@ package com.foco.app.ui.metrics
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
-import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 class WeekMetricsTest {
-
     private val zone = ZoneOffset.UTC
 
     private val today = LocalDate.of(2026, 10, 16)
 
-    private fun at(date: LocalDate, hour: Int, minute: Int): Long =
-        ZonedDateTime.of(date.year, date.monthValue, date.dayOfMonth, hour, minute, 0, 0, zone)
+    private fun at(
+        date: LocalDate,
+        hour: Int,
+        minute: Int,
+    ): Long =
+        ZonedDateTime
+            .of(date.year, date.monthValue, date.dayOfMonth, hour, minute, 0, 0, zone)
             .toInstant()
             .toEpochMilli()
 
@@ -27,9 +31,10 @@ class WeekMetricsTest {
 
     @Test
     fun `the window runs seven days oldest first, today live and the six previous stored`() {
-        val stored = (1..6).map { back ->
-            DailyAggregate("app.a", today.minusDays(back.toLong()).toString(), minutes(back))
-        }
+        val stored =
+            (1..6).map { back ->
+                DailyAggregate("app.a", today.minusDays(back.toLong()).toString(), minutes(back))
+            }
 
         val metrics = deriveWeekMetrics(stored, today, live(emptyList()))
 
@@ -39,7 +44,7 @@ class WeekMetricsTest {
         assertEquals(WeekDayBar.State.Live, metrics.bars.last().state)
         assertTrue(
             "the six previous days must be stored: ${metrics.bars.map { it.state }}",
-            metrics.bars.dropLast(1).all { it.state == WeekDayBar.State.Stored }
+            metrics.bars.dropLast(1).all { it.state == WeekDayBar.State.Stored },
         )
     }
 
@@ -57,8 +62,10 @@ class WeekMetricsTest {
     fun `a day with no stored total reads absent, not as a stored zero`() {
         val stored = listOf(DailyAggregate("app.a", today.minusDays(2).toString(), minutes(10)))
 
-        val bar = deriveWeekMetrics(stored, today, live(emptyList()))
-            .bars.single { it.date == today.minusDays(1) }
+        val bar =
+            deriveWeekMetrics(stored, today, live(emptyList()))
+                .bars
+                .single { it.date == today.minusDays(1) }
 
         assertEquals(WeekDayBar.State.Absent, bar.state)
         assertEquals(0L, bar.totalMillis)
@@ -66,11 +73,12 @@ class WeekMetricsTest {
 
     @Test
     fun `the ranking merges a package's stored days and its live sessions into one entry`() {
-        val stored = listOf(
-            DailyAggregate("app.a", today.minusDays(1).toString(), minutes(10)),
-            DailyAggregate("app.a", today.minusDays(2).toString(), minutes(20)),
-            DailyAggregate("app.b", today.minusDays(1).toString(), minutes(5))
-        )
+        val stored =
+            listOf(
+                DailyAggregate("app.a", today.minusDays(1).toString(), minutes(10)),
+                DailyAggregate("app.a", today.minusDays(2).toString(), minutes(20)),
+                DailyAggregate("app.b", today.minusDays(1).toString(), minutes(5)),
+            )
         val sessions = listOf(UsageSession("app.a", at(today, 9, 0), at(today, 9, 30)))
 
         val ranking = deriveWeekMetrics(stored, today, live(sessions)).ranking
@@ -85,10 +93,11 @@ class WeekMetricsTest {
     @Test
     fun `duplicate stored rows for one day count once in daysUsed`() {
         val day = today.minusDays(1).toString()
-        val stored = listOf(
-            DailyAggregate("app.a", day, minutes(10)),
-            DailyAggregate("app.a", day, minutes(5))
-        )
+        val stored =
+            listOf(
+                DailyAggregate("app.a", day, minutes(10)),
+                DailyAggregate("app.a", day, minutes(5)),
+            )
 
         val ranking = deriveWeekMetrics(stored, today, live(emptyList())).ranking
 
@@ -109,10 +118,11 @@ class WeekMetricsTest {
 
     @Test
     fun `an excluded package leaves the ranking but keeps its time in the bars`() {
-        val stored = listOf(
-            DailyAggregate("app.a", today.minusDays(1).toString(), minutes(40)),
-            DailyAggregate("app.b", today.minusDays(1).toString(), minutes(10))
-        )
+        val stored =
+            listOf(
+                DailyAggregate("app.a", today.minusDays(1).toString(), minutes(40)),
+                DailyAggregate("app.b", today.minusDays(1).toString(), minutes(10)),
+            )
 
         val metrics = deriveWeekMetrics(stored, today, live(emptyList()), excludedPackages = setOf("app.a"))
 

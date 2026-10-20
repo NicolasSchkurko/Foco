@@ -6,7 +6,6 @@ import org.junit.Test
 
 /** The pure alert thresholds: 50/75/90, highest crossed, none without a limit or at 100 %. */
 class AppLimitAlertRulesTest {
-
     @Test
     fun noLimitOrZeroNeverAlerts() {
         assertEquals(emptyList<Int>(), AppLimitRules.crossedAlertTiers(null, 10_000))

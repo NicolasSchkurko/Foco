@@ -10,12 +10,11 @@ import org.junit.Test
  * assertion runs on the JVM without the framework (`applyToSystem` cannot be called: `android.jar` is a stub).
  */
 class AppAppearanceTest {
-
     @Test
     fun `automatic follows the system night mode`() {
         assertEquals(
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
-            AppAppearance.nightModeFor(AppearanceOption.AUTO)
+            AppAppearance.nightModeFor(AppearanceOption.AUTO),
         )
     }
 
@@ -23,11 +22,11 @@ class AppAppearanceTest {
     fun `light and dark override the system night mode`() {
         assertEquals(
             AppCompatDelegate.MODE_NIGHT_NO,
-            AppAppearance.nightModeFor(AppearanceOption.LIGHT)
+            AppAppearance.nightModeFor(AppearanceOption.LIGHT),
         )
         assertEquals(
             AppCompatDelegate.MODE_NIGHT_YES,
-            AppAppearance.nightModeFor(AppearanceOption.DARK)
+            AppAppearance.nightModeFor(AppearanceOption.DARK),
         )
     }
 }

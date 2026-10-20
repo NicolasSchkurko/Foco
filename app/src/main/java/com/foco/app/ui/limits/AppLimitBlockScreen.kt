@@ -32,7 +32,7 @@ import kotlinx.coroutines.isActive
 fun AppLimitBlockScreen(
     appName: String,
     onFinished: () -> Unit,
-    seconds: Int = 3
+    seconds: Int = 3,
 ) {
     var remaining by remember(seconds) { mutableIntStateOf(seconds) }
 
@@ -50,30 +50,31 @@ fun AppLimitBlockScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             modifier = Modifier.padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(R.string.limit_block_title),
                 style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(24.dp))
             Text(
                 text = stringResource(R.string.limit_block_message, appName),
                 style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(32.dp))
             Text(
                 text = stringResource(R.string.limit_block_countdown, remaining),
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.displayLarge,
             )
         }
     }

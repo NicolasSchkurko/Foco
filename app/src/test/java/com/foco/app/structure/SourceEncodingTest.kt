@@ -1,13 +1,12 @@
 package com.foco.app.structure
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import java.io.File
 
 /** Source files and top-level docs are UTF-8 without BOM and carry no replacement characters. */
 class SourceEncodingTest {
-
     private val replacement = '\uFFFD'
 
     @Test
@@ -15,11 +14,15 @@ class SourceEncodingTest {
         val sourceRoot = File("src")
         assertTrue("expected sources at ${sourceRoot.absolutePath}", sourceRoot.isDirectory)
 
-        val files = sourceRoot.walkTopDown()
-            .filter { it.isFile && it.extension in setOf("kt", "xml", "md") }
-            .toList() + File("..").listFiles { file ->
-            file.isFile && file.extension == "md"
-        }.orEmpty()
+        val files =
+            sourceRoot
+                .walkTopDown()
+                .filter { it.isFile && it.extension in setOf("kt", "xml", "md") }
+                .toList() +
+                File("..")
+                    .listFiles { file ->
+                        file.isFile && file.extension == "md"
+                    }.orEmpty()
 
         val violations = mutableListOf<String>()
         files.forEach { file ->

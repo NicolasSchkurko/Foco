@@ -16,7 +16,7 @@ suspend fun migrateSettingsFromLegacyDataStore(context: Context) {
 
 internal suspend fun copySettingsFromLegacyStore(
     legacy: DataStore<Preferences>,
-    target: DataStore<Preferences>
+    target: DataStore<Preferences>,
 ) {
     val stored = legacy.data.first()
     val language = stored[languageKey]

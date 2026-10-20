@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,13 +17,13 @@ import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 /**
  * The split's migration: `language`/`appearance` travel to the new store, the legacy one is cleared and
  * running it again is a no-op; two real DataStores over temporary files (no Android).
  */
 class SettingsMigrationTest {
-
     @get:Rule
     val temp = TemporaryFolder()
 
@@ -33,7 +32,7 @@ class SettingsMigrationTest {
     private fun newStore(fileName: String): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             scope = scope,
-            produceFile = { File(temp.root, fileName) }
+            produceFile = { File(temp.root, fileName) },
         )
 
     /**
@@ -43,7 +42,11 @@ class SettingsMigrationTest {
     private fun assumeDataStoreCanReplaceAnExistingFile() {
         assumeFalse(
             "En Windows DataStore no puede reemplazar un archivo existente (rama renameTo)",
-            System.getProperty("os.name").orEmpty().lowercase().contains("win")
+            System
+                .getProperty("os.name")
+                .orEmpty()
+                .lowercase()
+                .contains("win"),
         )
     }
 
@@ -57,7 +60,9 @@ class SettingsMigrationTest {
         assumeDataStoreCanReplaceAnExistingFile()
         val legacy = newStore("legacy.preferences_pb")
         val target = newStore("foco_settings.preferences_pb")
-        val exclusionsKey = androidx.datastore.preferences.core.stringSetPreferencesKey("excluded_packages")
+        val exclusionsKey =
+            androidx.datastore.preferences.core
+                .stringSetPreferencesKey("excluded_packages")
 
         runBlocking {
             legacy.edit { preferences ->

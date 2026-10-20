@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 /** One marker per finished day; the count may be unknown (null). Deleted with its day's rows. */
 @Dao
 interface ConsolidatedDayDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(row: ConsolidatedDay)
 
