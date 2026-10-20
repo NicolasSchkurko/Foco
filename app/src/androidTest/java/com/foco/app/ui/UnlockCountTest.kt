@@ -59,6 +59,11 @@ class UnlockCountTest {
 
     @Test
     fun subtitleShowsTheDaysUnlockCount() {
+        // Known state: on a keyguard that is already up, SLEEP/WAKEUP does not always land on it again.
+        shell("input keyevent KEYCODE_WAKEUP")
+        shell("wm dismiss-keyguard")
+        waitForDeviceAwakeAndUnlocked(composeRule)
+
         setAccessibilityServiceEnabled(true)
         shell("appops set com.foco.app android:get_usage_stats allow")
         generateUnlocks(times = 2)

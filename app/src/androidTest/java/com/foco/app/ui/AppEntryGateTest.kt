@@ -52,6 +52,10 @@ class AppEntryGateTest {
 
     @Before
     fun grantAccessibility() {
+        // The headless AVD may be locked: the keyguard would cover the activity under test.
+        shell("input keyevent KEYCODE_WAKEUP")
+        shell("wm dismiss-keyguard")
+        waitForDeviceAwakeAndUnlocked(composeRule)
         setAccessibilityServiceEnabled(true)
     }
 
