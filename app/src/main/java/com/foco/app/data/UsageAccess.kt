@@ -14,7 +14,7 @@ object UsageAccess {
 
     fun isGranted(context: Context): Boolean {
         val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
-        val mode = appOps.unsafeCheckOpNoThrow(
+        val mode = appOps.checkOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
             Process.myUid(),
             context.packageName

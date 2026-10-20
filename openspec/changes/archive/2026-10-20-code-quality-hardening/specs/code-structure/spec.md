@@ -1,6 +1,6 @@
 # Spec Delta — code-structure
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Source files are UTF-8 and contain no mojibake
 All source and documentation files SHALL be stored as UTF-8 (no BOM). String literals and comments

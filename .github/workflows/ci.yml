@@ -38,3 +38,5 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
 
       - run: ./gradlew test
+
+      - run: ./gradlew ktlintCheck

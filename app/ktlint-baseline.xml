@@ -1,0 +1,1687 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="build.gradle.kts">
+        <error line="30" column="37" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/AppLimitsStoreTest.kt">
+        <error line="21" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="38" column="43" source="standard:function-signature" />
+        <error line="42" column="37" source="standard:multiline-expression-wrapping" />
+        <error line="42" column="37" source="standard:function-signature" />
+        <error line="54" column="47" source="standard:multiline-expression-wrapping" />
+        <error line="54" column="47" source="standard:function-signature" />
+        <error line="62" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="68" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="68" column="45" source="standard:function-signature" />
+        <error line="80" column="58" source="standard:multiline-expression-wrapping" />
+        <error line="80" column="58" source="standard:function-signature" />
+        <error line="90" column="43" source="standard:multiline-expression-wrapping" />
+        <error line="90" column="43" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="3" column="1" source="standard:no-unused-imports" />
+        <error line="22" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="31" column="56" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="56" source="standard:function-signature" />
+        <error line="42" column="38" source="standard:multiline-expression-wrapping" />
+        <error line="42" column="38" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/UsageMonitorServiceTest.kt">
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="45" column="32" source="standard:chain-method-continuation" />
+        <error line="90" column="18" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/db/AppLimitSchemaBaselineTest.kt">
+        <error line="20" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="32" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="32" column="28" source="standard:chain-method-continuation" />
+        <error line="34" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="37" column="27" source="standard:multiline-expression-wrapping" />
+        <error line="69" column="56" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/db/ConsolidationMigrationTest.kt">
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="18" column="18" source="standard:multiline-expression-wrapping" />
+        <error line="20" column="33" source="standard:trailing-comma-on-call-site" />
+        <error line="29" column="102" source="standard:trailing-comma-on-call-site" />
+        <error line="33" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="37" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="40" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="55" column="68" source="standard:function-signature" />
+        <error line="73" column="1" source="standard:no-blank-line-before-rbrace" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/db/FocoDatabaseTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="24" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="24" column="24" source="standard:chain-method-continuation" />
+        <error line="26" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="36" column="51" source="standard:multiline-expression-wrapping" />
+        <error line="36" column="51" source="standard:function-signature" />
+        <error line="50" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="50" column="45" source="standard:function-signature" />
+        <error line="63" column="54" source="standard:multiline-expression-wrapping" />
+        <error line="63" column="54" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/db/SchemaBaselineTest.kt">
+        <error line="20" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="32" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="32" column="28" source="standard:chain-method-continuation" />
+        <error line="35" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="38" column="27" source="standard:multiline-expression-wrapping" />
+        <error line="70" column="56" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/data/db/UnlockMigrationTest.kt">
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="18" source="standard:multiline-expression-wrapping" />
+        <error line="19" column="33" source="standard:trailing-comma-on-call-site" />
+        <error line="26" column="102" source="standard:trailing-comma-on-call-site" />
+        <error line="30" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="42" column="68" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="35" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="44" column="32" source="standard:chain-method-continuation" />
+        <error line="93" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="93" column="35" source="standard:chain-method-continuation" />
+        <error line="99" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="133" column="94" source="standard:trailing-comma-on-call-site" />
+        <error line="155" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="180" column="29" source="standard:function-signature" />
+        <error line="180" column="45" source="standard:function-signature" />
+        <error line="180" column="57" source="standard:function-signature" />
+        <error line="180" column="65" source="standard:function-signature" />
+        <error line="181" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="198" column="21" source="standard:chain-method-continuation" />
+        <error line="198" column="41" source="standard:chain-method-continuation" />
+        <error line="199" column="20" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/AppEntryGateTest.kt">
+        <error line="23" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="43" column="32" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt">
+        <error line="20" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="50" column="33" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/AppLimitBlockTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="36" column="20" source="standard:chain-method-continuation" />
+        <error line="37" column="73" source="standard:trailing-comma-on-call-site" />
+        <error line="39" column="20" source="standard:chain-method-continuation" />
+        <error line="40" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="44" column="20" source="standard:chain-method-continuation" />
+        <error line="45" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="49" column="20" source="standard:chain-method-continuation" />
+        <error line="50" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="59" column="1" source="standard:no-consecutive-blank-lines" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt">
+        <error line="22" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="35" column="99" source="standard:trailing-comma-on-call-site" />
+        <error line="74" column="20" source="standard:chain-method-continuation" />
+        <error line="75" column="65" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="38" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="47" column="24" source="standard:function-signature" />
+        <error line="47" column="36" source="standard:function-signature" />
+        <error line="47" column="52" source="standard:function-signature" />
+        <error line="47" column="63" source="standard:function-signature" />
+        <error line="50" column="26" source="standard:function-signature" />
+        <error line="50" column="38" source="standard:function-signature" />
+        <error line="50" column="48" source="standard:function-signature" />
+        <error line="50" column="59" source="standard:function-signature" />
+        <error line="72" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="76" column="46" source="standard:trailing-comma-on-call-site" />
+        <error line="87" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="136" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="139" column="53" source="standard:trailing-comma-on-call-site" />
+        <error line="143" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="143" column="35" source="standard:chain-method-continuation" />
+        <error line="145" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="145" column="31" source="standard:chain-method-continuation" />
+        <error line="148" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="148" column="32" source="standard:chain-method-continuation" />
+        <error line="150" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="150" column="35" source="standard:chain-method-continuation" />
+        <error line="155" column="95" source="standard:trailing-comma-on-call-site" />
+        <error line="161" column="51" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/ExcludedAppsTest.kt">
+        <error line="30" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="41" column="32" source="standard:chain-method-continuation" />
+        <error line="48" column="20" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/OnboardingContrastTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="32" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="45" column="65" source="standard:function-signature" />
+        <error line="49" column="66" source="standard:function-signature" />
+        <error line="52" column="31" source="standard:function-signature" />
+        <error line="52" column="46" source="standard:function-signature" />
+        <error line="52" column="68" source="standard:function-signature" />
+        <error line="62" column="30" source="standard:multiline-expression-wrapping" />
+        <error line="69" column="27" source="standard:multiline-expression-wrapping" />
+        <error line="70" column="24" source="standard:chain-method-continuation" />
+        <error line="72" column="23" source="standard:trailing-comma-on-call-site" />
+        <error line="80" column="26" source="standard:function-signature" />
+        <error line="80" column="46" source="standard:function-signature" />
+        <error line="80" column="63" source="standard:function-signature" />
+        <error line="94" column="22" source="standard:function-signature" />
+        <error line="94" column="41" source="standard:function-signature" />
+        <error line="94" column="58" source="standard:function-signature" />
+        <error line="100" column="23" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="10" column="1" source="standard:no-unused-imports" />
+        <error line="17" column="1" source="standard:no-unused-imports" />
+        <error line="19" column="1" source="standard:no-unused-imports" />
+        <error line="21" column="1" source="standard:no-unused-imports" />
+        <error line="49" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="56" column="32" source="standard:chain-method-continuation" />
+        <error line="107" column="28" source="standard:function-signature" />
+        <error line="107" column="43" source="standard:function-signature" />
+        <error line="107" column="57" source="standard:function-signature" />
+        <error line="132" column="43" source="standard:function-signature" />
+        <error line="133" column="38" source="standard:chain-method-continuation" />
+        <error line="133" column="50" source="standard:chain-method-continuation" />
+        <error line="133" column="75" source="standard:chain-method-continuation" />
+        <error line="145" column="1" source="standard:indent" />
+        <error line="173" column="1" source="standard:indent" />
+        <error line="185" column="1" source="standard:no-trailing-spaces" />
+        <error line="186" column="1" source="standard:no-consecutive-blank-lines" />
+        <error line="216" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="219" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="220" column="104" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/StartupLoadingTest.kt">
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="39" column="47" source="standard:trailing-comma-on-call-site" />
+        <error line="46" column="55" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/TestDeviceState.kt">
+        <error line="27" column="33" source="standard:function-signature" />
+        <error line="27" column="56" source="standard:function-signature" />
+        <error line="27" column="76" source="standard:function-signature" />
+        <error line="28" column="17" source="standard:multiline-expression-wrapping" />
+        <error line="28" column="40" source="standard:chain-method-continuation" />
+        <error line="28" column="61" source="standard:chain-method-continuation" />
+        <error line="35" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="35" column="43" source="standard:chain-method-continuation" />
+        <error line="35" column="64" source="standard:chain-method-continuation" />
+        <error line="79" column="39" source="standard:multiline-expression-wrapping" />
+        <error line="81" column="47" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/TodayRolloverTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="28" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="84" column="32" source="standard:class-signature" />
+        <error line="84" column="50" source="standard:class-signature" />
+        <error line="84" column="74" source="standard:class-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt">
+        <error line="23" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="33" column="30" source="standard:multiline-expression-wrapping" />
+        <error line="40" column="32" source="standard:chain-method-continuation" />
+        <error line="73" column="28" source="standard:chain-method-continuation" />
+        <error line="74" column="43" source="standard:chain-method-continuation" />
+        <error line="77" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="77" column="39" source="standard:chain-method-continuation" />
+        <error line="80" column="25" source="standard:chain-method-continuation" />
+        <error line="84" column="27" source="standard:multiline-expression-wrapping" />
+        <error line="85" column="32" source="standard:chain-method-continuation" />
+        <error line="85" column="45" source="standard:chain-method-continuation" />
+        <error line="85" column="53" source="standard:chain-method-continuation" />
+        <error line="88" column="48" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="35" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="58" column="24" source="standard:function-signature" />
+        <error line="58" column="36" source="standard:function-signature" />
+        <error line="58" column="52" source="standard:function-signature" />
+        <error line="58" column="63" source="standard:function-signature" />
+        <error line="61" column="26" source="standard:function-signature" />
+        <error line="61" column="38" source="standard:function-signature" />
+        <error line="61" column="48" source="standard:function-signature" />
+        <error line="61" column="59" source="standard:function-signature" />
+        <error line="64" column="53" source="standard:multiline-expression-wrapping" />
+        <error line="64" column="53" source="standard:function-signature" />
+        <error line="68" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="95" column="31" source="standard:function-signature" />
+        <error line="95" column="47" source="standard:function-signature" />
+        <error line="95" column="59" source="standard:function-signature" />
+        <error line="95" column="67" source="standard:function-signature" />
+        <error line="96" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="107" column="47" source="standard:function-signature" />
+        <error line="137" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="137" column="30" source="standard:chain-method-continuation" />
+        <error line="139" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="161" column="36" source="standard:chain-method-continuation" />
+        <error line="161" column="74" source="standard:chain-method-continuation" />
+        <error line="161" column="89" source="standard:chain-method-continuation" />
+        <error line="161" column="100" source="standard:chain-method-continuation" />
+        <error line="172" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="198" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="216" column="69" source="standard:trailing-comma-on-call-site" />
+        <error line="217" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="232" column="20" source="standard:function-signature" />
+        <error line="232" column="36" source="standard:function-signature" />
+        <error line="232" column="47" source="standard:function-signature" />
+        <error line="232" column="62" source="standard:function-signature" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/dashboard/DashboardRefreshTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="23" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="36" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="76" column="25" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/dashboard/WeekExportFileTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="23" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="28" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="35" column="36" source="standard:trailing-comma-on-call-site" />
+        <error line="52" column="72" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/dashboard/WeekExportShareTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="26" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="43" column="20" source="standard:chain-method-continuation" />
+        <error line="46" column="24" source="standard:chain-method-continuation" />
+        <error line="50" column="20" source="standard:chain-method-continuation" />
+        <error line="53" column="20" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="25" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="27" column="50" source="standard:multiline-expression-wrapping" />
+        <error line="27" column="50" source="standard:function-signature" />
+        <error line="48" column="52" source="standard:multiline-expression-wrapping" />
+        <error line="48" column="52" source="standard:function-signature" />
+        <error line="50" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="57" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="62" column="62" source="standard:multiline-expression-wrapping" />
+        <error line="62" column="62" source="standard:function-signature" />
+        <error line="65" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="70" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="82" column="17" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/AccessibilityAccess.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="20" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="24" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="26" column="59" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/MainActivity.kt">
+        <error line="40" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="48" column="32" source="standard:multiline-expression-wrapping" />
+        <error line="54" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="74" column="64" source="standard:trailing-comma-on-call-site" />
+        <error line="87" column="1" source="standard:no-blank-line-before-rbrace" />
+        <error line="95" column="13" source="standard:function-naming" />
+        <error line="95" column="36" source="standard:function-signature" />
+        <error line="95" column="52" source="standard:function-signature" />
+        <error line="95" column="66" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/UsageMonitorAccessibilityService.kt">
+        <error line="33" column="42" source="standard:class-signature" />
+        <error line="33" column="66" source="standard:class-signature" />
+        <error line="34" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="96" column="30" source="standard:multiline-expression-wrapping" />
+        <error line="101" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="110" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="116" column="36" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/AppAppearance.kt">
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="55" source="standard:multiline-expression-wrapping" />
+        <error line="17" column="55" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/AppIdentity.kt">
+        <error line="11" column="19" source="standard:class-signature" />
+        <error line="11" column="47" source="standard:class-signature" />
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/AppLanguage.kt">
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="18" column="14" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/AppLimitsStore.kt">
+        <error line="16" column="22" source="standard:class-signature" />
+        <error line="16" column="53" source="standard:class-signature" />
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="27" column="26" source="standard:function-signature" />
+        <error line="27" column="47" source="standard:function-signature" />
+        <error line="27" column="59" source="standard:function-signature" />
+        <error line="49" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="50" column="33" source="standard:chain-method-continuation" />
+        <error line="53" column="34" source="standard:trailing-comma-on-call-site" />
+        <error line="54" column="26" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/AppPackageInfo.kt">
+        <error line="10" column="22" source="standard:class-signature" />
+        <error line="10" column="50" source="standard:class-signature" />
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/ConsolidationRunner.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="23" column="89" source="standard:trailing-comma-on-declaration-site" />
+        <error line="28" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="29" column="30" source="standard:chain-method-continuation" />
+        <error line="50" column="61" source="standard:multiline-expression-wrapping" />
+        <error line="50" column="61" source="standard:function-signature" />
+        <error line="53" column="36" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/ConsolidationScheduler.kt">
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="19" column="18" source="standard:function-signature" />
+        <error line="19" column="36" source="standard:function-signature" />
+        <error line="19" column="76" source="standard:function-signature" />
+        <error line="20" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="23" column="20" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/ConsolidationWorker.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="11" column="27" source="standard:class-signature" />
+        <error line="11" column="45" source="standard:class-signature" />
+        <error line="11" column="69" source="standard:class-signature" />
+        <error line="12" column="5" source="standard:class-signature" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/ExcludedAppsStore.kt">
+        <error line="14" column="25" source="standard:class-signature" />
+        <error line="14" column="53" source="standard:class-signature" />
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/MotionScale.kt">
+        <error line="7" column="19" source="standard:class-signature" />
+        <error line="7" column="47" source="standard:class-signature" />
+        <error line="8" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="8" column="26" source="standard:function-signature" />
+        <error line="11" column="11" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/SessionHistoryStore.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="28" column="48" source="standard:trailing-comma-on-declaration-site" />
+        <error line="30" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="43" column="63" source="standard:function-signature" />
+        <error line="47" column="49" source="standard:function-signature" />
+        <error line="54" column="24" source="standard:chain-method-continuation" />
+        <error line="73" column="26" source="standard:function-signature" />
+        <error line="73" column="42" source="standard:function-signature" />
+        <error line="73" column="73" source="standard:function-signature" />
+        <error line="82" column="49" source="standard:function-signature" />
+        <error line="97" column="20" source="standard:function-signature" />
+        <error line="97" column="38" source="standard:function-signature" />
+        <error line="97" column="69" source="standard:function-signature" />
+        <error line="98" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="99" column="33" source="standard:chain-method-continuation" />
+        <error line="102" column="34" source="standard:trailing-comma-on-call-site" />
+        <error line="111" column="24" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/SettingsMigration.kt">
+        <error line="19" column="35" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/SettingsStore.kt">
+        <error line="16" column="21" source="standard:class-signature" />
+        <error line="16" column="49" source="standard:class-signature" />
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/StartupSettings.kt">
+        <error line="10" column="27" source="standard:trailing-comma-on-declaration-site" />
+        <error line="11" column="8" source="standard:multiline-expression-wrapping" />
+        <error line="11" column="8" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/UsageAccess.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="20" column="32" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/UsageMonitorBootReceiver.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="13" column="28" source="standard:function-signature" />
+        <error line="13" column="46" source="standard:function-signature" />
+        <error line="13" column="61" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/UsageMonitorEvaluator.kt">
+        <error line="12" column="66" source="standard:trailing-comma-on-declaration-site" />
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="15" column="26" source="standard:function-signature" />
+        <error line="15" column="47" source="standard:function-signature" />
+        <error line="15" column="85" source="standard:function-signature" />
+        <error line="15" column="94" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/UsageMonitorService.kt">
+        <error line="35" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="49" column="29" source="standard:trailing-comma-on-call-site" />
+        <error line="51" column="18" source="standard:multiline-expression-wrapping" />
+        <error line="59" column="33" source="standard:function-signature" />
+        <error line="59" column="50" source="standard:function-signature" />
+        <error line="59" column="62" source="standard:function-signature" />
+        <error line="59" column="74" source="standard:function-signature" />
+        <error line="89" column="27" source="standard:chain-method-continuation" />
+        <error line="104" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="113" column="51" source="standard:trailing-comma-on-call-site" />
+        <error line="114" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="136" column="30" source="standard:multiline-expression-wrapping" />
+        <error line="145" column="65" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/UsageRepository.kt">
+        <error line="23" column="23" source="standard:class-signature" />
+        <error line="23" column="51" source="standard:class-signature" />
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="43" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="45" column="13" source="standard:chain-method-continuation" />
+        <error line="45" column="27" source="standard:chain-method-continuation" />
+        <error line="57" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="64" column="17" source="standard:function-signature" />
+        <error line="64" column="34" source="standard:function-signature" />
+        <error line="64" column="72" source="standard:function-signature" />
+        <error line="70" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="90" column="51" source="standard:trailing-comma-on-declaration-site" />
+        <error line="97" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="98" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="101" column="50" source="standard:trailing-comma-on-call-site" />
+        <error line="104" column="48" source="standard:trailing-comma-on-call-site" />
+        <error line="108" column="38" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/WeekExportService.kt">
+        <error line="16" column="54" source="standard:trailing-comma-on-declaration-site" />
+        <error line="19" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="25" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="28" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="39" column="24" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/AppLimit.kt">
+        <error line="13" column="21" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/AppLimitDao.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/AppLimitDatabase.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/ConsolidatedDay.kt">
+        <error line="12" column="20" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/ConsolidatedDayDao.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/DailyAggregate.kt">
+        <error line="13" column="26" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/DailyAggregateDao.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="24" column="27" source="standard:function-signature" />
+        <error line="24" column="41" source="standard:function-signature" />
+        <error line="24" column="51" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/FocoDatabase.kt">
+        <error line="15" column="24" source="standard:trailing-comma-on-call-site" />
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="27" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="72" source="standard:trailing-comma-on-call-site" />
+        <error line="40" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="44" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="48" column="68" source="standard:trailing-comma-on-call-site" />
+        <error line="52" column="77" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/SessionRecord.kt">
+        <error line="14" column="18" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/data/db/SessionRecordDao.kt">
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="16" column="31" source="standard:function-signature" />
+        <error line="16" column="43" source="standard:function-signature" />
+        <error line="16" column="51" source="standard:function-signature" />
+        <error line="19" column="33" source="standard:function-signature" />
+        <error line="19" column="45" source="standard:function-signature" />
+        <error line="19" column="53" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/AppLimitRules.kt">
+        <error line="7" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="13" column="31" source="standard:function-signature" />
+        <error line="22" column="25" source="standard:function-signature" />
+        <error line="22" column="45" source="standard:function-signature" />
+        <error line="22" column="62" source="standard:function-signature" />
+        <error line="29" column="21" source="standard:function-signature" />
+        <error line="29" column="51" source="standard:function-signature" />
+        <error line="29" column="70" source="standard:function-signature" />
+        <error line="30" column="17" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/AvailableDays.kt">
+        <error line="10" column="19" source="standard:function-signature" />
+        <error line="10" column="37" source="standard:function-signature" />
+        <error line="10" column="65" source="standard:function-signature" />
+        <error line="10" column="84" source="standard:function-signature" />
+        <error line="18" column="18" source="standard:function-signature" />
+        <error line="18" column="36" source="standard:function-signature" />
+        <error line="18" column="55" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/ConsolidationOutcome.kt">
+        <error line="7" column="23" source="standard:class-signature" />
+        <error line="7" column="43" source="standard:class-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/DayRingHistory.kt">
+        <error line="6" column="23" source="standard:function-signature" />
+        <error line="6" column="44" source="standard:function-signature" />
+        <error line="6" column="60" source="standard:function-signature" />
+        <error line="12" column="25" source="standard:function-signature" />
+        <error line="12" column="42" source="standard:function-signature" />
+        <error line="12" column="61" source="standard:function-signature" />
+        <error line="12" column="78" source="standard:function-signature" />
+        <error line="16" column="41" source="standard:function-signature" />
+        <error line="20" column="25" source="standard:function-signature" />
+        <error line="20" column="46" source="standard:function-signature" />
+        <error line="20" column="62" source="standard:function-signature" />
+        <error line="23" column="48" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/DayRingState.kt">
+        <error line="6" column="45" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/DayStop.kt">
+        <error line="7" column="20" source="standard:class-signature" />
+        <error line="7" column="39" source="standard:class-signature" />
+        <error line="8" column="5" source="standard:blank-line-before-declaration" />
+        <error line="12" column="13" source="standard:function-signature" />
+        <error line="12" column="31" source="standard:function-signature" />
+        <error line="12" column="57" source="standard:function-signature" />
+        <error line="22" column="18" source="standard:function-signature" />
+        <error line="22" column="39" source="standard:function-signature" />
+        <error line="22" column="55" source="standard:function-signature" />
+        <error line="31" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="29" source="standard:function-signature" />
+        <error line="37" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="37" column="45" source="standard:function-signature" />
+        <error line="39" column="31" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/DayWindow.kt">
+        <error line="14" column="27" source="standard:trailing-comma-on-declaration-site" />
+        <error line="18" column="15" source="standard:function-signature" />
+        <error line="18" column="32" source="standard:function-signature" />
+        <error line="18" column="46" source="standard:function-signature" />
+        <error line="18" column="55" source="standard:function-signature" />
+        <error line="20" column="31" source="standard:chain-method-continuation" />
+        <error line="20" column="43" source="standard:chain-method-continuation" />
+        <error line="20" column="62" source="standard:chain-method-continuation" />
+        <error line="20" column="74" source="standard:chain-method-continuation" />
+        <error line="24" column="29" source="standard:chain-method-continuation" />
+        <error line="24" column="42" source="standard:chain-method-continuation" />
+        <error line="24" column="61" source="standard:chain-method-continuation" />
+        <error line="24" column="73" source="standard:chain-method-continuation" />
+        <error line="25" column="51" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/DetailDaySource.kt">
+        <error line="9" column="15" source="standard:function-signature" />
+        <error line="9" column="32" source="standard:function-signature" />
+        <error line="9" column="50" source="standard:function-signature" />
+        <error line="9" column="76" source="standard:function-signature" />
+        <error line="9" column="91" source="standard:multiline-expression-wrapping" />
+        <error line="9" column="91" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/ForegroundApp.kt">
+        <error line="8" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/ForegroundAppTracker.kt">
+        <error line="5" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/SchemaDrift.kt">
+        <error line="11" column="33" source="standard:trailing-comma-on-declaration-site" />
+        <error line="12" column="14" source="standard:multiline-expression-wrapping" />
+        <error line="12" column="14" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/SessionBuilder.kt">
+        <error line="11" column="19" source="standard:function-signature" />
+        <error line="11" column="45" source="standard:function-signature" />
+        <error line="11" column="54" source="standard:function-signature" />
+        <error line="15" column="14" source="standard:function-signature" />
+        <error line="15" column="35" source="standard:function-signature" />
+        <error line="15" column="48" source="standard:function-signature" />
+        <error line="15" column="57" source="standard:function-signature" />
+        <error line="64" column="26" source="standard:trailing-comma-on-declaration-site" />
+        <error line="65" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="65" column="25" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/SessionFilter.kt">
+        <error line="9" column="34" source="standard:trailing-comma-on-declaration-site" />
+        <error line="10" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="10" column="25" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/SessionMerge.kt">
+        <error line="12" column="29" source="standard:function-signature" />
+        <error line="12" column="59" source="standard:function-signature" />
+        <error line="12" column="71" source="standard:function-signature" />
+        <error line="13" column="13" source="standard:chain-method-continuation" />
+        <error line="13" column="40" source="standard:chain-method-continuation" />
+        <error line="13" column="47" source="standard:chain-method-continuation" />
+        <error line="26" column="19" source="standard:function-signature" />
+        <error line="26" column="43" source="standard:function-signature" />
+        <error line="26" column="63" source="standard:function-signature" />
+        <error line="26" column="75" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/WeekExportBuilder.kt">
+        <error line="24" column="17" source="standard:trailing-comma-on-declaration-site" />
+        <error line="26" column="16" source="standard:multiline-expression-wrapping" />
+        <error line="29" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="21" source="standard:trailing-comma-on-call-site" />
+        <error line="34" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="38" column="33" source="standard:multiline-expression-wrapping" />
+        <error line="48" column="36" source="standard:multiline-expression-wrapping" />
+        <error line="52" column="77" source="standard:trailing-comma-on-call-site" />
+        <error line="54" column="26" source="standard:trailing-comma-on-call-site" />
+        <error line="57" column="17" source="standard:chain-method-continuation" />
+        <error line="61" column="28" source="standard:trailing-comma-on-call-site" />
+        <error line="64" column="9" source="standard:chain-method-continuation" />
+        <error line="69" column="18" source="standard:function-signature" />
+        <error line="69" column="32" source="standard:function-signature" />
+        <error line="69" column="44" source="standard:function-signature" />
+        <error line="69" column="55" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/domain/WeekExportJson.kt">
+        <error line="8" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="14" column="49" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/AppearanceOption.kt">
+        <error line="4" column="29" source="standard:class-signature" />
+        <error line="4" column="45" source="standard:class-signature" />
+        <error line="7" column="17" source="standard:trailing-comma-on-declaration-site" />
+        <error line="10" column="55" source="standard:multiline-expression-wrapping" />
+        <error line="10" column="55" source="standard:function-signature" />
+        <error line="17" column="57" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/LanguageOption.kt">
+        <error line="4" column="27" source="standard:class-signature" />
+        <error line="4" column="43" source="standard:class-signature" />
+        <error line="7" column="13" source="standard:trailing-comma-on-declaration-site" />
+        <error line="10" column="55" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/UsageEvent.kt">
+        <error line="7" column="29" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/UsageSession.kt">
+        <error line="7" column="18" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/day/DayData.kt">
+        <error line="11" column="32" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/export/ExportApp.kt">
+        <error line="12" column="38" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/export/ExportDay.kt">
+        <error line="10" column="30" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/export/ExportSession.kt">
+        <error line="10" column="29" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/model/export/WeekExport.kt">
+        <error line="10" column="30" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/App.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="39" column="5" source="standard:function-naming" />
+        <error line="42" column="46" source="standard:trailing-comma-on-declaration-site" />
+        <error line="55" column="10" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="92" column="13" source="standard:function-naming" />
+        <error line="95" column="44" source="standard:trailing-comma-on-call-site" />
+        <error line="103" column="67" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/FocoNavHost.kt">
+        <error line="20" column="5" source="standard:function-naming" />
+        <error line="28" column="33" source="standard:multiline-expression-wrapping" />
+        <error line="35" column="72" source="standard:trailing-comma-on-call-site" />
+        <error line="45" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="51" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="52" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="56" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="56" column="48" source="standard:chain-method-continuation" />
+        <error line="58" column="44" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/Formatting.kt">
+        <error line="19" column="21" source="standard:function-signature" />
+        <error line="19" column="40" source="standard:function-signature" />
+        <error line="19" column="77" source="standard:function-signature" />
+        <error line="19" column="88" source="standard:function-signature" />
+        <error line="37" column="27" source="standard:trailing-comma-on-declaration-site" />
+        <error line="38" column="13" source="standard:multiline-expression-wrapping" />
+        <error line="38" column="13" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/AppIcon.kt">
+        <error line="26" column="5" source="standard:function-naming" />
+        <error line="26" column="13" source="standard:function-signature" />
+        <error line="26" column="34" source="standard:function-signature" />
+        <error line="26" column="50" source="standard:function-signature" />
+        <error line="30" column="17" source="standard:multiline-expression-wrapping" />
+        <error line="40" column="43" source="standard:trailing-comma-on-call-site" />
+        <error line="44" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="47" column="70" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/AppLabel.kt">
+        <error line="18" column="17" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/AppUsageRow.kt">
+        <error line="25" column="5" source="standard:function-naming" />
+        <error line="31" column="38" source="standard:trailing-comma-on-declaration-site" />
+        <error line="34" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="38" column="55" source="standard:trailing-comma-on-call-site" />
+        <error line="47" column="29" source="standard:trailing-comma-on-call-site" />
+        <error line="53" column="51" source="standard:trailing-comma-on-call-site" />
+        <error line="62" column="60" source="standard:trailing-comma-on-call-site" />
+        <error line="67" column="67" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/CurrentDate.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="30" column="24" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/HourChart.kt">
+        <error line="26" column="5" source="standard:function-naming" />
+        <error line="34" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="38" column="49" source="standard:trailing-comma-on-call-site" />
+        <error line="44" column="32" source="standard:multiline-expression-wrapping" />
+        <error line="49" column="52" source="standard:if-else-wrapping" />
+        <error line="49" column="52" source="standard:multiline-if-else" />
+        <error line="50" column="34" source="standard:if-else-wrapping" />
+        <error line="50" column="34" source="standard:multiline-if-else" />
+        <error line="50" column="74" source="standard:trailing-comma-on-call-site" />
+        <error line="51" column="26" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="61" source="standard:trailing-comma-on-call-site" />
+        <error line="66" column="71" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/ReadOr.kt">
+        <error line="12" column="33" source="standard:function-signature" />
+        <error line="12" column="46" source="standard:function-signature" />
+        <error line="12" column="67" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/ScreenHeader.kt">
+        <error line="31" column="5" source="standard:function-naming" />
+        <error line="36" column="50" source="standard:trailing-comma-on-declaration-site" />
+        <error line="42" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="44" column="43" source="standard:trailing-comma-on-call-site" />
+        <error line="48" column="79" source="standard:trailing-comma-on-call-site" />
+        <error line="54" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="57" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="65" column="102" source="standard:trailing-comma-on-call-site" />
+        <error line="72" column="84" source="standard:trailing-comma-on-call-site" />
+        <error line="81" column="88" source="standard:trailing-comma-on-call-site" />
+        <error line="89" column="59" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/common/WeekContent.kt">
+        <error line="45" column="5" source="standard:function-naming" />
+        <error line="52" column="34" source="standard:trailing-comma-on-declaration-site" />
+        <error line="54" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="59" column="48" source="standard:trailing-comma-on-call-site" />
+        <error line="69" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="72" column="52" source="standard:trailing-comma-on-call-site" />
+        <error line="77" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="83" column="61" source="standard:trailing-comma-on-call-site" />
+        <error line="88" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="90" column="32" source="standard:trailing-comma-on-call-site" />
+        <error line="97" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="100" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="102" column="66" source="standard:trailing-comma-on-call-site" />
+        <error line="113" column="13" source="standard:function-naming" />
+        <error line="113" column="22" source="standard:function-signature" />
+        <error line="113" column="46" source="standard:function-signature" />
+        <error line="113" column="64" source="standard:function-signature" />
+        <error line="113" column="95" source="standard:function-signature" />
+        <error line="114" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="122" column="45" source="standard:trailing-comma-on-call-site" />
+        <error line="129" column="51" source="standard:trailing-comma-on-call-site" />
+        <error line="140" column="13" source="standard:function-naming" />
+        <error line="140" column="21" source="standard:function-signature" />
+        <error line="140" column="38" source="standard:function-signature" />
+        <error line="140" column="55" source="standard:function-signature" />
+        <error line="140" column="73" source="standard:function-signature" />
+        <error line="140" column="92" source="standard:function-signature" />
+        <error line="141" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="145" column="47" source="standard:trailing-comma-on-call-site" />
+        <error line="147" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="156" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="160" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="163" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="166" column="54" source="standard:trailing-comma-on-call-site" />
+        <error line="169" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="174" column="37" source="standard:if-else-wrapping" />
+        <error line="174" column="37" source="standard:multiline-if-else" />
+        <error line="175" column="30" source="standard:if-else-wrapping" />
+        <error line="175" column="30" source="standard:multiline-if-else" />
+        <error line="175" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="176" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="182" column="56" source="standard:trailing-comma-on-call-site" />
+        <error line="187" column="63" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="114" column="5" source="standard:function-naming" />
+        <error line="123" column="83" source="standard:trailing-comma-on-declaration-site" />
+        <error line="126" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="129" column="17" source="standard:multiline-expression-wrapping" />
+        <error line="145" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="165" column="16" source="standard:function-signature" />
+        <error line="165" column="33" source="standard:function-signature" />
+        <error line="165" column="57" source="standard:function-signature" />
+        <error line="165" column="78" source="standard:function-signature" />
+        <error line="185" column="54" source="standard:function-signature" />
+        <error line="211" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="222" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="232" column="25" source="standard:chain-method-continuation" />
+        <error line="232" column="34" source="standard:chain-method-continuation" />
+        <error line="232" column="57" source="standard:chain-method-continuation" />
+        <error line="235" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="248" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="250" column="40" source="standard:trailing-comma-on-call-site" />
+        <error line="263" column="44" source="standard:multiline-expression-wrapping" />
+        <error line="264" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="266" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="273" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="275" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="280" column="32" source="standard:multiline-expression-wrapping" />
+        <error line="286" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="288" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="295" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="299" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="306" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="307" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="327" column="99" source="standard:trailing-comma-on-call-site" />
+        <error line="337" column="30" source="standard:trailing-comma-on-call-site" />
+        <error line="341" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="348" column="85" source="standard:trailing-comma-on-call-site" />
+        <error line="354" column="89" source="standard:trailing-comma-on-call-site" />
+        <error line="357" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="363" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="366" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="370" column="84" source="standard:trailing-comma-on-call-site" />
+        <error line="374" column="50" source="standard:trailing-comma-on-call-site" />
+        <error line="384" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="391" column="80" source="standard:trailing-comma-on-call-site" />
+        <error line="395" column="50" source="standard:trailing-comma-on-call-site" />
+        <error line="403" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="423" column="62" source="standard:trailing-comma-on-call-site" />
+        <error line="425" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="437" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="439" column="67" source="standard:trailing-comma-on-call-site" />
+        <error line="441" column="44" source="standard:multiline-expression-wrapping" />
+        <error line="443" column="67" source="standard:trailing-comma-on-call-site" />
+        <error line="445" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="446" column="50" source="standard:if-else-wrapping" />
+        <error line="446" column="50" source="standard:multiline-if-else" />
+        <error line="447" column="42" source="standard:if-else-wrapping" />
+        <error line="447" column="42" source="standard:multiline-if-else" />
+        <error line="449" column="44" source="standard:multiline-expression-wrapping" />
+        <error line="450" column="50" source="standard:if-else-wrapping" />
+        <error line="450" column="50" source="standard:multiline-if-else" />
+        <error line="451" column="42" source="standard:if-else-wrapping" />
+        <error line="451" column="42" source="standard:multiline-if-else" />
+        <error line="457" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="460" column="44" source="standard:multiline-expression-wrapping" />
+        <error line="468" column="54" source="standard:trailing-comma-on-call-site" />
+        <error line="484" column="70" source="standard:trailing-comma-on-call-site" />
+        <error line="494" column="53" source="standard:multiline-expression-wrapping" />
+        <error line="498" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="506" column="60" source="standard:trailing-comma-on-call-site" />
+        <error line="518" column="13" source="standard:function-naming" />
+        <error line="523" column="45" source="standard:trailing-comma-on-declaration-site" />
+        <error line="528" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="531" column="52" source="standard:trailing-comma-on-call-site" />
+        <error line="534" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="540" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="548" column="61" source="standard:trailing-comma-on-call-site" />
+        <error line="552" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="554" column="32" source="standard:trailing-comma-on-call-site" />
+        <error line="561" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="563" column="62" source="standard:trailing-comma-on-call-site" />
+        <error line="566" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="577" column="13" source="standard:function-naming" />
+        <error line="579" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="582" column="44" source="standard:trailing-comma-on-call-site" />
+        <error line="596" column="47" source="standard:trailing-comma-on-call-site" />
+        <error line="607" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="609" column="10" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/dashboard/DashboardState.kt">
+        <error line="13" column="42" source="standard:class-signature" />
+        <error line="13" column="59" source="standard:class-signature" />
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="19" column="32" source="standard:trailing-comma-on-declaration-site" />
+        <error line="33" column="30" source="standard:trailing-comma-on-declaration-site" />
+        <error line="41" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="46" column="70" source="standard:trailing-comma-on-call-site" />
+        <error line="53" column="18" source="standard:function-signature" />
+        <error line="53" column="39" source="standard:function-signature" />
+        <error line="53" column="55" source="standard:function-signature" />
+        <error line="61" column="34" source="standard:trailing-comma-on-call-site" />
+        <error line="62" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="74" column="16" source="standard:function-signature" />
+        <error line="74" column="37" source="standard:function-signature" />
+        <error line="74" column="70" source="standard:function-signature" />
+        <error line="74" column="87" source="standard:function-signature" />
+        <error line="77" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="79" column="82" source="standard:trailing-comma-on-call-site" />
+        <error line="84" column="67" source="standard:trailing-comma-on-call-site" />
+        <error line="85" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="104" column="32" source="standard:trailing-comma-on-declaration-site" />
+        <error line="105" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="105" column="29" source="standard:function-signature" />
+        <error line="110" column="40" source="standard:trailing-comma-on-call-site" />
+        <error line="111" column="14" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/dashboard/RingContent.kt">
+        <error line="8" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="9" column="20" source="standard:class-signature" />
+        <error line="9" column="39" source="standard:class-signature" />
+        <error line="9" column="55" source="standard:class-signature" />
+        <error line="11" column="21" source="standard:class-signature" />
+        <error line="11" column="53" source="standard:class-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/dashboard/RingMotion.kt">
+        <error line="15" column="44" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/dashboard/WeekExportShare.kt">
+        <error line="11" column="21" source="standard:function-signature" />
+        <error line="11" column="39" source="standard:function-signature" />
+        <error line="11" column="53" source="standard:function-signature" />
+        <error line="11" column="71" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="64" column="5" source="standard:function-naming" />
+        <error line="67" column="45" source="standard:trailing-comma-on-declaration-site" />
+        <error line="85" column="16" source="standard:multiline-expression-wrapping" />
+        <error line="112" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="125" column="18" source="standard:multiline-expression-wrapping" />
+        <error line="131" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="133" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="139" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="143" column="70" source="standard:trailing-comma-on-call-site" />
+        <error line="152" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="156" column="61" source="standard:trailing-comma-on-call-site" />
+        <error line="161" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="165" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="169" column="49" source="standard:trailing-comma-on-call-site" />
+        <error line="173" column="48" source="standard:trailing-comma-on-call-site" />
+        <error line="183" column="37" source="standard:multiline-expression-wrapping" />
+        <error line="184" column="32" source="standard:multiline-expression-wrapping" />
+        <error line="187" column="56" source="standard:trailing-comma-on-call-site" />
+        <error line="192" column="36" source="standard:multiline-expression-wrapping" />
+        <error line="193" column="32" source="standard:multiline-expression-wrapping" />
+        <error line="196" column="56" source="standard:trailing-comma-on-call-site" />
+        <error line="201" column="75" source="standard:trailing-comma-on-call-site" />
+        <error line="205" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="206" column="32" source="standard:multiline-expression-wrapping" />
+        <error line="209" column="36" source="standard:trailing-comma-on-call-site" />
+        <error line="216" column="69" source="standard:trailing-comma-on-call-site" />
+        <error line="219" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="225" column="105" source="standard:trailing-comma-on-call-site" />
+        <error line="229" column="40" source="standard:multiline-expression-wrapping" />
+        <error line="232" column="77" source="standard:trailing-comma-on-call-site" />
+        <error line="237" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="246" column="69" source="standard:trailing-comma-on-call-site" />
+        <error line="250" column="36" source="standard:multiline-expression-wrapping" />
+        <error line="252" column="40" source="standard:trailing-comma-on-call-site" />
+        <error line="256" column="44" source="standard:multiline-expression-wrapping" />
+        <error line="259" column="81" source="standard:trailing-comma-on-call-site" />
+        <error line="263" column="80" source="standard:trailing-comma-on-call-site" />
+        <error line="268" column="87" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/limits/AppLimitBlockScreen.kt">
+        <error line="32" column="5" source="standard:function-naming" />
+        <error line="35" column="21" source="standard:trailing-comma-on-declaration-site" />
+        <error line="53" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="56" column="44" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="65" column="45" source="standard:trailing-comma-on-call-site" />
+        <error line="71" column="45" source="standard:trailing-comma-on-call-site" />
+        <error line="76" column="62" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/AppDayDetail.kt">
+        <error line="15" column="37" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/AppDetail.kt">
+        <error line="11" column="18" source="standard:function-signature" />
+        <error line="11" column="48" source="standard:function-signature" />
+        <error line="11" column="69" source="standard:function-signature" />
+        <error line="11" column="81" source="standard:function-signature" />
+        <error line="12" column="16" source="standard:multiline-expression-wrapping" />
+        <error line="13" column="89" source="standard:trailing-comma-on-call-site" />
+        <error line="27" column="24" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/AppUsageEntry.kt">
+        <error line="8" column="22" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/AppWeekTotal.kt">
+        <error line="7" column="22" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/DayMetrics.kt">
+        <error line="7" column="33" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/HourBucket.kt">
+        <error line="6" column="21" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/UsageMetrics.kt">
+        <error line="12" column="72" source="standard:function-signature" />
+        <error line="16" column="51" source="standard:function-signature" />
+        <error line="25" column="47" source="standard:trailing-comma-on-declaration-site" />
+        <error line="35" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="38" column="9" source="standard:chain-method-continuation" />
+        <error line="41" column="24" source="standard:function-signature" />
+        <error line="41" column="54" source="standard:function-signature" />
+        <error line="41" column="66" source="standard:function-signature" />
+        <error line="47" column="33" source="standard:chain-method-continuation" />
+        <error line="47" column="63" source="standard:chain-method-continuation" />
+        <error line="47" column="76" source="standard:chain-method-continuation" />
+        <error line="47" column="88" source="standard:chain-method-continuation" />
+        <error line="60" column="47" source="standard:trailing-comma-on-declaration-site" />
+        <error line="61" column="17" source="standard:multiline-expression-wrapping" />
+        <error line="61" column="17" source="standard:function-signature" />
+        <error line="64" column="48" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/WeekDayBar.kt">
+        <error line="9" column="21" source="standard:trailing-comma-on-declaration-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/metrics/WeekMetrics.kt">
+        <error line="10" column="36" source="standard:trailing-comma-on-declaration-site" />
+        <error line="22" column="24" source="standard:trailing-comma-on-declaration-site" />
+        <error line="38" column="16" source="standard:multiline-expression-wrapping" />
+        <error line="52" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="57" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="57" column="62" source="standard:chain-method-continuation" />
+        <error line="62" column="91" source="standard:trailing-comma-on-call-site" />
+        <error line="65" column="9" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/onboarding/OnboardingScreen.kt">
+        <error line="29" column="5" source="standard:function-naming" />
+        <error line="31" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="36" column="18" source="standard:multiline-expression-wrapping" />
+        <error line="41" column="16" source="standard:multiline-expression-wrapping" />
+        <error line="46" column="18" source="standard:multiline-expression-wrapping" />
+        <error line="54" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="59" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="63" column="62" source="standard:trailing-comma-on-call-site" />
+        <error line="71" column="45" source="standard:trailing-comma-on-call-site" />
+        <error line="86" column="45" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/settings/AppLimitsSection.kt">
+        <error line="38" column="42" source="standard:trailing-comma-on-declaration-site" />
+        <error line="44" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="50" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="72" source="standard:trailing-comma-on-call-site" />
+        <error line="66" column="13" source="standard:function-naming" />
+        <error line="70" column="27" source="standard:trailing-comma-on-declaration-site" />
+        <error line="75" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="78" column="64" source="standard:trailing-comma-on-call-site" />
+        <error line="84" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="88" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="96" column="33" source="standard:trailing-comma-on-call-site" />
+        <error line="101" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="112" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="120" column="24" source="standard:function-signature" />
+        <error line="120" column="39" source="standard:function-signature" />
+        <error line="120" column="53" source="standard:function-signature" />
+        <error line="120" column="69" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/settings/SettingsScreen.kt">
+        <error line="69" column="5" source="standard:function-naming" />
+        <error line="83" column="17" source="standard:multiline-expression-wrapping" />
+        <error line="85" column="23" source="standard:chain-method-continuation" />
+        <error line="93" column="34" source="standard:multiline-expression-wrapping" />
+        <error line="94" column="52" source="standard:trailing-comma-on-call-site" />
+        <error line="110" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="112" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="118" column="61" source="standard:trailing-comma-on-call-site" />
+        <error line="124" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="127" column="32" source="standard:trailing-comma-on-call-site" />
+        <error line="132" column="98" source="standard:trailing-comma-on-call-site" />
+        <error line="141" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="149" column="26" source="standard:trailing-comma-on-call-site" />
+        <error line="158" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="164" column="26" source="standard:trailing-comma-on-call-site" />
+        <error line="174" column="50" source="standard:if-else-wrapping" />
+        <error line="174" column="50" source="standard:multiline-if-else" />
+        <error line="175" column="34" source="standard:if-else-wrapping" />
+        <error line="175" column="34" source="standard:multiline-if-else" />
+        <error line="178" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="188" column="79" source="standard:trailing-comma-on-call-site" />
+        <error line="195" column="36" source="standard:multiline-expression-wrapping" />
+        <error line="198" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="206" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="220" column="13" source="standard:function-naming" />
+        <error line="220" column="24" source="standard:function-signature" />
+        <error line="220" column="42" source="standard:function-signature" />
+        <error line="220" column="70" source="standard:function-signature" />
+        <error line="222" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="225" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="230" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="234" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="236" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="240" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="251" column="13" source="standard:function-naming" />
+        <error line="251" column="25" source="standard:function-signature" />
+        <error line="251" column="40" source="standard:function-signature" />
+        <error line="251" column="55" source="standard:function-signature" />
+        <error line="251" column="94" source="standard:function-signature" />
+        <error line="256" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="260" column="59" source="standard:trailing-comma-on-call-site" />
+        <error line="267" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="272" column="42" source="standard:trailing-comma-on-call-site" />
+        <error line="282" column="22" source="standard:trailing-comma-on-call-site" />
+        <error line="290" column="13" source="standard:function-naming" />
+        <error line="296" column="61" source="standard:multiline-expression-wrapping" />
+        <error line="296" column="61" source="standard:function-signature" />
+        <error line="303" column="65" source="standard:multiline-expression-wrapping" />
+        <error line="303" column="65" source="standard:function-signature" />
+    </file>
+    <file name="src/main/java/com/foco/app/ui/theme/Theme.kt">
+        <error line="18" column="5" source="standard:function-naming" />
+        <error line="20" column="36" source="standard:trailing-comma-on-declaration-site" />
+        <error line="23" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="32" column="26" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/BackInvokedCallbackManifestTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="19" column="89" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/BackupDisabledManifestTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="22" column="59" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/MainActivityStartupTest.kt">
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="12" column="51" source="standard:multiline-expression-wrapping" />
+        <error line="12" column="51" source="standard:function-signature" />
+        <error line="13" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="22" column="55" source="standard:multiline-expression-wrapping" />
+        <error line="22" column="55" source="standard:function-signature" />
+        <error line="23" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="54" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="54" source="standard:function-signature" />
+        <error line="32" column="22" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/java/com/foco/app/NoNetworkPermissionTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="23" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="27" column="69" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/AppAppearanceTest.kt">
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="18" column="62" source="standard:trailing-comma-on-call-site" />
+        <error line="26" column="63" source="standard:trailing-comma-on-call-site" />
+        <error line="30" column="62" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/ConsolidatedDayTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="20" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="31" column="57" source="standard:multiline-expression-wrapping" />
+        <error line="31" column="57" source="standard:function-signature" />
+        <error line="41" column="63" source="standard:multiline-expression-wrapping" />
+        <error line="41" column="63" source="standard:function-signature" />
+        <error line="51" column="60" source="standard:multiline-expression-wrapping" />
+        <error line="51" column="60" source="standard:function-signature" />
+        <error line="56" column="65" source="standard:multiline-expression-wrapping" />
+        <error line="56" column="65" source="standard:function-signature" />
+        <error line="69" column="83" source="standard:multiline-expression-wrapping" />
+        <error line="69" column="83" source="standard:function-signature" />
+        <error line="85" column="67" source="standard:multiline-expression-wrapping" />
+        <error line="85" column="67" source="standard:function-signature" />
+        <error line="101" column="62" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="21" column="59" source="standard:multiline-expression-wrapping" />
+        <error line="21" column="59" source="standard:function-signature" />
+        <error line="35" column="74" source="standard:multiline-expression-wrapping" />
+        <error line="35" column="74" source="standard:function-signature" />
+        <error line="49" column="73" source="standard:multiline-expression-wrapping" />
+        <error line="49" column="73" source="standard:function-signature" />
+        <error line="61" column="29" source="standard:class-signature" />
+        <error line="61" column="64" source="standard:class-signature" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/ConsolidationRetryTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="31" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="45" column="68" source="standard:multiline-expression-wrapping" />
+        <error line="45" column="68" source="standard:function-signature" />
+        <error line="56" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="74" column="59" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/HistoryConsolidationTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="29" column="78" source="standard:multiline-expression-wrapping" />
+        <error line="29" column="78" source="standard:function-signature" />
+        <error line="39" column="98" source="standard:trailing-comma-on-call-site" />
+        <error line="44" column="73" source="standard:multiline-expression-wrapping" />
+        <error line="44" column="73" source="standard:function-signature" />
+        <error line="54" column="98" source="standard:trailing-comma-on-call-site" />
+        <error line="59" column="57" source="standard:multiline-expression-wrapping" />
+        <error line="59" column="57" source="standard:function-signature" />
+        <error line="74" column="88" source="standard:multiline-expression-wrapping" />
+        <error line="74" column="88" source="standard:function-signature" />
+        <error line="94" column="71" source="standard:multiline-expression-wrapping" />
+        <error line="94" column="71" source="standard:function-signature" />
+        <error line="116" column="43" source="standard:multiline-expression-wrapping" />
+        <error line="116" column="43" source="standard:function-signature" />
+        <error line="125" column="69" source="standard:multiline-expression-wrapping" />
+        <error line="125" column="69" source="standard:function-signature" />
+        <error line="126" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="137" column="25" source="standard:function-signature" />
+        <error line="137" column="41" source="standard:function-signature" />
+        <error line="137" column="59" source="standard:function-signature" />
+        <error line="137" column="73" source="standard:function-signature" />
+        <error line="142" column="78" source="standard:multiline-expression-wrapping" />
+        <error line="142" column="78" source="standard:function-signature" />
+        <error line="144" column="34" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/HistoryFakes.kt">
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="22" column="40" source="standard:function-signature" />
+        <error line="22" column="52" source="standard:function-signature" />
+        <error line="22" column="60" source="standard:function-signature" />
+        <error line="28" column="42" source="standard:function-signature" />
+        <error line="28" column="54" source="standard:function-signature" />
+        <error line="28" column="62" source="standard:function-signature" />
+        <error line="28" column="86" source="standard:function-signature" />
+        <error line="40" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="55" column="36" source="standard:function-signature" />
+        <error line="55" column="50" source="standard:function-signature" />
+        <error line="55" column="60" source="standard:function-signature" />
+        <error line="55" column="85" source="standard:function-signature" />
+        <error line="71" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/HistoryRetentionTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="27" column="72" source="standard:multiline-expression-wrapping" />
+        <error line="27" column="72" source="standard:function-signature" />
+        <error line="43" column="64" source="standard:multiline-expression-wrapping" />
+        <error line="43" column="64" source="standard:function-signature" />
+        <error line="59" column="56" source="standard:multiline-expression-wrapping" />
+        <error line="59" column="56" source="standard:function-signature" />
+        <error line="69" column="55" source="standard:multiline-expression-wrapping" />
+        <error line="69" column="55" source="standard:function-signature" />
+        <error line="74" column="31" source="standard:multiline-expression-wrapping" />
+        <error line="76" column="38" source="standard:trailing-comma-on-call-site" />
+        <error line="84" column="20" source="standard:function-signature" />
+        <error line="84" column="36" source="standard:function-signature" />
+        <error line="84" column="55" source="standard:function-signature" />
+        <error line="84" column="64" source="standard:function-signature" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/HistoryWeekTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="14" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="18" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="22" column="72" source="standard:multiline-expression-wrapping" />
+        <error line="22" column="72" source="standard:function-signature" />
+        <error line="34" column="45" source="standard:multiline-expression-wrapping" />
+        <error line="34" column="45" source="standard:function-signature" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/SettingsMigrationTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="27" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="36" column="56" source="standard:trailing-comma-on-call-site" />
+        <error line="46" column="19" source="standard:chain-method-continuation" />
+        <error line="46" column="42" source="standard:chain-method-continuation" />
+        <error line="46" column="52" source="standard:chain-method-continuation" />
+        <error line="46" column="64" source="standard:chain-method-continuation" />
+        <error line="46" column="80" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="64" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/db/NoDestructiveMigrationTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="32" column="31" source="standard:trailing-comma-on-call-site" />
+        <error line="41" column="13" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/data/db/SchemaDriftTest.kt">
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="13" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="17" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="28" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="32" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="40" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="44" column="41" source="standard:trailing-comma-on-call-site" />
+        <error line="52" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="56" column="41" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/AppLimitRulesTest.kt">
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="41" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="43" column="64" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/DayRingTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="24" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="26" column="17" source="standard:trailing-comma-on-call-site" />
+        <error line="52" column="39" source="standard:trailing-comma-on-call-site" />
+        <error line="54" column="19" source="standard:trailing-comma-on-call-site" />
+        <error line="100" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="102" column="64" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/DaySelectionTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="35" column="17" source="standard:trailing-comma-on-call-site" />
+        <error line="45" column="17" source="standard:trailing-comma-on-call-site" />
+        <error line="68" column="67" source="standard:trailing-comma-on-call-site" />
+        <error line="82" column="35" source="standard:trailing-comma-on-call-site" />
+        <error line="84" column="32" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/DayWindowTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="18" column="20" source="standard:function-signature" />
+        <error line="18" column="36" source="standard:function-signature" />
+        <error line="18" column="51" source="standard:function-signature" />
+        <error line="18" column="66" source="standard:function-signature" />
+        <error line="18" column="75" source="standard:function-signature" />
+        <error line="45" column="53" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/DetailDaySourceTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="9" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/SessionBuilderTest.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="19" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="22" column="79" source="standard:trailing-comma-on-call-site" />
+        <error line="24" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="30" column="77" source="standard:trailing-comma-on-call-site" />
+        <error line="32" column="21" source="standard:trailing-comma-on-call-site" />
+        <error line="38" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="40" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="48" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="52" column="80" source="standard:trailing-comma-on-call-site" />
+        <error line="54" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="78" source="standard:trailing-comma-on-call-site" />
+        <error line="62" column="21" source="standard:trailing-comma-on-call-site" />
+        <error line="68" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="73" column="79" source="standard:trailing-comma-on-call-site" />
+        <error line="75" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="90" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="93" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="95" column="40" source="standard:trailing-comma-on-call-site" />
+        <error line="100" column="19" source="standard:trailing-comma-on-call-site" />
+        <error line="104" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="111" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="113" column="40" source="standard:trailing-comma-on-call-site" />
+        <error line="118" column="71" source="standard:trailing-comma-on-call-site" />
+        <error line="127" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="129" column="70" source="standard:trailing-comma-on-call-site" />
+        <error line="131" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="134" column="21" source="standard:trailing-comma-on-call-site" />
+        <error line="136" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="139" column="33" source="standard:trailing-comma-on-call-site" />
+        <error line="151" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="153" column="38" source="standard:trailing-comma-on-call-site" />
+        <error line="164" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="167" column="81" source="standard:trailing-comma-on-call-site" />
+        <error line="169" column="38" source="standard:trailing-comma-on-call-site" />
+        <error line="177" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="180" column="66" source="standard:trailing-comma-on-call-site" />
+        <error line="182" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="191" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="194" column="66" source="standard:trailing-comma-on-call-site" />
+        <error line="196" column="37" source="standard:trailing-comma-on-call-site" />
+        <error line="204" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="208" column="66" source="standard:trailing-comma-on-call-site" />
+        <error line="210" column="36" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/SessionFilterTest.kt">
+        <error line="8" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="13" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="14" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="16" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="19" column="42" source="standard:trailing-comma-on-call-site" />
+        <error line="30" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="33" column="77" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/SessionMergeTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="13" column="20" source="standard:function-signature" />
+        <error line="13" column="31" source="standard:function-signature" />
+        <error line="13" column="44" source="standard:function-signature" />
+        <error line="13" column="59" source="standard:function-signature" />
+        <error line="14" column="18" source="standard:chain-method-continuation" />
+        <error line="19" column="25" source="standard:function-signature" />
+        <error line="19" column="38" source="standard:function-signature" />
+        <error line="19" column="49" source="standard:function-signature" />
+        <error line="19" column="78" source="standard:function-signature" />
+        <error line="19" column="81" source="standard:function-signature" />
+        <error line="29" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="41" column="72" source="standard:trailing-comma-on-call-site" />
+        <error line="52" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="63" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="70" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="70" column="32" source="standard:chain-method-continuation" />
+        <error line="78" column="65" source="standard:trailing-comma-on-call-site" />
+        <error line="89" column="63" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/domain/WeekExportTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="20" column="20" source="standard:function-signature" />
+        <error line="20" column="37" source="standard:function-signature" />
+        <error line="20" column="48" source="standard:function-signature" />
+        <error line="20" column="59" source="standard:function-signature" />
+        <error line="21" column="22" source="standard:chain-method-continuation" />
+        <error line="29" column="44" source="standard:trailing-comma-on-declaration-site" />
+        <error line="41" column="31" source="standard:chain-method-continuation" />
+        <error line="41" column="39" source="standard:chain-method-continuation" />
+        <error line="41" column="44" source="standard:chain-method-continuation" />
+        <error line="48" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="50" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="51" column="102" source="standard:trailing-comma-on-call-site" />
+        <error line="53" column="82" source="standard:trailing-comma-on-call-site" />
+        <error line="70" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="71" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="72" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="74" column="73" source="standard:trailing-comma-on-call-site" />
+        <error line="75" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="76" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="79" column="30" source="standard:chain-method-continuation" />
+        <error line="79" column="67" source="standard:chain-method-continuation" />
+        <error line="79" column="72" source="standard:chain-method-continuation" />
+        <error line="91" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="92" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="93" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="95" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="96" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="97" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="100" column="30" source="standard:chain-method-continuation" />
+        <error line="100" column="67" source="standard:chain-method-continuation" />
+        <error line="100" column="72" source="standard:chain-method-continuation" />
+        <error line="112" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="113" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="114" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="116" column="83" source="standard:trailing-comma-on-call-site" />
+        <error line="117" column="18" source="standard:trailing-comma-on-call-site" />
+        <error line="118" column="14" source="standard:trailing-comma-on-call-site" />
+        <error line="132" column="30" source="standard:chain-method-continuation" />
+        <error line="132" column="67" source="standard:chain-method-continuation" />
+        <error line="132" column="72" source="standard:chain-method-continuation" />
+        <error line="143" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="144" column="103" source="standard:trailing-comma-on-call-site" />
+        <error line="147" column="30" source="standard:chain-method-continuation" />
+        <error line="147" column="67" source="standard:chain-method-continuation" />
+        <error line="147" column="72" source="standard:chain-method-continuation" />
+        <error line="157" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="158" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="160" column="70" source="standard:trailing-comma-on-call-site" />
+        <error line="162" column="85" source="standard:trailing-comma-on-call-site" />
+        <error line="171" column="59" source="standard:chain-method-continuation" />
+        <error line="171" column="66" source="standard:chain-method-continuation" />
+        <error line="171" column="71" source="standard:chain-method-continuation" />
+        <error line="171" column="79" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/model/AppearanceOptionTest.kt">
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/BuildHygieneTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="9" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="27" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="28" column="27" source="standard:chain-method-continuation" />
+        <error line="29" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="30" column="27" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/LayerRulesTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="24" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="28" column="35" source="standard:trailing-comma-on-call-site" />
+        <error line="30" column="5" source="standard:spacing-between-declarations-with-comments" />
+        <error line="31" column="38" source="standard:multiline-expression-wrapping" />
+        <error line="35" column="32" source="standard:trailing-comma-on-call-site" />
+        <error line="37" column="5" source="standard:spacing-between-declarations-with-comments" />
+        <error line="77" column="16" source="standard:chain-method-continuation" />
+        <error line="100" column="28" source="standard:chain-method-continuation" />
+        <error line="105" column="34" source="standard:binary-expression-wrapping" />
+        <error line="105" column="141" source="standard:max-line-length" />
+        <error line="151" column="88" source="standard:trailing-comma-on-call-site" />
+        <error line="155" column="51" source="standard:trailing-comma-on-call-site" />
+        <error line="164" column="19" source="standard:argument-list-wrapping" />
+        <error line="164" column="55" source="standard:argument-list-wrapping" />
+        <error line="165" column="44" source="standard:trailing-comma-on-call-site" />
+        <error line="168" column="19" source="standard:argument-list-wrapping" />
+        <error line="168" column="57" source="standard:argument-list-wrapping" />
+        <error line="169" column="44" source="standard:trailing-comma-on-call-site" />
+        <error line="177" column="66" source="standard:trailing-comma-on-call-site" />
+        <error line="181" column="73" source="standard:trailing-comma-on-call-site" />
+        <error line="186" column="33" source="standard:function-signature" />
+        <error line="186" column="45" source="standard:function-signature" />
+        <error line="186" column="59" source="standard:function-signature" />
+        <error line="186" column="80" source="standard:function-signature" />
+        <error line="186" column="102" source="standard:function-signature" />
+        <error line="191" column="64" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/NoFixedSleepTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="19" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="19" column="32" source="standard:chain-method-continuation" />
+        <error line="22" column="21" source="standard:chain-method-continuation" />
+        <error line="22" column="33" source="standard:chain-method-continuation" />
+        <error line="26" column="13" source="standard:chain-method-continuation" />
+        <error line="31" column="49" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/OneTypePerFileTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="14" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="15" column="149" source="standard:trailing-comma-on-call-site" />
+        <error line="24" column="16" source="standard:chain-method-continuation" />
+        <error line="33" column="38" source="standard:binary-expression-wrapping" />
+        <error line="33" column="58" source="standard:argument-list-wrapping" />
+        <error line="33" column="65" source="standard:argument-list-wrapping" />
+        <error line="33" column="141" source="standard:max-line-length" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/ShortCommentsTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="48" column="16" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/SourceEncodingTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="18" column="21" source="standard:multiline-expression-wrapping" />
+        <error line="18" column="31" source="standard:chain-method-continuation" />
+        <error line="20" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="20" column="35" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/SourceProseTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="16" column="27" source="standard:multiline-expression-wrapping" />
+        <error line="21" column="32" source="standard:trailing-comma-on-call-site" />
+        <error line="30" column="16" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="32" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="40" column="22" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/ui/dashboard/DashboardStateTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="26" column="44" source="standard:chain-method-continuation" />
+        <error line="36" column="44" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/java/com/foco/app/ui/dashboard/RingMotionTest.kt">
+        <error line="9" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="14" column="20" source="standard:function-signature" />
+        <error line="14" column="31" source="standard:function-signature" />
+        <error line="14" column="42" source="standard:function-signature" />
+        <error line="14" column="51" source="standard:function-signature" />
+        <error line="19" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="21" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="43" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="45" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="61" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="63" column="58" source="standard:trailing-comma-on-call-site" />
+        <error line="94" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="96" column="62" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="11" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="14" column="20" source="standard:function-signature" />
+        <error line="14" column="31" source="standard:function-signature" />
+        <error line="14" column="42" source="standard:function-signature" />
+        <error line="14" column="51" source="standard:function-signature" />
+        <error line="19" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="20" column="57" source="standard:no-multi-spaces" />
+        <error line="21" column="58" source="standard:no-multi-spaces" />
+        <error line="22" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="22" column="58" source="standard:no-multi-spaces" />
+        <error line="40" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="41" column="57" source="standard:no-multi-spaces" />
+        <error line="42" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="42" column="58" source="standard:no-multi-spaces" />
+        <error line="54" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="55" column="57" source="standard:no-multi-spaces" />
+        <error line="56" column="57" source="standard:trailing-comma-on-call-site" />
+        <error line="56" column="58" source="standard:no-multi-spaces" />
+        <error line="68" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="70" column="62" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="19" column="20" source="standard:function-signature" />
+        <error line="19" column="37" source="standard:function-signature" />
+        <error line="19" column="48" source="standard:function-signature" />
+        <error line="19" column="59" source="standard:function-signature" />
+        <error line="20" column="22" source="standard:chain-method-continuation" />
+        <error line="30" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="42" column="81" source="standard:trailing-comma-on-call-site" />
+        <error line="60" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="61" column="18" source="standard:chain-method-continuation" />
+        <error line="69" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="72" column="79" source="standard:trailing-comma-on-call-site" />
+        <error line="88" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="90" column="53" source="standard:trailing-comma-on-call-site" />
+        <error line="112" column="22" source="standard:multiline-expression-wrapping" />
+        <error line="114" column="80" source="standard:trailing-comma-on-call-site" />
+    </file>
+</baseline>

@@ -1,4 +1,4 @@
-﻿package com.foco.app.ui
+package com.foco.app.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule

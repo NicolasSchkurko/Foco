@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package com.foco.app.domain
 
 import com.foco.app.model.export.WeekExport

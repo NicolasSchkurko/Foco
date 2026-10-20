@@ -1,5 +1,6 @@
 package com.foco.app.ui.dashboard
 
+import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -23,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Settings
@@ -38,13 +41,15 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,7 +80,6 @@ import com.foco.app.domain.DayStop
 import com.foco.app.domain.dayRing
 import com.foco.app.domain.dayStopFromKey
 import com.foco.app.domain.key
-import com.foco.app.domain.step
 import com.foco.app.domain.weekExportJson
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
@@ -113,11 +117,18 @@ fun DashboardScreen(
     onAppClick: (String, LocalDate?) -> Unit = { _, _ -> },
     onOpenSettings: () -> Unit = {},
     loadExport: (suspend () -> String)? = null,
-    clock: Clock = Clock.systemDefaultZone()
+    clock: Clock = Clock.systemDefaultZone(),
+    createRepository: (Context) -> UsageRepository = { UsageRepository(it) },
+    createHistoryStore: (Context, (LocalDate) -> DayData) -> SessionHistoryStore =
+        { appContext, readDay -> SessionHistoryStore.forApp(appContext, readDay) }
 ) {
     val context = LocalContext.current
-    val repository = remember { UsageRepository(context.applicationContext) }
-    val store = remember { SessionHistoryStore.forApp(context.applicationContext) { day -> repository.loadDay(day) } }
+    val repository = remember(context.applicationContext) {
+        createRepository(context.applicationContext)
+    }
+    val store = remember(context.applicationContext, repository) {
+        createHistoryStore(context.applicationContext) { day -> repository.loadDay(day) }
+    }
     val today = rememberCurrentDate(clock)
     val load by rememberUpdatedState(loadDay ?: { repository.loadDay(today) })
 
@@ -127,17 +138,21 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
 
     var storedDays by remember { mutableStateOf<Set<LocalDate>>(emptySet()) }
-    // Two positions: the arrows, bars, history and back move the requested one; the header and the
-    // content follow the shown one, which advances only once that content is in memory.
-    var requestedKey by rememberSaveable { mutableStateOf(DayStop.Day(today).key()) }
-    var shownKey by rememberSaveable { mutableStateOf(requestedKey) }
-    var historyKeys by rememberSaveable { mutableStateOf("") }
-    var slideDirection by remember { mutableIntStateOf(1) }
-    var softMotion by remember { mutableStateOf(false) }
     val motionScale = remember { MotionScale(context.applicationContext).scale() }
     val ring = remember(today, storedDays) { dayRing(today, storedDays) }
-    val requested = remember(requestedKey, today) { dayStopFromKey(requestedKey) ?: DayStop.Day(today) }
+    // Two positions: the arrows, bars, history and back move the requested one; the header and the
+    // content follow the shown one, which advances only once that content is in memory.
+    val dashboardState = rememberSaveable(saver = dashboardStateSaver(DayStop.Day(today))) {
+        DashboardState(DayStop.Day(today))
+    }
+    val state by dashboardState.snapshot.collectAsState()
+    val requested = state.ring.current
+    val requestedKey = requested.key()
     val requestedDate = (requested as? DayStop.Day)?.date
+    val shown = state.shown
+    val shownKey = shown.key()
+    val slideDirection = state.slideDirection
+    val softMotion = state.softMotion
     val todayKey = remember(today) { DayStop.Day(today).key() }
     val weekKey = DayStop.Week.key()
     val ringContent = remember { mutableStateMapOf<String, RingContent>() }
@@ -147,61 +162,30 @@ fun DashboardScreen(
     val undoLabel = stringResource(R.string.excluded_undo)
     val exportError = stringResource(R.string.week_export_error)
 
-    fun history(): List<String> = historyKeys.split('\n').filter { it.isNotEmpty() }
-
-    fun setHistory(keys: List<String>) {
-        historyKeys = keys.joinToString("\n")
-    }
-
     fun moveTo(target: DayStop, direction: Int? = null, soft: Boolean = false) {
-        if (target.key() == requestedKey) return
         val shortcutDay = target is DayStop.Day && target.date in today.minusDays(6)..today
-        if (!shortcutDay && ring.none { it.key() == target.key() }) return
-        val from = ring.indexOfFirst { it.key() == requestedKey }
-        val to = ring.indexOfFirst { it.key() == target.key() }
-        slideDirection = direction ?: if (from >= 0 && to > from) 1 else -1
-        softMotion = soft
-        setHistory(history() + requestedKey)
-        requestedKey = target.key()
+        dashboardState.moveTo(target, ring, shortcutDay, direction, soft)
     }
 
     fun moveStep(forward: Boolean) {
-        moveTo(requested.step(ring, forward), direction = if (forward) 1 else -1, soft = true)
+        dashboardState.moveStep(ring, forward)
     }
 
     fun goBack() {
-        val visited = history()
-        if (visited.isEmpty()) return
-        slideDirection = -1
-        softMotion = false
-        requestedKey = visited.last()
-        setHistory(visited.dropLast(1))
+        dashboardState.goBack()
     }
 
-    BackHandler(enabled = historyKeys.isNotEmpty()) { goBack() }
+    BackHandler(enabled = state.ring.history.isNotEmpty()) { goBack() }
 
     LaunchedEffect(store) {
         store.storedDaysFlow().readOr(emptySet<LocalDate>()).collect { storedDays = it }
     }
 
     LaunchedEffect(ring, requestedKey, today) {
-        fun insideWindow(dayStop: DayStop?): Boolean =
+        fun insideWindow(dayStop: DayStop): Boolean =
             dayStop is DayStop.Day && dayStop.date in today.minusDays(6)..today
 
-        val current = dayStopFromKey(requestedKey)
-        if (ring.none { it.key() == requestedKey } && !insideWindow(current)) {
-            val fallback = DayStop.Day(today).key()
-            requestedKey = fallback
-            shownKey = fallback
-            setHistory(emptyList())
-        } else {
-            setHistory(
-                history().filter { key ->
-                    val stopAtKey = dayStopFromKey(key)
-                    stopAtKey != null && (ring.any { it.key() == key } || insideWindow(stopAtKey))
-                }
-            )
-        }
+        dashboardState.retain(ring, ::insideWindow, DayStop.Day(today))
     }
 
     // The live read follows the requested position: today or the week keep it, a stored day stops it.
@@ -251,7 +235,7 @@ fun DashboardScreen(
     val requestedReady = ringContent.containsKey(requestedKey) &&
         (!weekRequested || ringContent[todayKey] is RingContent.Day)
     LaunchedEffect(requestedKey, requestedReady) {
-        if (requestedReady) shownKey = requestedKey
+        if (requestedReady) dashboardState.showCurrent()
     }
 
     LaunchedEffect(excludedStore) {
@@ -292,7 +276,6 @@ fun DashboardScreen(
         ) {
             Spacer(Modifier.height(16.dp))
 
-            val shown = remember(shownKey, today) { dayStopFromKey(shownKey) ?: DayStop.Day(today) }
             val shownDay = ringContent[shownKey] as? RingContent.Day
             val shownMetrics = remember(shownDay, excludedPackages) {
                 shownDay?.let {
@@ -386,7 +369,10 @@ fun DashboardScreen(
                     onClick = { moveStep(forward = false) },
                     modifier = Modifier.semantics { contentDescription = previous }
                 ) {
-                    Text("‹", style = MaterialTheme.typography.titleLarge)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = null
+                    )
                 }
                 if (subtitle != null) {
                     Text(
@@ -404,7 +390,10 @@ fun DashboardScreen(
                     onClick = { moveStep(forward = true) },
                     modifier = Modifier.semantics { contentDescription = next }
                 ) {
-                    Text("›", style = MaterialTheme.typography.titleLarge)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null
+                    )
                 }
             }
 
@@ -595,3 +584,27 @@ private fun RingLoading() {
         CircularProgressIndicator()
     }
 }
+
+private fun dashboardStateSaver(fallback: DayStop): Saver<DashboardState, Any> =
+    listSaver<DashboardState, String>(
+        save = { state ->
+            val snapshot = state.value
+            listOf(
+                snapshot.ring.current.key(),
+                snapshot.shown.key(),
+                snapshot.slideDirection.toString(),
+                snapshot.softMotion.toString()
+            ) + snapshot.ring.history.map { it.key() }
+        },
+        restore = { values ->
+            val current = dayStopFromKey(values.getOrNull(0).orEmpty()) ?: fallback
+            val shown = dayStopFromKey(values.getOrNull(1).orEmpty()) ?: current
+            DashboardState.restore(
+                current = current,
+                shown = shown,
+                history = values.drop(4).mapNotNull(::dayStopFromKey),
+                slideDirection = values.getOrNull(2)?.toIntOrNull() ?: 1,
+                softMotion = values.getOrNull(3)?.toBooleanStrictOrNull() ?: false
+            )
+        }
+    )

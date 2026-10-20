@@ -185,7 +185,7 @@ class LayerRulesTest {
     /** Writes a synthetic source: its `package` plus the [imports] it is given. */
     private fun writeKotlinFile(root: File, path: String, packageName: String, vararg imports: String) {
         val file = File(root, path)
-        file.parentFile.mkdirs()
+        file.parentFile?.mkdirs()
         file.writeText(
             (listOf("package $packageName") + imports.map { "import $it" })
                 .joinToString(separator = "\n", postfix = "\n")

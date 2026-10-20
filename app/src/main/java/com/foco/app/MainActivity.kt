@@ -2,6 +2,7 @@ package com.foco.app
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Window
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,11 +22,15 @@ import com.foco.app.data.ConsolidationScheduler
 import com.foco.app.data.SettingsStore
 import com.foco.app.data.UsageMonitorService
 import com.foco.app.data.migrateSettingsFromLegacyDataStore
+import com.foco.app.domain.withStartupTimeout
 import com.foco.app.model.AppearanceOption
 import com.foco.app.ui.App
 import com.foco.app.ui.theme.FocoTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+
+private const val STARTUP_TIMEOUT_MILLIS = 2_000L
+private const val TAG = "MainActivity"
 
 /**
  * Entry point: migrates the legacy store, applies language and appearance before the first frame (the theme and
@@ -41,9 +46,17 @@ class MainActivity : AppCompatActivity() {
         // (once), the language is applied and the appearance reaches the theme before
         // the first frame. The value read seeds the Compose state.
         val storedAppearance = runBlocking {
-            migrateSettingsFromLegacyDataStore(applicationContext)
-            AppLanguage.applyToSystem(settings.language.first())
-            settings.appearance.first().also { AppAppearance.applyToSystem(it) }
+            withStartupTimeout(
+                timeoutMillis = STARTUP_TIMEOUT_MILLIS,
+                fallback = {
+                    Log.w(TAG, "Settings startup timed out or failed; using defaults")
+                    AppearanceOption.AUTO
+                }
+            ) {
+                migrateSettingsFromLegacyDataStore(applicationContext)
+                AppLanguage.applyToSystem(settings.language.first())
+                settings.appearance.first().also { AppAppearance.applyToSystem(it) }
+            }
         }
 
         enableEdgeToEdge()

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -49,6 +50,20 @@ android {
 ksp {
     // The exported schemas are the migration baseline: committed under `app/schemas/`.
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+ktlint {
+    android.set(true)
+    ignoreFailures.set(false)
+    baseline.set(file("ktlint-baseline.xml"))
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    if (!name.contains("AndroidTest")) {
+        compilerOptions {
+            allWarningsAsErrors.set(true)
+        }
+    }
 }
 
 dependencies {
