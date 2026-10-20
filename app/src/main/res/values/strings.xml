@@ -67,6 +67,10 @@
         <item quantity="other">%d days</item>
     </plurals>
 
+    <!-- Week export -->
+    <string name="week_export">Export JSON</string>
+    <string name="week_export_error">Could not export the week</string>
+
     <!-- Common -->
     <string name="loading">Loading…</string>
 </resources>

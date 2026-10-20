@@ -1,7 +1,9 @@
 schema: spec-anchored
 created: 2026-10-19
 x-kind: feature
-x-status: draft
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-status: verified
 x-targets:
   - gradle/libs.versions.toml
   - app/build.gradle.kts
@@ -29,5 +31,7 @@ x-deps:
   - soften-ring-swipe-animation
   - nightly-consolidation
   - schema-drift-guard
-x-gitref: da3845a
+x-gitref: db08081
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
 x-tech_brief: true

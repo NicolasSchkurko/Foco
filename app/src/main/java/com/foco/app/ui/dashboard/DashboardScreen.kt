@@ -1,5 +1,6 @@
 package com.foco.app.ui.dashboard
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -61,11 +63,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.R
+import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.MotionScale
 import com.foco.app.data.SessionHistoryStore
+import com.foco.app.data.WeekExportService
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DayStop
+import com.foco.app.domain.weekExportJson
 import com.foco.app.domain.dayRing
 import com.foco.app.domain.dayStopFromKey
 import com.foco.app.domain.key
@@ -83,6 +88,7 @@ import com.foco.app.ui.metrics.DayMetrics
 import com.foco.app.ui.metrics.deriveDayMetrics
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,7 +103,8 @@ fun DashboardScreen(
     refreshIntervalMillis: Long = DEFAULT_REFRESH_INTERVAL_MILLIS,
     loadDay: (suspend () -> DayData)? = null,
     onAppClick: (String, LocalDate?) -> Unit = { _, _ -> },
-    onOpenSettings: () -> Unit = {}
+    onOpenSettings: () -> Unit = {},
+    loadExport: (suspend () -> String)? = null
 ) {
     val context = LocalContext.current
     val repository = remember { UsageRepository(context.applicationContext) }
@@ -125,6 +132,7 @@ fun DashboardScreen(
 
     val snackbarExcluded = stringResource(R.string.excluded_snackbar)
     val undoLabel = stringResource(R.string.excluded_undo)
+    val exportError = stringResource(R.string.week_export_error)
 
     fun history(): List<String> = historyKeys.split('\n').filter { it.isNotEmpty() }
 
@@ -218,6 +226,17 @@ fun DashboardScreen(
 
     val swipeThreshold = with(LocalDensity.current) { 64.dp.toPx() }
 
+    var exporting by remember { mutableStateOf(false) }
+
+    // The export seam: the tests drive the success and failure paths without the platform.
+    val exportJson: suspend () -> String = loadExport ?: {
+        val service = WeekExportService(
+            context = context.applicationContext,
+            labels = AppPackageInfo(context.applicationContext)::label
+        )
+        weekExportJson(service.export(today))
+    }
+
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
         Column(
             modifier = Modifier
@@ -259,6 +278,35 @@ fun DashboardScreen(
             ScreenHeader(
                 title = title,
                 actions = {
+                    if (stop is DayStop.Week) {
+                        val exportLabel = stringResource(R.string.week_export)
+                        IconButton(
+                            enabled = !exporting,
+                            onClick = {
+                                exporting = true
+                                scope.launch {
+                                    try {
+                                        val json = withContext(Dispatchers.IO) { exportJson() }
+                                        val uri = writeWeekExport(context, json, today)
+                                        context.startActivity(
+                                            Intent.createChooser(weekExportShareIntent(uri), null)
+                                        )
+                                    } catch (cancelled: CancellationException) {
+                                        throw cancelled
+                                    } catch (failure: Exception) {
+                                        snackbarHostState.showSnackbar(exportError)
+                                    } finally {
+                                        exporting = false
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Share,
+                                contentDescription = exportLabel
+                            )
+                        }
+                    }
                     IconButton(onClick = { moveTo(DayStop.Week) }) {
                         Icon(
                             imageVector = Icons.Filled.DateRange,
