@@ -23,6 +23,8 @@
     <!-- Dates -->
     <string name="day_today">Hoy</string>
     <string name="day_yesterday">Ayer</string>
+    <string name="day_previous">Anterior</string>
+    <string name="day_next">Siguiente</string>
 
     <!-- Onboarding -->
     <string name="onboarding_explanation">Para medir cuánto usás cada app, Foco necesita acceso a las estadísticas de uso. Android solo permite activarlo a mano, desde Ajustes.</string>

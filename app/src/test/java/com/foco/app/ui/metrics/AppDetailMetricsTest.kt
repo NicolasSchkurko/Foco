@@ -60,4 +60,27 @@ class AppDetailMetricsTest {
     fun `day without data yields null`() {
         assertNull(appDayDetail(listOf(UsageSession("app.b", at(9, 0), at(9, 1))), "app.a", zone))
     }
+
+    @Test
+    fun `the detail lists only visible sessions and summarizes them`() {
+        val sessions = listOf(
+            UsageSession("app.a", at(9, 0), at(9, 0) + 2_000),
+            UsageSession("app.a", at(10, 0), at(10, 0) + 500)
+        )
+
+        val detail = appDayDetail(sessions, "app.a", zone)!!
+
+        assertEquals(2_000L, detail.totalMillis)
+        assertEquals(1, detail.sessionCount)
+        assertEquals(2_000L, detail.averageMillis)
+        assertEquals(2_000L, detail.longestMillis)
+        assertEquals(listOf(2_000L), detail.sessions.map { it.end - it.start })
+    }
+
+    @Test
+    fun `a detail with only sub-second sessions is empty`() {
+        val sessions = listOf(UsageSession("app.a", at(9, 0), at(9, 0) + 500))
+
+        assertNull(appDayDetail(sessions, "app.a", zone))
+    }
 }

@@ -1,0 +1,12 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-targets:
+  - app/src/main/java/com/foco/app/ui/onboarding/OnboardingScreen.kt
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/OnboardingContrastTest.kt
+x-deps: []
+x-gitref: 405b631

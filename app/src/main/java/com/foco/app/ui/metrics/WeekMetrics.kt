@@ -42,7 +42,7 @@ fun deriveWeekMetrics(
         .groupBy { it.packageName }
         .mapValues { (_, rows) -> rows.sumOf { it.totalMillis } to rows.map { it.day }.distinct().size }
 
-    val liveByPackage = today.sessions
+    val liveByPackage = visibleSessions(today.sessions)
         .filter { it.packageName !in excludedPackages }
         .groupBy { it.packageName }
         .mapValues { (_, sessions) -> sessions.sumOf { it.end - it.start } to 1 }
@@ -55,7 +55,9 @@ fun deriveWeekMetrics(
             totalMillis = (stored?.first ?: 0L) + (live?.first ?: 0L),
             daysUsed = (stored?.second ?: 0) + (live?.second ?: 0)
         )
-    }.sortedByDescending { it.totalMillis }
+    }
+        .filter { it.totalMillis >= MIN_VISIBLE_SESSION_MILLIS }
+        .sortedByDescending { it.totalMillis }
 
     return WeekMetrics(bars = bars, ranking = ranking)
 }

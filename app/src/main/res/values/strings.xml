@@ -23,6 +23,8 @@
     <!-- Dates -->
     <string name="day_today">Today</string>
     <string name="day_yesterday">Yesterday</string>
+    <string name="day_previous">Previous</string>
+    <string name="day_next">Next</string>
 
     <!-- Onboarding -->
     <string name="onboarding_explanation">To measure how much you use each app, Foco needs access to usage stats. Android only lets you enable it by hand, from Settings.</string>

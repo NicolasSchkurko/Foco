@@ -1,7 +1,6 @@
 package com.foco.app.ui.settings
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,10 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -40,6 +35,7 @@ import com.foco.app.data.SettingsStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.model.LanguageOption
 import com.foco.app.ui.common.AppIcon
+import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
 import kotlinx.coroutines.launch
 
@@ -68,25 +64,10 @@ fun SettingsScreen() {
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // Header: the arrow at the leading edge (4 dp inset) and the title centred in the window.
-            Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(
-                    onClick = { backDispatcher?.onBackPressed() },
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.content_back)
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.settings_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
+            ScreenHeader(
+                title = stringResource(R.string.settings_title),
+                onBack = { backDispatcher?.onBackPressed() }
+            )
 
             Spacer(Modifier.height(8.dp))
 

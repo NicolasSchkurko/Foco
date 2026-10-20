@@ -1,6 +1,5 @@
-package com.foco.app.ui.week
+package com.foco.app.ui.common
 
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,19 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +43,6 @@ import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.day.DayData
-import com.foco.app.ui.common.AppUsageRow
-import com.foco.app.ui.common.readOr
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatWeekday
@@ -61,21 +52,18 @@ import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * The last seven days: a bar per day (today live, the stored days from the store, a day with
- * nothing read as absent) plus the apps ranked by their total over the window. `loadDay` is a seam.
- */
+/** The week as one home position: bars, live/stored totals, and the ranking. The home owns the header. */
 @Composable
-fun WeekScreen(
+fun WeekContent(
+    today: LocalDate,
     loadDay: (suspend () -> DayData)? = null,
     onDayClick: (LocalDate) -> Unit = {},
-    onAppClick: (String) -> Unit = {}
+    onAppClick: (String) -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val repository = remember { UsageRepository(context.applicationContext) }
     val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
-    val today = remember { LocalDate.now() }
     val load by rememberUpdatedState(loadDay ?: { repository.loadToday() })
 
     val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
@@ -83,14 +71,12 @@ fun WeekScreen(
     var storedTotals by remember { mutableStateOf<List<DailyAggregate>?>(null) }
     var todayData by remember { mutableStateOf<DayData?>(null) }
 
-    // The six stored days do not change while the screen is open, so the store is read once.
-    LaunchedEffect(store) {
+    LaunchedEffect(store, today) {
         storedTotals = withContext(Dispatchers.IO) {
             readOr(emptyList<DailyAggregate>()) { store.week(today) }
         }
     }
 
-    // Only the live day changes: one read per resume, no loop and no refresh interval here.
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -113,86 +99,58 @@ fun WeekScreen(
         )
     }
 
-    Scaffold { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp)
-        ) {
-            Spacer(Modifier.height(16.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = { backDispatcher?.onBackPressed() },
-                    modifier = Modifier.padding(start = 4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.content_back)
-                    )
-                }
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = stringResource(R.string.week_title),
-                    style = MaterialTheme.typography.headlineMedium
-                )
+    Column(modifier = modifier.fillMaxSize()) {
+        if (storedTotals == null || todayData == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-
+        } else {
+            WeekBars(bars = metrics.bars, today = today, onDayClick = onDayClick)
             Spacer(Modifier.height(24.dp))
 
-            if (storedTotals == null || todayData == null) {
+            if (metrics.ranking.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    Text(
+                        text = stringResource(R.string.week_empty),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             } else {
-                WeekBars(bars = metrics.bars, today = today, onDayClick = onDayClick)
-                Spacer(Modifier.height(24.dp))
-
-                if (metrics.ranking.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.week_empty),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                Text(
+                    text = stringResource(R.string.dashboard_apps),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(4.dp))
+                val maxAppMillis = metrics.ranking.maxOf { it.totalMillis }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    items(metrics.ranking, key = { it.packageName }) { app ->
+                        AppUsageRow(
+                            packageName = app.packageName,
+                            millis = app.totalMillis,
+                            maxMillis = maxAppMillis,
+                            caption = pluralStringResource(
+                                R.plurals.week_days_used,
+                                app.daysUsed,
+                                app.daysUsed
+                            ),
+                            onClick = { onAppClick(app.packageName) }
                         )
-                    }
-                } else {
-                    Text(
-                        text = stringResource(R.string.dashboard_apps),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    val maxAppMillis = metrics.ranking.maxOf { it.totalMillis }
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        items(metrics.ranking, key = { it.packageName }) { app ->
-                            AppUsageRow(
-                                packageName = app.packageName,
-                                millis = app.totalMillis,
-                                maxMillis = maxAppMillis,
-                                caption = pluralStringResource(
-                                    R.plurals.week_days_used,
-                                    app.daysUsed,
-                                    app.daysUsed
-                                ),
-                                onClick = { onAppClick(app.packageName) }
-                            )
-                            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
-                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     }
                 }
             }

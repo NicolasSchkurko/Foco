@@ -4,11 +4,11 @@ import com.foco.app.model.UsageSession
 import java.time.ZoneId
 
 /**
- * One day's detail for ONE app: sorted sessions and summary (total, count, first/last,
- * average, longest) with its hourly distribution; null if it has no sessions that day.
+ * One day's detail for ONE app: its visible sessions, the summary derived from them (total, count,
+ * first/last, average, longest) and their hourly distribution; null if no visible session remains.
  */
 fun appDayDetail(sessions: List<UsageSession>, packageName: String, zone: ZoneId): AppDayDetail? {
-    val mine = sessions.filter { it.packageName == packageName }.sortedBy { it.start }
+    val mine = visibleSessions(sessions.filter { it.packageName == packageName }).sortedBy { it.start }
     if (mine.isEmpty()) return null
 
     val total = mine.sumOf { it.end - it.start }

@@ -13,11 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,6 +41,7 @@ import com.foco.app.domain.daySource
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.HourChart
+import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.common.readOr
 import com.foco.app.ui.formatDayLabel
@@ -130,40 +128,14 @@ fun AppDetailScreen(packageName: String, date: LocalDate? = null) {
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // Header: the arrow at the leading edge (4 dp inset) and the app identity centred.
-            Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(
-                    onClick = { backDispatcher?.onBackPressed() },
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.content_back)
-                    )
-                }
-                Row(
-                    modifier = Modifier.align(Alignment.Center),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AppIcon(packageName = packageName)
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = appLabel(packageName),
-                            style = MaterialTheme.typography.titleLarge,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = detail?.let { stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis)) }
-                                ?: stringResource(R.string.loading),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            ScreenHeader(
+                title = appLabel(packageName),
+                subtitle = detail?.let {
+                    stringResource(R.string.detail_day_usage, formatDuration(it.totalMillis))
+                } ?: stringResource(R.string.loading),
+                onBack = { backDispatcher?.onBackPressed() },
+                titleLeading = { AppIcon(packageName = packageName) }
+            )
 
             Spacer(Modifier.height(12.dp))
 

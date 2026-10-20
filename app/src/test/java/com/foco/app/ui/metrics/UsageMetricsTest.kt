@@ -4,6 +4,7 @@ import com.foco.app.model.UsageSession
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class UsageMetricsTest {
@@ -60,5 +61,37 @@ class UsageMetricsTest {
         assertEquals(listOf("app.b"), metrics.entries.map { it.packageName })
         assertEquals(50 * 60_000L, metrics.totalMillis)
         assertEquals(40 * 60_000L, metrics.hourly[9].millis)
+    }
+
+    @Test
+    fun `a sub-second session is hidden from the ranking but stays in the day total`() {
+        val sessions = listOf(
+            UsageSession("app.a", at(9, 0), at(9, 0) + 2_000),
+            UsageSession("app.a", at(10, 0), at(10, 0) + 500)
+        )
+
+        val metrics = deriveDayMetrics(sessions, zone)
+
+        assertEquals(2_500L, metrics.totalMillis)
+        assertEquals(1, metrics.entries.single().sessions)
+        assertEquals(2_000L, metrics.entries.single().totalMillis)
+    }
+
+    @Test
+    fun `an app with only sub-second time is absent from the ranking`() {
+        val sessions = listOf(UsageSession("app.a", at(9, 0), at(9, 0) + 500))
+
+        val metrics = deriveDayMetrics(sessions, zone)
+
+        assertTrue(metrics.entries.isEmpty())
+        assertEquals(500L, metrics.totalMillis)
+        assertEquals(500L, metrics.hourly[9].millis)
+    }
+
+    @Test
+    fun `a session of exactly one second is visible`() {
+        val sessions = listOf(UsageSession("app.a", at(9, 0), at(9, 0) + MIN_VISIBLE_SESSION_MILLIS))
+
+        assertEquals(1_000L, appRanking(sessions).single().totalMillis)
     }
 }

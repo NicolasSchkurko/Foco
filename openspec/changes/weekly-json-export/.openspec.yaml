@@ -1,0 +1,31 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: feature
+x-status: draft
+x-targets:
+  - gradle/libs.versions.toml
+  - app/build.gradle.kts
+  - app/src/main/java/com/foco/app/model/export/WeekExport.kt
+  - app/src/main/java/com/foco/app/model/export/ExportDay.kt
+  - app/src/main/java/com/foco/app/model/export/ExportApp.kt
+  - app/src/main/java/com/foco/app/model/export/ExportSession.kt
+  - app/src/main/java/com/foco/app/domain/WeekExportBuilder.kt
+  - app/src/main/java/com/foco/app/domain/WeekExportJson.kt
+  - app/src/main/java/com/foco/app/data/WeekExportService.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/WeekExportShare.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/AndroidManifest.xml
+  - app/src/main/res/xml/file_provider_paths.xml
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+x-tests:
+  - app/src/test/java/com/foco/app/domain/WeekExportTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/dashboard/WeekExportShareTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
+x-deps:
+  - day-ring-navigation
+  - home-ring-polish
+  - nightly-consolidation
+  - schema-drift-guard
+x-gitref: da3845a
+x-tech_brief: true

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,46 +21,49 @@ import com.foco.app.R
 import com.foco.app.data.UsageAccess
 
 /**
- * Shown while the app does not have the "Usage access" permission yet.
- * It tells the user what to enable and takes them straight to the right Settings screen.
+ * Shown while the app has no "Usage access": what to enable, and the way to Settings. The Scaffold
+ * shell is what gives the text the theme's content colour over the themed window.
  */
 @Composable
 fun OnboardingScreen() {
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Foco",
-            style = MaterialTheme.typography.displaySmall
-        )
+    Scaffold { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Foco",
+                style = MaterialTheme.typography.displaySmall
+            )
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-        Text(
-            text = stringResource(R.string.onboarding_explanation),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
+            Text(
+                text = stringResource(R.string.onboarding_explanation),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
 
-        Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-        Button(onClick = { context.startActivity(UsageAccess.settingsIntent()) }) {
-            Text(stringResource(R.string.onboarding_open_settings))
+            Button(onClick = { context.startActivity(UsageAccess.settingsIntent()) }) {
+                Text(stringResource(R.string.onboarding_open_settings))
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                text = stringResource(R.string.onboarding_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
         }
-
-        Spacer(Modifier.height(12.dp))
-
-        Text(
-            text = stringResource(R.string.onboarding_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
     }
 }

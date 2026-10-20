@@ -1,6 +1,7 @@
 package com.foco.app.ui
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -114,7 +115,10 @@ class WeekScreenTest {
 
         openWeek()
 
-        composeRule.onNodeWithContentDescription(string(R.string.content_back)).performClick()
+        composeRule.onAllNodesWithContentDescription(string(R.string.content_back)).assertCountEquals(0)
+        composeRule.runOnUiThread {
+            composeRule.activity.onBackPressedDispatcher.onBackPressed()
+        }
         awaitText(string(R.string.dashboard_title))
     }
 

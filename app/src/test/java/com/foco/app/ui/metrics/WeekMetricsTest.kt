@@ -105,4 +105,47 @@ class WeekMetricsTest {
         assertEquals(listOf("app.b"), metrics.ranking.map { it.packageName })
         assertEquals(minutes(50), metrics.bars.single { it.date == today.minusDays(1) }.totalMillis)
     }
+
+    @Test
+    fun `an app with only sub-second live time leaves the week ranking but stays in today's bar`() {
+        val sessions = listOf(UsageSession("app.a", at(today, 9, 0), at(today, 9, 0) + 500))
+
+        val metrics = deriveWeekMetrics(emptyList(), today, live(sessions))
+
+        assertTrue(metrics.ranking.isEmpty())
+        assertEquals(500L, metrics.bars.last().totalMillis)
+        assertEquals(WeekDayBar.State.Live, metrics.bars.last().state)
+    }
+
+    @Test
+    fun `an app with a sub-second stored total leaves the week ranking`() {
+        val stored = listOf(DailyAggregate("app.a", today.minusDays(1).toString(), 500L))
+
+        val metrics = deriveWeekMetrics(stored, today, live(emptyList()))
+
+        assertTrue(metrics.ranking.isEmpty())
+        assertEquals(500L, metrics.bars.single { it.date == today.minusDays(1) }.totalMillis)
+    }
+
+    @Test
+    fun `a stored total plus visible live time keeps the app in the ranking`() {
+        val stored = listOf(DailyAggregate("app.a", today.minusDays(1).toString(), 400L))
+        val sessions = listOf(UsageSession("app.a", at(today, 9, 0), at(today, 9, 0) + 1_000))
+
+        val metrics = deriveWeekMetrics(stored, today, live(sessions))
+
+        assertEquals(listOf("app.a"), metrics.ranking.map { it.packageName })
+        assertEquals(1_400L, metrics.ranking.single().totalMillis)
+    }
+
+    @Test
+    fun `a stored total plus sub-second live time stays below the threshold`() {
+        val stored = listOf(DailyAggregate("app.a", today.minusDays(1).toString(), 400L))
+        val sessions = listOf(UsageSession("app.a", at(today, 9, 0), at(today, 9, 0) + 600))
+
+        val metrics = deriveWeekMetrics(stored, today, live(sessions))
+
+        assertTrue(metrics.ranking.isEmpty())
+        assertEquals(600L, metrics.bars.single { it.date == today }.totalMillis)
+    }
 }

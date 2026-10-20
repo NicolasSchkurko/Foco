@@ -10,12 +10,11 @@ import com.foco.app.model.day.DayData
 import com.foco.app.ui.dashboard.DashboardScreen
 import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.settings.SettingsScreen
-import com.foco.app.ui.week.WeekScreen
 import java.time.LocalDate
 
 /**
- * The app's routes: the dashboard, the week, a dated day view and the detail, optionally on a date.
- * The permission gate stays outside, in `App`; `loadDay` is the tests' seam for the live day's read.
+ * The app's routes: the home, settings and the detail. The home owns the day ring; the week and the
+ * dated day are positions in it, not routes. The permission gate stays outside, in `App`.
  */
 @Composable
 fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
@@ -25,34 +24,20 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
         composable("dashboard") {
             DashboardScreen(
                 loadDay = loadDay,
-                onAppClick = { packageName -> navController.navigate("detail/$packageName") },
-                onOpenSettings = { navController.navigate("settings") },
-                onOpenWeek = { navController.navigate("week") }
-            )
-        }
-
-        composable("week") {
-            WeekScreen(
-                loadDay = loadDay,
-                onDayClick = { date -> navController.navigate("day/$date") },
-                onAppClick = { packageName -> navController.navigate("detail/$packageName") }
+                onAppClick = { packageName, date ->
+                    val route = if (date == null) {
+                        "detail/$packageName"
+                    } else {
+                        "detail/$packageName?date=$date"
+                    }
+                    navController.navigate(route)
+                },
+                onOpenSettings = { navController.navigate("settings") }
             )
         }
 
         composable("settings") {
             SettingsScreen()
-        }
-
-        composable(
-            route = "day/{date}",
-            arguments = listOf(navArgument("date") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val date = backStackEntry.arguments?.getString("date").orEmpty()
-            DashboardScreen(
-                date = LocalDate.parse(date),
-                loadDay = loadDay,
-                onAppClick = { packageName -> navController.navigate("detail/$packageName?date=$date") }
-            )
         }
 
         composable(
