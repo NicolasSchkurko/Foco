@@ -46,15 +46,15 @@ class UnlockCountTest {
     private fun generateUnlocks(times: Int) {
         repeat(times) {
             shell("input keyevent KEYCODE_SLEEP")
-            Thread.sleep(800)
+            waitForInteractive(composeRule, interactive = false)
             shell("input keyevent KEYCODE_WAKEUP")
-            Thread.sleep(800)
+            waitForInteractive(composeRule, interactive = true)
             shell("input keyevent 82") // MENU descarta el keyguard
-            Thread.sleep(800)
+            waitForKeyguardUnlocked(composeRule)
         }
         shell("input keyevent KEYCODE_WAKEUP")
         shell("wm dismiss-keyguard")
-        Thread.sleep(500)
+        waitForKeyguardUnlocked(composeRule)
     }
 
     @Test

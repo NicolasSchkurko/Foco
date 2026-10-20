@@ -64,7 +64,7 @@ class SettingsScreenTest {
         // The headless AVD may be locked: wake it and dismiss the keyguard.
         shell("input keyevent KEYCODE_WAKEUP")
         shell("wm dismiss-keyguard")
-        Thread.sleep(500)
+        waitForDeviceAwakeAndUnlocked(composeRule)
 
         // Known state for deterministic assertions: English picked (not Automatic).
         runBlocking {

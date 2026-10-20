@@ -1,0 +1,23 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: refactor
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-targets:
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/ExcludedAppsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/dashboard/DashboardRefreshTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/TestDeviceState.kt
+  - app/src/test/java/com/foco/app/structure/NoFixedSleepTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/structure/NoFixedSleepTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/ExcludedAppsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/dashboard/DashboardRefreshTest.kt
+x-deps: []
+x-gitref: 0ae6b2e

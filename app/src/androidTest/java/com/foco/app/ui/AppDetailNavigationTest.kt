@@ -51,9 +51,9 @@ class AppDetailNavigationTest {
     private fun launchAndOpenDetail(): ActivityScenario<MainActivity> {
         shell("appops set com.foco.app android:get_usage_stats allow")
         shell("am start -a android.settings.SETTINGS")
-        Thread.sleep(2_000)
+        waitForSettingsForeground(composeRule)
         shell("input keyevent KEYCODE_HOME")
-        Thread.sleep(500)
+        waitForSettingsBackground(composeRule)
 
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         composeRule.waitUntil(timeoutMillis = 15_000) {

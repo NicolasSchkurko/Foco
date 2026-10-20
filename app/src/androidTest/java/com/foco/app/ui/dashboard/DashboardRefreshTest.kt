@@ -1,13 +1,14 @@
 package com.foco.app.ui.dashboard
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.foco.app.model.day.DayData
 import java.util.concurrent.atomic.AtomicInteger
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -69,10 +70,16 @@ class DashboardRefreshTest {
 
         composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         val frozen = loads.get()
-        Thread.sleep(600)
         composeRule.waitForIdle()
 
-        assertEquals(frozen, loads.get())
+        // Six intervals at 100 ms: wait for a refresh event instead of sleeping through them.
+        val refreshed = try {
+            composeRule.waitUntil(timeoutMillis = 600) { loads.get() > frozen }
+            true
+        } catch (_: ComposeTimeoutException) {
+            false
+        }
+        assertFalse("the dashboard must not refresh in the background", refreshed)
     }
 
     @Test
