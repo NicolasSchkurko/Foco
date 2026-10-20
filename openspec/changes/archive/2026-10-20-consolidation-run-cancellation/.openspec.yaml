@@ -1,0 +1,17 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-tech_brief: true
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-20
+x-targets:
+  - app/src/main/java/com/foco/app/data/ConsolidationRunner.kt
+  - app/src/main/java/com/foco/app/data/ConsolidationWorker.kt
+x-tests:
+  - app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt
+  - app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt
+x-deps: []
+x-gitref: 9b0a959

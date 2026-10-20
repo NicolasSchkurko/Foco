@@ -5,26 +5,28 @@ import com.foco.app.domain.ConsolidationOutcome
 import android.content.Context
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * The one door to `SessionHistoryStore.consolidate`, shared by the app start and the nightly job: a
- * trigger that finds a run in progress waits for that run instead of starting a second one.
+ * The one door to `SessionHistoryStore.consolidate`, shared by the app start and the nightly job:
+ * a waiting trigger joins the run, whose own scope keeps it alive when a caller is cancelled.
  */
 class ConsolidationRunner(
     private val consolidate: suspend (LocalDate) -> Unit,
-    private val gate: Mutex = Mutex()
+    private val gate: Mutex = Mutex(),
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
     private var inFlight: Deferred<ConsolidationOutcome>? = null
 
-    suspend fun run(today: LocalDate): ConsolidationOutcome = coroutineScope {
+    suspend fun run(today: LocalDate): ConsolidationOutcome {
         val job = gate.withLock {
-            inFlight ?: async(start = CoroutineStart.LAZY) {
+            inFlight ?: scope.async {
                 try {
                     consolidate(today)
                     ConsolidationOutcome.Done
@@ -35,12 +37,9 @@ class ConsolidationRunner(
                 } finally {
                     gate.withLock { inFlight = null }
                 }
-            }.also {
-                inFlight = it
-                it.start()
-            }
+            }.also { inFlight = it }
         }
-        job.await()
+        return job.await()
     }
 
     companion object {

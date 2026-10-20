@@ -6,7 +6,9 @@ import java.time.LocalDate
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,6 +29,20 @@ class ConsolidationConcurrencyTest {
         assertEquals(ConsolidationOutcome.Done, first.await())
         assertEquals(ConsolidationOutcome.Done, second.await())
         assertEquals("the store must be touched once", 1, store.runs)
+    }
+
+    @Test
+    fun `cancelling the startup wait does not cancel the shared run`() = runBlocking {
+        val store = SlowStore()
+        val runner = ConsolidationRunner({ day -> store.consolidate(day) })
+
+        val startup = launch(Dispatchers.Default) { runner.run(today) }
+        store.started.await()
+        val worker = async(Dispatchers.Default) { runner.run(today) }
+        startup.cancelAndJoin()
+
+        assertEquals(ConsolidationOutcome.Done, worker.await())
+        assertEquals("the store must still run once", 1, store.runs)
     }
 
     @Test
