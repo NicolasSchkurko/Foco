@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-19
+x-kind: fix
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-19
+x-status: verified
+x-tech_brief: false
+x-targets:
+  - openspec/specs/app-settings/spec.md
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+  - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
+x-deps: []
+x-gitref: 07b89ef

@@ -47,13 +47,7 @@ language immediately and survive restarts, and Automático SHALL follow the devi
 - **THEN** the app follows the device language again and the row reads `Automatic`
 
 ### Requirement: The appearance is selectable and persisted
-
-The settings screen SHALL offer Automático (system), Claro and Oscuro through a single row that
-shows the current choice; tapping that row SHALL open a dropdown menu anchored to it, listing the
-three options with the current one marked; picking one SHALL close the menu, apply it immediately
-across the app — the activity window included — and survive restarts, and Automático SHALL follow
-the system theme.
-
+The settings screen SHALL offer Automático, Claro and Oscuro in one row that shows the current choice; tapping it SHALL open an anchored dropdown, and picking an option SHALL close it, apply the choice at once and keep it across restarts, with Automático following the system theme.
 [@test] `app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt`
 [@test] `app/src/test/java/com/foco/app/data/AppAppearanceTest.kt`
 
