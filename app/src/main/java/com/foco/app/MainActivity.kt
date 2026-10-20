@@ -17,18 +17,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
+import com.foco.app.domain.ConsolidationOutcome
 import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppLanguage
-import com.foco.app.data.SessionHistoryStore
+import com.foco.app.data.ConsolidationRunner
+import com.foco.app.data.ConsolidationScheduler
 import com.foco.app.data.SettingsStore
-import com.foco.app.data.UsageRepository
 import com.foco.app.data.migrateSettingsFromLegacyDataStore
 import com.foco.app.model.AppearanceOption
 import com.foco.app.ui.App
 import com.foco.app.ui.theme.FocoTheme
 import java.time.LocalDate
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -54,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         enableEdgeToEdge()
+        ConsolidationScheduler.schedule(applicationContext)
         consolidateHistory()
         setContent {
             val appearance by settings.appearance.collectAsState(initial = storedAppearance)
@@ -73,30 +73,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Best-effort backfill: stores the finished days on IO, once per app process. A failure is not fatal —
-     * the next start retries, and today is read live from the platform anyway.
+     * Best-effort backfill through the shared runner — the same door the nightly job uses, so the two
+     * never run at once. A failure is not fatal: the next start or the job retries it.
      */
     private fun consolidateHistory() {
-        if (!consolidating.compareAndSet(false, true)) return
-        val repository = UsageRepository(applicationContext)
         lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                SessionHistoryStore.forApp(applicationContext) { date -> repository.loadDay(date) }
-                    .consolidate(LocalDate.now())
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (failure: Exception) {
-                // Best effort: the next start retries the unfinished days.
-                Log.w("Foco", "History backfill failed", failure)
-            } finally {
-                consolidating.set(false)
+            when (val outcome = ConsolidationRunner.forApp(applicationContext).run(LocalDate.now())) {
+                is ConsolidationOutcome.Done -> Unit
+                is ConsolidationOutcome.Failed ->
+                    Log.w("Foco", "History backfill failed", outcome.cause)
             }
         }
     }
 
-    private companion object {
-        val consolidating = AtomicBoolean(false)
-    }
 }
 
 /**

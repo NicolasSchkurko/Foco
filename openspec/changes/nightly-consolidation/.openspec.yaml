@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-19
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: Nschkurko
 x-accepted_at: 2026-10-19
 x-tech_brief: true
@@ -20,4 +20,6 @@ x-deps:
   - usage-history-foundation
   - history-storage-followups
   - stored-day-unlocks
-x-gitref: 3b3c14c
+x-gitref: 37e56f2
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
