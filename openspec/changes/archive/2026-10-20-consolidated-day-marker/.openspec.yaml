@@ -21,8 +21,11 @@ x-tests:
   - app/src/test/java/com/foco/app/data/HistoryWeekTest.kt
   - app/src/androidTest/java/com/foco/app/data/db/ConsolidationMigrationTest.kt
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+x-gitref: c56e646
 x-deps:
   - stored-day-unlocks
   - week-screen
   - detail-window-follows-store
-x-gitref: 03780c2
+
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-19
