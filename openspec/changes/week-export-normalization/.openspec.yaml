@@ -1,0 +1,12 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-targets:
+  - app/src/main/java/com/foco/app/domain/WeekExportBuilder.kt
+x-tests:
+  - app/src/test/java/com/foco/app/domain/WeekExportTest.kt
+x-deps: []
+x-gitref: 4a0504c

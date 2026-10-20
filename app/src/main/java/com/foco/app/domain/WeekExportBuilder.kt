@@ -26,7 +26,10 @@ fun buildWeekExport(
     val days = generateSequence(weekStart) { it.plusDays(1) }
         .takeWhile { !it.isAfter(weekEnd) }
         .map { date ->
-            val sessions = if (date == weekEnd) todaySessions else sessionsByDay[date].orEmpty()
+            val sessions = mergeContiguousSessions(
+                if (date == weekEnd) todaySessions else sessionsByDay[date].orEmpty(),
+                zone
+            )
             val stored = storedTotalsByDay[date].orEmpty()
             val apps = (stored.keys + sessions.map { it.packageName })
                 .sorted()

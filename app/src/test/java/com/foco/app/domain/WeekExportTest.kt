@@ -86,6 +86,45 @@ class WeekExportTest {
     }
 
     @Test
+    fun `a stored same-minute pair is normalized to one session`() {
+        val day = end.minusDays(2)
+        val export = build(
+            sessions = mapOf(
+                day to listOf(
+                    UsageSession("app.a", at(day, 3, 44) + 10_000, at(day, 3, 44) + 50_000),
+                    UsageSession("app.a", at(day, 3, 44) + 55_000, at(day, 3, 46))
+                )
+            )
+        )
+
+        val app = export.days.single { it.date == day.toString() }.apps.single()
+
+        assertEquals(110_000L, app.totalMillis)
+        assertEquals(1, app.sessions.size)
+        assertEquals("2026-10-17T03:44:10+02:00", app.sessions.single().start)
+        assertEquals("2026-10-17T03:46:00+02:00", app.sessions.single().end)
+        assertEquals(110_000L, app.sessions.single().durationMillis)
+    }
+
+    @Test
+    fun `a stored same-minute pair from different apps stays separate`() {
+        val day = end.minusDays(2)
+        val export = build(
+            sessions = mapOf(
+                day to listOf(
+                    UsageSession("app.a", at(day, 3, 44) + 10_000, at(day, 3, 44) + 50_000),
+                    UsageSession("app.b", at(day, 3, 44) + 55_000, at(day, 3, 46))
+                )
+            )
+        )
+
+        val apps = export.days.single { it.date == day.toString() }.apps
+
+        assertEquals(setOf("app.a", "app.b"), apps.map { it.packageName }.toSet())
+        assertEquals(2, apps.sumOf { it.sessions.size })
+    }
+
+    @Test
     fun `a stored total without raw rows keeps its total and says so`() {
         val day = end.minusDays(3)
         val export = build(totals = mapOf(day to mapOf("app.c" to 4_200L)))
