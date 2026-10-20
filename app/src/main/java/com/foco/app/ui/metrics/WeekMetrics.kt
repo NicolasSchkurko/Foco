@@ -23,37 +23,43 @@ fun deriveWeekMetrics(
 ): WeekMetrics {
     require(windowDays >= 1) { "windowDays must be at least 1" }
 
+    val storedByDay = LinkedHashMap<String, Long>()
+    val storedByPackage = LinkedHashMap<String, Long>()
+    val storedDaysByPackage = LinkedHashMap<String, MutableSet<String>>()
+
+    storedTotals.forEach { row ->
+        storedByDay.merge(row.day, row.totalMillis, Long::plus)
+        if (row.packageName !in excludedPackages) {
+            storedByPackage.merge(row.packageName, row.totalMillis, Long::plus)
+            storedDaysByPackage.getOrPut(row.packageName) { linkedSetOf() }.add(row.day)
+        }
+    }
+
     val bars = (windowDays - 1 downTo 0).map { daysBack ->
         val date = todayDate.minusDays(daysBack.toLong())
         if (date == todayDate) {
             WeekDayBar(date, dayTotal(today.sessions), WeekDayBar.State.Live)
         } else {
-            val rows = storedTotals.filter { it.day == date.toString() }
-            if (rows.isEmpty()) {
+            val total = storedByDay[date.toString()]
+            if (total == null) {
                 WeekDayBar(date, 0L, WeekDayBar.State.Absent)
             } else {
-                WeekDayBar(date, rows.sumOf { it.totalMillis }, WeekDayBar.State.Stored)
+                WeekDayBar(date, total, WeekDayBar.State.Stored)
             }
         }
     }
 
-    val storedByPackage = storedTotals
-        .filter { it.packageName !in excludedPackages }
-        .groupBy { it.packageName }
-        .mapValues { (_, rows) -> rows.sumOf { it.totalMillis } to rows.map { it.day }.distinct().size }
-
     val liveByPackage = visibleSessions(today.sessions)
         .filter { it.packageName !in excludedPackages }
         .groupBy { it.packageName }
-        .mapValues { (_, sessions) -> sessions.sumOf { it.end - it.start } to 1 }
+        .mapValues { (_, sessions) -> dayTotal(sessions) to 1 }
 
     val ranking = (storedByPackage.keys + liveByPackage.keys).map { packageName ->
-        val stored = storedByPackage[packageName]
         val live = liveByPackage[packageName]
         AppWeekTotal(
             packageName = packageName,
-            totalMillis = (stored?.first ?: 0L) + (live?.first ?: 0L),
-            daysUsed = (stored?.second ?: 0) + (live?.second ?: 0)
+            totalMillis = (storedByPackage[packageName] ?: 0L) + (live?.first ?: 0L),
+            daysUsed = (storedDaysByPackage[packageName]?.size ?: 0) + (live?.second ?: 0)
         )
     }
         .filter { it.totalMillis >= MIN_VISIBLE_SESSION_MILLIS }

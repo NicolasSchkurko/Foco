@@ -83,6 +83,20 @@ class WeekMetricsTest {
     }
 
     @Test
+    fun `duplicate stored rows for one day count once in daysUsed`() {
+        val day = today.minusDays(1).toString()
+        val stored = listOf(
+            DailyAggregate("app.a", day, minutes(10)),
+            DailyAggregate("app.a", day, minutes(5))
+        )
+
+        val ranking = deriveWeekMetrics(stored, today, live(emptyList())).ranking
+
+        assertEquals(minutes(15), ranking.single().totalMillis)
+        assertEquals(1, ranking.single().daysUsed)
+    }
+
+    @Test
     fun `a week with only today still yields seven bars and the live ranking`() {
         val sessions = listOf(UsageSession("app.a", at(today, 8, 0), at(today, 8, 10)))
 

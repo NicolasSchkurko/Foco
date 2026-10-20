@@ -1,0 +1,12 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: refactor
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-targets:
+  - app/src/main/java/com/foco/app/ui/metrics/WeekMetrics.kt
+x-tests:
+  - app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt
+x-deps: []
+x-gitref: ec2312b
