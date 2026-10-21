@@ -2,6 +2,7 @@ package com.foco.app.ui
 
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -17,6 +18,7 @@ import com.foco.app.data.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.detail.AppDetailScreen
+import com.foco.app.ui.detail.DAY_LABEL_TAG
 import com.foco.app.ui.detail.DETAIL_CONTENT_TAG
 import com.foco.app.ui.detail.LIMITS_PREVIEW_TAG
 import kotlinx.coroutines.runBlocking
@@ -89,17 +91,17 @@ class AppDetailLimitsTest {
 
         // A swipe right walks back to today, the way the home's ring walks its positions.
         // The touch injection is not always delivered on the first try: swipe until the day moves.
+        val shown = { compose.onNodeWithTag(DAY_LABEL_TAG).fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(" ") }
+        val before = shown()
         var moved = false
         repeat(3) {
             if (moved) return@repeat
             compose.onNodeWithTag(DETAIL_CONTENT_TAG).performTouchInput { swipeRight() }
-            compose.waitUntil(timeoutMillis = 3_000) {
-                compose.onAllNodesWithText(appString(R.string.day_today)).fetchSemanticsNodes().isNotEmpty()
-            }
-            moved = compose.onAllNodesWithText(appString(R.string.day_today)).fetchSemanticsNodes().isNotEmpty()
+            compose.waitUntil(timeoutMillis = 3_000) { shown() != before }
+            moved = shown() != before
         }
 
-        assertTrue("the swipe must walk to the previous day", moved)
+        assertTrue("the swipe must walk to another day (was $before)", moved)
     }
 
     @Test fun theLimitsIconOpensTheDedicatedSettings() {

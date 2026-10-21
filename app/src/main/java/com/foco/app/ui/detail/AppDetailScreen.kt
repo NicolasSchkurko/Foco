@@ -75,6 +75,9 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
+/** Tag of the day label; the tests read it to see which day is shown. */
+const val DAY_LABEL_TAG = "detail_day_label"
+
 /** Tag of the detail's content; the tests address it without depending on the language. */
 const val DETAIL_CONTENT_TAG = "detail_content"
 
@@ -255,7 +258,7 @@ fun AppDetailScreen(
                             stringResource(R.string.day_yesterday),
                         ),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.width(150.dp),
+                    modifier = Modifier.width(150.dp).testTag(DAY_LABEL_TAG),
                     textAlign = TextAlign.Center,
                 )
                 IconButton(
