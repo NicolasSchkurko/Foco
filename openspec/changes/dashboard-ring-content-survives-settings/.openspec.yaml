@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: fix
-x-status: draft
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 x-tech_brief: true
@@ -11,6 +11,12 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
 x-deps:
   - dashboard-unlock-count-not-stored
-x-gitref: 65fda6c
+x-gitref: b69cb02
 x-open_decisions: []
 x-conflicts: []
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: DashboardScreen.kt:161 ringContent now rememberSaveable(saver=ringContentSaver); RingContent.kt new Saver serialises Day/Week to primitives and restores; JVM suite green; gate 0 errors; comprehension sign-off pending (TODO(human) in walkthrough.md)
+understood_by: Nschkurko
+understood_at: 2026-10-21

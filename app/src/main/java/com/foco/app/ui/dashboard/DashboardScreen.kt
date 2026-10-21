@@ -158,7 +158,7 @@ fun DashboardScreen(
     val softMotion = state.softMotion
     val todayKey = remember(today) { DayStop.Day(today).key() }
     val weekKey = DayStop.Week.key()
-    val ringContent = remember { mutableStateMapOf<String, RingContent>() }
+    val ringContent = rememberSaveable(saver = ringContentSaver) { mutableStateMapOf<String, RingContent>() }
     var weekTotalsDay by remember { mutableStateOf<LocalDate?>(null) }
 
     val snackbarExcluded = stringResource(R.string.excluded_snackbar)
