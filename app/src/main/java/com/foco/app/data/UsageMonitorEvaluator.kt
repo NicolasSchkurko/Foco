@@ -29,4 +29,10 @@ class UsageMonitorEvaluator(
             AppLimitWindowRules.usedSeconds(sessions, packageName, window)
         }
     }
+
+    /** Whether [packageName] is the foreground right now, from today's sessions — the monitor's source. */
+    fun isForegroundNow(
+        packageName: String,
+        now: Long = System.currentTimeMillis(),
+    ): Boolean = AppLimitRules.isForegroundAt(usage.loadToday(now).sessions, packageName, now)
 }

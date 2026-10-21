@@ -44,6 +44,16 @@ object AppLimitRules {
         return ALERT_TIERS.filter { usedSeconds * 100 >= limitSeconds * it }
     }
 
+    /**
+     * Whether [packageName] was the foreground at [at]: a same-minute reopen merges into the
+     * pre-block session, so its start may precede the block and must still count as foreground.
+     */
+    fun isForegroundAt(
+        sessions: List<UsageSession>,
+        packageName: String,
+        at: Long,
+    ): Boolean = sessions.any { it.packageName == packageName && it.start <= at && it.end >= at }
+
     /** The foreground seconds [packageName] accumulated in the day's clamped sessions. */
     fun usedSeconds(
         sessions: List<UsageSession>,

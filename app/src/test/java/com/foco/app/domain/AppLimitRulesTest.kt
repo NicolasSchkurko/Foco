@@ -7,6 +7,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AppLimitRulesTest {
+    /** 09:00:00 — the moment Foco's countdown ended and HOME was sent. */
+    private val blockFinished = 9 * 60 * 60 * 1000L
+    private val firstRecheck = blockFinished + 2_000L
+    private val secondRecheck = blockFinished + 6_000L
+
     @Test
     fun `a package without a limit is never blocked`() {
         assertFalse(AppLimitRules.isAtOrOverLimit(null, 0))
@@ -69,5 +74,46 @@ class AppLimitRulesTest {
         assertFalse(AppLimitRules.isSelectable(20))
         assertFalse(AppLimitRules.isSelectable(-15))
         assertFalse(AppLimitRules.isSelectable(24 * 60 + 15))
+    }
+
+    @Test
+    fun `a reopen merged into the pre-block session still counts as foreground at the re-check`() {
+        // Used before the block (08:59:00), reopened in the same minute → one merged session.
+        val mergedReopen = UsageSession("instagram", blockFinished - 60_000, blockFinished + 30_000)
+
+        assertTrue(AppLimitRules.isForegroundAt(listOf(mergedReopen), "instagram", firstRecheck))
+        assertTrue(AppLimitRules.isForegroundAt(listOf(mergedReopen), "instagram", secondRecheck))
+    }
+
+    @Test
+    fun `a session ended at HOME before the re-check is not foreground`() {
+        val endedAtHome = UsageSession("instagram", blockFinished - 60_000, blockFinished)
+
+        assertFalse(AppLimitRules.isForegroundAt(listOf(endedAtHome), "instagram", firstRecheck))
+        assertFalse(AppLimitRules.isForegroundAt(listOf(endedAtHome), "instagram", secondRecheck))
+    }
+
+    @Test
+    fun `another package covering the re-check does not make this package foreground`() {
+        val sessions =
+            listOf(
+                UsageSession("youtube", blockFinished - 60_000, blockFinished + 30_000),
+                UsageSession("instagram", blockFinished - 60_000, blockFinished),
+            )
+
+        assertFalse(AppLimitRules.isForegroundAt(sessions, "instagram", firstRecheck))
+        assertTrue(AppLimitRules.isForegroundAt(sessions, "youtube", firstRecheck))
+    }
+
+    @Test
+    fun `no sessions at all means nothing is foreground`() {
+        assertFalse(AppLimitRules.isForegroundAt(emptyList(), "instagram", firstRecheck))
+    }
+
+    @Test
+    fun `a session ending exactly at the re-check instant still counts as foreground`() {
+        val endsAtRecheck = UsageSession("instagram", firstRecheck - 5_000L, firstRecheck)
+
+        assertTrue(AppLimitRules.isForegroundAt(listOf(endsAtRecheck), "instagram", firstRecheck))
     }
 }

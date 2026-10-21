@@ -37,6 +37,7 @@ class UsageMonitorAccessibilityService :
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val blockHost by lazy { BlockOverlayHost(this) }
     private var boundaryJob: Job? = null
+    private var recheckJob: Job? = null
     private var blockedPackage: String? = null
 
     private val store by lazy { AppLimitsStore.forApp(this) }
@@ -71,6 +72,7 @@ class UsageMonitorAccessibilityService :
     override fun onDestroy() {
         removeOverlay()
         boundaryJob?.cancel()
+        recheckJob?.cancel()
         foreground.clear()
         ForegroundApp.unregister(this)
         UsageMonitorService.stop(this)
@@ -152,9 +154,26 @@ class UsageMonitorAccessibilityService :
     }
 
     private fun finishBlock() {
-        blockedPackage?.let { foreground.blockFinished(it) }
+        val finishedPackage = blockedPackage
+        finishedPackage?.let { foreground.blockFinished(it) }
         removeOverlay()
         performGlobalAction(GLOBAL_ACTION_HOME)
+        if (finishedPackage != null) {
+            recheckJob?.cancel()
+            recheckJob =
+                scope.launch {
+                    delay(RECHECK_FIRST_DELAY_MS)
+                    recheckForeground(finishedPackage)
+                    delay(RECHECK_SECOND_DELAY_MS)
+                    recheckForeground(finishedPackage)
+                }
+        }
+    }
+
+    /** One-shot re-check after our own HOME: a limit screen already showing wins, else re-evaluate. */
+    private fun recheckForeground(packageName: String) {
+        if (blockHost.isShowing) return
+        if (evaluator.isForegroundNow(packageName)) evaluate(packageName)
     }
 
     private fun removeOverlay() {
@@ -165,6 +184,10 @@ class UsageMonitorAccessibilityService :
         const val TAG = "FocoBlock"
         const val SYSTEM_UI = "com.android.systemui"
         const val VIEW_GROUP = "android.view.ViewGroup"
+
+        /** First re-check ~+2 s after HOME; the second delay adds ~+4 s → the ~+6 s re-check. */
+        const val RECHECK_FIRST_DELAY_MS = 2_000L
+        const val RECHECK_SECOND_DELAY_MS = 4_000L
         val IGNORED_PACKAGES = setOf(SYSTEM_UI)
     }
 }
