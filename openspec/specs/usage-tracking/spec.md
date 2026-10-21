@@ -333,6 +333,22 @@ The detail SHALL restore the day it was showing when the screen is recreated —
 - **WHEN** the restored day is no longer inside the stored window
 - **THEN** the detail lands on the nearest day that still exists, inside the window
 
+### Requirement: The detail refreshes on return to the foreground
+The detail SHALL reload the day it is showing every time the app returns to the foreground, and on first show, without any user action and without changing the selected day.
+[@test] `app/src/androidTest/java/com/foco/app/ui/detail/AppDetailRefreshTest.kt`
+
+#### Scenario: Coming back after using another app
+- **WHEN** the detail is open, the user spends time in another app and returns to Foco
+- **THEN** the total, chart and session list reflect the time accumulated meanwhile, on the same day
+
+#### Scenario: The selected day is kept
+- **WHEN** the detail refreshes on return while a past day is selected
+- **THEN** that same day stays selected and is the one reloaded
+
+#### Scenario: First show
+- **WHEN** the detail is opened for the first time
+- **THEN** it loads its data without user action, as it does today
+
 ### Requirement: A failed stored read degrades instead of closing the app
 The detail SHALL keep working when a stored read fails: it shows the empty state for that day, or today alone when the stored days could not be read, and the app never closes.
 [@test] `app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt`

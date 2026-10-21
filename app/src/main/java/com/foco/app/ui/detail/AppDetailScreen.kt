@@ -32,6 +32,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -97,6 +99,14 @@ fun AppDetailScreen(
     // The window the selection was made in, so a rebuilt window can keep the same day.
     var selectedWindow by remember { mutableStateOf<List<LocalDate>>(emptyList()) }
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
+    // Resume trigger: bumps on every return to the foreground so the load effect re-runs
+    // (first show is handled by the effect itself; later resumes re-read the visible day).
+    var refreshKey by remember { mutableStateOf(0) }
+    var hasResumedOnce by remember { mutableStateOf(false) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (hasResumedOnce) refreshKey++
+        hasResumedOnce = true
+    }
 
     // Which days the store has grows while the screen is open (the startup backfill writes totals),
     // so the window follows the store's stream instead of being re-read on resume. Until the first
@@ -152,7 +162,7 @@ fun AppDetailScreen(
     }
 
     val selectedDate = days.getOrNull(effectiveIndex) ?: today
-    LaunchedEffect(packageName, selectedDate, storedDays, today) {
+    LaunchedEffect(packageName, selectedDate, storedDays, today, refreshKey) {
         sessions = null
         sessions =
             withContext(Dispatchers.IO) {
