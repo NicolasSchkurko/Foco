@@ -42,21 +42,24 @@ Sources SHALL live in the layer folder matching their package, and dependencies 
 - **THEN** the boundary check fails and names the file
 
 ### Requirement: Reorganization preserves behavior
-The reorganization SHALL NOT change observable behavior: session and metrics computations keep their results and the screens render the same information, with the existing suite passing and edited only for package moves.
-[@test] `app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt`
+The reorganization SHALL NOT change observable behavior: session and metrics computations keep their results and the screens render the same information, with the existing suite passing and edited only for package moves. The settings migration SHALL NOT overwrite a value already present in the target store.
 [@test] `app/src/test/java/com/foco/app/data/SettingsMigrationTest.kt`
 
 #### Scenario: Suite green after the moves
 - **WHEN** the reorganization is complete and the suite runs
 - **THEN** all tests pass without behavioral edits
 
+#### Scenario: Stored settings survive the storage split
+- **WHEN** the app upgrades with a language and an appearance already stored in the legacy file
+- **THEN** the first startup copies them to the new file, clears them from the legacy one, and the UI opens with the same choices — and running the migration again changes nothing (it is idempotent)
+
 #### Scenario: Same dashboard on device
 - **WHEN** the app runs after the reorganization
 - **THEN** the dashboard shows the same numbers and layout as before
 
-#### Scenario: Stored settings survive the storage split
-- **WHEN** the app upgrades with a language and an appearance already stored in the legacy file
-- **THEN** the first startup copies them to the new file, clears them from the legacy one, and the UI opens with the same choices — and running the migration again changes nothing (it is idempotent)
+#### Scenario: The migration does not clobber an existing target value
+- **WHEN** the target store already holds a language or appearance
+- **THEN** the migration leaves that value untouched
 
 ### Requirement: Shared UI widgets live in `ui/common/`
 Widgets used by more than one screen SHALL live in `ui/common/`; each screen keeps its own widgets beside it. A file under a `ui/<feature>/` folder SHALL NOT import another `ui/<feature>/` package: cross-screen reuse goes through `ui/common/` (the `ui` root, `ui/metrics/` and `ui/theme/` stay shared).
@@ -131,18 +134,15 @@ Comments, KDoc and test failure messages under `app/src/` SHALL be English; Span
 - **THEN** every test passes without behavioral edits — the tree, the layers, the domain results and the rendered text are the same as before
 
 ### Requirement: Source files are UTF-8 and contain no mojibake
-All source and documentation files SHALL be stored as UTF-8 (no BOM). String literals and comments
-SHALL NOT contain replacement characters (U+FFFD) or other mojibake; glyphs needed by the UI SHALL be
-provided through resources or drawables, not through broken literals. A change that introduces a
-replacement character in `app/src/**` or `*.md` SHALL fail the quality gate.
+All source and documentation files SHALL be stored as UTF-8 (no BOM). String literals and comments SHALL NOT contain replacement characters (U+FFFD) or other mojibake; glyphs needed by the UI SHALL be provided through resources or drawables, not through broken literals. A change that introduces a replacement character in any source or tracked documentation file SHALL fail the quality gate.
 [@test] `app/src/test/java/com/foco/app/structure/SourceEncodingTest.kt`
 
-#### Scenario: Clean source (all tracked Markdown)
-- **WHEN** every tracked Markdown file in the repository (`openspec/**/*.md`, `*.md`, `docs/**/*.md`) is scanned for U+FFFD and the sources are scanned
+#### Scenario: Clean source
+- **WHEN** the repository is scanned for U+FFFD across `app/src` and every tracked Markdown file, including the documents under `openspec/`
 - **THEN** no occurrence is found
 
 #### Scenario: Mojibake introduced
-- **WHEN** a commit adds a replacement character to a `.kt` file or to any tracked `*.md` file
+- **WHEN** a commit adds a replacement character to a `.kt` file or to a tracked Markdown document
 - **THEN** the quality gate fails
 
 ### Requirement: UI screens do not own navigation history as serialized text
@@ -177,3 +177,12 @@ SHALL fail the build.
 #### Scenario: Lint in CI
 - **WHEN** a pull request is opened
 - **THEN** the CI job runs the lint task and fails on violations
+
+### Requirement: Cancellation propagates through Flow.readOr
+`Flow.readOr` SHALL propagate a `CancellationException` upstream instead of catching it and emitting a fallback.
+[@test] `app/src/test/java/com/foco/app/ui/common/ReadOrTest.kt`
+[@test] `app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt`
+
+#### Scenario: Cancellation is not swallowed
+- **WHEN** the wrapped read throws a CancellationException
+- **THEN** Flow.readOr rethrows it instead of emitting the fallback

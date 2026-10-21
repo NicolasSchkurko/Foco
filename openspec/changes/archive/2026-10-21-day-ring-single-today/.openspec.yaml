@@ -1,0 +1,22 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: feature
+x-status: verified
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-targets:
+  - app/src/main/java/com/foco/app/domain/DayStop.kt
+  - app/src/main/java/com/foco/app/domain/AvailableDays.kt
+x-tests:
+  - app/src/test/java/com/foco/app/domain/DayRingTest.kt
+x-deps:
+  - detail-days-index-reclamp
+x-gitref: 8e994a4
+x-open_decisions: []
+x-conflicts: []
+
+
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: DayStop.kt dayRing now excludes today from the stored-days filter (it in offered && it != today), so a stored marker for today never appends a second position; DayRingTest +1 (a marker stored for today yields a single today position) — 10/10 green; gate 0 errors

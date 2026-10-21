@@ -537,22 +537,18 @@ Every app's alert SHALL be posted under its own notification id, derived from it
 - **WHEN** the same app later crosses a higher tier
 - **THEN** its own notification is updated in place, and other apps' notifications are untouched
 
-### Requirement: One notification per app
-Every app's alert SHALL be posted under its own notification id, derived from its package, so alerts for different apps stand side by side instead of replacing one another; the Entendido action SHALL dismiss only the notification it belongs to, and a later alert for the same app SHALL update that app's own notification without touching any other app's.
-[@test] `app/src/androidTest/java/com/foco/app/data/AppLimitAlertNotifierTest.kt`
+### Requirement: Window boundaries follow the local wall clock
+The app SHALL evaluate a use window's boundaries on the local wall clock: a boundary stored as `06:00` SHALL be 06:00 local time on every day, including a day the zone's offset changes. The budget counting, the inside check and the boundary check SHALL use that same definition, so neither counts time the other treats as outside the window.
+[@test] `app/src/test/java/com/foco/app/domain/AppLimitWindowRulesTest.kt`
 
-#### Scenario: Two apps cross a tier
-- **WHEN** two limited apps each reach a tier while the monitor runs
-- **THEN** both notifications are present at the same time, each naming its own app
+#### Scenario: A window ends on a spring-forward day
+- **WHEN** the zone moves the clock forward on a day whose window ends at 06:00 local time
+- **THEN** the budget stops counting at 06:00 wall time and the boundary check fires for that same instant, not for the epoch instant that reads 07:00
 
-#### Scenario: A colliding pair
-- **WHEN** two packages whose names hash to the same small value both alert
-- **THEN** neither notification replaces the other
+#### Scenario: A boundary inside the skipped range
+- **WHEN** the stored boundary minute falls inside the local range the zone skips that day
+- **THEN** the boundary resolves to the first existing local time after the gap, and no budget is counted for the gap
 
-#### Scenario: Entendido
-- **WHEN** the action is tapped on one of the two notifications
-- **THEN** only that notification is removed and the other stays
-
-#### Scenario: A higher tier for the same app
-- **WHEN** the same app later crosses a higher tier
-- **THEN** its own notification is updated in place, and other apps' notifications are untouched
+#### Scenario: An ordinary day is unchanged
+- **WHEN** the local offset does not change during the day
+- **THEN** budget, inside check and boundary check answer exactly what they answered before this requirement existed

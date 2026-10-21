@@ -1,0 +1,21 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: feature
+x-status: verified
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-targets:
+  - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/detail/AppDetailRefreshTest.kt
+x-deps:
+  - detail-selection-survives-recreation
+x-gitref: 8e994a4
+x-open_decisions: []
+x-conflicts: []
+
+
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: AppDetailScreen.kt added LifecycleEventEffect(ON_RESUME) bumping refreshKey; load LaunchedEffect re-runs on resume; AppDetailRefreshTest.kt smoke test compiles; JVM suite green; gate 0 errors

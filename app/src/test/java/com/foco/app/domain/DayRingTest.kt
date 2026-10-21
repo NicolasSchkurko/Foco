@@ -27,6 +27,14 @@ class DayRingTest {
     }
 
     @Test
+    fun `a marker stored for today yields a single today position`() {
+        val ringWithTodayMarker = dayRing(today, setOf(oldest, today.minusDays(2), yesterday, today))
+
+        assertEquals(1, ringWithTodayMarker.count { it == DayStop.Day(today) })
+        assertEquals(DayStop.Week, DayStop.Day(today).step(ringWithTodayMarker, forward = true))
+    }
+
+    @Test
     fun `forward from today is the week and forward from the week is the oldest day`() {
         assertEquals(DayStop.Week, DayStop.Day(today).step(ring, forward = true))
         assertEquals(DayStop.Day(oldest), DayStop.Week.step(ring, forward = true))

@@ -21,7 +21,9 @@ fun dayRing(
         add(DayStop.Week)
         // The detail's seven-day window bounds what the ring offers: the guard day is stored, not shown.
         val offered = availableDays(today, storedDays)
-        storedDays.filter { it in offered }.sorted().forEach { add(DayStop.Day(it)) }
+        // Today is the live head and is already added above; a stored marker for it must never
+        // append a second position (otherwise forward from today is a silent no-op).
+        storedDays.filter { it in offered && it != today }.sorted().forEach { add(DayStop.Day(it)) }
     }
 
 /** One step around the ring; a vanished current position falls back to the ring's first stop. */

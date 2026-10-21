@@ -105,11 +105,7 @@ The app's base resources SHALL be English, every supported language SHALL live i
 - **THEN** the suite fails if a base string holds the Spanish value of a key that has a Spanish counterpart
 
 ### Requirement: Settings shows a centered app identity block
-
-The settings screen SHALL show, above the Language section and horizontally centered, the app name
-with the installed version and the credit `Open source project by Nicolas Schkurko`. The version
-SHALL come from the installed package, never from a literal in the screen or in a string resource.
-
+The settings screen SHALL show, above the Language section and horizontally centered, the app name with the installed version and the credit `Open source project by Nicolas Schkurko`. The version SHALL come from the installed package, never from a literal in the screen or in a string resource.
 [@test] `app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt`
 [@test] `app/src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt`
 
@@ -129,6 +125,10 @@ SHALL come from the installed package, never from a literal in the screen or in 
 - **WHEN** the UI is in Spanish
 - **THEN** the credit line resolves from `values-es` and the first line keeps the same app name and version number
 
+#### Scenario: The credit is not paraphrased
+- **WHEN** the identity block renders in English
+- **THEN** the credit reads exactly `Open source project by Nicolas Schkurko` and the first line is `Foco <version>` without a `Version ` prefix
+
 ### Requirement: The repository link opens in the system browser
 
 The repository line SHALL be a link that hands `https://github.com/NicolasSchkurko/Foco` to an
@@ -144,3 +144,19 @@ anything, request a permission, or make a network request from Foco.
 #### Scenario: The URL is the repository, not a copy
 - **WHEN** the link intent is built
 - **THEN** its data is exactly the `https` repository URL, with no tracking parameters, shortener or in-app scheme
+
+### Requirement: Dates and times follow the app language
+Every date and time label the app renders SHALL be formatted with the app's active language — the same language its strings resolve in — and not with the device default locale, while keeping the existing patterns.
+[@test] `app/src/test/java/com/foco/app/ui/FormattingTest.kt`
+
+#### Scenario: English UI on a Spanish device
+- **WHEN** the app language is English and the device locale is Spanish
+- **THEN** date labels read in English, matching the surrounding strings
+
+#### Scenario: Spanish UI on an English device
+- **WHEN** the app language is Spanish and the device locale is English
+- **THEN** date labels read in Spanish, matching the surrounding strings
+
+#### Scenario: Automático
+- **WHEN** the app language is Automático
+- **THEN** date labels use the same language the strings resolve to under Automático

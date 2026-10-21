@@ -70,8 +70,8 @@ The dashboard SHALL reload usage data every time the app returns to the foregrou
 - **THEN** the dashboard loads its data without user action
 
 ### Requirement: Data refreshes periodically while the app is in the foreground
-While the dashboard is visible, the app SHALL refresh usage data periodically (about every 30 seconds), and SHALL NOT run refresh work while the app is not in the foreground.
-[@test] `app/src/androidTest/java/com/foco/app/ui/DashboardRefreshTest.kt`
+While the dashboard is visible, the app SHALL refresh usage data periodically (about every 30 seconds), and SHALL NOT run refresh work while the app is not in the foreground. A failed read SHALL NOT stop the periodic refresh.
+[@test] `app/src/androidTest/java/com/foco/app/ui/dashboard/DashboardRefreshTest.kt`
 
 #### Scenario: Periodic refresh while visible
 - **WHEN** the dashboard stays open for longer than the refresh interval
@@ -80,6 +80,10 @@ While the dashboard is visible, the app SHALL refresh usage data periodically (a
 #### Scenario: No refresh work in the background
 - **WHEN** the app goes to the background
 - **THEN** the periodic refresh stops until the app is visible again
+
+#### Scenario: A failed read does not stop refresh
+- **WHEN** a periodic read throws
+- **THEN** the refresh loop keeps running and retries on the next interval
 
 ### Requirement: No manual refresh control is needed
 The dashboard SHALL provide automatic freshness and SHALL NOT require a manual refresh control.
@@ -284,11 +288,7 @@ The app SHALL read the stored per-app totals of the seven days ending at a given
 - **THEN** the read yields nothing
 
 ### Requirement: Day selection within the stored history
-
-The detail SHALL offer every day from today back to the oldest stored day, seven at most (today and
-the six days before it), with ‹ › controls stopped at today and at the oldest day: today live,
-earlier days from storage. The window SHALL follow the store while the detail is open.
-
+The detail SHALL offer every day from today back to the oldest stored day, seven at most (today and the six days before it), with ‹ › controls stopped at today and at the oldest day: today live, earlier days from storage. The window SHALL follow the store while the detail is open.
 [@test] `app/src/test/java/com/foco/app/domain/DaySelectionTest.kt`
 [@test] `app/src/test/java/com/foco/app/domain/DetailDaySourceTest.kt`
 [@test] `app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt`
@@ -462,7 +462,7 @@ The home SHALL read one day at a time and change it in place, without stacking a
 - **THEN** the home shows the position it was showing before settings was opened
 
 ### Requirement: The day ring wraps through the week
-The ring SHALL hold today, the week, the oldest stored day inside the seven-day window and every finished day between them; the step forward from today SHALL land on the week, the step forward from the week on the oldest stored day, and the step back from the oldest stored day on the week.
+The ring SHALL hold today, the week, the oldest stored day inside the seven-day window and every finished day between them, with today appearing exactly once whether or not the store already holds a marker for it; the step forward from today SHALL land on the week, the step forward from the week on the oldest stored day, and the step back from the oldest stored day on the week.
 [@test] `app/src/test/java/com/foco/app/domain/DayRingTest.kt`
 
 #### Scenario: Forward from today
@@ -484,6 +484,10 @@ The ring SHALL hold today, the week, the oldest stored day inside the seven-day 
 #### Scenario: The guard day stays out of the ring
 - **WHEN** the store holds a day older than today minus six (the guard day kept for a lagging run)
 - **THEN** the ring offers today and the six days before it, and the guard day is not reachable
+
+#### Scenario: A marker stored for today
+- **WHEN** the store already holds a marker for today (e.g. after a date or zone change backwards)
+- **THEN** today appears once in the ring and stepping forward from it lands on the week, never on today again
 
 ### Requirement: Moving a ring position is animated
 
@@ -865,9 +869,8 @@ When a day is consolidated again, the store SHALL replace that day's raw session
 - **THEN** the day remains pending for the next run
 
 ### Requirement: Cancelling one trigger does not cancel the shared run
-A cancellation of one caller SHALL stop only that caller's wait; it SHALL NOT cancel an in-flight consolidation started for another caller. A waiting nightly worker SHALL still receive `Done` or `Failed` and SHALL retry on failure.
+A cancellation of one caller SHALL stop only that caller's wait; it SHALL NOT cancel an in-flight consolidation started for another caller. A waiting nightly worker SHALL still receive `Done` or `Failed` and SHALL retry on failure. If the shared run itself ends in cancellation, the runner SHALL report it as `Failed` so the worker retries instead of propagating the cancellation.
 [@test] `app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt`
-[@test] `app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt`
 
 #### Scenario: The startup wait is cancelled
 - **WHEN** the app startup effect is cancelled while the nightly worker waits for the same run
