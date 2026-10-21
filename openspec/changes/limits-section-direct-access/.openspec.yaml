@@ -14,6 +14,7 @@ x-deps:
   - dashboard-ring-content-survives-settings
   - settings-about-strings-contract
   - settings-limits-quick-adjust
+x-superseded_by: limits-ui-in-the-app-settings
 x-gitref: 3c3171e
 
 x-open_decisions: []

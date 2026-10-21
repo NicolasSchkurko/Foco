@@ -86,25 +86,29 @@ class AppLimitBlockTest {
     fun theOverlayHostIsRestoredAndCreatedBeforeCompose() {
         val owner = OverlayLifecycleOwner()
 
-        owner.prepare()
+        // The lifecycle and the saved-state registry move on the main thread, like production.
+        val main = InstrumentationRegistry.getInstrumentation()
+        main.runOnMainSync { owner.prepare() }
 
         assertEquals(Lifecycle.State.CREATED, owner.lifecycle.currentState)
         // Compose makes this call as soon as it composes: it must not throw.
         owner.savedStateRegistry.consumeRestoredStateForKey("block")
 
-        owner.resume()
+        main.runOnMainSync { owner.resume() }
         assertEquals(Lifecycle.State.RESUMED, owner.lifecycle.currentState)
 
-        owner.destroy()
+        main.runOnMainSync { owner.destroy() }
         assertEquals(Lifecycle.State.DESTROYED, owner.lifecycle.currentState)
     }
 
     @Test
     fun aDestroyedOwnerCannotBeResumed() {
         val owner = OverlayLifecycleOwner()
-        owner.prepare()
-        owner.resume()
-        owner.destroy()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            owner.prepare()
+            owner.resume()
+            owner.destroy()
+        }
 
         // The host must build a fresh owner per block: reuse would kill the service.
         assertThrows(IllegalStateException::class.java) { owner.resume() }

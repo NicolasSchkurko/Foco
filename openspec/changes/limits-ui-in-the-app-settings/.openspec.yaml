@@ -1,0 +1,31 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: feature
+x-status: verified
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+skip_specs: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/common/LimitsQuickAdjust.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppAppSettingsScreen.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppLimitEditor.kt
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/java/com/foco/app/ui/FocoNavHost.kt
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/LimitsQuickAdjustTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailLimitsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppAppSettingsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitBlockTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - settings-limits-quick-adjust
+  - limits-section-direct-access
+x-gitref: 28fbdd6
+x-open_decisions: []
+x-conflicts: []
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: quick adjust + time range moved to ui/common/LimitsQuickAdjust.kt and used by AppAppSettingsScreen; AppLimitEditor deleted; global Settings limits item removed; app detail limits preview tappable (testTag) + limits icon; dashboard alert icon removed; swipe gesture rebuilt on awaitPointerEventScope; tests green on the emulator

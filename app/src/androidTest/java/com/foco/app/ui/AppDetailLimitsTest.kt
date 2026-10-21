@@ -5,7 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
@@ -13,6 +13,7 @@ import com.foco.app.data.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.detail.AppDetailScreen
+import com.foco.app.ui.detail.LIMITS_PREVIEW_TAG
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -54,7 +55,7 @@ class AppDetailLimitsTest {
                 )
             }
         }
-        compose.onNodeWithText(strings.getString(R.string.detail_limits_section)).assertIsDisplayed()
+        compose.onNodeWithTag(LIMITS_PREVIEW_TAG).assertIsDisplayed()
     }
 
     @Test fun theLimitsIconOpensTheDedicatedSettings() {
@@ -89,7 +90,7 @@ class AppDetailLimitsTest {
         }
 
         // The whole preview block is a shortcut to the app's limit settings.
-        compose.onNodeWithText(strings.getString(R.string.detail_limits_section)).performClick()
+        compose.onNodeWithTag(LIMITS_PREVIEW_TAG).performClick()
 
         assertTrue(opened)
     }
