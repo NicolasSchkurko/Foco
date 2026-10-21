@@ -45,6 +45,12 @@
     <string name="detail_last">Last</string>
     <string name="detail_average">Average</string>
     <string name="detail_longest">Longest</string>
+    <string name="detail_limits_section">Limits</string>
+    <string name="detail_limits_limit_label">Daily limit</string>
+    <string name="detail_limits_alerts_label">Alerts</string>
+    <string name="detail_limits_alerts_on">On</string>
+    <string name="detail_limits_alerts_off">Off</string>
+    <string name="detail_limits_configure">Configure</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -58,7 +64,6 @@
     <string name="settings_excluded_section">Excluded apps</string>
     <string name="settings_excluded_empty">No excluded apps.</string>
     <string name="settings_restore">Restore</string>
-    <string name="settings_limits_section">App limits</string>
     <string name="settings_limits_explanation">Block an app after a set number of minutes today. No limit means the app is never blocked.</string>
     <string name="settings_limit_none">No limit</string>
     <string name="settings_limit_block_now">Block immediately (0 min)</string>

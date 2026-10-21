@@ -1,0 +1,21 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: feature
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-targets:
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppLimitEditor.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppAppSettingsScreen.kt
+  - app/src/main/java/com/foco/app/ui/FocoNavHost.kt
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailLimitsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppAppSettingsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps: []
+x-gitref: cede0ca

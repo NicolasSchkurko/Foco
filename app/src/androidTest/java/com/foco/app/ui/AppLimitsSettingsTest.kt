@@ -1,6 +1,5 @@
 package com.foco.app.ui
 
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -14,7 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
 import com.foco.app.domain.AppWindow
-import com.foco.app.ui.settings.appLimitsSection
+import com.foco.app.ui.detail.AppLimitEditor
 import com.foco.app.ui.theme.FocoTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -22,7 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Category: settings limits (API 36). The section lists apps and persists the picked minutes. */
+/** Category: app limits (API 36). The per-app editor shows the stored values and reports picks. */
 @RunWith(AndroidJUnit4::class)
 class AppLimitsSettingsTest {
     @get:Rule
@@ -30,34 +29,36 @@ class AppLimitsSettingsTest {
 
     private val strings = InstrumentationRegistry.getInstrumentation().targetContext.resources
 
-    private fun showSection(
-        picked: (Pair<String, Int?>?) -> Unit,
-        limits: Map<String, Int> = mapOf("com.example.one" to 30),
-        windows: Map<String, AppWindow> = emptyMap(),
-        alerts: Map<String, Boolean> = emptyMap(),
+    private val packageName = "com.example.one"
+
+    private fun showEditor(
+        picked: (Int?) -> Unit,
+        minutes: Int? = 30,
+        window: AppWindow? = null,
+        alertEnabled: Boolean = false,
         notificationsEnabled: Boolean = true,
-        onAlert: (Pair<String, Boolean>) -> Unit = {},
-        onWindow: (String, Int, Int) -> Unit = { _, _, _ -> },
-        onWindowClear: (String) -> Unit = {},
+        onAlert: (Boolean) -> Unit = {},
+        onWindow: (Int, Int) -> Unit = { _, _ -> },
+        onWindowClear: () -> Unit = {},
     ) {
         composeRule.setContent {
             FocoTheme {
-                LazyColumn {
-                    appLimitsSection(
-                        apps = listOf("com.example.one" to "One"),
-                        limits = limits,
-                        windows = windows,
-                        alerts = alerts,
-                        notificationsEnabled = notificationsEnabled,
-                        onLimitChange = { packageName, minutes -> picked(packageName to minutes) },
-                        onWindowChange = { packageName, start, end -> onWindow(packageName, start, end) },
-                        onWindowClear = onWindowClear,
-                        onAlertChange = { packageName, enabled -> onAlert(packageName to enabled) },
-                    )
-                }
+                AppLimitEditor(
+                    label = "One",
+                    minutes = minutes,
+                    window = window,
+                    alertEnabled = alertEnabled,
+                    notificationsEnabled = notificationsEnabled,
+                    onPick = picked,
+                    onWindowChange = onWindow,
+                    onWindowClear = onWindowClear,
+                    onAlertChange = onAlert,
+                )
             }
         }
     }
+
+    private fun limitRow() = composeRule.onNodeWithText(strings.getString(R.string.detail_limits_limit_label))
 
     private fun alertToggle() =
         composeRule.onNodeWithContentDescription(
@@ -65,87 +66,78 @@ class AppLimitsSettingsTest {
         )
 
     @Test
-    fun theRowShowsItsCurrentLimitAndPicksAStep() {
-        var picked: Pair<String, Int?>? = null
-        showSection(picked = { picked = it })
+    fun theEditorShowsItsCurrentLimitAndPicksAStep() {
+        var picked: Int? = null
+        showEditor(picked = { picked = it })
 
-        composeRule.onNodeWithText("One").assertIsDisplayed()
         composeRule.onNodeWithText("30 min").assertIsDisplayed()
 
-        composeRule.onNodeWithText("One").performClick()
+        limitRow().performClick()
         composeRule.onNodeWithText("45 min").performClick()
 
-        assertEquals("com.example.one" to 45, picked)
+        assertEquals(45, picked)
     }
 
     @Test
     fun noLimitClearsTheLimit() {
-        var picked: Pair<String, Int?>? = null
-        showSection(picked = { picked = it })
+        var picked: Int? = -1
+        showEditor(picked = { picked = it })
 
-        composeRule.onNodeWithText("One").performClick()
+        limitRow().performClick()
         composeRule.onNodeWithText(strings.getString(R.string.settings_limit_none)).performClick()
 
-        assertEquals("com.example.one", picked?.first)
-        assertNull(picked?.second)
+        assertNull(picked)
     }
 
     @Test
     fun blockImmediatelyPicksZero() {
-        var picked: Pair<String, Int?>? = null
-        showSection(picked = { picked = it })
+        var picked: Int? = null
+        showEditor(picked = { picked = it })
 
-        composeRule.onNodeWithText("One").performClick()
+        limitRow().performClick()
         composeRule
             .onNodeWithText(
                 strings.getString(R.string.settings_limit_block_now),
             ).performClick()
 
-        assertEquals("com.example.one" to 0, picked)
+        assertEquals(0, picked)
     }
 
     @Test
     fun theAlertToggleStartsOffAndIsEnabledWithAPositiveLimit() {
-        var changed: Pair<String, Boolean>? = null
-        showSection(picked = {}, onAlert = { changed = it })
+        var changed: Boolean? = null
+        showEditor(picked = {}, onAlert = { changed = it })
 
         alertToggle().assertIsDisplayed().assertIsOff().assertIsEnabled()
         alertToggle().performClick()
 
-        assertEquals("com.example.one" to true, changed)
+        assertEquals(true, changed)
     }
 
     @Test
     fun zeroMinutesLeavesTheAlertToggleDisabled() {
-        showSection(picked = {}, limits = mapOf("com.example.one" to 0))
+        showEditor(picked = {}, minutes = 0)
 
         alertToggle().assertIsOff().assertIsNotEnabled()
     }
 
     @Test
     fun noLimitLeavesTheAlertToggleDisabled() {
-        showSection(picked = {}, limits = emptyMap())
+        showEditor(picked = {}, minutes = null)
 
         alertToggle().assertIsOff().assertIsNotEnabled()
     }
 
     @Test
     fun theStoredAlertChoiceIsShown() {
-        showSection(
-            picked = {},
-            alerts = mapOf("com.example.one" to true),
-        )
+        showEditor(picked = {}, alertEnabled = true)
 
         alertToggle().assertIsOn()
     }
 
     @Test
     fun aMissingNotificationPermissionIsExplained() {
-        showSection(
-            picked = {},
-            alerts = mapOf("com.example.one" to true),
-            notificationsEnabled = false,
-        )
+        showEditor(picked = {}, alertEnabled = true, notificationsEnabled = false)
 
         composeRule
             .onNodeWithText(
@@ -155,7 +147,7 @@ class AppLimitsSettingsTest {
 
     @Test
     fun noWindowIsShownByDefault() {
-        showSection(picked = {})
+        showEditor(picked = {})
 
         composeRule
             .onNodeWithText(strings.getString(R.string.settings_window_none))
@@ -164,10 +156,7 @@ class AppLimitsSettingsTest {
 
     @Test
     fun aConfiguredWindowIsShown() {
-        showSection(
-            picked = {},
-            windows = mapOf("com.example.one" to AppWindow(9 * 60, 23 * 60)),
-        )
+        showEditor(picked = {}, window = AppWindow(9 * 60, 23 * 60))
 
         composeRule
             .onNodeWithText(strings.getString(R.string.settings_window_range, "09:00", "23:00"))
@@ -176,11 +165,11 @@ class AppLimitsSettingsTest {
 
     @Test
     fun pickingANewStartReportsThePair() {
-        var picked: Triple<String, Int, Int>? = null
-        showSection(
+        var picked: Pair<Int, Int>? = null
+        showEditor(
             picked = {},
-            windows = mapOf("com.example.one" to AppWindow(9 * 60, 23 * 60)),
-            onWindow = { packageName, start, end -> picked = Triple(packageName, start, end) },
+            window = AppWindow(9 * 60, 23 * 60),
+            onWindow = { start, end -> picked = start to end },
         )
 
         composeRule
@@ -188,6 +177,6 @@ class AppLimitsSettingsTest {
             .performClick()
         composeRule.onNodeWithText("10:00").performClick()
 
-        assertEquals(Triple("com.example.one", 10 * 60, 23 * 60), picked)
+        assertEquals(10 * 60 to 23 * 60, picked)
     }
 }

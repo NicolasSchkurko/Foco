@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.dashboard.DashboardScreen
+import com.foco.app.ui.detail.AppAppSettingsScreen
 import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.settings.SettingsScreen
 import java.time.LocalDate
@@ -53,13 +54,28 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
                     },
                 ),
         ) { backStackEntry ->
+            val packageName = backStackEntry.arguments?.getString("packageName").orEmpty()
             AppDetailScreen(
-                packageName = backStackEntry.arguments?.getString("packageName").orEmpty(),
+                packageName = packageName,
                 date =
                     backStackEntry.arguments
                         ?.getString("date")
                         ?.takeIf { it.isNotEmpty() }
                         ?.let(LocalDate::parse),
+                onConfigure = { navController.navigate("app_settings/$packageName") },
+            )
+        }
+
+        composable(
+            route = "app_settings/{packageName}",
+            arguments =
+                listOf(
+                    navArgument("packageName") { type = NavType.StringType },
+                ),
+        ) { backStackEntry ->
+            AppAppSettingsScreen(
+                packageName = backStackEntry.arguments?.getString("packageName").orEmpty(),
+                onBack = { navController.popBackStack() },
             )
         }
     }

@@ -13,14 +13,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
+import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DaySource
@@ -65,12 +70,17 @@ fun AppDetailScreen(
     packageName: String,
     date: LocalDate? = null,
     clock: Clock = Clock.systemDefaultZone(),
+    onConfigure: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val repository = remember { UsageRepository(context.applicationContext) }
+    val limitsStore = remember { AppLimitsStore.forApp(context.applicationContext) }
     val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
     val today = rememberCurrentDate(clock)
+    val limits by limitsStore.limitsFlow.collectAsState(initial = emptyMap())
+    val windows by limitsStore.windowsFlow.collectAsState(initial = emptyMap())
+    val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
     var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
@@ -146,6 +156,14 @@ fun AppDetailScreen(
                     } ?: stringResource(R.string.loading),
                 onBack = { backDispatcher?.onBackPressed() },
                 titleLeading = { AppIcon(packageName = packageName) },
+                actions = {
+                    IconButton(onClick = onConfigure) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.detail_limits_configure),
+                        )
+                    }
+                },
             )
 
             Spacer(Modifier.height(12.dp))
@@ -220,6 +238,60 @@ fun AppDetailScreen(
                                 .padding(horizontal = 20.dp)
                                 .weight(1f),
                     ) {
+                        // Preview: limit / window / alert for this app
+                        Text(
+                            text = stringResource(R.string.detail_limits_section),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        val none = stringResource(R.string.settings_limit_none)
+                        val blockNow = stringResource(R.string.settings_limit_block_now)
+                        val minutes = limits[packageName]
+                        val window = windows[packageName]
+                        val alertOn = alerts[packageName] == true
+                        val preview =
+                            listOf(
+                                stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes, none, blockNow),
+                                stringResource(R.string.settings_window_label) to
+                                    (
+                                        if (window ==
+                                            null
+                                        ) {
+                                            stringResource(R.string.settings_window_none)
+                                        } else {
+                                            stringResource(
+                                                R.string.settings_window_range,
+                                                previewClockLabel(window.startMinute),
+                                                previewClockLabel(window.endMinute),
+                                            )
+                                        }
+                                    ),
+                                stringResource(R.string.detail_limits_alerts_label) to
+                                    (
+                                        if (alertOn) {
+                                            stringResource(
+                                                R.string.detail_limits_alerts_on,
+                                            )
+                                        } else {
+                                            stringResource(R.string.detail_limits_alerts_off)
+                                        }
+                                    ),
+                            )
+                        preview.forEach { (label, value) ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(text = value, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                        Spacer(Modifier.height(16.dp))
+
                         HourChart(current.hourly)
                         Spacer(Modifier.height(16.dp))
 
@@ -292,3 +364,21 @@ fun AppDetailScreen(
         }
     }
 }
+
+private fun previewLimitLabel(
+    minutes: Int?,
+    none: String,
+    blockNow: String,
+): String {
+    if (minutes == null) return none
+    if (minutes == 0) return blockNow
+    val h = minutes / 60
+    val rest = minutes % 60
+    return when {
+        h > 0 && rest > 0 -> "$h h $rest min"
+        h > 0 -> "$h h"
+        else -> "$minutes min"
+    }
+}
+
+private fun previewClockLabel(minute: Int): String = String.format(java.util.Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)
