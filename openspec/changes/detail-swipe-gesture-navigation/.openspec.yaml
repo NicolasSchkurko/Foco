@@ -14,7 +14,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
 x-deps:
   - detail-refresh-on-resume
-x-gitref: 65fda6c
+x-gitref: aed2064
 
 x-open_decisions: []
 x-conflicts: []

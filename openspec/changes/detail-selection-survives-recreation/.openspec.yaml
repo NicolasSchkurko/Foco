@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 x-targets:
@@ -10,9 +10,12 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
 x-deps:
   - detail-days-index-reclamp
-x-gitref: 65fda6c
+x-gitref: 1de895b
 x-open_decisions: []
 x-conflicts: []
 
 
-x-audit_note: "REVERTED from verified - selectedIndex still uses remember/mutableIntStateOf and rememberSaveable is absent from AppDetailScreen.kt; not applied"
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: AppDetailScreen.kt selectedIndex now survives recreation via rememberSaveable (savedSelectedDate date key) resolved against days through reclampDayIndex; arrows + requested-day path update savedSelectedDate; JVM suite green; gate 0 errors

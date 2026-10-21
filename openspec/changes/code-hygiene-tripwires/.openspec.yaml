@@ -19,7 +19,7 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/ResourceHeaderTest.kt
 x-deps:
   - settings-migration-no-overwrite
-x-gitref: 65fda6c
+x-gitref: aed2064
 x-open_decisions: []
 x-conflicts: []
 

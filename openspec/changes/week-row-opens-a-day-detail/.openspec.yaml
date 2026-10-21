@@ -13,7 +13,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
 x-deps:
   - dashboard-ring-content-survives-settings
-x-gitref: 65fda6c
+x-gitref: aed2064
 x-open_decisions: []
 x-resolution: human decision recorded in DECISIONS.md (2026-10-21)
 x-conflicts: []

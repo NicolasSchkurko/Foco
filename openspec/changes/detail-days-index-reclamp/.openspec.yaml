@@ -10,7 +10,7 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
 x-deps: []
-x-gitref: 65fda6c
+x-gitref: aed2064
 x-open_decisions: []
 x-conflicts: []
 

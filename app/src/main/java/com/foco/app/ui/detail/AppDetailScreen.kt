@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,7 @@ import kotlinx.coroutines.withContext
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 private const val SWIPE_CLOSE_THRESHOLD_PX = 500f
 
@@ -89,6 +91,9 @@ fun AppDetailScreen(
     val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
     var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
+    // Survives recreation (rotation / Settings round-trip): a date key, not a raw index, so a
+    // shrunken window resolves through reclampDayIndex instead of crashing.
+    var savedSelectedDate by rememberSaveable { mutableStateOf<String?>(null) }
     // The window the selection was made in, so a rebuilt window can keep the same day.
     var selectedWindow by remember { mutableStateOf<List<LocalDate>>(emptyList()) }
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
@@ -117,6 +122,7 @@ fun AppDetailScreen(
     SideEffect {
         if (selectedIndex != effectiveIndex) selectedIndex = effectiveIndex
         selectedWindow = days
+        days.getOrNull(effectiveIndex)?.toString()?.let { savedSelectedDate = it }
     }
 
     // The requested day is applied once, and only when the window can hold it: the stored days
@@ -128,9 +134,21 @@ fun AppDetailScreen(
             val index = days.indexOf(requested)
             if (index >= 0) {
                 selectedIndex = index
+                savedSelectedDate = requested?.toString()
                 requested = null
             }
         }
+    }
+
+    // Survives recreation: when the store has loaded, resolve the saved date key against the
+    // current window (reclamp keeps it inside a shrunken window) and restore the selection.
+    LaunchedEffect(days, storedDays, savedSelectedDate) {
+        val saved = savedSelectedDate?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() } ?: return@LaunchedEffect
+        if (storedDays == null) return@LaunchedEffect
+        val idx = days.indexOf(saved).takeIf { it >= 0 }
+            ?: days.minByOrNull { kotlin.math.abs(ChronoUnit.DAYS.between(it, saved)) }?.let { days.indexOf(it) }
+            ?: 0
+        if (selectedIndex != idx) selectedIndex = idx
     }
 
     val selectedDate = days.getOrNull(effectiveIndex) ?: today
@@ -197,7 +215,11 @@ fun AppDetailScreen(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 IconButton(
-                    onClick = { selectedIndex = effectiveIndex + 1 },
+                    onClick = {
+                        val ni = (effectiveIndex + 1).coerceAtMost(days.lastIndex)
+                        selectedIndex = ni
+                        days.getOrNull(ni)?.toString()?.let { savedSelectedDate = it }
+                    },
                     enabled = effectiveIndex < days.lastIndex,
                 ) {
                     Text("‹", style = MaterialTheme.typography.titleLarge)
@@ -215,7 +237,11 @@ fun AppDetailScreen(
                     textAlign = TextAlign.Center,
                 )
                 IconButton(
-                    onClick = { selectedIndex = effectiveIndex - 1 },
+                    onClick = {
+                        val ni = (effectiveIndex - 1).coerceAtLeast(0)
+                        selectedIndex = ni
+                        days.getOrNull(ni)?.toString()?.let { savedSelectedDate = it }
+                    },
                     enabled = effectiveIndex > 0,
                 ) {
                     Text("›", style = MaterialTheme.typography.titleLarge)
