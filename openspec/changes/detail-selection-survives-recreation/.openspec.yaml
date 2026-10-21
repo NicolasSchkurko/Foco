@@ -10,7 +10,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
 x-deps:
   - detail-days-index-reclamp
-x-gitref: 1de895b
+x-gitref: c28af33
 x-open_decisions: []
 x-conflicts: []
 
