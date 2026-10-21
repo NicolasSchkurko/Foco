@@ -1,18 +1,9 @@
 package com.foco.app
 
 import android.accessibilityservice.AccessibilityService
-import android.graphics.PixelFormat
-import android.os.Build
-import android.view.WindowManager
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
-import androidx.compose.ui.platform.ComposeView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.UsageMonitorEvaluator
@@ -25,6 +16,7 @@ import com.foco.app.domain.BlockReason
 import com.foco.app.domain.ForegroundApp
 import com.foco.app.domain.ForegroundAppTracker
 import com.foco.app.ui.limits.AppLimitBlockScreen
+import com.foco.app.ui.limits.BlockOverlayHost
 import com.foco.app.ui.theme.FocoTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +34,7 @@ class UsageMonitorAccessibilityService :
     AccessibilityService(),
     ForegroundAppTracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private var overlay: ComposeView? = null
+    private val blockHost by lazy { BlockOverlayHost(this) }
     private var boundaryJob: Job? = null
 
     @Volatile
@@ -100,23 +92,27 @@ class UsageMonitorAccessibilityService :
         forcedReason: BlockReason? = null,
     ) {
         scope.launch {
-            if (overlay != null) return@launch
-            val now = System.currentTimeMillis()
-            val window = store.windowFor(packageName)
-            val limit = store.limitFor(packageName)
-            val used = evaluator.usedSecondsToday(packageName, now, window)
-            val reason =
-                forcedReason ?: when {
-                    windowBlocks(now, window) -> BlockReason.OUTSIDE_WINDOW
-                    AppLimitRules.isAtOrOverLimit(limit, used) -> BlockReason.LIMIT
-                    else -> null
+            if (blockHost.isShowing) return@launch
+            try {
+                val now = System.currentTimeMillis()
+                val window = store.windowFor(packageName)
+                val limit = store.limitFor(packageName)
+                val used = evaluator.usedSecondsToday(packageName, now, window)
+                val reason =
+                    forcedReason ?: when {
+                        windowBlocks(now, window) -> BlockReason.OUTSIDE_WINDOW
+                        AppLimitRules.isAtOrOverLimit(limit, used) -> BlockReason.LIMIT
+                        else -> null
+                    }
+                if (reason == null) {
+                    armBoundary(packageName, window, now)
+                    return@launch
                 }
-            if (reason == null) {
-                armBoundary(packageName, window, now)
-                return@launch
+                boundaryJob?.cancel()
+                showBlock(packageName, reason)
+            } catch (t: Throwable) {
+                Log.e(TAG, "evaluate failed for $packageName", t)
             }
-            boundaryJob?.cancel()
-            showBlock(packageName, reason)
         }
     }
 
@@ -142,46 +138,15 @@ class UsageMonitorAccessibilityService :
         reason: BlockReason,
     ) {
         val label = AppPackageInfo(this).label(packageName)
-        val lifecycleOwner = object : LifecycleOwner, SavedStateRegistryOwner {
-            val registry = LifecycleRegistry(this)
-            private val stateController = androidx.savedstate.SavedStateRegistryController.create(this)
-            override val lifecycle: Lifecycle get() = registry
-            override val savedStateRegistry: androidx.savedstate.SavedStateRegistry
-                get() = stateController.savedStateRegistry
-        }
-
-        val view =
-            ComposeView(this).apply {
-                setViewTreeLifecycleOwner(lifecycleOwner)
-                setViewTreeSavedStateRegistryOwner(lifecycleOwner)
-                setContent {
-                    FocoTheme {
-                        AppLimitBlockScreen(
-                            appName = label,
-                            reason = reason,
-                            onFinished = { finishBlock() },
-                        )
-                    }
-                }
+        blockHost.show {
+            FocoTheme {
+                AppLimitBlockScreen(
+                    appName = label,
+                    reason = reason,
+                    onFinished = { finishBlock() },
+                )
             }
-
-        val params =
-            WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT,
-            )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            params.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
-
-        getSystemService(WindowManager::class.java).addView(view, params)
-        overlay = view
-        lifecycleOwner.registry.currentState = Lifecycle.State.RESUMED
     }
 
     private fun finishBlock() {
@@ -190,13 +155,11 @@ class UsageMonitorAccessibilityService :
     }
 
     private fun removeOverlay() {
-        val view = overlay ?: return
-        runCatching { getSystemService(WindowManager::class.java).removeView(view) }
-        runCatching { view.disposeComposition() }
-        overlay = null
+        blockHost.dismiss()
     }
 
     private companion object {
+        const val TAG = "FocoBlock"
         const val SYSTEM_UI = "com.android.systemui"
         val IGNORED_PACKAGES = setOf(SYSTEM_UI)
     }

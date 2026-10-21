@@ -3,12 +3,16 @@ package com.foco.app.ui
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
 import com.foco.app.domain.BlockReason
 import com.foco.app.ui.limits.AppLimitBlockScreen
+import com.foco.app.ui.limits.OverlayLifecycleOwner
 import com.foco.app.ui.theme.FocoTheme
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -76,5 +80,33 @@ class AppLimitBlockTest {
             .onNodeWithText(
                 strings.getString(R.string.window_block_message, "Instagram"),
             ).assertIsDisplayed()
+    }
+
+    @Test
+    fun theOverlayHostIsRestoredAndCreatedBeforeCompose() {
+        val owner = OverlayLifecycleOwner()
+
+        owner.prepare()
+
+        assertEquals(Lifecycle.State.CREATED, owner.lifecycle.currentState)
+        // Compose makes this call as soon as it composes: it must not throw.
+        owner.savedStateRegistry.consumeRestoredStateForKey("block")
+
+        owner.resume()
+        assertEquals(Lifecycle.State.RESUMED, owner.lifecycle.currentState)
+
+        owner.destroy()
+        assertEquals(Lifecycle.State.DESTROYED, owner.lifecycle.currentState)
+    }
+
+    @Test
+    fun aDestroyedOwnerCannotBeResumed() {
+        val owner = OverlayLifecycleOwner()
+        owner.prepare()
+        owner.resume()
+        owner.destroy()
+
+        // The host must build a fresh owner per block: reuse would kill the service.
+        assertThrows(IllegalStateException::class.java) { owner.resume() }
     }
 }

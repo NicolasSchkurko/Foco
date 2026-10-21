@@ -1,6 +1,5 @@
 package com.foco.app.ui.limits
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,48 +51,50 @@ fun AppLimitBlockScreen(
         }
     }
 
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center,
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.surface,
     ) {
-        Column(
-            modifier = Modifier.padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text =
-                    stringResource(
-                        if (reason == BlockReason.OUTSIDE_WINDOW) {
-                            R.string.window_block_title
-                        } else {
-                            R.string.limit_block_title
-                        },
-                    ),
-                style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text =
-                    stringResource(
-                        if (reason == BlockReason.OUTSIDE_WINDOW) {
-                            R.string.window_block_message
-                        } else {
-                            R.string.limit_block_message
-                        },
-                        appName,
-                    ),
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(32.dp))
-            Text(
-                text = stringResource(R.string.limit_block_countdown, remaining),
-                style = MaterialTheme.typography.displayLarge,
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text =
+                        stringResource(
+                            if (reason == BlockReason.OUTSIDE_WINDOW) {
+                                R.string.window_block_title
+                            } else {
+                                R.string.limit_block_title
+                            },
+                        ),
+                    style = MaterialTheme.typography.displaySmall,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    text =
+                        stringResource(
+                            if (reason == BlockReason.OUTSIDE_WINDOW) {
+                                R.string.window_block_message
+                            } else {
+                                R.string.limit_block_message
+                            },
+                            appName,
+                        ),
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(32.dp))
+                Text(
+                    text = stringResource(R.string.limit_block_countdown, remaining),
+                    style = MaterialTheme.typography.displayLarge,
+                )
+            }
         }
     }
 }
