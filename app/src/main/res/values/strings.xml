@@ -84,8 +84,10 @@
     <string name="settings_limits_picker_ok">OK</string>
     <string name="settings_limits_picker_cancel">Cancel</string>
     <string name="settings_limits_value_none">No limit</string>
-    <string name="settings_limits_value_block_now">Now</string>
+    <string name="settings_limits_value_block_now">Block now</string>
     <string name="settings_limits_value_minutes">%1$d min</string>
+    <string name="settings_limits_alerts_description">Warn me when the app is about to reach its limit.</string>
+    <string name="settings_limits_enable_description">Turn it off to let the app run without a limit.</string>
     <string name="settings_limits_empty">No limits configured.</string>
 
     <!-- Limits -->

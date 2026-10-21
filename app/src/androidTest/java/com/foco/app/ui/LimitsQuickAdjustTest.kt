@@ -3,10 +3,12 @@ package com.foco.app.ui
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
@@ -21,6 +23,7 @@ import com.foco.app.ui.common.LimitsQuickAdjust
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -65,6 +68,52 @@ class LimitsQuickAdjustTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun turningTheLimitOnSetsAFifteenMinuteLimit() {
+        var limit: Int? = -1
+        show(onLimitChange = { _, minutes -> limit = minutes })
+
+        compose.onNodeWithContentDescription(appString(R.string.detail_limits_limit_label)).performClick()
+
+        assertEquals(15, limit)
+    }
+
+    @Test
+    fun turningTheLimitOffClearsIt() {
+        runBlocking { store.setLimit(packageName, 30) }
+        var limit: Int? = -1
+        show(onLimitChange = { _, minutes -> limit = minutes })
+        compose.waitUntil(timeoutMillis = 10_000) {
+            compose.onAllNodesWithText(appString(R.string.settings_limits_value_minutes, 30)).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        compose.onNodeWithContentDescription(appString(R.string.detail_limits_limit_label)).performClick()
+
+        assertNull(limit)
+    }
+
+    @Test
+    fun theStepperIsDisabledWhileTheLimitIsOff() {
+        show()
+
+        compose
+            .onNodeWithText(appString(R.string.settings_limits_button_plus))
+            .assertIsNotEnabled()
+    }
+
+    @Test
+    fun theMinusButtonIsDisabledAtTheFloor() {
+        runBlocking { store.setLimit(packageName, 0) }
+        show()
+        compose.waitUntil(timeoutMillis = 10_000) {
+            compose.onAllNodesWithText(appString(R.string.settings_limits_value_block_now)).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        compose
+            .onNodeWithText(appString(R.string.settings_limits_button_minus))
+            .assertIsNotEnabled()
     }
 
     @Test

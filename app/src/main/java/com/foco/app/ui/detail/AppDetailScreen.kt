@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
@@ -43,8 +44,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
@@ -73,6 +74,9 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+
+/** Tag of the detail's content; the tests address it without depending on the language. */
+const val DETAIL_CONTENT_TAG = "detail_content"
 
 /** Tag of the limits preview block; the tests address it without depending on the language. */
 const val LIMITS_PREVIEW_TAG = "detail_limits_preview"
@@ -135,6 +139,16 @@ fun AppDetailScreen(
     // The window is rebuilt when today rolls over or the store changes, so the selection is
     // reclamped: the same day when it is offered, the nearest valid one otherwise.
     val effectiveIndex = reclampDayIndex(selectedIndex, selectedWindow, days, today)
+
+    // One day forward (older) or backward (newer) inside the window; shared by the arrows and
+    // the horizontal swipe, which walks the days the way the home walks its ring.
+    fun stepDay(delta: Int) {
+        val target = (effectiveIndex + delta).coerceIn(0, days.lastIndex.coerceAtLeast(0))
+        selectedIndex = target
+        days.getOrNull(target)?.toString()?.let { savedSelectedDate = it }
+    }
+    val stepDayState = rememberUpdatedState<(Int) -> Unit>(::stepDay)
+    val swipeThreshold = with(LocalDensity.current) { 64.dp.toPx() }
     SideEffect {
         if (selectedIndex != effectiveIndex) selectedIndex = effectiveIndex
         selectedWindow = days
@@ -196,54 +210,7 @@ fun AppDetailScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .pointerInput(Unit) {
-                        // Intercepted in the Initial pass so a horizontal swipe reaches the screen
-                        // even when the touch starts on the scrollable list.
-                        awaitPointerEventScope {
-                            var startX = 0f
-                            var startY = 0f
-                            var tracking = false
-                            var horizontal = false
-                            while (true) {
-                                val event = awaitPointerEvent(PointerEventPass.Initial)
-                                val change = event.changes.firstOrNull() ?: continue
-                                when (event.type) {
-                                    PointerEventType.Press -> {
-                                        tracking = true
-                                        horizontal = false
-                                        startX = change.position.x
-                                        startY = change.position.y
-                                    }
-                                    PointerEventType.Move -> {
-                                        if (!tracking) continue
-                                        val dx = change.position.x - startX
-                                        val dy = change.position.y - startY
-                                        if (!horizontal) {
-                                            if (kotlin.math.abs(dx) > kotlin.math.abs(dy) && kotlin.math.abs(dx) > 24f) {
-                                                horizontal = true
-                                            } else if (kotlin.math.abs(dy) > kotlin.math.abs(dx) && kotlin.math.abs(dy) > 24f) {
-                                                // Vertical scroll: the list keeps the gesture.
-                                                tracking = false
-                                            }
-                                        }
-                                        if (horizontal) {
-                                            change.consume()
-                                            if (dx > size.width * 0.3f) {
-                                                backDispatcher?.onBackPressed()
-                                                tracking = false
-                                                horizontal = false
-                                            }
-                                        }
-                                    }
-                                    PointerEventType.Release, PointerEventType.Exit -> {
-                                        tracking = false
-                                        horizontal = false
-                                    }
-                                }
-                            }
-                        }
-                    },
+                    .padding(innerPadding),
         ) {
             Spacer(Modifier.height(16.dp))
 
@@ -274,11 +241,7 @@ fun AppDetailScreen(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 IconButton(
-                    onClick = {
-                        val ni = (effectiveIndex + 1).coerceAtMost(days.lastIndex)
-                        selectedIndex = ni
-                        days.getOrNull(ni)?.toString()?.let { savedSelectedDate = it }
-                    },
+                    onClick = { stepDay(1) },
                     enabled = effectiveIndex < days.lastIndex,
                 ) {
                     Text("‹", style = MaterialTheme.typography.titleLarge)
@@ -296,11 +259,7 @@ fun AppDetailScreen(
                     textAlign = TextAlign.Center,
                 )
                 IconButton(
-                    onClick = {
-                        val ni = (effectiveIndex - 1).coerceAtLeast(0)
-                        selectedIndex = ni
-                        days.getOrNull(ni)?.toString()?.let { savedSelectedDate = it }
-                    },
+                    onClick = { stepDay(-1) },
                     enabled = effectiveIndex > 0,
                 ) {
                     Text("›", style = MaterialTheme.typography.titleLarge)
@@ -310,171 +269,217 @@ fun AppDetailScreen(
             Spacer(Modifier.height(8.dp))
 
             val current = detail
-            when {
-                sessions == null ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
-
-                current == null ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.detail_empty),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-
-                else ->
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp)
-                                .weight(1f),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(onClickLabel = openLimitsLabel, role = Role.Button) { onConfigure() }
-                                .padding(vertical = 4.dp)
-                                .testTag(LIMITS_PREVIEW_TAG),
-                        ) {
-                        // Preview: limit / window / alert for this app
-                        Text(
-                            text = stringResource(R.string.detail_limits_section),
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        val none = stringResource(R.string.settings_limit_none)
-                        val blockNow = stringResource(R.string.settings_limit_block_now)
-                        val minutes = limits[packageName]
-                        val window = windows[packageName]
-                        val alertOn = alerts[packageName] == true
-                        val preview =
-                            listOf(
-                                stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes, none, blockNow),
-                                stringResource(R.string.settings_window_label) to
-                                    (
-                                        if (window ==
-                                            null
-                                        ) {
-                                            stringResource(R.string.settings_window_none)
-                                        } else {
-                                            stringResource(
-                                                R.string.settings_window_range,
-                                                previewClockLabel(window.startMinute),
-                                                previewClockLabel(window.endMinute),
-                                            )
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .testTag(DETAIL_CONTENT_TAG)
+                        .pointerInput(Unit) {
+                            // The same gesture the home uses: a horizontal drag walks the days
+                            // (swipe left to the next, older one; swipe right to the previous one).
+                            // The day moves with the finger, so the gesture answers even when the
+                            // finger lifts outside the window.
+                            var totalDrag = 0f
+                            var moved = false
+                            detectHorizontalDragGestures(
+                                onDragStart = {
+                                    totalDrag = 0f
+                                    moved = false
+                                },
+                                onHorizontalDrag = { change, amount ->
+                                    change.consume()
+                                    if (!moved) {
+                                        totalDrag += amount
+                                        when {
+                                            totalDrag <= -swipeThreshold -> {
+                                                moved = true
+                                                stepDayState.value(1)
+                                            }
+                                            totalDrag >= swipeThreshold -> {
+                                                moved = true
+                                                stepDayState.value(-1)
+                                            }
                                         }
-                                    ),
-                                stringResource(R.string.detail_limits_alerts_label) to
-                                    (
-                                        if (alertOn) {
-                                            stringResource(
-                                                R.string.detail_limits_alerts_on,
-                                            )
-                                        } else {
-                                            stringResource(R.string.detail_limits_alerts_off)
-                                        }
-                                    ),
+                                    }
+                                },
+                                onDragEnd = {
+                                    totalDrag = 0f
+                                    moved = false
+                                },
+                                onDragCancel = {
+                                    totalDrag = 0f
+                                    moved = false
+                                },
                             )
-                        preview.forEach { (label, value) ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(text = value, style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
-                        }
-                        Spacer(Modifier.height(16.dp))
-
-                        HourChart(current.hourly)
-                        Spacer(Modifier.height(16.dp))
-
-                        Text(
-                            text = stringResource(R.string.detail_summary),
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        val summary =
-                            listOf(
-                                stringResource(R.string.detail_total) to formatDuration(current.totalMillis),
-                                stringResource(R.string.detail_sessions) to current.sessionCount.toString(),
-                                stringResource(R.string.detail_first) to formatTimeOfDay(current.firstStart),
-                                stringResource(R.string.detail_last) to formatTimeOfDay(current.lastEnd),
-                                stringResource(R.string.detail_average) to formatDuration(current.averageMillis),
-                                stringResource(R.string.detail_longest) to formatDuration(current.longestMillis),
-                            )
-                        summary.forEach { (label, value) ->
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 2.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(text = value, style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
-
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.detail_sessions),
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        LazyColumn(
+                        },
+            ) {
+                when {
+                    sessions == null ->
+                        Box(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            items(current.sessions) { session ->
+                            CircularProgressIndicator()
+                        }
+
+                    current == null ->
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.detail_empty),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+
+                    else ->
+                        Column(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                                    .weight(1f),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable(onClickLabel = openLimitsLabel, role = Role.Button) { onConfigure() }
+                                    .padding(vertical = 4.dp)
+                                    .testTag(LIMITS_PREVIEW_TAG),
+                            ) {
+                            // Preview: limit / window / alert for this app
+                            Text(
+                                text = stringResource(R.string.detail_limits_section),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            val none = stringResource(R.string.settings_limit_none)
+                            val blockNow = stringResource(R.string.settings_limit_block_now)
+                            val minutes = limits[packageName]
+                            val window = windows[packageName]
+                            val alertOn = alerts[packageName] == true
+                            val preview =
+                                listOf(
+                                    stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes, none, blockNow),
+                                    stringResource(R.string.settings_window_label) to
+                                        (
+                                            if (window ==
+                                                null
+                                            ) {
+                                                stringResource(R.string.settings_window_none)
+                                            } else {
+                                                stringResource(
+                                                    R.string.settings_window_range,
+                                                    previewClockLabel(window.startMinute),
+                                                    previewClockLabel(window.endMinute),
+                                                )
+                                            }
+                                        ),
+                                    stringResource(R.string.detail_limits_alerts_label) to
+                                        (
+                                            if (alertOn) {
+                                                stringResource(
+                                                    R.string.detail_limits_alerts_on,
+                                                )
+                                            } else {
+                                                stringResource(R.string.detail_limits_alerts_off)
+                                            }
+                                        ),
+                                )
+                            preview.forEach { (label, value) ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(text = value, style = MaterialTheme.typography.bodyMedium)
+                                }
+                            }
+                            }
+                            Spacer(Modifier.height(16.dp))
+
+                            HourChart(current.hourly)
+                            Spacer(Modifier.height(16.dp))
+
+                            Text(
+                                text = stringResource(R.string.detail_summary),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            val summary =
+                                listOf(
+                                    stringResource(R.string.detail_total) to formatDuration(current.totalMillis),
+                                    stringResource(R.string.detail_sessions) to current.sessionCount.toString(),
+                                    stringResource(R.string.detail_first) to formatTimeOfDay(current.firstStart),
+                                    stringResource(R.string.detail_last) to formatTimeOfDay(current.lastEnd),
+                                    stringResource(R.string.detail_average) to formatDuration(current.averageMillis),
+                                    stringResource(R.string.detail_longest) to formatDuration(current.longestMillis),
+                                )
+                            summary.forEach { (label, value) ->
                                 Row(
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()
-                                            .padding(vertical = 8.dp),
+                                            .padding(vertical = 2.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
                                     Text(
-                                        text = "${formatTimeOfDay(session.start)} – ${formatTimeOfDay(session.end)}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                    Text(
-                                        text = formatDuration(session.end - session.start),
+                                        text = label,
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
+                                    Text(text = value, style = MaterialTheme.typography.bodyMedium)
                                 }
-                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                            }
+
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.detail_sessions),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            LazyColumn(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                            ) {
+                                items(current.sessions) { session ->
+                                    Row(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                    ) {
+                                        Text(
+                                            text = "${formatTimeOfDay(session.start)} – ${formatTimeOfDay(session.end)}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Text(
+                                            text = formatDuration(session.end - session.start),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                                }
                             }
                         }
-                    }
+                }
             }
         }
     }

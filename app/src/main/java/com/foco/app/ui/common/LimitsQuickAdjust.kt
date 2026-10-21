@@ -78,6 +78,7 @@ fun LimitsQuickAdjust(
     }
     val scope = rememberCoroutineScope()
     val is24 = DateFormat.is24HourFormat(context)
+    val limitLabel = stringResource(R.string.detail_limits_limit_label)
 
     @Composable
     fun valueLabel(value: Int?): String =
@@ -148,16 +149,43 @@ fun LimitsQuickAdjust(
         repeatJob = null
     }
 
+    val limitOn = limit != null
     Column(modifier = Modifier.padding(12.dp)) {
-        Text(stringResource(R.string.settings_limits_quick_adjust), style = MaterialTheme.typography.titleMedium)
+        // The switch is the binary decision (a limit or none); the stepper only sets its size.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.detail_limits_limit_label), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = stringResource(R.string.settings_limits_enable_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = limitOn,
+                onCheckedChange = { on ->
+                    interacted = true
+                    if (on) {
+                        val value = limit ?: AppLimitRules.STEP_MINUTES
+                        limit = value
+                        onLimitChange(packageName, value)
+                    } else {
+                        limit = null
+                        onLimitChange(packageName, null)
+                    }
+                },
+                modifier = Modifier.semantics { contentDescription = limitLabel },
+            )
+        }
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(
                 onClick = {},
+                enabled = limitOn && (limit ?: 0) > 0,
                 modifier =
                     Modifier
                         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                        .pointerInput(Unit) { stepGesture(-AppLimitRules.STEP_MINUTES) },
+                        .pointerInput(limitOn, limit) { stepGesture(-AppLimitRules.STEP_MINUTES) },
             ) { Text(stringResource(R.string.settings_limits_button_minus)) }
             Text(
                 text = valueLabel(limit),
@@ -167,10 +195,11 @@ fun LimitsQuickAdjust(
             )
             OutlinedButton(
                 onClick = {},
+                enabled = limitOn,
                 modifier =
                     Modifier
                         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                        .pointerInput(Unit) { stepGesture(AppLimitRules.STEP_MINUTES) },
+                        .pointerInput(limitOn, limit) { stepGesture(AppLimitRules.STEP_MINUTES) },
             ) { Text(stringResource(R.string.settings_limits_button_plus)) }
         }
         Spacer(Modifier.height(12.dp))
@@ -268,6 +297,11 @@ fun LimitAlertsToggle(
                 text = stringResource(R.string.detail_limits_alerts_label),
                 style = MaterialTheme.typography.titleMedium,
             )
+            Text(
+                text = stringResource(R.string.settings_limits_alerts_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             if (alertEnabled && !notificationsEnabled) {
                 Text(
                     text = stringResource(R.string.settings_limit_alerts_no_permission),
@@ -279,7 +313,8 @@ fun LimitAlertsToggle(
         Switch(
             checked = alertEnabled,
             onCheckedChange = onAlertChange,
-            enabled = minutes != null && minutes > 0,
+            // Any limit counts, including "block now".
+            enabled = minutes != null,
             modifier =
                 Modifier
                     .padding(start = 8.dp)

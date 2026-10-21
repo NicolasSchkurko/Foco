@@ -1,16 +1,17 @@
 package com.foco.app.ui
 
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeLeft
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -68,18 +69,6 @@ class AppDetailNavigationTest {
             composeRule.onAllNodesWithText(string(R.string.detail_summary)).fetchSemanticsNodes().isNotEmpty()
         }
         return scenario
-    }
-
-    @Test
-    fun swipeRightEdgeTriggersBack() {
-        launchAndOpenDetail().use {
-            composeRule.onRoot().performTouchInput {
-                swipeRight(startX = width * 0.1f, endX = width * 0.9f, durationMillis = 200)
-            }
-            composeRule.waitUntil(timeoutMillis = 10_000) {
-                composeRule.onAllNodesWithText(string(R.string.dashboard_title)).fetchSemanticsNodes().isNotEmpty()
-            }
-        }
     }
 
     @Test
@@ -297,6 +286,5 @@ class AppDetailNavigationTest {
     private fun tapBackArrow() {
         composeRule.waitUntil(timeoutMillis = 10_000) { backArrowEnabled() }
         composeRule.onNodeWithText("‹").performClick()
-        composeRule.waitForIdle()
     }
 }
