@@ -37,6 +37,7 @@ class UsageMonitorAccessibilityService :
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val blockHost by lazy { BlockOverlayHost(this) }
     private var boundaryJob: Job? = null
+    private var blockedPackage: String? = null
 
     private val store by lazy { AppLimitsStore.forApp(this) }
     private val evaluator by lazy { UsageMonitorEvaluator(this) }
@@ -60,7 +61,8 @@ class UsageMonitorAccessibilityService :
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
-        val next = foreground.onWindowEvent(event.packageName?.toString())
+        val isViewWindow = event.className?.toString() == VIEW_GROUP
+        val next = foreground.onWindowEvent(event.packageName?.toString(), isViewWindow)
         if (next != null) evaluate(next)
     }
 
@@ -136,6 +138,7 @@ class UsageMonitorAccessibilityService :
         packageName: String,
         reason: BlockReason,
     ) {
+        blockedPackage = packageName
         val label = AppPackageInfo(this).label(packageName)
         blockHost.show {
             FocoTheme {
@@ -149,6 +152,7 @@ class UsageMonitorAccessibilityService :
     }
 
     private fun finishBlock() {
+        blockedPackage?.let { foreground.blockFinished(it) }
         removeOverlay()
         performGlobalAction(GLOBAL_ACTION_HOME)
     }
@@ -160,6 +164,7 @@ class UsageMonitorAccessibilityService :
     private companion object {
         const val TAG = "FocoBlock"
         const val SYSTEM_UI = "com.android.systemui"
+        const val VIEW_GROUP = "android.view.ViewGroup"
         val IGNORED_PACKAGES = setOf(SYSTEM_UI)
     }
 }

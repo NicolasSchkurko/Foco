@@ -14,6 +14,13 @@ class ForegroundAppStateTest {
             inputMethodPackages = setOf("com.google.android.inputmethod.latin"),
         )
 
+    private var clock = 1_000L
+    private val cooldownState =
+        ForegroundAppState(
+            selfPackage = "com.foco.app",
+            now = { clock },
+        )
+
     @Test
     fun `a normal window event tracks that app`() {
         assertEquals("com.youtube", state.onWindowEvent("com.youtube"))
@@ -50,6 +57,55 @@ class ForegroundAppStateTest {
         assertNull(state.onWindowEvent("com.android.systemui"))
         assertNull(state.onWindowEvent("com.google.android.inputmethod.latin"))
         assertEquals("com.youtube", state.current)
+    }
+
+    @Test
+    fun `a late view group event after a block does not re-track the app`() {
+        cooldownState.onWindowEvent("com.youtube")
+        cooldownState.onWindowEvent("com.foco.app")
+        cooldownState.blockFinished("com.youtube")
+        cooldownState.onWindowEvent("com.dino.simple")
+        clock += 400
+
+        assertNull(cooldownState.onWindowEvent("com.youtube", isViewWindow = true))
+        assertEquals("com.dino.simple", cooldownState.current)
+        assertFalse(cooldownState.accepts("com.youtube"))
+    }
+
+    @Test
+    fun `a real reopen inside the settling window still tracks the app`() {
+        cooldownState.onWindowEvent("com.youtube")
+        cooldownState.onWindowEvent("com.foco.app")
+        cooldownState.blockFinished("com.youtube")
+        cooldownState.onWindowEvent("com.dino.simple")
+        clock += 400
+
+        assertEquals("com.youtube", cooldownState.onWindowEvent("com.youtube"))
+        assertTrue(cooldownState.accepts("com.youtube"))
+    }
+
+    @Test
+    fun `a real reopen after the settling window tracks the app again`() {
+        cooldownState.onWindowEvent("com.youtube")
+        cooldownState.onWindowEvent("com.foco.app")
+        cooldownState.blockFinished("com.youtube")
+        cooldownState.onWindowEvent("com.dino.simple")
+        clock += 1_500
+
+        assertEquals("com.youtube", cooldownState.onWindowEvent("com.youtube"))
+        assertTrue(cooldownState.accepts("com.youtube"))
+    }
+
+    @Test
+    fun `a view group event after the settling window tracks the app again`() {
+        cooldownState.onWindowEvent("com.youtube")
+        cooldownState.onWindowEvent("com.foco.app")
+        cooldownState.blockFinished("com.youtube")
+        cooldownState.onWindowEvent("com.dino.simple")
+        clock += 1_500
+
+        assertEquals("com.youtube", cooldownState.onWindowEvent("com.youtube", isViewWindow = true))
+        assertTrue(cooldownState.accepts("com.youtube"))
     }
 
     @Test
