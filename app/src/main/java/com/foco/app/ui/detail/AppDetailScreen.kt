@@ -1,6 +1,7 @@
 package com.foco.app.ui.detail
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -40,6 +41,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
@@ -190,9 +193,50 @@ fun AppDetailScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .pointerInput(Unit) {
-                        detectHorizontalDragGestures { change, dragAmount ->
-                            change.consume()
-                            if (dragAmount > SWIPE_CLOSE_THRESHOLD_PX) backDispatcher?.onBackPressed()
+                        // Intercepted in the Initial pass so a horizontal swipe reaches the screen
+                        // even when the touch starts on the scrollable list.
+                        awaitPointerEventScope {
+                            var startX = 0f
+                            var startY = 0f
+                            var tracking = false
+                            var horizontal = false
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Initial)
+                                val change = event.changes.firstOrNull() ?: continue
+                                when (event.type) {
+                                    PointerEventType.Press -> {
+                                        tracking = true
+                                        horizontal = false
+                                        startX = change.position.x
+                                        startY = change.position.y
+                                    }
+                                    PointerEventType.Move -> {
+                                        if (!tracking) continue
+                                        val dx = change.position.x - startX
+                                        val dy = change.position.y - startY
+                                        if (!horizontal) {
+                                            if (kotlin.math.abs(dx) > kotlin.math.abs(dy) && kotlin.math.abs(dx) > 24f) {
+                                                horizontal = true
+                                            } else if (kotlin.math.abs(dy) > kotlin.math.abs(dx) && kotlin.math.abs(dy) > 24f) {
+                                                // Vertical scroll: the list keeps the gesture.
+                                                tracking = false
+                                            }
+                                        }
+                                        if (horizontal) {
+                                            change.consume()
+                                            if (dx > size.width * 0.3f) {
+                                                backDispatcher?.onBackPressed()
+                                                tracking = false
+                                                horizontal = false
+                                            }
+                                        }
+                                    }
+                                    PointerEventType.Release, PointerEventType.Exit -> {
+                                        tracking = false
+                                        horizontal = false
+                                    }
+                                }
+                            }
                         }
                     },
         ) {
@@ -209,7 +253,7 @@ fun AppDetailScreen(
                 actions = {
                     IconButton(onClick = onConfigure) {
                         Icon(
-                            imageVector = Icons.Filled.Settings,
+                            imageVector = Icons.Filled.Notifications,
                             contentDescription = stringResource(R.string.detail_limits_configure),
                         )
                     }
@@ -296,6 +340,12 @@ fun AppDetailScreen(
                                 .padding(horizontal = 20.dp)
                                 .weight(1f),
                     ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onConfigure() }
+                                .padding(vertical = 4.dp),
+                        ) {
                         // Preview: limit / window / alert for this app
                         Text(
                             text = stringResource(R.string.detail_limits_section),
@@ -347,6 +397,7 @@ fun AppDetailScreen(
                                 )
                                 Text(text = value, style = MaterialTheme.typography.bodyMedium)
                             }
+                        }
                         }
                         Spacer(Modifier.height(16.dp))
 

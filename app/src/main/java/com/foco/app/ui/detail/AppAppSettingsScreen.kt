@@ -36,6 +36,8 @@ import com.foco.app.data.AppLimitAlertNotifier
 import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.UsageMonitorService
 import com.foco.app.ui.common.AppIcon
+import com.foco.app.ui.common.LimitAlertsToggle
+import com.foco.app.ui.common.LimitsQuickAdjust
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
 import kotlinx.coroutines.launch
@@ -124,34 +126,38 @@ fun AppAppSettingsScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                AppLimitEditor(
-                    label = label,
-                    minutes = minutes,
-                    window = window,
-                    alertEnabled = alertOn,
-                    notificationsEnabled = notificationsEnabled,
-                    onPick = { picked ->
+                LimitsQuickAdjust(
+                    store = limitsStore,
+                    packageName = packageName,
+                    onLimitChange = { pkg, picked ->
                         scope.launch {
                             if (picked == null) {
-                                limitsStore.clearLimit(packageName)
+                                limitsStore.clearLimit(pkg)
                             } else {
-                                limitsStore.setLimit(packageName, picked)
+                                limitsStore.setLimit(pkg, picked)
                             }
                             syncMonitor()
                         }
                     },
-                    onWindowChange = { start, end ->
+                    onWindowChange = { pkg, start, end ->
                         scope.launch {
-                            limitsStore.setWindow(packageName, start, end)
+                            limitsStore.setWindow(pkg, start, end)
                             syncMonitor()
                         }
                     },
-                    onWindowClear = {
+                    onWindowClear = { pkg ->
                         scope.launch {
-                            limitsStore.clearWindow(packageName)
+                            limitsStore.clearWindow(pkg)
                             syncMonitor()
                         }
                     },
+                )
+
+                LimitAlertsToggle(
+                    label = label,
+                    minutes = minutes,
+                    alertEnabled = alertOn,
+                    notificationsEnabled = notificationsEnabled,
                     onAlertChange = { enabled ->
                         if (enabled) requestNotificationPermission()
                         scope.launch {
