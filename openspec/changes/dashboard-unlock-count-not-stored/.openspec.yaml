@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: fix
-x-status: accepted
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 x-targets:
@@ -11,9 +11,12 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
 x-deps:
   - dashboard-periodic-refresh-resilience
-x-gitref: 65fda6c
+x-gitref: 6ffed9e
 x-open_decisions: []
 x-conflicts: []
 
 
-x-audit_note: "REVERTED from verified - RingContent.Day.unlocks is Int and DashboardScreen maps null to 0 - absent cannot be represented; not applied"
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: RingContent.Day.unlocks now Int?; DashboardScreen reads readOr<Int?>(null) (no ?:0 coercion); subtitle renders unlocks only when non-null, else dashboard_usage_line_no_unlocks; JVM suite green; gate 0 errors

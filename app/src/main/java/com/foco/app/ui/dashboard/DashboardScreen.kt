@@ -221,7 +221,7 @@ fun DashboardScreen(
         val stored =
             withContext(Dispatchers.IO) {
                 val sessions = readOr(emptyList<UsageSession>()) { store.sessionsFor(date) }
-                val unlocks = readOr(0) { store.unlocksFor(date) ?: 0 }
+                val unlocks = readOr<Int?>(null) { store.unlocksFor(date) }
                 RingContent.Day(DayData(sessions, emptyList()), unlocks)
             }
         ringContent[target.key()] = stored
@@ -321,15 +321,21 @@ fun DashboardScreen(
                 }
             val subtitle =
                 if (shownDay != null && shownMetrics != null) {
-                    stringResource(
-                        R.string.dashboard_usage_line,
-                        formatDuration(shownMetrics.totalMillis),
-                        pluralStringResource(
-                            R.plurals.dashboard_unlocks,
-                            shownDay.unlocks,
-                            shownDay.unlocks,
-                        ),
-                    )
+                    val unlocksPart = shownDay.unlocks?.let { count ->
+                        pluralStringResource(R.plurals.dashboard_unlocks, count, count)
+                    }
+                    if (unlocksPart != null) {
+                        stringResource(
+                            R.string.dashboard_usage_line,
+                            formatDuration(shownMetrics.totalMillis),
+                            unlocksPart,
+                        )
+                    } else {
+                        stringResource(
+                            R.string.dashboard_usage_line_no_unlocks,
+                            formatDuration(shownMetrics.totalMillis),
+                        )
+                    }
                 } else {
                     null
                 }

@@ -5,6 +5,7 @@
     <!-- Dashboard -->
     <string name="dashboard_title">Today</string>
     <string name="dashboard_usage_line">Screen time: %1$s · %2$s</string>
+    <string name="dashboard_usage_line_no_unlocks">Screen time: %1$s</string>
     <plurals name="dashboard_unlocks">
         <item quantity="one">%d unlock</item>
         <item quantity="other">%d unlocks</item>

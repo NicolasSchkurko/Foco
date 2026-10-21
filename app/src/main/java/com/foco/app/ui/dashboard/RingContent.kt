@@ -7,7 +7,7 @@ import com.foco.app.model.day.DayData
 sealed interface RingContent {
     data class Day(
         val data: DayData,
-        val unlocks: Int,
+        val unlocks: Int?,
     ) : RingContent
 
     data class Week(

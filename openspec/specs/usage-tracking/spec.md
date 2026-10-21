@@ -358,13 +358,9 @@ The detail SHALL keep working when a stored read fails: it shows the empty state
 - **THEN** the screen answers its empty state (or today alone) and stays open
 
 ### Requirement: A finished day keeps its unlock count
-
-The store SHALL keep every consolidated day's unlock count in that day's marker, derived from the
-same platform read that stores the day, so the count of a finished day is readable after the
-platform stops serving it. The marker and its count SHALL be deleted together once the day leaves
-the retention window.
-
+The store SHALL keep every consolidated day's unlock count in that day's marker, derived from the same platform read that stores the day, so the count of a finished day is readable after the platform stops serving it. The marker and its count SHALL be deleted together once the day leaves the retention window.
 [@test] `app/src/test/java/com/foco/app/data/ConsolidatedDayTest.kt`
+[@test] `app/src/test/java/com/foco/app/ui/dashboard/DashboardStateTest.kt`
 
 #### Scenario: A consolidated day keeps its count
 - **WHEN** a finished day with keyguard unlocks is consolidated
@@ -381,6 +377,10 @@ the retention window.
 #### Scenario: The upgrade keeps what was stored
 - **WHEN** a database written by version 1 opens after the version 2 upgrade
 - **THEN** its sessions and totals are still there and the day's count reads as not stored
+
+#### Scenario: A day without a count reads as absent, not zero
+- **WHEN** the dashboard shows a stored day whose count was never stored
+- **THEN** the unlock line reads absent — no zero claim — while a stored real `0` still renders as zero
 
 ### Requirement: The week view covers the last seven days
 The week view SHALL show the last seven days as one bar per day (the day's total screen time) plus the ranked per-app totals of those days, derived in the UI by pure functions; today SHALL come live from the platform, and a day without stored data SHALL read as absent, not as zero.

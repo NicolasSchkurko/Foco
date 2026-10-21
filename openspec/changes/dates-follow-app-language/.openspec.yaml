@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: feature
-x-status: applying
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 x-targets:
@@ -9,6 +9,10 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/ui/FormattingTest.kt
 x-deps: []
-x-gitref: 65fda6c
+x-gitref: 85d9b24
 x-open_decisions: []
 x-conflicts: []
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: FormattingTest 3/3 green (englishAppLocaleOnSpanishDeviceGivesEnglishLabels, spanishAppLocaleGivesSpanishLabels, patternsAreByteIdenticalForFixedInputAndLocale); gate 0 errors
