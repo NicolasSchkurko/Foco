@@ -1,0 +1,16 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: fix
+x-status: verified
+x-accepted_by: Nschkurko
+x-accepted_at: 2026-10-20
+x-understood_by: Nschkurko
+x-understood_at: 2026-10-20
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/UsageMonitorAccessibilityService.kt
+  - app/src/main/java/com/foco/app/domain/ForegroundAppState.kt
+x-tests:
+  - app/src/test/java/com/foco/app/domain/ForegroundAppStateTest.kt
+x-deps: []
+x-gitref: cede0ca

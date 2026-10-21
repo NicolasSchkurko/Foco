@@ -14,6 +14,7 @@ import com.foco.app.domain.AppLimitWindowRules
 import com.foco.app.domain.AppWindow
 import com.foco.app.domain.BlockReason
 import com.foco.app.domain.ForegroundApp
+import com.foco.app.domain.ForegroundAppState
 import com.foco.app.domain.ForegroundAppTracker
 import com.foco.app.ui.limits.AppLimitBlockScreen
 import com.foco.app.ui.limits.BlockOverlayHost
@@ -37,9 +38,6 @@ class UsageMonitorAccessibilityService :
     private val blockHost by lazy { BlockOverlayHost(this) }
     private var boundaryJob: Job? = null
 
-    @Volatile
-    private var foregroundPackage: String? = null
-
     private val store by lazy { AppLimitsStore.forApp(this) }
     private val evaluator by lazy { UsageMonitorEvaluator(this) }
 
@@ -51,6 +49,10 @@ class UsageMonitorAccessibilityService :
             .orEmpty()
     }
 
+    private val foreground by lazy {
+        ForegroundAppState(packageName, IGNORED_PACKAGES, inputMethodPackages)
+    }
+
     override fun onServiceConnected() {
         ForegroundApp.register(this)
         UsageMonitorService.sync(this)
@@ -58,12 +60,8 @@ class UsageMonitorAccessibilityService :
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
-        val packageName = event.packageName?.toString() ?: return
-        if (packageName == this.packageName || packageName in IGNORED_PACKAGES) return
-        if (packageName in inputMethodPackages) return
-
-        foregroundPackage = packageName
-        evaluate(packageName)
+        val next = foreground.onWindowEvent(event.packageName?.toString())
+        if (next != null) evaluate(next)
     }
 
     override fun onInterrupt() = Unit
@@ -71,19 +69,20 @@ class UsageMonitorAccessibilityService :
     override fun onDestroy() {
         removeOverlay()
         boundaryJob?.cancel()
-        foregroundPackage = null
+        foreground.clear()
         ForegroundApp.unregister(this)
         UsageMonitorService.stop(this)
         scope.cancel()
         super.onDestroy()
     }
 
-    override fun currentPackage(): String? = foregroundPackage
+    override fun currentPackage(): String? = foreground.current
 
     override fun requestBlock(
         packageName: String,
         reason: BlockReason,
     ) {
+        if (!foreground.accepts(packageName)) return
         evaluate(packageName, reason)
     }
 
@@ -129,7 +128,7 @@ class UsageMonitorAccessibilityService :
         boundaryJob =
             scope.launch {
                 delay(waitMillis)
-                if (foregroundPackage == packageName) evaluate(packageName)
+                if (foreground.current == packageName) evaluate(packageName)
             }
     }
 

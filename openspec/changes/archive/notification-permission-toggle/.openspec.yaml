@@ -1,0 +1,13 @@
+schema: spec-anchored
+created: 2026-10-20
+x-kind: fix
+x-status: verified
+accepted_by: user
+accepted_at: 2026-10-20
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt
+x-deps: []
+x-gitref: 40c4550
