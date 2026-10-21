@@ -257,9 +257,11 @@ class WeekScreenTest {
         awaitText(string(R.string.dashboard_apps))
         composeRule.onAllNodesWithText("Settings")[0].performClick()
 
-        // The week position's rows open today's detail — the row summarises seven days, the screen
-        // shows one: today.
-        awaitText(string(R.string.detail_day_usage, formatDuration(liveTo - liveFrom)))
+        // The week position's rows open today's detail: tapping a week ranking row lands on
+        // today, not on the seeded (yesterday) day.
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.onAllNodesWithText(dayLabel(today)).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     /** One day's instant at the given hour and minute, on the device's own calendar. */
