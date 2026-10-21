@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -72,8 +73,6 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-
-private const val SWIPE_CLOSE_THRESHOLD_PX = 500f
 
 /** Tag of the limits preview block; the tests address it without depending on the language. */
 const val LIMITS_PREVIEW_TAG = "detail_limits_preview"
@@ -189,6 +188,8 @@ fun AppDetailScreen(
         remember(sessions, packageName) {
             sessions?.let { appDayDetail(it, packageName, ZoneId.systemDefault()) }
         }
+
+    val openLimitsLabel = stringResource(R.string.detail_limits_configure)
 
     Scaffold { innerPadding ->
         Column(
@@ -347,7 +348,7 @@ fun AppDetailScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onConfigure() }
+                                .clickable(onClickLabel = openLimitsLabel, role = Role.Button) { onConfigure() }
                                 .padding(vertical = 4.dp)
                                 .testTag(LIMITS_PREVIEW_TAG),
                         ) {

@@ -1,7 +1,8 @@
 package com.foco.app.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,9 +23,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AppLimitBlockTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val strings = InstrumentationRegistry.getInstrumentation().targetContext.resources
+    /** The strings of the activity: the per-app locale wins over the device one. */
+    private val strings get() = composeRule.activity.resources
 
     @Test
     fun namesTheAppStatesTheLimitCountsDownAndFinishes() {

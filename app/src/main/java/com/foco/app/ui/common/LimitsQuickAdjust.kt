@@ -1,7 +1,6 @@
 package com.foco.app.ui.common
 
 import android.text.format.DateFormat
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +28,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -60,13 +64,13 @@ fun LimitsQuickAdjust(
     onWindowClear: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    var limit by remember { mutableStateOf<Int?>(null) }
-    var window by remember { mutableStateOf<AppWindow?>(null) }
+    var limit by remember(packageName) { mutableStateOf<Int?>(null) }
+    var window by remember(packageName) { mutableStateOf<AppWindow?>(null) }
     var showPicker by remember { mutableStateOf(false) }
-    var interacted by remember { mutableStateOf(false) }
+    var interacted by remember(packageName) { mutableStateOf(false) }
     LaunchedEffect(packageName) {
-        // Only seed from the store when the user has not started editing; otherwise a late load
-        // would clobber an in-flight adjustment.
+        // Seed from the store when the user has not started editing; otherwise a late load would
+        // clobber an in-flight adjustment.
         if (!interacted) {
             limit = store.limitFor(packageName)
             window = store.windowFor(packageName)
@@ -86,22 +90,20 @@ fun LimitsQuickAdjust(
     fun applyDelta(delta: Int) {
         val current = limit ?: 0
         if (delta < 0) {
-            // Lower limit: never clear "block now" (0) and never fire a spurious clearLimit on "no limit".
+            // Lower limit: 0 ("block now") is the floor of the grid, so the step never clears it.
             if (current == 0) return
             val newVal =
                 ((current - AppLimitRules.STEP_MINUTES).coerceAtLeast(0) / AppLimitRules.STEP_MINUTES * AppLimitRules.STEP_MINUTES)
-            val newLimit = if (newVal == 0) null else newVal
-            limit = newLimit
+            limit = newVal
             interacted = true
-            onLimitChange(packageName, newLimit)
+            onLimitChange(packageName, newVal)
         } else {
             val newVal =
                 ((current + AppLimitRules.STEP_MINUTES) / AppLimitRules.STEP_MINUTES * AppLimitRules.STEP_MINUTES)
                     .coerceAtMost(AppLimitRules.MAX_MINUTES)
-            val newLimit = if (newVal == 0) null else newVal
-            limit = newLimit
+            limit = newVal
             interacted = true
-            onLimitChange(packageName, newLimit)
+            onLimitChange(packageName, newVal)
         }
     }
 
@@ -109,11 +111,41 @@ fun LimitsQuickAdjust(
     fun startRepeat(delta: Int) {
         repeatJob?.cancel()
         repeatJob = scope.launch {
+            var wait = 400L
             while (true) {
-                delay(150)
+                delay(wait)
                 applyDelta(delta)
+                // The longer it is held, the faster it repeats.
+                wait = (wait - 50L).coerceAtLeast(100L)
             }
         }
+    }
+
+    // A tap steps once; a press held past the long-press threshold repeats while it is held.
+    // Written by hand: the button's own clickable would consume the gesture otherwise.
+    suspend fun PointerInputScope.stepGesture(delta: Int) {
+        awaitPointerEventScope {
+            while (true) {
+                val down = awaitPointerEvent(PointerEventPass.Initial)
+                if (!down.changes.any { it.changedToDown() }) continue
+                var repeated = false
+                val longPress =
+                    scope.launch {
+                        delay(viewConfiguration.longPressTimeoutMillis)
+                        repeated = true
+                        startRepeat(delta)
+                    }
+                while (true) {
+                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                    if (event.changes.all { it.changedToUp() }) break
+                }
+                longPress.cancel()
+                // A short press steps once; a long press already repeated.
+                if (!repeated) applyDelta(delta)
+            }
+        }
+        repeatJob?.cancel()
+        repeatJob = null
     }
 
     Column(modifier = Modifier.padding(12.dp)) {
@@ -121,23 +153,11 @@ fun LimitsQuickAdjust(
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(
-                onClick = { applyDelta(-AppLimitRules.STEP_MINUTES) },
+                onClick = {},
                 modifier =
                     Modifier
                         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    try {
-                                        awaitRelease()
-                                    } finally {
-                                        repeatJob?.cancel()
-                                        repeatJob = null
-                                    }
-                                },
-                                onLongPress = { startRepeat(-AppLimitRules.STEP_MINUTES) },
-                            )
-                        },
+                        .pointerInput(Unit) { stepGesture(-AppLimitRules.STEP_MINUTES) },
             ) { Text(stringResource(R.string.settings_limits_button_minus)) }
             Text(
                 text = valueLabel(limit),
@@ -146,23 +166,11 @@ fun LimitsQuickAdjust(
                 modifier = Modifier.weight(1f),
             )
             OutlinedButton(
-                onClick = { applyDelta(AppLimitRules.STEP_MINUTES) },
+                onClick = {},
                 modifier =
                     Modifier
                         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    try {
-                                        awaitRelease()
-                                    } finally {
-                                        repeatJob?.cancel()
-                                        repeatJob = null
-                                    }
-                                },
-                                onLongPress = { startRepeat(AppLimitRules.STEP_MINUTES) },
-                            )
-                        },
+                        .pointerInput(Unit) { stepGesture(AppLimitRules.STEP_MINUTES) },
             ) { Text(stringResource(R.string.settings_limits_button_plus)) }
         }
         Spacer(Modifier.height(12.dp))
@@ -229,10 +237,10 @@ fun LimitsQuickAdjust(
                         showPicker = false
                     },
                     enabled = pendingStart != pendingEnd,
-                ) { Text(stringResource(android.R.string.ok)) }
+                ) { Text(stringResource(R.string.settings_limits_picker_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showPicker = false }) { Text(stringResource(android.R.string.cancel)) }
+                TextButton(onClick = { showPicker = false }) { Text(stringResource(R.string.settings_limits_picker_cancel)) }
             },
         )
     }
@@ -337,7 +345,7 @@ private fun TimeDropdown(
             onClick = { expanded = true },
             modifier =
                 Modifier
-                    .semantics { contentDescription = label }
+                    .semantics { contentDescription = "$label: ${formatMinuteOfDay(context, value, is24)}" }
                     .sizeIn(minWidth = 48.dp, minHeight = 48.dp),
         ) {
             Text(formatMinuteOfDay(context, value, is24))

@@ -22,10 +22,10 @@ x-tests:
 x-deps:
   - settings-limits-quick-adjust
   - limits-section-direct-access
-x-gitref: 28fbdd6
+x-gitref: 390bf02
 x-open_decisions: []
 x-conflicts: []
 
 x-verified_by: agent
 x-verified_at: 2026-10-21
-x-evidence: quick adjust + time range moved to ui/common/LimitsQuickAdjust.kt and used by AppAppSettingsScreen; AppLimitEditor deleted; global Settings limits item removed; app detail limits preview tappable (testTag) + limits icon; dashboard alert icon removed; swipe gesture rebuilt on awaitPointerEventScope; tests green on the emulator
+x-evidence: quick adjust + time range moved to ui/common/LimitsQuickAdjust.kt and used by AppAppSettingsScreen; AppLimitEditor deleted; global Settings limits item removed; app detail limits preview tappable (testTag) + limits icon; dashboard alert icon removed; swipe gesture rebuilt on awaitPointerEventScope; review fixes: stepping down lands on 0 (block now) and never clears the limit, own dialog strings, keyed state per package, hand-written tap/long-press gesture with real acceleration, dropdown announces label+value, preview block has a button role and a click label; 7 limits tests + 3 detail tests + 2 app-settings tests green on the emulator
