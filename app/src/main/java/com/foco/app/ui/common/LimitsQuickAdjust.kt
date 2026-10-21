@@ -48,9 +48,8 @@ import java.util.Calendar
 import java.util.Locale
 
 /**
- * The daily limit of one app: `-15 min` / `+15 min` buttons around a centered value (long-press
- * accelerates) and the recurring use window with an interval picker. It reports the picks; the
- * caller persists them and syncs the monitor.
+ * The daily limit of one app: `-15 min` / `+15 min` around a centered value (long-press
+ * accelerates) plus the recurring window with its picker. It reports the picks; the caller persists them.
  */
 @Composable
 fun LimitsQuickAdjust(
