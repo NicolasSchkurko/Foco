@@ -99,6 +99,8 @@ class AppLimitAlertNotifier(
         internal const val CHANNEL_ID = "limit_alerts"
 
         /** Stable per package and outside the monitor's id 1. */
-        internal fun notificationId(packageName: String): Int = 1_000 + (packageName.hashCode() and 0x7FFFFFFF) % 1_000
     }
 }
+
+/** Stable per-package notification id: the full package hash, so alerts never collide. */
+fun notificationId(packageName: String): Int = packageName.hashCode() and 0x7FFFFFFF

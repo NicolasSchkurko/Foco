@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 x-targets:
@@ -9,9 +9,12 @@ x-targets:
 x-tests:
   - app/src/androidTest/java/com/foco/app/data/AppLimitAlertNotifierTest.kt
 x-deps: []
-x-gitref: 65fda6c
+x-gitref: b5a0952
 x-open_decisions: []
 x-conflicts: []
 
 
-x-audit_note: "REVERTED from verified - notificationId still truncates with % 1000 (AppLimitAlertNotifier.kt) - proposal requires full hash; not applied"
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: notificationId now uses full package hash (and 0x7FFFFFFF) instead of % 1000 truncation; moved to top-level function; AppLimitAlertNotifierTest 3/3 green (distinct, stable, non-negative); gate 0 errors
