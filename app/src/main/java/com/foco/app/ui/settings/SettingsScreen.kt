@@ -89,6 +89,7 @@ fun SettingsScreen() {
     val limitsStore = remember { AppLimitsStore.forApp(context.applicationContext) }
     val identity = remember { AppIdentity(context.applicationContext) }
     val scope = rememberCoroutineScope()
+    var limitJob by remember { mutableStateOf<Job?>(null) }
 
     val language by store.language.collectAsState(initial = LanguageOption.AUTO)
     val appearance by store.appearance.collectAsState(initial = AppearanceOption.AUTO)
@@ -202,7 +203,8 @@ fun SettingsScreen() {
                         store = limitsStore,
                         packageName = context.applicationContext.packageName,
                         onLimitChange = { pkg, minutes ->
-                            scope.launch {
+                            limitJob?.cancel()
+                            limitJob = scope.launch {
                                 if (minutes == null || minutes == 0) {
                                     limitsStore.clearLimit(pkg)
                                 } else {
@@ -345,9 +347,14 @@ private fun LimitsQuickAdjust(
     var limit by remember { mutableStateOf<Int?>(null) }
     var window by remember { mutableStateOf<AppWindow?>(null) }
     var showPicker by remember { mutableStateOf(false) }
+    var interacted by remember { mutableStateOf(false) }
     LaunchedEffect(packageName) {
-        limit = store.limitFor(packageName)
-        window = store.windowFor(packageName)
+        // Only seed from the store when the user has not started editing; otherwise a late load
+        // would clobber an in-flight adjustment.
+        if (!interacted) {
+            limit = store.limitFor(packageName)
+            window = store.windowFor(packageName)
+        }
     }
     val scope = rememberCoroutineScope()
     val is24 = DateFormat.is24HourFormat(context)
@@ -363,10 +370,13 @@ private fun LimitsQuickAdjust(
     fun applyDelta(delta: Int) {
         val current = limit ?: 0
         if (delta < 0) {
+            // Lower limit: never clear "block now" (0) and never fire a spurious clearLimit on "no limit".
+            if (current == 0) return
             val newVal =
                 ((current - AppLimitRules.STEP_MINUTES).coerceAtLeast(0) / AppLimitRules.STEP_MINUTES * AppLimitRules.STEP_MINUTES)
             val newLimit = if (newVal == 0) null else newVal
             limit = newLimit
+            interacted = true
             onLimitChange(packageName, newLimit)
         } else {
             val newVal =
@@ -374,6 +384,7 @@ private fun LimitsQuickAdjust(
                     .coerceAtMost(AppLimitRules.MAX_MINUTES)
             val newLimit = if (newVal == 0) null else newVal
             limit = newLimit
+            interacted = true
             onLimitChange(packageName, newLimit)
         }
     }
@@ -441,14 +452,15 @@ private fun LimitsQuickAdjust(
         Spacer(Modifier.height(12.dp))
         Text(stringResource(R.string.settings_limits_picker_label), style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.height(4.dp))
+        val w = window
         val rangeText =
-            if (window == null) {
+            if (w == null) {
                 stringResource(R.string.settings_window_none)
             } else {
                 stringResource(
                     R.string.settings_window_range,
-                    formatMinuteOfDay(context, window!!.startMinute, is24),
-                    formatMinuteOfDay(context, window!!.endMinute, is24),
+                    formatMinuteOfDay(context, w.startMinute, is24),
+                    formatMinuteOfDay(context, w.endMinute, is24),
                 )
             }
         Text(rangeText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -472,25 +484,39 @@ private fun LimitsQuickAdjust(
     }
 
     if (showPicker) {
+        var pendingStart by remember { mutableStateOf(window?.startMinute ?: (9 * 60)) }
+        var pendingEnd by remember { mutableStateOf(window?.endMinute ?: (23 * 60)) }
         AlertDialog(
             onDismissRequest = { showPicker = false },
             title = { Text(stringResource(R.string.settings_limits_picker_title)) },
             text = {
                 Column {
                     TimeRangePicker(
-                        startMinute = window?.startMinute ?: (9 * 60),
-                        endMinute = window?.endMinute ?: (23 * 60),
+                        startMinute = pendingStart,
+                        endMinute = pendingEnd,
                         is24 = is24,
                         context = context,
                         onChange = { s, e ->
-                            window = AppWindow(s, e)
-                            onWindowChange(packageName, s, e)
+                            pendingStart = s
+                            pendingEnd = e
                         },
                     )
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showPicker = false }) { Text("OK") }
+                TextButton(
+                    onClick = {
+                        if (pendingStart != pendingEnd) {
+                            window = AppWindow(pendingStart, pendingEnd)
+                            onWindowChange(packageName, pendingStart, pendingEnd)
+                        }
+                        showPicker = false
+                    },
+                    enabled = pendingStart != pendingEnd,
+                ) { Text(stringResource(android.R.string.ok)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPicker = false }) { Text(stringResource(android.R.string.cancel)) }
             },
         )
     }
@@ -559,7 +585,7 @@ private fun TimeDropdown(
             Text(formatMinuteOfDay(context, value, is24))
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            AppLimitWindowRules.options().forEach { minute ->
+            AppLimitWindowRules.options().filter { it % 30 == 0 }.forEach { minute ->
                 DropdownMenuItem(
                     text = { Text(formatMinuteOfDay(context, minute, is24)) },
                     onClick = {
@@ -577,17 +603,16 @@ private fun formatMinuteOfDay(
     context: android.content.Context,
     minute: Int,
     is24: Boolean,
-): String {
-    val cal =
-        Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, minute / 60)
-            set(Calendar.MINUTE, minute % 60)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-    return if (is24) {
+): String =
+    if (is24) {
         String.format(java.util.Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)
     } else {
+        val cal =
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, minute / 60)
+                set(Calendar.MINUTE, minute % 60)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
         android.text.format.DateFormat.getTimeFormat(context).format(cal.time)
     }
-}

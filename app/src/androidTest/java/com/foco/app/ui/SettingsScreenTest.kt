@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
@@ -297,7 +298,7 @@ class SettingsScreenTest {
             composeRule.onNode(hasScrollAction()).performScrollToNode(hasText("Quick adjust"))
             composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Quick adjust") }
 
-            composeRule.onNodeWithText("Time-range").assertIsDisplayed()
+            composeRule.onNode(hasText("Time-range") and hasClickAction()).assertIsDisplayed()
         }
     }
 
@@ -311,7 +312,7 @@ class SettingsScreenTest {
             composeRule.onNode(hasScrollAction()).performScrollToNode(hasText("Quick adjust"))
             composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Quick adjust") }
 
-            composeRule.onNodeWithText("Time-range").performClick()
+            composeRule.onNode(hasText("Time-range") and hasClickAction()).performClick()
             composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Pick range") }
 
             val expected =
