@@ -137,12 +137,12 @@ provided through resources or drawables, not through broken literals. A change t
 replacement character in `app/src/**` or `*.md` SHALL fail the quality gate.
 [@test] `app/src/test/java/com/foco/app/structure/SourceEncodingTest.kt`
 
-#### Scenario: Clean source
-- **WHEN** the repository is scanned for U+FFFD in `app/src` and top-level `*.md`
+#### Scenario: Clean source (all tracked Markdown)
+- **WHEN** every tracked Markdown file in the repository (`openspec/**/*.md`, `*.md`, `docs/**/*.md`) is scanned for U+FFFD and the sources are scanned
 - **THEN** no occurrence is found
 
 #### Scenario: Mojibake introduced
-- **WHEN** a commit adds a replacement character to a `.kt` file
+- **WHEN** a commit adds a replacement character to a `.kt` file or to any tracked `*.md` file
 - **THEN** the quality gate fails
 
 ### Requirement: UI screens do not own navigation history as serialized text

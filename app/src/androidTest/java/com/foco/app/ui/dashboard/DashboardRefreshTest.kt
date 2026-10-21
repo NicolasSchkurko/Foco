@@ -83,6 +83,24 @@ class DashboardRefreshTest {
     }
 
     @Test
+    fun refreshLoopSurvivesFailedLoad() {
+        val attempts = AtomicInteger(0)
+        composeRule.setContent {
+            DashboardScreen(
+                refreshIntervalMillis = 150,
+                loadDay = {
+                    val attempt = attempts.incrementAndGet()
+                    if (attempt == 1) throw RuntimeException("simulated load failure")
+                    DayData(sessions = emptyList(), unlockTimes = emptyList())
+                },
+            )
+        }
+        // A failed read must not cancel the loop: the next interval retries and succeeds.
+        composeRule.waitUntil(timeoutMillis = 10_000) { attempts.get() >= 3 }
+        assertTrue("the refresh loop must retry after a failed read", attempts.get() >= 3)
+    }
+
+    @Test
     fun hasNoManualRefreshButton() {
         showDashboard(refreshIntervalMillis = 60_000)
         waitForLoadsAtLeast(1)

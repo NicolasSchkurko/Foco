@@ -2,6 +2,7 @@ package com.foco.app.domain
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 
 /**
  * Days the detail screen's selector offers: today and every day behind it, down to the oldest
@@ -16,6 +17,25 @@ fun availableDays(
     val windowFloor = today.minusDays((windowDays - 1).toLong())
     val oldest = storedDays.filter { it in windowFloor..today.minusDays(1) }.minOrNull() ?: today
     return (0..ChronoUnit.DAYS.between(oldest, today)).map { today.minusDays(it) }
+}
+
+/** Reclamp: same date when still present, nearest valid otherwise, today when empty. */
+fun reclampDayIndex(
+    selectedIndex: Int,
+    previousDays: List<LocalDate>,
+    days: List<LocalDate>,
+    today: LocalDate,
+): Int {
+    if (days.isEmpty()) return 0
+    val previousDate = previousDays.getOrNull(selectedIndex)
+    if (previousDate != null) {
+        val kept = days.indexOf(previousDate)
+        if (kept >= 0) return kept
+        val closest = days.minByOrNull { abs(ChronoUnit.DAYS.between(it, previousDate)) }
+        if (closest != null) return days.indexOf(closest)
+    }
+    val todayIndex = days.indexOf(today)
+    return if (todayIndex >= 0) todayIndex else 0
 }
 
 /** The days whose data is final: the same window without today, which is still being built. */

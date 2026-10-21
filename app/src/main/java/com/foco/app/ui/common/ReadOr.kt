@@ -28,6 +28,7 @@ internal suspend fun <T> readOr(
  */
 internal fun <T> Flow<T>.readOr(fallback: T): Flow<T> =
     catch { failure ->
+        if (failure is CancellationException) throw failure
         Log.w("Foco", "Day read failed", failure)
         emit(fallback)
     }

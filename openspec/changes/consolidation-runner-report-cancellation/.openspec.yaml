@@ -1,0 +1,14 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: fix
+x-status: accepted
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-targets:
+  - app/src/main/java/com/foco/app/data/ConsolidationRunner.kt
+x-tests:
+  - app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt
+x-deps: []
+x-gitref: 65fda6c
+
+x-audit_note: "REVERTED from verified - ConsolidationRunner rethrows CancellationException instead of reporting Failed - delta requires Failed; not applied"

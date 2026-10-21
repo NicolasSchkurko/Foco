@@ -1,0 +1,28 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: fix
+x-status: verified
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-targets:
+  - app/src/main/java/com/foco/app/data/AppLanguage.kt
+  - app/src/main/java/com/foco/app/data/MotionScale.kt
+  - app/src/main/java/com/foco/app/data/UsageAccess.kt
+  - app/src/main/java/com/foco/app/data/SettingsMigration.kt
+  - app/src/test/java/com/foco/app/data/SettingsMigrationTest.kt
+  - app/src/test/java/com/foco/app/structure/SourceProseTest.kt
+  - app/src/test/java/com/foco/app/structure/SourceEncodingTest.kt
+  - openspec/changes/archive/2026-10-20-code-quality-hardening/tasks.md
+x-tests:
+  - app/src/test/java/com/foco/app/structure/SourceProseTest.kt
+  - app/src/test/java/com/foco/app/structure/SourceEncodingTest.kt
+  - app/src/test/java/com/foco/app/structure/ResourceHeaderTest.kt
+x-deps:
+  - settings-migration-no-overwrite
+x-gitref: 65fda6c
+x-open_decisions: []
+x-conflicts: []
+
+x-verified_by: human-agent
+x-verified_at: 2026-10-21
+x-evidence: full JVM suite green; gate 0 errors

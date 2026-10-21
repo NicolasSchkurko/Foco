@@ -1,0 +1,25 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: feature
+x-status: verified
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+skip_specs: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
+  - app/src/main/res/values/strings.xml
+  - app/src/main/res/values-es/strings.xml
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - settings-about-strings-contract
+x-gitref: 32b6383
+
+x-open_decisions: []
+x-conflicts: []
+
+
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: LimitsQuickAdjust complete (buttons +15/-15 with long-press accel; TimeRangePicker with 48dp targets, 12h/24h via DateFormat.is24HourFormat); SettingsScreenTest +3 tests (increments/decrements, picker visibility, format); compileDebugKotlin + compileDebugAndroidTestKotlin green; gate 0 errors

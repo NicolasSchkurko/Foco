@@ -1,0 +1,19 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: feature
+x-status: accepted
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-targets:
+  - app/src/main/java/com/foco/app/domain/DayStop.kt
+  - app/src/main/java/com/foco/app/domain/AvailableDays.kt
+x-tests:
+  - app/src/test/java/com/foco/app/domain/DayRingTest.kt
+x-deps:
+  - detail-days-index-reclamp
+x-gitref: 65fda6c
+x-open_decisions: []
+x-conflicts: []
+
+
+x-audit_note: "REVERTED from verified - dayRing adds Day(today) and then storedDays filtered by availableDays (which includes today) - no dedupe; not applied"

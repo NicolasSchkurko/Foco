@@ -1,6 +1,7 @@
 package com.foco.app.domain
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 
@@ -53,6 +54,26 @@ class DaySelectionTest {
         assertEquals(7, days.size)
         assertEquals(today.minusDays(6), days.last())
         assertEquals(emptyList<LocalDate>(), days.filter { it.isBefore(today.minusDays(6)) })
+    }
+
+    @Test
+    fun `a selection beyond the shrunken window lands inside it`() {
+        val today = LocalDate.of(2026, 10, 16)
+        val before = availableDays(today, storedDays(1, 2, 3, 4, 5, 6))
+        val after = availableDays(today, storedDays(1, 2, 3, 4, 5))
+        val index = reclampDayIndex(before.lastIndex, before, after, today)
+        assertTrue(index >= 0)
+        assertTrue(index < after.size)
+        assertEquals(after.lastIndex, index)
+    }
+
+    @Test
+    fun `the same day is kept when the window still offers it`() {
+        val today = LocalDate.of(2026, 10, 16)
+        val previous = availableDays(today, storedDays(1, 2, 3, 4, 5))
+        val next = availableDays(today.plusDays(1), storedDays(1, 2, 3, 4, 5))
+        val kept = reclampDayIndex(2, previous, next, today.plusDays(1))
+        assertEquals(next.indexOf(previous[2]), kept)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.foco.app.ui
 
 import android.content.Intent
+import android.text.format.DateFormat
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -23,6 +24,7 @@ import com.foco.app.MainActivity
 import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppLanguage
+import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SettingsStore
 import com.foco.app.model.AppearanceOption
@@ -248,16 +250,82 @@ class SettingsScreenTest {
             val identity = AppIdentity(targetContext)
             val version = identity.versionName()!!
 
-            composeRule.onNodeWithText("Made by Nicolas Schkurko").assertIsDisplayed()
-            composeRule.onNodeWithText("Version $version").assertIsDisplayed()
+            composeRule.onNodeWithText("Open source project by Nicolas Schkurko").assertIsDisplayed()
+            composeRule.onNodeWithText("Foco $version").assertIsDisplayed()
 
-            val about = composeRule.onNodeWithText("Made by Nicolas Schkurko").getUnclippedBoundsInRoot()
+            val about = composeRule.onNodeWithText("Open source project by Nicolas Schkurko").getUnclippedBoundsInRoot()
             val language = composeRule.onNodeWithText("Language").getUnclippedBoundsInRoot()
             assertTrue("the About block must sit above Language", about.top < language.top)
 
             val intent = identity.repositoryIntent()
             assertEquals(Intent.ACTION_VIEW, intent.action)
             assertEquals(AppIdentity.REPOSITORY_URL, intent.data.toString())
+        }
+    }
+
+    @Test
+    fun limitsQuickAdjustIncrementsAndDecrementsByStep() {
+        runBlocking { AppLimitsStore.forApp(targetContext).clearAll() }
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            ensureSettings(language = "en")
+
+            composeRule.onNode(hasScrollAction()).performScrollToNode(hasText("Quick adjust"))
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Quick adjust") }
+
+            composeRule.onNodeWithText("-15 min").assertIsDisplayed()
+            composeRule.onNodeWithText("+15 min").assertIsDisplayed()
+
+            composeRule.onNodeWithText("+15 min").performClick()
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("15 min") }
+
+            composeRule.onNodeWithText("+15 min").performClick()
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("30 min") }
+
+            composeRule.onNodeWithText("-15 min").performClick()
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("15 min") }
+        }
+    }
+
+    @Test
+    fun limitsQuickAdjustPickerIsVisible() {
+        runBlocking { AppLimitsStore.forApp(targetContext).clearAll() }
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            ensureSettings(language = "en")
+
+            composeRule.onNode(hasScrollAction()).performScrollToNode(hasText("Quick adjust"))
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Quick adjust") }
+
+            composeRule.onNodeWithText("Time-range").assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun limitsQuickAdjustPickerFormatMatchesSystemPreference() {
+        runBlocking { AppLimitsStore.forApp(targetContext).clearAll() }
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            ensureSettings(language = "en")
+
+            composeRule.onNode(hasScrollAction()).performScrollToNode(hasText("Quick adjust"))
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Quick adjust") }
+
+            composeRule.onNodeWithText("Time-range").performClick()
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText("Pick range") }
+
+            val expected =
+                if (DateFormat.is24HourFormat(targetContext)) {
+                    "09:00"
+                } else {
+                    val cal = java.util.Calendar.getInstance().apply {
+                        set(java.util.Calendar.HOUR_OF_DAY, 9)
+                        set(java.util.Calendar.MINUTE, 0)
+                    }
+                    DateFormat.getTimeFormat(targetContext).format(cal.time)
+                }
+            composeRule.waitUntil(timeoutMillis = 10_000) { showsText(expected) }
+            composeRule.onNodeWithText(expected).assertIsDisplayed()
         }
     }
 

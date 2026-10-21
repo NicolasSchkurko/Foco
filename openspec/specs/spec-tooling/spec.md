@@ -79,12 +79,13 @@ App test code SHALL wait for the expected UI or device state instead of using a 
 - **THEN** the same assertions and test cases remain and pass
 
 ### Requirement: Repository content is free of mojibake
-The quality gate SHALL scan `app/src` and top-level `*.md` for U+FFFD and fail when any occurrence is
+The quality gate SHALL scan `app/src` and every tracked Markdown file of the repository — including
+`openspec/**/*.md` and `docs/**/*.md` — for U+FFFD and fail when any occurrence is
 found. The gate SHALL report the file and line of each occurrence.
 [@test] `app/src/test/java/com/foco/app/structure/SourceEncodingTest.kt`
 
 #### Scenario: Clean tree
-- **WHEN** no replacement character exists
+- **WHEN** no replacement character exists in any tracked Markdown file or source file
 - **THEN** the gate passes
 
 #### Scenario: Mojibake present

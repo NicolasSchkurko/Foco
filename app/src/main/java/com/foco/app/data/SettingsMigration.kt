@@ -24,8 +24,8 @@ internal suspend fun copySettingsFromLegacyStore(
     if (language == null && appearance == null) return
 
     target.edit { preferences ->
-        if (language != null) preferences[languageKey] = language
-        if (appearance != null) preferences[appearanceKey] = appearance
+        if (language != null && preferences[languageKey] == null) preferences[languageKey] = language
+        if (appearance != null && preferences[appearanceKey] == null) preferences[appearanceKey] = appearance
     }
     legacy.edit { preferences ->
         preferences.remove(languageKey)

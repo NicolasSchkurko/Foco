@@ -8,6 +8,9 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -180,6 +183,18 @@ class AppDetailNavigationTest {
     }
 
     /** Stores one day's session in the app's own store, behind the platform reader. */
+    @Test
+    fun swipeRightEdgeTriggersBack() {
+        launchAndOpenDetail().use {
+            composeRule.onRoot().performTouchInput {
+                swipeRight(startX = width * 0.1f, endX = width * 0.9f, durationMillis = 200)
+            }
+            composeRule.waitUntil(timeoutMillis = 10_000) {
+                composeRule.onAllNodesWithText(string(R.string.dashboard_title)).fetchSemanticsNodes().isNotEmpty()
+            }
+        }
+    }
+
     private fun seedInStore(
         day: LocalDate,
         from: Long,

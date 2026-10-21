@@ -1,7 +1,7 @@
 # Tasks — code-quality-hardening
 
 - [x] 1. Re-save affected `.kt`/`.md` as UTF-8 (no BOM) and replace mojibake glyphs in
-      `DashboardScreen.kt` (`�?1`, `�?�`) with proper icons/resources. Add a scan that fails on
+      `DashboardScreen.kt` (`??1`, `???`) with proper icons/resources. Add a scan that fails on
       replacement characters in source.
 - [x] 2. Extract `DashboardState` (or equivalent) in `ui/dashboard/` owning `stopKey`, history as
       `List<String>`, `slideDirection`, `softMotion`, `moveTo`, `moveStep`, `goBack`; keep

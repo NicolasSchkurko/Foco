@@ -1,0 +1,23 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: feature
+x-status: verified
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: "compile OK; usage_monitor_notification removed from values and values-es; UsageMonitorService title now uses the localized channel name"
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+skip_specs: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/res/values/strings.xml
+x-tests:
+  - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
+x-deps:
+  - dashboard-unlock-count-not-stored
+  - settings-about-strings-contract
+  - settings-limits-quick-adjust
+x-gitref: 65fda6c
+
+x-open_decisions: []
+x-conflicts: []

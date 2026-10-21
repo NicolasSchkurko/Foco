@@ -1,4 +1,4 @@
-﻿# Tasks — prune-stored-history
+# Tasks — prune-stored-history
 
 Order: the cutoff and the three deletes first (an off-by-one there would delete the oldest day the
 UI still shows), then the count, then the verification pass. Lands after `consolidated-day-marker`.

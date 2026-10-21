@@ -1,0 +1,18 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: fix
+x-status: verified
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+skip_specs: true
+x-targets:
+  - app/src/main/java/com/foco/app/ui/common/ReadOr.kt
+x-tests:
+  - app/src/test/java/com/foco/app/ui/common/ReadOrTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt
+x-deps: []
+x-gitref: 65fda6c
+x-waivers: []
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: JVM ReadOrTest 2/2 green; androidTest AppDetailReadTest.cancellationExceptionInFlowPropagates

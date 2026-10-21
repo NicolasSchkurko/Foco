@@ -313,6 +313,10 @@ earlier days from storage. The window SHALL follow the store while the detail is
 - **WHEN** a finished day is consolidated into the store while the detail is showing
 - **THEN** the selector gains that day and the back arrow reaches it, without the screen being paused and resumed
 
+#### Scenario: The window shrinks under the selection
+- **WHEN** the selected day leaves the stored window while the detail is open (a rollover, or a day that left the window)
+- **THEN** selection is reclamped to a day still inside the window instead of failing, landing on the nearest valid day
+
 ### Requirement: A failed stored read degrades instead of closing the app
 The detail SHALL keep working when a stored read fails: it shows the empty state for that day, or today alone when the stored days could not be read, and the app never closes.
 [@test] `app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt`
@@ -374,6 +378,19 @@ The week view SHALL be reachable from the dashboard and SHALL be one position of
 #### Scenario: Opening a day
 - **WHEN** a bar is tapped
 - **THEN** the home shows that day with its total, hourly chart and ranking
+
+### Requirement: A week app row opens today's detail
+An app row in the week's ranking SHALL open that app's detail for **today**, the same day the week position
+summarises. A dated day view is untouched: its app rows keep opening that app's detail for their own day.
+[@test] `app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt`
+
+#### Scenario: A week row opens today
+- **WHEN** an app row of the week's ranking is tapped
+- **THEN** the app's detail opens for today, not for another day of the week
+
+#### Scenario: A dated day keeps its own day
+- **WHEN** an app row of a dated day view is tapped
+- **THEN** the app's detail opens for that day
 
 ### Requirement: One header for every screen
 The home, the week and a dated day SHALL share one header composable with the title and its actions and no back control; settings and an app's detail SHALL render through it with a back control at the leading edge, 4 dp inset, title centred.

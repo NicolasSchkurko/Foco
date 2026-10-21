@@ -3,7 +3,10 @@ package com.foco.app.data
 import android.content.Context
 import android.provider.Settings
 
-/** The system animator duration scale; 0 means the user asked for no animations. */
+/**
+ * OS: the system animator duration scale (Settings.Global); where: device settings;
+ * lifecycle: read at every check — 0 means the user asked for no animations.
+ */
 class MotionScale(
     private val context: Context,
 ) {

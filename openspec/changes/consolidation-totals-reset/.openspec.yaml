@@ -1,0 +1,16 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: fix
+x-status: draft
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/SessionHistoryStore.kt
+  - app/src/main/java/com/foco/app/data/db/DailyAggregateDao.kt
+  - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
+  - app/src/test/java/com/foco/app/data/HistoryFakes.kt
+x-tests:
+  - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
+x-deps: []
+x-gitref: 65fda6c

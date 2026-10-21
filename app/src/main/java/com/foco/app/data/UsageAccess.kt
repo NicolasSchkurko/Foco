@@ -7,8 +7,8 @@ import android.os.Process
 import android.provider.Settings
 
 /**
- * Check of the special "Usage access" permission (PACKAGE_USAGE_STATS): not a runtime one, enabled by hand
- * in Settings, and the system verifies it as an AppOp.
+ * OS: the "Usage access" special permission (AppOpsManager PACKAGE_USAGE_STATS); where: the
+ * system's app-ops table; lifecycle: checked on demand — never auto-granted.
  */
 object UsageAccess {
     fun isGranted(context: Context): Boolean {

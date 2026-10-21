@@ -202,8 +202,12 @@ fun DashboardScreen(
         if (!liveRequested) return@LaunchedEffect
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             while (true) {
-                val data = withContext(Dispatchers.IO) { load() }
-                ringContent[todayKey] = RingContent.Day(data, data.unlockTimes.size)
+                try {
+                    val data = withContext(Dispatchers.IO) { load() }
+                    ringContent[todayKey] = RingContent.Day(data, data.unlockTimes.size)
+                } catch (failure: Exception) {
+                    android.util.Log.w("DashboardScreen", "Periodic load failed, keeping loop", failure)
+                }
                 delay(refreshIntervalMillis)
             }
         }

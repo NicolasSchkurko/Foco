@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
 import com.foco.app.data.AppLimitsStore
@@ -42,6 +45,7 @@ import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DaySource
 import com.foco.app.domain.availableDays
+import com.foco.app.domain.reclampDayIndex
 import com.foco.app.domain.daySource
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
@@ -60,6 +64,8 @@ import kotlinx.coroutines.withContext
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
+
+private const val SWIPE_CLOSE_THRESHOLD_PX = 500f
 
 /**
  * One app's detail: hourly breakdown, the day's summary and the session list, with a ‹ day ›
@@ -83,6 +89,8 @@ fun AppDetailScreen(
     val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
     var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
+    // The window the selection was made in, so a rebuilt window can keep the same day.
+    var selectedWindow by remember { mutableStateOf<List<LocalDate>>(emptyList()) }
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
 
     // Which days the store has grows while the screen is open (the startup backfill writes totals),
@@ -103,6 +111,14 @@ fun AppDetailScreen(
             }
         }
 
+    // The window is rebuilt when today rolls over or the store changes, so the selection is
+    // reclamped: the same day when it is offered, the nearest valid one otherwise.
+    val effectiveIndex = reclampDayIndex(selectedIndex, selectedWindow, days, today)
+    SideEffect {
+        if (selectedIndex != effectiveIndex) selectedIndex = effectiveIndex
+        selectedWindow = days
+    }
+
     // The requested day is applied once, and only when the window can hold it: the stored days
     // arrive asynchronously, and applying the request to the first (today-alone) window would land
     // on the wrong day once the list grows. Afterwards the user's taps on the selector win.
@@ -117,7 +133,7 @@ fun AppDetailScreen(
         }
     }
 
-    val selectedDate = days[selectedIndex]
+    val selectedDate = days.getOrNull(effectiveIndex) ?: today
     LaunchedEffect(packageName, selectedDate, storedDays, today) {
         sessions = null
         sessions =
@@ -144,7 +160,13 @@ fun AppDetailScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding)
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures { change, dragAmount ->
+                            change.consume()
+                            if (dragAmount > SWIPE_CLOSE_THRESHOLD_PX) backDispatcher?.onBackPressed()
+                        }
+                    },
         ) {
             Spacer(Modifier.height(16.dp))
 
@@ -175,8 +197,8 @@ fun AppDetailScreen(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 IconButton(
-                    onClick = { selectedIndex++ },
-                    enabled = selectedIndex < days.lastIndex,
+                    onClick = { selectedIndex = effectiveIndex + 1 },
+                    enabled = effectiveIndex < days.lastIndex,
                 ) {
                     Text("‹", style = MaterialTheme.typography.titleLarge)
                 }
@@ -193,8 +215,8 @@ fun AppDetailScreen(
                     textAlign = TextAlign.Center,
                 )
                 IconButton(
-                    onClick = { selectedIndex-- },
-                    enabled = selectedIndex > 0,
+                    onClick = { selectedIndex = effectiveIndex - 1 },
+                    enabled = effectiveIndex > 0,
                 ) {
                     Text("›", style = MaterialTheme.typography.titleLarge)
                 }

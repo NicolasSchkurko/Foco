@@ -60,6 +60,24 @@ class AppDetailReadTest {
             )
         }
 
+    /** Regression: CancellationException thrown from the upstream flow propagates, not swallowed as a fallback. */
+    @Test
+    fun cancellationExceptionInFlowPropagates() {
+        var propagated = false
+        val failing = flow<Set<LocalDate>> {
+            emit(setOf(LocalDate.of(2026, 10, 18)))
+            throw CancellationException("cancelled")
+        }
+        try {
+            runBlocking {
+                failing.readOr(emptySet<LocalDate>()).toList()
+            }
+        } catch (cancelled: CancellationException) {
+            propagated = true
+        }
+        assertTrue("CancellationException must propagate through Flow.readOr", propagated)
+    }
+
     @Test
     fun aCancelledCollectionIsNotAnsweredWithTheFallback() =
         runBlocking {

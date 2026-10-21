@@ -1,0 +1,15 @@
+schema: spec-anchored
+created: 2026-10-21
+x-kind: fix
+x-status: draft
+x-accepted_by: human
+x-accepted_at: 2026-10-21
+x-tech_brief: true
+x-targets:
+  - app/src/main/java/com/foco/app/data/UsageRepository.kt
+x-tests:
+  - app/src/test/java/com/foco/app/data/SessionFilterTest.kt
+x-deps: []
+x-gitref: 65fda6c
+x-open_decisions: []
+x-conflicts: []

@@ -5,7 +5,8 @@ import androidx.core.os.LocaleListCompat
 import com.foco.app.model.LanguageOption
 
 /**
- * Applies the chosen language to the system (appcompat backport); Automatic is an empty list.
+ * OS: the system locale list (AppCompatDelegate); where: the app's per-app language setting;
+ * lifecycle: written when the user picks a language — an empty list means Automatic.
  */
 object AppLanguage {
     fun applyToSystem(option: LanguageOption) {

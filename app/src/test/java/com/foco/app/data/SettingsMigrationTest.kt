@@ -41,7 +41,7 @@ class SettingsMigrationTest {
      */
     private fun assumeDataStoreCanReplaceAnExistingFile() {
         assumeFalse(
-            "En Windows DataStore no puede reemplazar un archivo existente (rama renameTo)",
+            "On Windows DataStore cannot replace an existing file (renameTo branch)",
             System
                 .getProperty("os.name")
                 .orEmpty()
@@ -94,6 +94,45 @@ class SettingsMigrationTest {
 
             assertEquals("en", target.data.first()[languageKey])
             assertNull(legacy.data.first()[languageKey])
+        }
+    }
+
+    @Test
+    fun targetExistingValueNotOverwrittenByLegacy() {
+        assumeDataStoreCanReplaceAnExistingFile()
+        val legacy = newStore("legacy_existing.preferences_pb")
+        val target = newStore("foco_existing.preferences_pb")
+
+        runBlocking {
+            target.edit { preferences -> preferences[languageKey] = "fr" }
+            legacy.edit { preferences -> preferences[languageKey] = "de" }
+
+            copySettingsFromLegacyStore(legacy, target)
+
+            assertEquals("fr", target.data.first()[languageKey]) // preserved, not overwritten with "de"
+            assertNull(legacy.data.first()[languageKey])
+        }
+    }
+
+    @Test
+    fun partialCopyOnlyMissingKeyWhenTargetHasOthers() {
+        assumeDataStoreCanReplaceAnExistingFile()
+        val legacy = newStore("legacy_partial.preferences_pb")
+        val target = newStore("foco_partial.preferences_pb")
+
+        runBlocking {
+            target.edit { preferences -> preferences[languageKey] = "fr" }
+            legacy.edit { preferences ->
+                preferences[languageKey] = "de"
+                preferences[appearanceKey] = "dark"
+            }
+
+            copySettingsFromLegacyStore(legacy, target)
+
+            assertEquals("fr", target.data.first()[languageKey])
+            assertEquals("dark", target.data.first()[appearanceKey])
+            assertNull(legacy.data.first()[languageKey])
+            assertNull(legacy.data.first()[appearanceKey])
         }
     }
 

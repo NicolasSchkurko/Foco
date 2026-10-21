@@ -114,7 +114,7 @@ class UsageMonitorService : Service() {
         NotificationCompat
             .Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(getString(R.string.usage_monitor_notification))
+            .setContentTitle(getString(R.string.usage_monitor_channel))
             .setContentText(getString(R.string.usage_monitor_notification_detail))
             .setContentIntent(openAppIntent())
             .setOngoing(true)

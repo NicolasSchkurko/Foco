@@ -75,6 +75,15 @@
     <string name="settings_window_to">Hasta</string>
     <string name="settings_window_clear">Sin ventana</string>
     <string name="settings_window_range">%1$s–%2$s</string>
+    <string name="settings_limits_quick_adjust">Ajuste rápido</string>
+    <string name="settings_limits_button_minus">-15 min</string>
+    <string name="settings_limits_button_plus">+15 min</string>
+    <string name="settings_limits_picker_label">Horario</string>
+    <string name="settings_limits_picker_title">Elegí el rango</string>
+    <string name="settings_limits_value_none">Sin límite</string>
+    <string name="settings_limits_value_block_now">Ahora</string>
+    <string name="settings_limits_value_minutes">%1$d min</string>
+    <string name="settings_limits_empty">No hay límites configurados.</string>
 
     <!-- Limits -->
     <string name="accessibility_service_label">Límites diarios de Foco</string>
@@ -85,7 +94,6 @@
     <string name="window_block_message">%1$s está fuera de su horario permitido.</string>
     <string name="limit_block_countdown">Cerrando en %1$d</string>
     <string name="usage_monitor_channel">Límites diarios</string>
-    <string name="usage_monitor_notification">Los límites diarios están activos</string>
     <string name="usage_monitor_notification_detail">Foco revisa el uso de hoy cada dos minutos.</string>
     <string name="limit_alert_channel">Alertas de límite</string>
     <string name="limit_alert_title">%1$s alcanzó el %2$d%% de su límite</string>
@@ -108,8 +116,8 @@
     <string name="week_export_error">No se pudo exportar la semana</string>
 
     <!-- About -->
-    <string name="settings_about_credit">Hecho por Nicolas Schkurko</string>
-    <string name="settings_about_version">Versión %1$s</string>
+    <string name="settings_about_credit">Proyecto de código abierto por Nicolas Schkurko</string>
+    <string name="settings_about_version">Foco %1$s</string>
     <string name="settings_about_version_unknown">desconocida</string>
     <string name="settings_about_repository">Repositorio</string>
 

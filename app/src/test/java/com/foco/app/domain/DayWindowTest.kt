@@ -53,8 +53,8 @@ class DayWindowTest {
         val stop = at(date, minute = 6)
         val window = dayWindow(date, zone, now = stop)
 
-        assertTrue("la consulta mira antes del inicio del día", window.lookbackStart < window.startOfDay)
-        assertTrue("y el cierre de hoy entra en la ventana", window.effectiveEnd >= stop)
+        assertTrue("the query looks before the start of the day", window.lookbackStart < window.startOfDay)
+        assertTrue("today's close is inside the window", window.effectiveEnd >= stop)
     }
 }
 

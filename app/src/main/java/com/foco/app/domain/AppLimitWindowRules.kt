@@ -2,6 +2,8 @@ package com.foco.app.domain
 
 import com.foco.app.model.UsageSession
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 
 /**
@@ -54,15 +56,10 @@ object AppLimitWindowRules {
         val zoned = Instant.ofEpochMilli(nowMillis).atZone(zone)
         val inside = isInside(nowMillis, window, zone)
         val boundaryMinute = if (inside) window.endMinute else window.startMinute
-        val today = zoned.toLocalDate().atStartOfDay(zone)
-        var boundary = today.plusMinutes(boundaryMinute.toLong()).toInstant().toEpochMilli()
+        val today = zoned.toLocalDate()
+        var boundary = boundaryMillis(today, boundaryMinute, zone)
         if (boundary <= nowMillis) {
-            boundary =
-                today
-                    .plusDays(1)
-                    .plusMinutes(boundaryMinute.toLong())
-                    .toInstant()
-                    .toEpochMilli()
+            boundary = boundaryMillis(today.plusDays(1), boundaryMinute, zone)
         }
         return boundary
     }
@@ -81,8 +78,8 @@ object AppLimitWindowRules {
                 .atStartOfDay(zone)
                 .toInstant()
                 .toEpochMilli()
-        val start = dayStart + window.startMinute * 60_000L
-        val end = dayStart + window.endMinute * 60_000L
+        val start = boundaryMillis(day, window.startMinute, zone)
+        val end = boundaryMillis(day, window.endMinute, zone)
         val intervals =
             if (window.startMinute < window.endMinute) {
                 listOf(start to end)
@@ -106,4 +103,19 @@ object AppLimitWindowRules {
         sessions
             .filter { it.packageName == packageName }
             .sumOf { inWindowMillis(it, window, zone) / 1_000L }
+
+    /** The instant a stored minute of the day names on [date] in [zone] — the wall clock,
+     *  not epoch arithmetic: on a day the offset changes the same minute is a different
+     *  instant, and a minute the zone skips resolves to the first instant after the gap. */
+    private fun boundaryMillis(
+        date: LocalDate,
+        minuteOfDay: Int,
+        zone: ZoneId,
+    ): Long =
+        LocalTime
+            .of(minuteOfDay / 60, minuteOfDay % 60)
+            .atDate(date)
+            .atZone(zone)
+            .toInstant()
+            .toEpochMilli()
 }

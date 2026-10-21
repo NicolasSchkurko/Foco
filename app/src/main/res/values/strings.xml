@@ -75,6 +75,15 @@
     <string name="settings_window_to">To</string>
     <string name="settings_window_clear">No window</string>
     <string name="settings_window_range">%1$s–%2$s</string>
+    <string name="settings_limits_quick_adjust">Quick adjust</string>
+    <string name="settings_limits_button_minus">-15 min</string>
+    <string name="settings_limits_button_plus">+15 min</string>
+    <string name="settings_limits_picker_label">Time-range</string>
+    <string name="settings_limits_picker_title">Pick range</string>
+    <string name="settings_limits_value_none">No limit</string>
+    <string name="settings_limits_value_block_now">Now</string>
+    <string name="settings_limits_value_minutes">%1$d min</string>
+    <string name="settings_limits_empty">No limits configured.</string>
 
     <!-- Limits -->
     <string name="accessibility_service_label">Foco daily limits</string>
@@ -85,7 +94,6 @@
     <string name="window_block_message">%1$s is outside its allowed hours.</string>
     <string name="limit_block_countdown">Closing in %1$d</string>
     <string name="usage_monitor_channel">Daily limits</string>
-    <string name="usage_monitor_notification">Daily limits are active</string>
     <string name="usage_monitor_notification_detail">Foco checks today’s usage every two minutes.</string>
     <string name="limit_alert_channel">Limit alerts</string>
     <string name="limit_alert_title">%1$s reached %2$d%% of its limit</string>
@@ -108,10 +116,10 @@
     <string name="week_export_error">Could not export the week</string>
 
     <!-- About -->
-    <string name="settings_about_credit">Made by Nicolas Schkurko</string>
-    <string name="settings_about_version">Version %1$s</string>
+    <string name="settings_about_credit">Open source project by Nicolas Schkurko</string>
+    <string name="settings_about_version">Foco %1$s</string>
     <string name="settings_about_version_unknown">unknown</string>
-    <string name="settings_about_repository">Repository</string>
+    <string name="settings_about_repository">Git repository</string>
 
     <!-- Common -->
     <string name="loading">Loading…</string>
