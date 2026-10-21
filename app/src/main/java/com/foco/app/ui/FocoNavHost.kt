@@ -35,11 +35,21 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
                     navController.navigate(route)
                 },
                 onOpenSettings = { navController.navigate("settings") },
+                onOpenLimits = { navController.navigate("settings?focusLimits=true") },
             )
         }
 
-        composable("settings") {
-            SettingsScreen()
+        composable(
+            route = "settings?focusLimits={focusLimits}",
+            arguments =
+                listOf(
+                    navArgument("focusLimits") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
+        ) { backStackEntry ->
+            SettingsScreen(focusLimits = backStackEntry.arguments?.getBoolean("focusLimits") ?: false)
         }
 
         composable(

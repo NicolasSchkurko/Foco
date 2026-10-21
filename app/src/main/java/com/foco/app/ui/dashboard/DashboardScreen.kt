@@ -28,6 +28,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -116,6 +117,7 @@ fun DashboardScreen(
     loadDay: (suspend () -> DayData)? = null,
     onAppClick: (String, LocalDate?) -> Unit = { _, _ -> },
     onOpenSettings: () -> Unit = {},
+    onOpenLimits: () -> Unit = {},
     loadExport: (suspend () -> String)? = null,
     clock: Clock = Clock.systemDefaultZone(),
     createRepository: (Context) -> UsageRepository = { UsageRepository(it) },
@@ -382,6 +384,12 @@ fun DashboardScreen(
                         Icon(
                             imageVector = Icons.Filled.Settings,
                             contentDescription = stringResource(R.string.settings_title),
+                        )
+                    }
+                    IconButton(onClick = onOpenLimits) {
+                        Icon(
+                            imageVector = Icons.Filled.Notifications,
+                            contentDescription = stringResource(R.string.detail_limits_section),
                         )
                     }
                 },

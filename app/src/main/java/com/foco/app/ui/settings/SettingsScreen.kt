@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -82,7 +83,7 @@ import java.util.Calendar
  * management of the apps excluded from the ranking.
  */
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(focusLimits: Boolean = false) {
     val context = LocalContext.current
     val store = remember { SettingsStore(context.applicationContext) }
     val excludedStore = remember { ExcludedAppsStore(context.applicationContext) }
@@ -96,6 +97,13 @@ fun SettingsScreen() {
     val excluded by excludedStore.excludedPackages.collectAsState(initial = emptySet())
 
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val listState = rememberLazyListState()
+    LaunchedEffect(focusLimits) {
+        if (focusLimits) {
+            // Limits section is the last item (index 4); scroll it into view.
+            runCatching { listState.animateScrollToItem(4) }
+        }
+    }
 
     Scaffold { innerPadding ->
         Column(
@@ -114,6 +122,7 @@ fun SettingsScreen() {
             Spacer(Modifier.height(8.dp))
 
             LazyColumn(
+                state = listState,
                 modifier =
                     Modifier
                         .fillMaxWidth()

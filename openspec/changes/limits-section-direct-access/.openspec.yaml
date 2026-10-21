@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: feature
-x-status: accepted
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 skip_specs: true
@@ -14,10 +14,13 @@ x-deps:
   - dashboard-ring-content-survives-settings
   - settings-about-strings-contract
   - settings-limits-quick-adjust
-x-gitref: 65fda6c
+x-gitref: 3c3171e
 
 x-open_decisions: []
 x-conflicts: []
 
 
-x-audit_note: "REVERTED from verified - DashboardScreen.kt only has the settings icon; no limits cell with direct navigation; not applied"
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: DashboardScreen.kt added onOpenLimits callback + Limits IconButton (Icons.Filled.Notifications, 48dp ripple); FocoNavHost.kt added settings?focusLimits={focusLimits} route; SettingsScreen.kt added focusLimits param + LazyListState scroll to limits item (index 4); JVM suite green; gate 0 errors
