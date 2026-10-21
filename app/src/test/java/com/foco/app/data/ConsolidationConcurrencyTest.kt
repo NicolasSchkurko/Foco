@@ -2,6 +2,7 @@ package com.foco.app.data
 
 import com.foco.app.domain.ConsolidationOutcome
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -9,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 
@@ -56,6 +58,16 @@ class ConsolidationConcurrencyTest {
 
             assertEquals(2, store.runs)
             assertEquals(setOf(today.minusDays(1)), store.days)
+        }
+
+    @Test
+    fun `a cancelled underlying run is reported as Failed`() =
+        runBlocking {
+            val runner = ConsolidationRunner({ _: LocalDate -> throw CancellationException("cancelled") })
+
+            val outcome = runner.run(today)
+
+            assertTrue(outcome is ConsolidationOutcome.Failed)
         }
 
     /** Records how many times it was called and how many distinct days it stored. */

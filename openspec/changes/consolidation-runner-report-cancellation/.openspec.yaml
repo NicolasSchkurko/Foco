@@ -1,7 +1,7 @@
 schema: spec-anchored
 created: 2026-10-21
 x-kind: fix
-x-status: accepted
+x-status: verified
 x-accepted_by: human
 x-accepted_at: 2026-10-21
 x-targets:
@@ -9,6 +9,9 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt
 x-deps: []
-x-gitref: 65fda6c
+x-gitref: 725a185
 
-x-audit_note: "REVERTED from verified - ConsolidationRunner rethrows CancellationException instead of reporting Failed - delta requires Failed; not applied"
+
+x-verified_by: agent
+x-verified_at: 2026-10-21
+x-evidence: ConsolidationRunner.run now catches CancellationException and returns Failed(cancelled) instead of rethrowing; ConsolidationConcurrencyTest 4/4 green (added a cancelled underlying run is reported as Failed); gate 0 errors

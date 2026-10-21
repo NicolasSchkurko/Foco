@@ -9,5 +9,6 @@ x-targets:
   - app/src/main/java/com/foco/app/data/ConsolidationRunner.kt
 x-tests:
   - app/src/test/java/com/foco/app/data/ConsolidationRunnerDeadlockTest.kt
-x-deps: []
+x-deps:
+  - consolidation-runner-report-cancellation
 x-open_decisions: []

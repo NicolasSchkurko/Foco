@@ -32,7 +32,9 @@ class ConsolidationRunner(
                             consolidate(today)
                             ConsolidationOutcome.Done
                         } catch (cancelled: CancellationException) {
-                            throw cancelled
+                            // A cancelled underlying run is reported as Failed so the worker retries
+                            // instead of propagating the cancellation (see spec delta).
+                            ConsolidationOutcome.Failed(cancelled)
                         } catch (failure: Throwable) {
                             ConsolidationOutcome.Failed(failure)
                         } finally {
