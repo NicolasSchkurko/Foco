@@ -28,6 +28,14 @@ class ForegroundAppStateTest {
     }
 
     @Test
+    fun `the same app again is returned for a new evaluation`() {
+        assertEquals("com.youtube", state.onWindowEvent("com.youtube"))
+
+        assertEquals("com.youtube", state.onWindowEvent("com.youtube"))
+        assertEquals("com.youtube", state.current)
+    }
+
+    @Test
     fun `foco coming to the front clears the tracked app`() {
         state.onWindowEvent("com.youtube")
 

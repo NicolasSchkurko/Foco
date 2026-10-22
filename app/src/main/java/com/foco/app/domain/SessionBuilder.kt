@@ -5,8 +5,8 @@ import com.foco.app.model.UsageEventType
 import com.foco.app.model.UsageSession
 
 /**
- * Pure fold: a direct switch closes the previous one at that instant and a stop closes its own
- * package's, even when they tie on the same millisecond; zero-length sessions are not emitted.
+ * Pure fold over [events], which must be chronological: a switch closes the previous one at that
+ * instant, a stop closes its own package's, ties included; zero-length sessions are not emitted.
  */
 fun buildSessions(
     events: List<UsageEvent>,
@@ -62,16 +62,15 @@ fun buildSessions(
 }
 
 /**
- * Clamps sessions to a day's window: one open before [dayStart] counts from there and the neighbouring
- * day keeps its own slice; what falls outside is dropped.
+ * Clamps sessions to a day's window: one open before the day counts from there and the
+ * neighbouring day keeps its own slice; what falls outside is dropped.
  */
 fun clampSessionsToDay(
     sessions: List<UsageSession>,
-    dayStart: Long,
-    dayEndExclusive: Long,
+    window: DayWindow,
 ): List<UsageSession> =
     sessions.mapNotNull { session ->
-        val start = maxOf(session.start, dayStart)
-        val end = minOf(session.end, dayEndExclusive)
+        val start = maxOf(session.start, window.startOfDay)
+        val end = minOf(session.end, window.dayEndExclusive)
         if (end > start) UsageSession(session.packageName, start, end) else null
     }

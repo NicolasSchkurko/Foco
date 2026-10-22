@@ -24,13 +24,13 @@ object AppLimitWindowRules {
     fun isValid(
         startMinute: Int,
         endMinute: Int,
-    ): Boolean = isSelectable(startMinute) && isSelectable(endMinute) && startMinute != endMinute
+    ): Boolean = AppWindow.isWindow(startMinute, endMinute)
 
     /** Whether [nowMillis] falls inside [window]; a start after the end crosses midnight. */
     fun isInside(
         nowMillis: Long,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Boolean {
         val secondOfDay =
             Instant
@@ -47,11 +47,18 @@ object AppLimitWindowRules {
         }
     }
 
+    /** Whether [nowMillis] is outside [window]; no window never blocks. */
+    fun blocksAt(
+        nowMillis: Long,
+        window: AppWindow?,
+        zone: ZoneId,
+    ): Boolean = window != null && !isInside(nowMillis, window, zone)
+
     /** The next local instant at which [window] opens or closes after [nowMillis]. */
     fun nextBoundaryMillis(
         nowMillis: Long,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Long {
         val zoned = Instant.ofEpochMilli(nowMillis).atZone(zone)
         val inside = isInside(nowMillis, window, zone)
@@ -64,13 +71,53 @@ object AppLimitWindowRules {
         return boundary
     }
 
-    /** The milliseconds of [session] that fall inside [window] on the session's local day. */
+    /** The milliseconds of [session] that fall inside [window], over every day it touches. */
     fun inWindowMillis(
         session: UsageSession,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
+    ): Long = inWindowMillisByDay(session, window, zone).values.sum()
+
+    /**
+     * The in-window milliseconds of [session] per local day: a session crossing midnight splits
+     * its in-window minutes between the days they belong to.
+     */
+    fun inWindowMillisByDay(
+        session: UsageSession,
+        window: AppWindow,
+        zone: ZoneId,
+    ): Map<LocalDate, Long> {
+        if (session.end <= session.start) return emptyMap()
+        val firstDay = Instant.ofEpochMilli(session.start).atZone(zone).toLocalDate()
+        val lastDay = Instant.ofEpochMilli(session.end - 1).atZone(zone).toLocalDate()
+        val millis = mutableMapOf<LocalDate, Long>()
+        var day = firstDay
+        while (!day.isAfter(lastDay)) {
+            val inWindow = inWindowMillisOnDay(session, day, window, zone)
+            if (inWindow > 0) millis[day] = inWindow
+            day = day.plusDays(1)
+        }
+        return millis
+    }
+
+    /** The in-window seconds of [packageName] in [sessions]; the total is truncated once. */
+    fun usedSeconds(
+        sessions: List<UsageSession>,
+        packageName: String,
+        window: AppWindow,
+        zone: ZoneId,
+    ): Long =
+        sessions
+            .filter { it.packageName == packageName }
+            .sumOf { inWindowMillis(it, window, zone) } / 1_000L
+
+    /** The milliseconds of [session] that fall inside [window] on [day] alone. */
+    private fun inWindowMillisOnDay(
+        session: UsageSession,
+        day: LocalDate,
+        window: AppWindow,
+        zone: ZoneId,
     ): Long {
-        val day = Instant.ofEpochMilli(session.start).atZone(zone).toLocalDate()
         val dayStart = day.atStartOfDay(zone).toInstant().toEpochMilli()
         val dayEnd =
             day
@@ -78,6 +125,8 @@ object AppLimitWindowRules {
                 .atStartOfDay(zone)
                 .toInstant()
                 .toEpochMilli()
+        val from = maxOf(session.start, dayStart)
+        val to = minOf(session.end, dayEnd)
         val start = boundaryMillis(day, window.startMinute, zone)
         val end = boundaryMillis(day, window.endMinute, zone)
         val intervals =
@@ -87,22 +136,9 @@ object AppLimitWindowRules {
                 listOf(start to dayEnd, dayStart to end)
             }
         return intervals.sumOf { (intervalStart, intervalEnd) ->
-            val overlapStart = maxOf(session.start, intervalStart)
-            val overlapEnd = minOf(session.end, intervalEnd)
-            (overlapEnd - overlapStart).coerceAtLeast(0L)
+            (minOf(to, intervalEnd) - maxOf(from, intervalStart)).coerceAtLeast(0L)
         }
     }
-
-    /** The in-window seconds of [packageName] in [sessions]. */
-    fun usedSeconds(
-        sessions: List<UsageSession>,
-        packageName: String,
-        window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
-    ): Long =
-        sessions
-            .filter { it.packageName == packageName }
-            .sumOf { inWindowMillis(it, window, zone) / 1_000L }
 
     /** The instant a stored minute of the day names on [date] in [zone] — the wall clock,
      *  not epoch arithmetic: on a day the offset changes the same minute is a different

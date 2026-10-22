@@ -7,7 +7,7 @@ import java.time.temporal.ChronoUnit
 
 /**
  * Joins sessions of the same app that meet at the same local HH:mm on the same day, transitively.
- * Different apps and different local days never meet.
+ * The comparison runs inside a per-app group; different local days never meet.
  */
 fun mergeContiguousSessions(
     sessions: List<UsageSession>,
@@ -29,12 +29,12 @@ fun mergeContiguousSessions(
             merged
         }.sortedBy { it.start }
 
+/** Whether two sessions of the same app meet at the same local HH:mm on the same day. */
 private fun meets(
     previous: UsageSession,
     next: UsageSession,
     zone: ZoneId,
 ): Boolean {
-    if (previous.packageName != next.packageName) return false
     val previousEnd = Instant.ofEpochMilli(previous.end).atZone(zone)
     val nextStart = Instant.ofEpochMilli(next.start).atZone(zone)
     return previousEnd.toLocalDate() == nextStart.toLocalDate() &&
