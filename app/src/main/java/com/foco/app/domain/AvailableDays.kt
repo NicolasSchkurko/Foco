@@ -27,15 +27,8 @@ fun reclampDayIndex(
     today: LocalDate,
 ): Int {
     if (days.isEmpty()) return 0
-    val previousDate = previousDays.getOrNull(selectedIndex)
-    if (previousDate != null) {
-        val kept = days.indexOf(previousDate)
-        if (kept >= 0) return kept
-        val closest = days.minByOrNull { abs(ChronoUnit.DAYS.between(it, previousDate)) }
-        if (closest != null) return days.indexOf(closest)
-    }
-    val todayIndex = days.indexOf(today)
-    return if (todayIndex >= 0) todayIndex else 0
+    val clamped = reclampDay(previousDays.getOrNull(selectedIndex), days, today)
+    return days.indexOf(clamped).takeIf { it >= 0 } ?: 0
 }
 
 /** The days whose data is final: the same window without today, which is still being built. */
@@ -45,4 +38,28 @@ fun finishedDays(
 ): List<LocalDate> {
     require(windowDays >= 1) { "windowDays must be at least 1" }
     return (1 until windowDays).map { today.minusDays(it.toLong()) }
+}
+
+/** The last [windowDays] days, newest first: today and the days behind it. */
+fun recentDays(
+    today: LocalDate,
+    windowDays: Int = 7,
+): List<LocalDate> {
+    require(windowDays >= 1) { "windowDays must be at least 1" }
+    return (0 until windowDays).map { today.minusDays(it.toLong()) }
+}
+
+/** Reclamp a date: the same date when it is still offered, the nearest one otherwise. */
+fun reclampDay(
+    previousDate: LocalDate?,
+    days: List<LocalDate>,
+    today: LocalDate,
+): LocalDate {
+    if (days.isEmpty()) return today
+    if (previousDate != null) {
+        if (previousDate in days) return previousDate
+        val closest = days.minByOrNull { abs(ChronoUnit.DAYS.between(it, previousDate)) }
+        if (closest != null) return closest
+    }
+    return days.firstOrNull { it == today } ?: days.first()
 }
