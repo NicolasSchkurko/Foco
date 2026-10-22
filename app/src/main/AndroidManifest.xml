@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-      Permiso especial de estadísticas de uso.
-      No se otorga con un diálogo: el usuario lo activa a mano en Ajustes.
-      Se declara acá para que el sistema lo liste para esta app.
+      Special permission for usage statistics.
+      It is not granted with a dialog: the user turns it on by hand in Settings.
+      It is declared here so the system lists it for this app.
     -->
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
@@ -17,9 +17,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!--
-      Android 11+ limita qué apps podemos "ver".
-      Declaramos que queremos resolver apps de lanzador y la home actual,
-      que es lo que usa UsageRepository para filtrar y etiquetar.
+      Android 11+ limits which apps we can "see".
+      We declare that we want to resolve launcher apps and the current home,
+      which is what UsageRepository uses to filter and label.
     -->
     <queries>
         <intent>
@@ -42,8 +42,8 @@
         android:theme="@style/Theme.Foco">
 
         <!--
-          Backport de idioma por app (appcompat): el idioma lo persiste
-          SettingsStore y lo aplica AppLanguage; este service habilita la API.
+          Per-app language backport (appcompat): the language is stored by
+          SettingsStore and applied by AppLanguage; this service enables the API.
         -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

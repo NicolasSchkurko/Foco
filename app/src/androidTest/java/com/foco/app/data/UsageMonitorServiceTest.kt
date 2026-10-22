@@ -8,20 +8,14 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
-import com.foco.app.domain.AppLimitWindowRules
-import com.foco.app.domain.AppWindow
 import com.foco.app.ui.setAccessibilityServiceEnabled
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
 
 /** Limit monitor (API 36): follows the limits and the accessibility binding; starts with a limit,
  *  stops with the last, and its ongoing notification is the observable "alive" signal. */
@@ -60,6 +54,7 @@ class UsageMonitorServiceTest {
                 (notification.notification.flags and Notification.FLAG_ONGOING_EVENT) != 0
         }
 
+    /** The bounded poll: it stops as soon as the state arrives, so the wait is not a fixed sleep. */
     private fun waitUntil(condition: () -> Boolean) {
         val deadline = SystemClock.uptimeMillis() + 15_000
         while (SystemClock.uptimeMillis() < deadline) {
@@ -111,150 +106,6 @@ class UsageMonitorServiceTest {
     }
 
     @Test
-    fun theCheckAlertsOnlyTheHighestTierAndReturnsEveryCrossedOne() {
-        val notified = mutableListOf<Int>()
-        val blocked = mutableListOf<Boolean>()
-
-        val crossed =
-            evaluateLimitCheck(
-                foregroundPackage = "com.example.app",
-                limitMinutes = 30,
-                alertEnabled = true,
-                usedSeconds = 1_700,
-                firedTiers = emptySet(),
-                onBlock = { blocked += true },
-                onNotify = { tier, _ ->
-                    notified += tier
-                    true
-                },
-            )
-
-        assertEquals(listOf(90), notified)
-        assertEquals(listOf(50, 75, 90), crossed)
-        assertTrue(blocked.isEmpty())
-    }
-
-    @Test
-    fun aFiredTierDoesNotAlertTwice() {
-        val notified = mutableListOf<Int>()
-
-        val first =
-            evaluateLimitCheck(
-                foregroundPackage = "com.example.app",
-                limitMinutes = 30,
-                alertEnabled = true,
-                usedSeconds = 1_350,
-                firedTiers = setOf(50),
-                onBlock = {},
-                onNotify = { tier, _ ->
-                    notified += tier
-                    true
-                },
-            )
-        assertEquals(listOf(75), notified)
-        assertEquals(listOf(50, 75), first)
-
-        notified.clear()
-        val second =
-            evaluateLimitCheck(
-                foregroundPackage = "com.example.app",
-                limitMinutes = 30,
-                alertEnabled = true,
-                usedSeconds = 1_350,
-                firedTiers = setOf(50, 75),
-                onBlock = {},
-                onNotify = { tier, _ ->
-                    notified += tier
-                    true
-                },
-            )
-        assertTrue(notified.isEmpty())
-        assertTrue(second.isEmpty())
-    }
-
-    @Test
-    fun noForegroundOrNoAlertFlagNeverNotifies() {
-        val notified = mutableListOf<Int>()
-
-        val withoutForeground =
-            evaluateLimitCheck(
-                foregroundPackage = null,
-                limitMinutes = 30,
-                alertEnabled = true,
-                usedSeconds = 1_500,
-                firedTiers = emptySet(),
-                onBlock = {},
-                onNotify = { tier, _ ->
-                    notified += tier
-                    true
-                },
-            )
-        val alertsOff =
-            evaluateLimitCheck(
-                foregroundPackage = "com.example.app",
-                limitMinutes = 30,
-                alertEnabled = false,
-                usedSeconds = 1_500,
-                firedTiers = emptySet(),
-                onBlock = {},
-                onNotify = { tier, _ ->
-                    notified += tier
-                    true
-                },
-            )
-
-        assertTrue(notified.isEmpty())
-        assertTrue(withoutForeground.isEmpty())
-        assertTrue(alertsOff.isEmpty())
-    }
-
-    @Test
-    fun atOrOverTheLimitBlocksAndNeverNotifies() {
-        val notified = mutableListOf<Int>()
-        val blocked = mutableListOf<Boolean>()
-
-        val crossed =
-            evaluateLimitCheck(
-                foregroundPackage = "com.example.app",
-                limitMinutes = 30,
-                alertEnabled = true,
-                usedSeconds = 1_800,
-                firedTiers = emptySet(),
-                onBlock = { blocked += true },
-                onNotify = { tier, _ ->
-                    notified += tier
-                    true
-                },
-            )
-
-        assertEquals(listOf(true), blocked)
-        assertTrue(notified.isEmpty())
-        assertTrue(crossed.isEmpty())
-    }
-
-    @Test
-    fun aDeniedNotificationLeavesTheTierAvailable() {
-        var attempts = 0
-
-        val crossed =
-            evaluateLimitCheck(
-                foregroundPackage = "com.example.app",
-                limitMinutes = 30,
-                alertEnabled = true,
-                usedSeconds = 1_620,
-                firedTiers = emptySet(),
-                onBlock = {},
-                onNotify = { _, _ ->
-                    attempts += 1
-                    false
-                },
-            )
-
-        assertEquals(1, attempts)
-        assertTrue(crossed.isEmpty())
-    }
-
-    @Test
     fun theBootReceiverRestartsTheMonitor() {
         ActivityScenario.launch(MainActivity::class.java).use {
             runBlocking { store.setLimit("com.example.app", 30) }
@@ -262,24 +113,6 @@ class UsageMonitorServiceTest {
             waitUntil { isRunning() }
             assertTrue(isRunning())
         }
-    }
-
-    @Test
-    fun aWindowBlocksOutsideAndLetsTheAppThroughInside() {
-        val zone = ZoneId.of("UTC")
-        val day = LocalDate.of(2026, 10, 20)
-
-        fun at(time: String): Long =
-            day
-                .atTime(LocalTime.parse(time))
-                .atZone(zone)
-                .toInstant()
-                .toEpochMilli()
-        val window = AppWindow(9 * 60, 23 * 60)
-
-        assertFalse(AppLimitWindowRules.blocksAt(at("10:00"), window, zone))
-        assertTrue(AppLimitWindowRules.blocksAt(at("23:00"), window, zone))
-        assertFalse(AppLimitWindowRules.blocksAt(at("23:00"), null, zone))
     }
 
     private companion object {

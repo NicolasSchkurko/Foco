@@ -20,10 +20,11 @@ import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.detail.DAY_LABEL_TAG
 import com.foco.app.ui.detail.DETAIL_CONTENT_TAG
 import com.foco.app.ui.detail.LIMITS_PREVIEW_TAG
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,21 +42,33 @@ class AppDetailLimitsTest {
 
     private fun appString(resId: Int): String = compose.activity.resources.getString(resId)
 
-    /** A day and a package the store really holds, inside the detail's seven-day window. */
-    private fun storedDayAndPackage(): Pair<LocalDate, String>? {
+    /**
+     * A day and a package the store really holds, inside the detail's seven-day window. The seed
+     * runs first; a store that holds nothing is a failure, never a skipped test.
+     */
+    private fun storedDayAndPackage(): Pair<LocalDate, String> {
         val today = LocalDate.now()
-        val days = runBlocking { store.storedDaysFlow().firstOrNull() }.orEmpty()
+        val days = runBlocking { storedDays() }
         for (day in days.filter { it <= today && it >= today.minusDays(6) }.sortedDescending()) {
             val pkg = runBlocking { store.sessionsFor(day) }.firstOrNull()?.packageName
             if (pkg != null) return day to pkg
         }
-        return null
+        throw AssertionError("the store holds no finished day with a session: the seed did not land")
     }
+
+    /** The stored days; the flow re-emits when the seed lands, so the wait is not a fixed sleep. */
+    private suspend fun storedDays(): Set<LocalDate> =
+        withTimeoutOrNull(SEED_TIMEOUT_MILLIS) {
+            store.storedDaysFlow().first { it.isNotEmpty() }
+        }.orEmpty()
 
     @Before
     fun seedTheDay() {
-        // The window only holds the days the store has, so a finished day must be stored.
-        val day = LocalDate.now().minusDays(1)
+        // The window only holds the days the store has, so a finished day must be stored. The seed
+        // takes a day the store has not consolidated yet, so the rows really land.
+        val today = LocalDate.now()
+        val marked = runBlocking { store.storedDaysFlow().firstOrNull() }.orEmpty()
+        val day = (1..6).map { today.minusDays(it.toLong()) }.firstOrNull { it !in marked } ?: today.minusDays(1)
         val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + 9 * HOUR
         val seeded =
             SessionHistoryStore.forApp(targetContext) { date ->
@@ -70,8 +83,7 @@ class AppDetailLimitsTest {
 
     @Test fun previewShowsValues() {
         val stored = storedDayAndPackage()
-        assumeTrue("the device stores no finished day", stored != null)
-        val day = stored!!.first
+        val day = stored.first
         val pkg = stored.second
         compose.setContent {
             MaterialTheme {
@@ -100,8 +112,7 @@ class AppDetailLimitsTest {
 
     @Test fun theLimitsIconOpensTheDedicatedSettings() {
         val stored = storedDayAndPackage()
-        assumeTrue("the device stores no finished day", stored != null)
-        val day = stored!!.first
+        val day = stored.first
         val pkg = stored.second
         var opened = false
         compose.setContent {
@@ -123,8 +134,7 @@ class AppDetailLimitsTest {
 
     @Test fun tappingTheLimitsBlockOpensTheDedicatedSettings() {
         val stored = storedDayAndPackage()
-        assumeTrue("the device stores no finished day", stored != null)
-        val day = stored!!.first
+        val day = stored.first
         val pkg = stored.second
         var opened = false
         compose.setContent {
@@ -145,8 +155,7 @@ class AppDetailLimitsTest {
 
     @Test fun aHorizontalSwipeWalksTheDays() {
         val stored = storedDayAndPackage()
-        assumeTrue("the device stores no finished day", stored != null)
-        val day = stored!!.first
+        val day = stored.first
         val pkg = stored.second
         compose.setContent {
             MaterialTheme { AppDetailScreen(packageName = pkg, date = day) }
@@ -180,8 +189,7 @@ class AppDetailLimitsTest {
 
     @Test fun aSwipeWalksTheDaysThatArriveAfterTheFirstFrame() {
         val stored = storedDayAndPackage()
-        assumeTrue("the device stores no finished day", stored != null)
-        val pkg = stored!!.second
+        val pkg = stored.second
         // Opened without a day, the way the home opens it: the window only holds the days the
         // store announces, and those arrive after the first frame.
         compose.setContent { MaterialTheme { AppDetailScreen(packageName = pkg) } }
@@ -216,6 +224,7 @@ class AppDetailLimitsTest {
         const val PACKAGE = "com.foco.app"
         const val HOUR = 3_600_000L
         const val ARROW_TO_OLDER = "‹"
+        const val SEED_TIMEOUT_MILLIS = 5_000L
         val emptyDay = DayData(sessions = emptyList(), unlockTimes = emptyList())
     }
 }

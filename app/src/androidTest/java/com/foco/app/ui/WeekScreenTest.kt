@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
+import com.foco.app.clearTheHistoryDay
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.db.DailyAggregate
@@ -18,7 +19,6 @@ import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -182,22 +182,19 @@ class WeekScreenTest {
 
     @Test
     fun tappingAnAbsentBarOpensTheEmptyDayAndBackReturnsToTheWeek() {
+        // The oldest day of the window is cleared, so the store holds nothing for it and the bar is
+        // absent by construction: the test does not depend on what the device remembers.
+        val absent = today.minusDays(6)
+        clearTheHistoryDay(absent)
+
         showApp()
         openWeek()
 
-        val stored = storedWeek().map { it.day }.toSet()
-        val absent =
-            (1..6)
-                .map { today.minusDays(it.toLong()) }
-                .firstOrNull { it.toString() !in stored }
-        assumeTrue("the device already stores every day in the window", absent != null)
-
-        val day = absent!!
-        val description = string(R.string.week_bar_absent, dayLabel(day))
+        val description = string(R.string.week_bar_absent, dayLabel(absent))
         awaitDescription(description)
         composeRule.onNodeWithContentDescription(description).performClick()
 
-        awaitText(dayLabel(day))
+        awaitText(dayLabel(absent))
         awaitText(string(R.string.day_empty))
 
         composeRule.runOnUiThread {

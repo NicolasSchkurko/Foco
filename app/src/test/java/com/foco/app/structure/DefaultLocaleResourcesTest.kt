@@ -43,9 +43,9 @@ class DefaultLocaleResourcesTest {
         assertEquals("the base must be English", "Settings", base["settings_title"])
         assertEquals("the base must be English", "Today", base["dashboard_title"])
 
-        assertEquals("Español must resolve from the es resources", "Oscuro", spanish["settings_option_dark"])
-        assertEquals("Español must resolve from the es resources", "Ajustes", spanish["settings_title"])
-        assertEquals("Español must resolve from the es resources", "Hoy", spanish["dashboard_title"])
+        assertEquals("Spanish must resolve from the es resources", "Oscuro", spanish["settings_option_dark"])
+        assertEquals("Spanish must resolve from the es resources", "Ajustes", spanish["settings_title"])
+        assertEquals("Spanish must resolve from the es resources", "Hoy", spanish["dashboard_title"])
     }
 
     @Test

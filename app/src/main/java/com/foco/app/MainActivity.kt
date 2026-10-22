@@ -41,26 +41,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val settings = SettingsStore(applicationContext)
-        // One-shot DataStore read at startup: the migration runs first
-        // (once), the language is applied and the appearance reaches the theme before
-        // the first frame. The value read seeds the Compose state.
-        val storedAppearance =
-            runBlocking {
-                withStartupTimeout(
-                    timeoutMillis = STARTUP_TIMEOUT_MILLIS,
-                    fallback = {
-                        Log.w(TAG, "Settings startup timed out or failed; using defaults")
-                        AppearanceOption.AUTO
-                    },
-                ) {
-                    migrateSettingsFromLegacyDataStore(applicationContext)
-                    AppLanguage.applyToSystem(settings.language.first())
-                    settings.appearance.first().also { AppAppearance.applyToSystem(it) }
-                }
-            }
+        val storedAppearance = loadTheStartupSettings(settings)
 
         enableEdgeToEdge()
-        ConsolidationScheduler.schedule(applicationContext)
+        scheduleTheNightlyConsolidation()
         setContent {
             val appearance by settings.appearance.collectAsState(initial = storedAppearance)
             // Picking another appearance in Settings reaches here and applies at once;
@@ -80,8 +64,49 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // The monitor starts only with a limit and accessibility; this also covers enabling
-        // accessibility in Settings and coming back.
+        syncTheLimitMonitor()
+    }
+
+    /**
+     * The bounded startup read: the legacy store is migrated, the language is applied and the
+     * appearance reaches the theme before the first frame.
+     */
+    private fun loadTheStartupSettings(settings: SettingsStore): AppearanceOption {
+        // One-shot DataStore read at startup: the migration runs first
+        // (once), the language is applied and the appearance reaches the theme before
+        // the first frame. The value read seeds the Compose state.
+        return runBlocking {
+            withStartupTimeout(
+                timeoutMillis = STARTUP_TIMEOUT_MILLIS,
+                fallback = {
+                    Log.w(TAG, "Settings startup timed out or failed; using defaults")
+                    AppearanceOption.AUTO
+                },
+            ) {
+                migrateSettingsFromLegacyDataStore(applicationContext)
+                applyTheLanguage(settings)
+                applyTheAppearance(settings)
+            }
+        }
+    }
+
+    /** The system's locale list follows the language the user picked. */
+    private suspend fun applyTheLanguage(settings: SettingsStore) {
+        AppLanguage.applyToSystem(settings.language.first())
+    }
+
+    /** The appearance reaches the theme and the window backdrop; the value read seeds the state. */
+    private suspend fun applyTheAppearance(settings: SettingsStore): AppearanceOption =
+        settings.appearance.first().also { AppAppearance.applyToSystem(it) }
+
+    /** The nightly consolidation job; WorkManager keeps it across the starts. */
+    private fun scheduleTheNightlyConsolidation() {
+        ConsolidationScheduler.schedule(applicationContext)
+    }
+
+    /** The monitor starts only with a limit and accessibility; this also covers enabling
+     *  accessibility in Settings and coming back. */
+    private fun syncTheLimitMonitor() {
         UsageMonitorService.sync(applicationContext)
     }
 }

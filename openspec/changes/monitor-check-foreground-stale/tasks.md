@@ -2,16 +2,12 @@
 
 ## Riskiest test first:
 
-- [ ] 1. `UsageMonitorService.checkOnce()`: re-evaluate `currentPackage` in the ticker before
-  `evaluateLimitCheck`:
-  - Keep `packageName = ForegroundApp.currentPackage()` (it is already correct).
-  - If `packageName != current` (the `foreground.current` recorded at the start of the check), return
-    early.
-  - Fix: move the `packageName` read to the beginning, next to `if (!store.hasAnyLimitOrWindow())`.
-  - Add a test in `app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt` that covers the case
-    where the user switches apps between the first read and the evaluation.
-  - The test must capture the proper events (`UsageStats`, `ForegroundApp`, etc.) to simulate the app
-    switch.
+- [ ] 1. `UsageMonitorService.checkOnce()`: re-evaluate `currentPackage` in the ticker before `evaluateLimitCheck`:
+  - Keep `packageName = ForegroundApp.currentPackage()` (that part is already correct).
+  - If `packageName != current` (the `foreground.current` read at the start of the check), return early.
+  - Fix: move the read of `packageName` to the beginning, next to `if (!store.hasAnyLimitOrWindow())`.
+  - Add a test in `app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt` that covers the case where the user switches apps between the first read and the evaluation.
+  - The test must capture the right events (`UsageStats`, `ForegroundApp`, etc.) to simulate the app switch.
 - [ ] 2. Add `monitor-check-foreground-stale` to `.openspec.yaml`:
   - `x-kind: fix`
   - `x-targets` to `app/src/main/java/com/foco/app/data/UsageMonitorService.kt`
@@ -19,19 +15,19 @@
   - `x-tech_brief: true` (if `walkthrough.md` is needed)
 - [ ] 3. Unify `walkthrough.md` if needed (the change is very small).
 - [ ] 4. Run `gradlew.bat test` and `gradlew.bat ktlintCheck`; everything green.
-- [ ] 5. `--pre-archive`, `archive`, register the board, the human approval for `walkthrough.md`.
+- [ ] 5. `--pre-archive`, `archive`, record the board, the human approval for `walkthrough.md`.
 
 ## Ideas
 
 - The code that re-evaluates `currentPackage` before blocking is minimal, but important.
-- `usedSeconds` is only re-evaluated when the package matches.
+- Re-evaluate `usedSeconds` only when the package matches.
 - Validation plan: CI on every change.
 
 ## Decision
 
-- Add `x-deps: []` (it is not needed).
+- Add `x-deps: []` (not needed).
 - If `tech_brief` is enabled, add `walkthrough.md`.
-- Make sure `gate-check --run-tests` adds the test as an `[@test]`.
+- Make sure the `gate-check --run-tests` adds the test as an `[@test]`.
 
 ## Dependencies
 
@@ -39,18 +35,18 @@
 
 ## Steps
 
-1. Modify `UsageMonitorService.kt` to re-evaluate the current package.
-2. Add the test or try the changes.
+1. Change `UsageMonitorService.kt` to re-evaluate the current package.
+2. Add the test or check the changes.
 3. Run CI.
 4. Complete `walkthrough.md` if needed.
 5. Process `/spec-triage` and `--pre-archive`.
 
-## To-do list
+## Pending list
 
-- [ ] Modify `UsageMonitorService.kt`.
-- [ ] Add a unit test.
+- [ ] Change `UsageMonitorService.kt`.
+- [ ] Add the unit test.
 - [ ] Run the tests.
-- [ ] Verify CI.
+- [ ] Check CI.
 - [ ] Add `walkthrough.md` (if needed).
 - [ ] Update `DECISIONS.md`.
 
@@ -64,13 +60,13 @@
 
 ## Checklist
 
-- [ ] Modify `UsageMonitorService.kt`.
+- [ ] Change `UsageMonitorService.kt`.
 - [ ] Add the test and the validations.
 - [ ] Run CI and the tests.
 - [ ] Add `walkthrough.md` if needed.
 - [ ] Generate `BOARD.md` and `DECISIONS.md`.
 
-## Riskiest first vertical slice
+## Riskiest First Vertical Slice
 
 - [ ] 1. Re-evaluate the package in the ticker (the crucial change).
 - [ ] 2. Make sure the tests hold.
@@ -79,7 +75,7 @@
 
 ## Tasks
 
-- [ ] Prepare the modification script.
+- [ ] Prepare the change script.
 - [ ] Prepare the test.
 - [ ] Make sure the CI verification holds.
 - [ ] Validate the approval.

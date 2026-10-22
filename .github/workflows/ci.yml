@@ -40,3 +40,7 @@ jobs:
       - run: ./gradlew test
 
       - run: ./gradlew ktlintCheck
+
+      # The Spec Growth gate: the living contract, the changes in flight and the code cannot
+      # drift unnoticed. It is dependency-free Node, already on the runner.
+      - run: node scripts/gates/gate-check.mjs
