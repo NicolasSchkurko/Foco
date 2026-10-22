@@ -61,5 +61,5 @@ object AppLimitRules {
     ): Long =
         sessions
             .filter { it.packageName == packageName }
-            .sumOf { ((it.end - it.start).coerceAtLeast(0L)) / 1_000L }
+            .sumOf { (it.end - it.start).coerceAtLeast(0L) } / 1_000L
 }

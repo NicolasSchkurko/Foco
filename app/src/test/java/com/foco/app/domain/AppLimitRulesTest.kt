@@ -54,6 +54,17 @@ class AppLimitRulesTest {
     }
 
     @Test
+    fun `sub-second sessions are not truncated away`() {
+        val sessions =
+            listOf(
+                UsageSession("instagram", 0, 1_500L),
+                UsageSession("instagram", 2_000L, 3_500L),
+            )
+
+        assertEquals(3L, AppLimitRules.usedSeconds(sessions, "instagram"))
+    }
+
+    @Test
     fun `the picker offers zero and 15-minute steps up to 24 hours`() {
         val options = AppLimitRules.options()
 
