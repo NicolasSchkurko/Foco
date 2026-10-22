@@ -9,7 +9,6 @@ x-targets:
   - app/src/main/java/com/foco/app/ui/common/LimitsQuickAdjust.kt
   - app/src/main/java/com/foco/app/ui/detail/AppAppSettingsScreen.kt
   - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
-  - app/src/main/java/com/foco/app/ui/detail/AppLimitEditor.kt
   - app/src/main/java/com/foco/app/ui/settings/SettingsScreen.kt
   - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
   - app/src/main/java/com/foco/app/ui/FocoNavHost.kt

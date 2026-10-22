@@ -9,5 +9,6 @@ x-targets:
   - app/src/main/java/com/foco/app/data/UsageMonitorService.kt
 x-tests:
   - app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt
+  - app/src/androidTest/java/com/foco/app/data/UsageMonitorServiceTest.kt
 x-deps: []
 x-open_decisions: []
