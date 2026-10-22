@@ -98,8 +98,7 @@ class AppDetailLimitsTest {
 
     @Test fun theDayArrowsCarryADescription() {
         val stored = storedDayAndPackage()
-        assumeTrue("the device stores no finished day", stored != null)
-        val day = stored!!.first
+        val day = stored.first
         val pkg = stored.second
         compose.setContent {
             MaterialTheme { AppDetailScreen(packageName = pkg, date = day) }

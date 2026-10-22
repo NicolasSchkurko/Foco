@@ -150,6 +150,7 @@ fun LimitsQuickAdjust(
             while (true) {
                 val down = awaitPointerEvent(PointerEventPass.Initial)
                 if (!down.changes.any { it.changedToDown() }) continue
+                press.begin()
                 val longPress =
                     scope.launch {
                         delay(viewConfiguration.longPressTimeoutMillis)
@@ -161,6 +162,11 @@ fun LimitsQuickAdjust(
                 }
                 longPress.cancel()
                 press.stopRepeat()
+                // A short press steps once; a held press already repeated.
+                if (press.gestureSteps == 0) {
+                    currentApplyDelta(delta)
+                    press.gestureSteps++
+                }
             }
         }
     }
