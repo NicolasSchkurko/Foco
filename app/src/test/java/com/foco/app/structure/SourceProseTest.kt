@@ -13,13 +13,14 @@ import kotlin.io.path.createTempDirectory
 class SourceProseTest {
     private val commentLine = Regex("""^\s*(//|/\*|\*|<!--)""")
 
-    private val spanishMarker = Regex(
-        "[áéíóúüñ¿¡«»]|\\b(el|la|los|las|una|unos|unas|del|al|que|para|como|cuando|desde|hasta|más|sólo|" +
-            "también|hay|tiene|tienen|está|están|sus|pero|porque|donde|todo|toda|otro|otra|mismo|misma|cada|" +
-            "vez|día|días|apariencia|idioma|ajustes|oscuro|claro|usuario|pantalla|archivo|sesión|datos|" +
-            "sólo|así|acá|después|antes|nunca|siempre)\\b",
-        RegexOption.IGNORE_CASE,
-    )
+    private val spanishMarker =
+        Regex(
+            "[áéíóúüñ¿¡«»]|\\b(el|la|los|las|una|unos|unas|del|al|que|para|como|cuando|desde|hasta|más|sólo|" +
+                "también|hay|tiene|tienen|está|están|sus|pero|porque|donde|todo|toda|otro|otra|mismo|misma|cada|" +
+                "vez|día|días|apariencia|idioma|ajustes|oscuro|claro|usuario|pantalla|archivo|sesión|datos|" +
+                "sólo|así|acá|después|antes|nunca|siempre)\\b",
+            RegexOption.IGNORE_CASE,
+        )
 
     @Test
     fun sourceCommentsAreEnglish() {

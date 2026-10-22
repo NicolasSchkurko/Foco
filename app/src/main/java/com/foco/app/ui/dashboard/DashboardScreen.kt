@@ -53,9 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -74,7 +72,6 @@ import com.foco.app.data.MotionScale
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.data.WeekExportService
-import com.foco.app.ui.common.swipeThroughPositions
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.domain.DayStop
 import com.foco.app.domain.dayRing
@@ -89,6 +86,7 @@ import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.WeekContent
 import com.foco.app.ui.common.readOr
 import com.foco.app.ui.common.rememberCurrentDate
+import com.foco.app.ui.common.swipeThroughPositions
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
@@ -319,9 +317,10 @@ fun DashboardScreen(
                 }
             val subtitle =
                 if (shownDay != null && shownMetrics != null) {
-                    val unlocksPart = shownDay.unlocks?.let { count ->
-                        pluralStringResource(R.plurals.dashboard_unlocks, count, count)
-                    }
+                    val unlocksPart =
+                        shownDay.unlocks?.let { count ->
+                            pluralStringResource(R.plurals.dashboard_unlocks, count, count)
+                        }
                     if (unlocksPart != null) {
                         stringResource(
                             R.string.dashboard_usage_line,

@@ -10,7 +10,6 @@ import org.junit.Test
 
 /** Cancellation travels through the read helpers unchanged; it never becomes the fallback value. */
 class ReadOrTest {
-
     @Test
     fun cancellationMidStreamPropagates() {
         val stream: Flow<Int> = flow<Int> { throw CancellationException("collect cancelled") }.readOr(-1)

@@ -15,10 +15,22 @@ class AppLimitWindowRulesTest {
     private val day = LocalDate.of(2026, 10, 20)
 
     private fun at(time: String): Long =
-        day.atTime(LocalTime.parse(time)).atZone(zone).toInstant().toEpochMilli()
+        day
+            .atTime(LocalTime.parse(time))
+            .atZone(zone)
+            .toInstant()
+            .toEpochMilli()
 
-    private fun at(zone: ZoneId, date: LocalDate, time: String): Long =
-        date.atTime(LocalTime.parse(time)).atZone(zone).toInstant().toEpochMilli()
+    private fun at(
+        zone: ZoneId,
+        date: LocalDate,
+        time: String,
+    ): Long =
+        date
+            .atTime(LocalTime.parse(time))
+            .atZone(zone)
+            .toInstant()
+            .toEpochMilli()
 
     private fun session(
         from: String,
@@ -144,13 +156,22 @@ class AppLimitWindowRulesTest {
         val ny = ZoneId.of("America/New_York")
         val d = LocalDate.of(2026, 3, 8) // clocks jump 02:00→03:00
         val w = AppWindow(0, 360) // 00:00–06:00 local
-        assertEquals(60 * 60_000L,
+        assertEquals(
+            60 * 60_000L,
             AppLimitWindowRules.inWindowMillis(
-                UsageSession("x", at(ny, d, "05:00"), at(ny, d, "08:00")), w, ny))
-        assertEquals(at(ny, d, "06:00"),
-            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "05:00"), w, ny))
-        assertNotEquals(at(ny, d, "07:00"),
-            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "05:00"), w, ny))
+                UsageSession("x", at(ny, d, "05:00"), at(ny, d, "08:00")),
+                w,
+                ny,
+            ),
+        )
+        assertEquals(
+            at(ny, d, "06:00"),
+            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "05:00"), w, ny),
+        )
+        assertNotEquals(
+            at(ny, d, "07:00"),
+            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "05:00"), w, ny),
+        )
     }
 
     @Test
@@ -158,11 +179,18 @@ class AppLimitWindowRulesTest {
         val ny = ZoneId.of("America/New_York")
         val d = LocalDate.of(2026, 3, 8)
         val w = AppWindow(120, 240) // 02:00–04:00
-        assertEquals(at(ny, d, "03:00"),
-            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "00:30"), w, ny))
-        assertEquals(60 * 60_000L,
+        assertEquals(
+            at(ny, d, "03:00"),
+            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "00:30"), w, ny),
+        )
+        assertEquals(
+            60 * 60_000L,
             AppLimitWindowRules.inWindowMillis(
-                UsageSession("x", at(ny, d, "03:00"), at(ny, d, "06:00")), w, ny))
+                UsageSession("x", at(ny, d, "03:00"), at(ny, d, "06:00")),
+                w,
+                ny,
+            ),
+        )
     }
 
     @Test
@@ -172,11 +200,18 @@ class AppLimitWindowRulesTest {
         val w = AppWindow(60, 120)
         val first0130 = at(ny, d, "01:30")
         val second0130 = first0130 + 60 * 60_000L
-        assertEquals(60 * 60_000L,
+        assertEquals(
+            60 * 60_000L,
             AppLimitWindowRules.inWindowMillis(
-                UsageSession("x", first0130, second0130), w, ny))
-        assertEquals(at(ny, d, "02:00"),
-            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "01:30"), w, ny))
+                UsageSession("x", first0130, second0130),
+                w,
+                ny,
+            ),
+        )
+        assertEquals(
+            at(ny, d, "02:00"),
+            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "01:30"), w, ny),
+        )
     }
 
     @Test
@@ -184,12 +219,21 @@ class AppLimitWindowRulesTest {
         val ny = ZoneId.of("America/New_York")
         val d = LocalDate.of(2026, 10, 20)
         val w = AppWindow(9 * 60, 23 * 60)
-        assertEquals(60 * 60_000L,
+        assertEquals(
+            60 * 60_000L,
             AppLimitWindowRules.inWindowMillis(
-                UsageSession("x", at(ny, d, "08:00"), at(ny, d, "10:00")), w, ny))
-        assertEquals(at(ny, d, "23:00"),
-            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "10:00"), w, ny))
-        assertEquals(at(ny, d, "09:00"),
-            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "08:00"), w, ny))
+                UsageSession("x", at(ny, d, "08:00"), at(ny, d, "10:00")),
+                w,
+                ny,
+            ),
+        )
+        assertEquals(
+            at(ny, d, "23:00"),
+            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "10:00"), w, ny),
+        )
+        assertEquals(
+            at(ny, d, "09:00"),
+            AppLimitWindowRules.nextBoundaryMillis(at(ny, d, "08:00"), w, ny),
+        )
     }
 }

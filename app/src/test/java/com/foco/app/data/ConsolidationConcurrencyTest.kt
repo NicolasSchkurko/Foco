@@ -1,8 +1,8 @@
 package com.foco.app.data
 
 import com.foco.app.domain.ConsolidationOutcome
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin

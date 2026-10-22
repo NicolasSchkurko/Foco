@@ -1,12 +1,11 @@
 package com.foco.app.ui
 
-import java.time.LocalDate
-import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.LocalDate
+import java.util.Locale
 
 class FormattingTest {
-
     @Test
     fun englishAppLocaleOnSpanishDeviceGivesEnglishLabels() {
         val d = LocalDate.of(2026, 10, 21)

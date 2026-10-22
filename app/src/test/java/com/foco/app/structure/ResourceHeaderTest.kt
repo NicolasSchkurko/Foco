@@ -12,12 +12,13 @@ import kotlin.io.path.createTempDirectory
  */
 class ResourceHeaderTest {
     /** Declared resource files for this tripwire; checked exactly once. */
-    private val declared = mapOf(
-        "com/foco/app/data/AppLanguage" to File("src/main/java/com/foco/app/data/AppLanguage.kt"),
-        "com/foco/app/data/MotionScale" to File("src/main/java/com/foco/app/data/MotionScale.kt"),
-        "com/foco/app/data/UsageAccess" to File("src/main/java/com/foco/app/data/UsageAccess.kt"),
-        "com/foco/app/data/SettingsMigration" to File("src/main/java/com/foco/app/data/SettingsMigration.kt"),
-    )
+    private val declared =
+        mapOf(
+            "com/foco/app/data/AppLanguage" to File("src/main/java/com/foco/app/data/AppLanguage.kt"),
+            "com/foco/app/data/MotionScale" to File("src/main/java/com/foco/app/data/MotionScale.kt"),
+            "com/foco/app/data/UsageAccess" to File("src/main/java/com/foco/app/data/UsageAccess.kt"),
+            "com/foco/app/data/SettingsMigration" to File("src/main/java/com/foco/app/data/SettingsMigration.kt"),
+        )
 
     /** The header block: the first comment block of the file, up to the 4-line budget. */
     private fun headerLines(file: File): List<String> {
@@ -42,11 +43,16 @@ class ResourceHeaderTest {
     /** A line names the physical resource, the place or the lifecycle. */
     private fun namesResource(line: String): Boolean {
         val text = line.lowercase()
-        return text.contains("resource") || text.contains("store") ||
-            text.contains("lifecycle") || text.contains("database") ||
-            text.contains("local") || text.contains("system") ||
-            text.contains("device") || text.contains("database") ||
-            text.contains("file") || text.contains("prefs")
+        return text.contains("resource") ||
+            text.contains("store") ||
+            text.contains("lifecycle") ||
+            text.contains("database") ||
+            text.contains("local") ||
+            text.contains("system") ||
+            text.contains("device") ||
+            text.contains("database") ||
+            text.contains("file") ||
+            text.contains("prefs")
     }
 
     @Test

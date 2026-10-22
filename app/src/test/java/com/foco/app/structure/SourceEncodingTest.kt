@@ -15,11 +15,12 @@ class SourceEncodingTest {
         val sources =
             root
                 .walkTopDown()
-                .filter { it.isFile && it.extension in setOf("kt", "xml") &&
-                    !it.path.contains("build/") &&
-                    !it.path.contains("SourceEncodingTest")
-                }
-                .toList()
+                .filter {
+                    it.isFile &&
+                        it.extension in setOf("kt", "xml") &&
+                        !it.path.contains("build/") &&
+                        !it.path.contains("SourceEncodingTest")
+                }.toList()
         val markdown =
             root
                 .walkTopDown()
@@ -28,8 +29,7 @@ class SourceEncodingTest {
                         it.extension == "md" &&
                         !it.path.contains("build/") &&
                         !it.path.contains(".git/")
-                }
-                .toList()
+                }.toList()
         return sources + markdown
     }
 

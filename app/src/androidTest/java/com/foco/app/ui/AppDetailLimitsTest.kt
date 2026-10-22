@@ -8,7 +8,6 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
@@ -147,7 +146,11 @@ class AppDetailLimitsTest {
         // A swipe right walks to the previous day, the way the home's ring walks its positions.
         // The touch injection is not always delivered on the first try: swipe until the day moves.
         val shown = {
-            compose.onNodeWithTag(DAY_LABEL_TAG).fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(" ")
+            compose
+                .onNodeWithTag(DAY_LABEL_TAG)
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.Text]
+                .joinToString(" ")
         }
         val before = shown()
         var moved = false
@@ -170,12 +173,18 @@ class AppDetailLimitsTest {
         compose.setContent { MaterialTheme { AppDetailScreen(packageName = pkg) } }
         // The window grew when the arrow to an older day turned on.
         compose.waitUntil(timeoutMillis = 10_000) {
-            compose.onAllNodesWithText(ARROW_TO_OLDER).fetchSemanticsNodes()
+            compose
+                .onAllNodesWithText(ARROW_TO_OLDER)
+                .fetchSemanticsNodes()
                 .any { SemanticsProperties.Disabled !in it.config }
         }
 
         val shown = {
-            compose.onNodeWithTag(DAY_LABEL_TAG).fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(" ")
+            compose
+                .onNodeWithTag(DAY_LABEL_TAG)
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.Text]
+                .joinToString(" ")
         }
         val before = shown()
         var moved = false

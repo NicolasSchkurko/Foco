@@ -2,6 +2,7 @@ package com.foco.app.ui
 
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.filterToOne
@@ -9,13 +10,10 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.longClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
 import com.foco.app.data.AppLimitsStore
@@ -41,8 +39,10 @@ class LimitsQuickAdjustTest {
     private val packageName = "com.example.quick"
 
     /** The strings of the activity: the per-app locale wins over the device one. */
-    private fun appString(resId: Int, vararg args: Any): String =
-        compose.activity.resources.getString(resId, *args)
+    private fun appString(
+        resId: Int,
+        vararg args: Any,
+    ): String = compose.activity.resources.getString(resId, *args)
 
     @Before
     fun clean() {
@@ -186,14 +186,19 @@ class LimitsQuickAdjustTest {
 
     /** The clock label of the given hour, in the system time format. */
     private fun timeLabel(hour: Int): String =
-        if (android.text.format.DateFormat.is24HourFormat(targetContext)) {
+        if (android.text.format.DateFormat
+                .is24HourFormat(targetContext)
+        ) {
             String.format(java.util.Locale.ROOT, "%02d:00", hour)
         } else {
-            val cal = java.util.Calendar.getInstance().apply {
-                set(java.util.Calendar.HOUR_OF_DAY, hour)
-                set(java.util.Calendar.MINUTE, 0)
-            }
-            android.text.format.DateFormat.getTimeFormat(targetContext).format(cal.time)
+            val cal =
+                java.util.Calendar.getInstance().apply {
+                    set(java.util.Calendar.HOUR_OF_DAY, hour)
+                    set(java.util.Calendar.MINUTE, 0)
+                }
+            android.text.format.DateFormat
+                .getTimeFormat(targetContext)
+                .format(cal.time)
         }
 
     @Test

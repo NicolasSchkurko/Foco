@@ -33,33 +33,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.foco.app.R
 import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DaySource
 import com.foco.app.domain.availableDays
+import com.foco.app.domain.daySource
 import com.foco.app.domain.reclampDayIndex
 import com.foco.app.domain.stepCyclicIndex
-import com.foco.app.domain.daySource
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.common.ScreenHeader
-import com.foco.app.ui.common.swipeThroughPositions
 import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.common.readOr
 import com.foco.app.ui.common.rememberCurrentDate
+import com.foco.app.ui.common.swipeThroughPositions
 import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
@@ -145,6 +145,7 @@ fun AppDetailScreen(
     // reclamped: the same DAY when it is still offered, the nearest valid one otherwise. The
     // resolution is by date, never by the old index, which may point at another day.
     val windowChanged = selectedWindow != days
+
     fun resolveSelection(): Int {
         val pending = requested?.let { day -> days.indexOf(day).takeIf { it >= 0 } }
         if (pending != null) return pending
@@ -198,9 +199,10 @@ fun AppDetailScreen(
     LaunchedEffect(days, storedDays, savedSelectedDate) {
         val saved = savedSelectedDate?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() } ?: return@LaunchedEffect
         if (storedDays == null) return@LaunchedEffect
-        val idx = days.indexOf(saved).takeIf { it >= 0 }
-            ?: days.minByOrNull { kotlin.math.abs(ChronoUnit.DAYS.between(it, saved)) }?.let { days.indexOf(it) }
-            ?: 0
+        val idx =
+            days.indexOf(saved).takeIf { it >= 0 }
+                ?: days.minByOrNull { kotlin.math.abs(ChronoUnit.DAYS.between(it, saved)) }?.let { days.indexOf(it) }
+                ?: 0
         if (selectedIndex != idx) selectedIndex = idx
     }
 
@@ -346,62 +348,61 @@ fun AppDetailScreen(
                                             onClickLabel = openLimitsLabel,
                                             role = Role.Button,
                                             onClick = onConfigure,
-                                        )
-                                        .padding(vertical = 4.dp)
+                                        ).padding(vertical = 4.dp)
                                         .testTag(LIMITS_PREVIEW_TAG),
                             ) {
-                            // Preview: limit / window / alert for this app
-                            Text(
-                                text = stringResource(R.string.detail_limits_section),
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            val none = stringResource(R.string.settings_limit_none)
-                            val blockNow = stringResource(R.string.settings_limit_block_now)
-                            val minutes = limits[packageName]
-                            val window = windows[packageName]
-                            val alertOn = alerts[packageName] == true
-                            val preview =
-                                listOf(
-                                    stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes, none, blockNow),
-                                    stringResource(R.string.settings_window_label) to
-                                        (
-                                            if (window ==
-                                                null
-                                            ) {
-                                                stringResource(R.string.settings_window_none)
-                                            } else {
-                                                stringResource(
-                                                    R.string.settings_window_range,
-                                                    previewClockLabel(window.startMinute),
-                                                    previewClockLabel(window.endMinute),
-                                                )
-                                            }
-                                        ),
-                                    stringResource(R.string.detail_limits_alerts_label) to
-                                        (
-                                            if (alertOn) {
-                                                stringResource(
-                                                    R.string.detail_limits_alerts_on,
-                                                )
-                                            } else {
-                                                stringResource(R.string.detail_limits_alerts_off)
-                                            }
-                                        ),
+                                // Preview: limit / window / alert for this app
+                                Text(
+                                    text = stringResource(R.string.detail_limits_section),
+                                    style = MaterialTheme.typography.titleMedium,
                                 )
-                            preview.forEach { (label, value) ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    Text(
-                                        text = label,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                Spacer(Modifier.height(4.dp))
+                                val none = stringResource(R.string.settings_limit_none)
+                                val blockNow = stringResource(R.string.settings_limit_block_now)
+                                val minutes = limits[packageName]
+                                val window = windows[packageName]
+                                val alertOn = alerts[packageName] == true
+                                val preview =
+                                    listOf(
+                                        stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes, none, blockNow),
+                                        stringResource(R.string.settings_window_label) to
+                                            (
+                                                if (window ==
+                                                    null
+                                                ) {
+                                                    stringResource(R.string.settings_window_none)
+                                                } else {
+                                                    stringResource(
+                                                        R.string.settings_window_range,
+                                                        previewClockLabel(window.startMinute),
+                                                        previewClockLabel(window.endMinute),
+                                                    )
+                                                }
+                                            ),
+                                        stringResource(R.string.detail_limits_alerts_label) to
+                                            (
+                                                if (alertOn) {
+                                                    stringResource(
+                                                        R.string.detail_limits_alerts_on,
+                                                    )
+                                                } else {
+                                                    stringResource(R.string.detail_limits_alerts_off)
+                                                }
+                                            ),
                                     )
-                                    Text(text = value, style = MaterialTheme.typography.bodyMedium)
+                                preview.forEach { (label, value) ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(text = value, style = MaterialTheme.typography.bodyMedium)
+                                    }
                                 }
-                            }
                             }
                             Spacer(Modifier.height(16.dp))
 

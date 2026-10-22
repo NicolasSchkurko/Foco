@@ -26,19 +26,22 @@ fun formatTimeOfDay(
 
 /** The app's active language — the locale its strings resolve in. */
 fun appLocale(): Locale {
-    val requested = try {
-        val locales = AppCompatDelegate.getApplicationLocales()
-        if (!locales.isEmpty) locales.get(0) ?: Locale.getDefault() else Locale.getDefault()
-    } catch (_: Throwable) {
-        Locale.getDefault()
-    }
+    val requested =
+        try {
+            val locales = AppCompatDelegate.getApplicationLocales()
+            if (!locales.isEmpty) locales.get(0) ?: Locale.getDefault() else Locale.getDefault()
+        } catch (_: Throwable) {
+            Locale.getDefault()
+        }
     val shipped = LanguageOption.entries.filter { it != LanguageOption.AUTO }.map { it.wire }
     return if (requested.language in shipped) Locale.forLanguageTag(requested.language) else Locale.ENGLISH
 }
 
 /** The week bar's label: the app language's short weekday (e.g. Mon / lun). */
-fun formatWeekday(date: LocalDate, locale: Locale = appLocale()): String =
-    DateTimeFormatter.ofPattern("EEE", locale).format(date)
+fun formatWeekday(
+    date: LocalDate,
+    locale: Locale = appLocale(),
+): String = DateTimeFormatter.ofPattern("EEE", locale).format(date)
 
 /**
  * Day selector label: today/yesterday use the active language's; the rest, the abbreviated date

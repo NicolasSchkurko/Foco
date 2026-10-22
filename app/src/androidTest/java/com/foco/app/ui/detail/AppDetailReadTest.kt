@@ -64,10 +64,11 @@ class AppDetailReadTest {
     @Test
     fun cancellationExceptionInFlowPropagates() {
         var propagated = false
-        val failing = flow<Set<LocalDate>> {
-            emit(setOf(LocalDate.of(2026, 10, 18)))
-            throw CancellationException("cancelled")
-        }
+        val failing =
+            flow<Set<LocalDate>> {
+                emit(setOf(LocalDate.of(2026, 10, 18)))
+                throw CancellationException("cancelled")
+            }
         try {
             runBlocking {
                 failing.readOr(emptySet<LocalDate>()).toList()

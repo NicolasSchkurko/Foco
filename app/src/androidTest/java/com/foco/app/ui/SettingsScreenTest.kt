@@ -1,12 +1,10 @@
 package com.foco.app.ui
 
 import android.content.Intent
-import android.text.format.DateFormat
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
@@ -25,7 +23,6 @@ import com.foco.app.MainActivity
 import com.foco.app.data.AppAppearance
 import com.foco.app.data.AppIdentity
 import com.foco.app.data.AppLanguage
-import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.ExcludedAppsStore
 import com.foco.app.data.SettingsStore
 import com.foco.app.model.AppearanceOption

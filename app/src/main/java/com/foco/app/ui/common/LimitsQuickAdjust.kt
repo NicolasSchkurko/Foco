@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
@@ -109,17 +108,19 @@ fun LimitsQuickAdjust(
     }
 
     var repeatJob by remember { mutableStateOf<Job?>(null) }
+
     fun startRepeat(delta: Int) {
         repeatJob?.cancel()
-        repeatJob = scope.launch {
-            var wait = 400L
-            while (true) {
-                delay(wait)
-                applyDelta(delta)
-                // The longer it is held, the faster it repeats.
-                wait = (wait - 50L).coerceAtLeast(100L)
+        repeatJob =
+            scope.launch {
+                var wait = 400L
+                while (true) {
+                    delay(wait)
+                    applyDelta(delta)
+                    // The longer it is held, the faster it repeats.
+                    wait = (wait - 50L).coerceAtLeast(100L)
+                }
             }
-        }
     }
 
     // A tap steps once; a press held past the long-press threshold repeats while it is held.
