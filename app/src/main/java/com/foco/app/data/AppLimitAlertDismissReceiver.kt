@@ -5,7 +5,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 
-/** The Entendido action: removes the alert notification and changes nothing else. */
+/**
+ * The Entendido action: removes the alert notification and changes nothing else. Resource: the
+ * system notification shade; lives as long as the app.
+ */
 class AppLimitAlertDismissReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
