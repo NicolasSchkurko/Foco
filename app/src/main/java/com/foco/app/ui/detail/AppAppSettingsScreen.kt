@@ -1,7 +1,6 @@
 package com.foco.app.ui.detail
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.foco.app.R
 import com.foco.app.data.AppLimitAlertNotifier
 import com.foco.app.data.AppLimitsStore
+import com.foco.app.data.NotificationPermission
 import com.foco.app.data.UsageMonitorService
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.LimitAlertsToggle
@@ -76,10 +75,7 @@ fun AppAppSettingsScreen(
         }
 
     fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !NotificationPermission.isGranted(context)) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
@@ -127,27 +123,27 @@ fun AppAppSettingsScreen(
                 Spacer(Modifier.height(8.dp))
 
                 LimitsQuickAdjust(
-                    store = limitsStore,
-                    packageName = packageName,
-                    onLimitChange = { pkg, picked ->
+                    limit = minutes,
+                    window = window,
+                    onLimitChange = { picked ->
                         scope.launch {
                             if (picked == null) {
-                                limitsStore.clearLimit(pkg)
+                                limitsStore.clearLimit(packageName)
                             } else {
-                                limitsStore.setLimit(pkg, picked)
+                                limitsStore.setLimit(packageName, picked)
                             }
                             syncMonitor()
                         }
                     },
-                    onWindowChange = { pkg, start, end ->
+                    onWindowChange = { start, end ->
                         scope.launch {
-                            limitsStore.setWindow(pkg, start, end)
+                            limitsStore.setWindow(packageName, start, end)
                             syncMonitor()
                         }
                     },
-                    onWindowClear = { pkg ->
+                    onWindowClear = {
                         scope.launch {
-                            limitsStore.clearWindow(pkg)
+                            limitsStore.clearWindow(packageName)
                             syncMonitor()
                         }
                     },
