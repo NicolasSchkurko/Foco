@@ -30,12 +30,12 @@ import androidx.compose.ui.unit.dp
 import com.foco.app.R
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.day.DayData
-import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatWeekday
 import com.foco.app.ui.metrics.WeekDayBar
 import com.foco.app.ui.metrics.deriveWeekMetrics
 import java.time.LocalDate
+import java.util.Locale
 
 /**
  * The week as one home position: the bars and the ranking over the totals and the live day the home
@@ -60,25 +60,24 @@ fun WeekContent(
                 excludedPackages = excludedPackages,
             )
         }
+    // The locale and the day labels are read once for the whole week, not once per bar.
+    val locale = rememberAppLocale()
+    val dayLabel = rememberDayLabel(today, locale)
 
     Column(modifier = modifier.fillMaxSize()) {
-        WeekBars(bars = metrics.bars, today = today, onDayClick = onDayClick)
+        WeekBars(
+            bars = metrics.bars,
+            dayLabel = dayLabel,
+            locale = locale,
+            onDayClick = onDayClick,
+        )
         Spacer(Modifier.height(24.dp))
 
         if (metrics.ranking.isEmpty()) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.week_empty),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            EmptyState(
+                text = stringResource(R.string.week_empty),
+                modifier = Modifier.fillMaxWidth().weight(1f),
+            )
         } else {
             Text(
                 text = stringResource(R.string.dashboard_apps),
@@ -96,7 +95,7 @@ fun WeekContent(
                     AppUsageRow(
                         packageName = app.packageName,
                         millis = app.totalMillis,
-                        maxMillis = maxAppMillis,
+                        barReferenceMillis = maxAppMillis,
                         caption =
                             pluralStringResource(
                                 R.plurals.week_days_used,
@@ -116,7 +115,8 @@ fun WeekContent(
 @Composable
 private fun WeekBars(
     bars: List<WeekDayBar>,
-    today: LocalDate,
+    dayLabel: (LocalDate) -> String,
+    locale: Locale,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val maxMillis =
@@ -134,7 +134,8 @@ private fun WeekBars(
             WeekBar(
                 bar = bar,
                 maxMillis = maxMillis,
-                today = today,
+                dayLabel = dayLabel,
+                locale = locale,
                 onClick = { onDayClick(bar.date) },
             )
         }
@@ -149,21 +150,15 @@ private fun WeekBars(
 private fun WeekBar(
     bar: WeekDayBar,
     maxMillis: Long,
-    today: LocalDate,
+    dayLabel: (LocalDate) -> String,
+    locale: Locale,
     onClick: () -> Unit,
 ) {
-    val dayLabel =
-        formatDayLabel(
-            bar.date,
-            today,
-            stringResource(R.string.day_today),
-            stringResource(R.string.day_yesterday),
-        )
     val description =
         if (bar.state == WeekDayBar.State.Absent) {
-            stringResource(R.string.week_bar_absent, dayLabel)
+            stringResource(R.string.week_bar_absent, dayLabel(bar.date))
         } else {
-            stringResource(R.string.week_bar, dayLabel, formatDuration(bar.totalMillis))
+            stringResource(R.string.week_bar, dayLabel(bar.date), formatDuration(bar.totalMillis))
         }
     val absent = bar.state == WeekDayBar.State.Absent
     val fraction = if (maxMillis > 0) bar.totalMillis.toFloat() / maxMillis else 0f
@@ -200,7 +195,7 @@ private fun WeekBar(
         }
         Spacer(Modifier.height(4.dp))
         Text(
-            text = formatWeekday(bar.date),
+            text = formatWeekday(bar.date, locale),
             style = MaterialTheme.typography.labelSmall,
         )
         Text(

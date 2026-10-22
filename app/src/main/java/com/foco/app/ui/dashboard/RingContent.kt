@@ -6,12 +6,16 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
+import com.foco.app.ui.metrics.DayMetrics
+import com.foco.app.ui.metrics.deriveDayMetrics
+import java.time.ZoneId
 
 /** What one ring position renders once its data is ready; the home caches one entry per position. */
 sealed interface RingContent {
     data class Day(
         val data: DayData,
         val unlocks: Int?,
+        val metrics: DayMetrics,
     ) : RingContent
 
     data class Week(
@@ -62,7 +66,9 @@ val ringContentSaver: Saver<SnapshotStateMap<String, RingContent>, Any> =
                             } ?: emptyList()
                         val unlocks = (e.getOrNull(3) as? List<*>)?.mapNotNull { (it as? Number)?.toLong() } ?: emptyList()
                         val count = e.getOrNull(4) as? Int
-                        map[key] = RingContent.Day(DayData(sessions, unlocks), count)
+                        // The metrics are derived again on restore: they are not saved.
+                        val metrics = deriveDayMetrics(sessions, ZoneId.systemDefault())
+                        map[key] = RingContent.Day(DayData(sessions, unlocks), count, metrics)
                     }
                     "W" -> {
                         val key = e.getOrNull(1) as? String ?: return@forEach

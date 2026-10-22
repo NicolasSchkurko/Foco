@@ -63,7 +63,17 @@ class DashboardStateTest {
 
         assertTrue(state.moveTo(shortcut, ring, isShortcut = true))
         assertEquals(shortcut, state.value.ring.current)
-        state.retain(ring, isAllowed = { it == shortcut }, fallback = DayStop.Day(today))
+        state.retain(ring, isAllowed = { it == shortcut }, today = today)
         assertEquals(shortcut, state.value.ring.current)
+    }
+
+    @Test
+    fun `a vanished position falls back to today`() {
+        val state = DashboardState(DayStop.Day(today))
+
+        state.moveTo(DayStop.Day(yesterday), ring, isShortcut = false)
+        state.retain(listOf(DayStop.Day(today)), isAllowed = { false }, today = today)
+
+        assertEquals(DayStop.Day(today), state.value.ring.current)
     }
 }

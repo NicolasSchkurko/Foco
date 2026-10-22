@@ -1,7 +1,6 @@
 package com.foco.app.ui.dashboard
 
 import android.content.Context
-import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -12,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,8 +25,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,22 +73,26 @@ import com.foco.app.domain.DayStop
 import com.foco.app.domain.dayRing
 import com.foco.app.domain.dayStopFromKey
 import com.foco.app.domain.key
+import com.foco.app.domain.recentDays
 import com.foco.app.domain.weekExportJson
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
+import com.foco.app.ui.DetailTarget
 import com.foco.app.ui.common.AppUsageRow
+import com.foco.app.ui.common.EmptyState
 import com.foco.app.ui.common.HourChart
+import com.foco.app.ui.common.LoadingState
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.WeekContent
 import com.foco.app.ui.common.readOr
+import com.foco.app.ui.common.rememberAppLocale
 import com.foco.app.ui.common.rememberCurrentDate
+import com.foco.app.ui.common.rememberDayLabel
 import com.foco.app.ui.common.swipeThroughPositions
-import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
 import com.foco.app.ui.metrics.DayMetrics
 import com.foco.app.ui.metrics.deriveDayMetrics
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -112,7 +112,7 @@ private const val RING_LOADING_TAG = "ring_loading"
 fun DashboardScreen(
     refreshIntervalMillis: Long = DEFAULT_REFRESH_INTERVAL_MILLIS,
     loadDay: (suspend () -> DayData)? = null,
-    onAppClick: (String, LocalDate?) -> Unit = { _, _ -> },
+    onAppClick: (DetailTarget) -> Unit = { },
     onOpenSettings: () -> Unit = {},
     loadExport: (suspend () -> String)? = null,
     clock: Clock = Clock.systemDefaultZone(),
@@ -136,6 +136,11 @@ fun DashboardScreen(
     var excludedPackages by remember { mutableStateOf(emptySet<String>()) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    // The seven-day window of the home, read once: the shortcut days live in it.
+    val recentWindow = remember(today) { recentDays(today) }
+    // The locale and the day labels are read once for the screen, not once per label.
+    val locale = rememberAppLocale()
+    val dayLabel = rememberDayLabel(today, locale)
 
     var storedDays by remember { mutableStateOf<Set<LocalDate>>(emptySet()) }
     val motionScale = remember { MotionScale(context.applicationContext).scale() }
@@ -168,7 +173,7 @@ fun DashboardScreen(
         direction: Int? = null,
         soft: Boolean = false,
     ) {
-        val shortcutDay = target is DayStop.Day && target.date in today.minusDays(6)..today
+        val shortcutDay = target is DayStop.Day && target.date in recentWindow
         dashboardState.moveTo(target, ring, shortcutDay, direction, soft)
     }
 
@@ -187,9 +192,9 @@ fun DashboardScreen(
     }
 
     LaunchedEffect(ring, requestedKey, today) {
-        fun insideWindow(dayStop: DayStop): Boolean = dayStop is DayStop.Day && dayStop.date in today.minusDays(6)..today
+        fun insideWindow(dayStop: DayStop): Boolean = dayStop is DayStop.Day && dayStop.date in recentWindow
 
-        dashboardState.retain(ring, ::insideWindow, DayStop.Day(today))
+        dashboardState.retain(ring, ::insideWindow, today)
     }
 
     // The live read follows the requested position: today or the week keep it, a stored day stops it.
@@ -201,8 +206,17 @@ fun DashboardScreen(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             while (true) {
                 try {
-                    val data = withContext(Dispatchers.IO) { load() }
-                    ringContent[todayKey] = RingContent.Day(data, data.unlockTimes.size)
+                    // The read and the day's metrics both happen off the main thread.
+                    val content =
+                        withContext(Dispatchers.IO) {
+                            val data = load()
+                            RingContent.Day(
+                                data = data,
+                                unlocks = data.unlockTimes.size,
+                                metrics = deriveDayMetrics(data.sessions, ZoneId.systemDefault()),
+                            )
+                        }
+                    ringContent[todayKey] = content
                 } catch (failure: Exception) {
                     android.util.Log.w("DashboardScreen", "Periodic load failed, keeping loop", failure)
                 }
@@ -220,7 +234,11 @@ fun DashboardScreen(
             withContext(Dispatchers.IO) {
                 val sessions = readOr(emptyList<UsageSession>()) { store.sessionsFor(date) }
                 val unlocks = readOr<Int?>(null) { store.unlocksFor(date) }
-                RingContent.Day(DayData(sessions, emptyList()), unlocks)
+                RingContent.Day(
+                    data = DayData(sessions, emptyList()),
+                    unlocks = unlocks,
+                    metrics = deriveDayMetrics(sessions, ZoneId.systemDefault()),
+                )
             }
         ringContent[target.key()] = stored
     }
@@ -270,8 +288,6 @@ fun DashboardScreen(
         }
     }
 
-    var exporting by remember { mutableStateOf(false) }
-
     // The export seam: the tests drive the success and failure paths without the platform.
     val exportJson: suspend () -> String =
         loadExport ?: {
@@ -293,12 +309,7 @@ fun DashboardScreen(
             Spacer(Modifier.height(16.dp))
 
             val shownDay = ringContent[shownKey] as? RingContent.Day
-            val shownMetrics =
-                remember(shownDay, excludedPackages) {
-                    shownDay?.let {
-                        deriveDayMetrics(it.data.sessions, ZoneId.systemDefault(), excludedPackages)
-                    }
-                }
+            val shownMetrics = shownDay?.let { day -> metricsOf(day, excludedPackages) }
 
             val title =
                 when (shown) {
@@ -307,12 +318,7 @@ fun DashboardScreen(
                         if (shown.date == today) {
                             stringResource(R.string.dashboard_title)
                         } else {
-                            formatDayLabel(
-                                shown.date,
-                                today,
-                                stringResource(R.string.day_today),
-                                stringResource(R.string.day_yesterday),
-                            )
+                            dayLabel(shown.date)
                         }
                 }
             val subtitle =
@@ -341,33 +347,11 @@ fun DashboardScreen(
                 title = title,
                 actions = {
                     if (shown == DayStop.Week) {
-                        val exportLabel = stringResource(R.string.week_export)
-                        IconButton(
-                            enabled = !exporting,
-                            onClick = {
-                                exporting = true
-                                scope.launch {
-                                    try {
-                                        val json = withContext(Dispatchers.IO) { exportJson() }
-                                        val uri = writeWeekExport(context, json, today)
-                                        context.startActivity(
-                                            Intent.createChooser(weekExportShareIntent(uri), null),
-                                        )
-                                    } catch (cancelled: CancellationException) {
-                                        throw cancelled
-                                    } catch (failure: Exception) {
-                                        snackbarHostState.showSnackbar(exportError)
-                                    } finally {
-                                        exporting = false
-                                    }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Share,
-                                contentDescription = exportLabel,
-                            )
-                        }
+                        WeekExportButton(
+                            exportJson = exportJson,
+                            weekEnd = today,
+                            onFailed = { snackbarHostState.showSnackbar(exportError) },
+                        )
                     }
                     IconButton(onClick = { moveTo(DayStop.Week) }) {
                         Icon(
@@ -507,7 +491,7 @@ fun DashboardScreen(
                                     todayData = live.data,
                                     excludedPackages = excludedPackages,
                                     onDayClick = { date -> moveTo(DayStop.Day(date)) },
-                                    onAppClick = { packageName -> onAppClick(packageName, null) },
+                                    onAppClick = { packageName -> onAppClick(DetailTarget(packageName)) },
                                     modifier = Modifier.fillMaxSize(),
                                 )
                             }
@@ -518,16 +502,8 @@ fun DashboardScreen(
                             if (dayContent == null) {
                                 RingLoading()
                             } else {
-                                val targetMetrics =
-                                    remember(dayContent, excludedPackages) {
-                                        deriveDayMetrics(
-                                            dayContent.data.sessions,
-                                            ZoneId.systemDefault(),
-                                            excludedPackages,
-                                        )
-                                    }
                                 DayDashboardContent(
-                                    metrics = targetMetrics,
+                                    metrics = metricsOf(dayContent, excludedPackages),
                                     date = target.date,
                                     today = today,
                                     onExclude = onExclude,
@@ -548,28 +524,22 @@ private fun DayDashboardContent(
     date: LocalDate,
     today: LocalDate,
     onExclude: (String) -> Unit,
-    onAppClick: (String, LocalDate?) -> Unit,
+    onAppClick: (DetailTarget) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         if (metrics.entries.isEmpty()) {
-            Box(
+            EmptyState(
+                text =
+                    if (date == today) {
+                        stringResource(R.string.dashboard_empty)
+                    } else {
+                        stringResource(R.string.day_empty)
+                    },
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text =
-                        if (date == today) {
-                            stringResource(R.string.dashboard_empty)
-                        } else {
-                            stringResource(R.string.day_empty)
-                        },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            )
         } else {
             HourChart(metrics.hourly)
             Spacer(Modifier.height(20.dp))
@@ -588,13 +558,13 @@ private fun DayDashboardContent(
                     AppUsageRow(
                         packageName = entry.packageName,
                         millis = entry.totalMillis,
-                        maxMillis = metrics.totalMillis,
+                        barReferenceMillis = metrics.totalMillis,
                         caption =
                             stringResource(
                                 R.string.row_last_used,
                                 formatTimeOfDay(entry.lastUsedAt),
                             ),
-                        onClick = { onAppClick(entry.packageName, date) },
+                        onClick = { onAppClick(DetailTarget(entry.packageName, date)) },
                         onLongClick = { onExclude(entry.packageName) },
                     )
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
@@ -607,16 +577,23 @@ private fun DayDashboardContent(
 /** The only loading placeholder: no position on screen has content yet (cold start). */
 @Composable
 private fun RingLoading() {
-    Box(
+    LoadingState(
         modifier =
             Modifier
                 .fillMaxSize()
                 .testTag(RING_LOADING_TAG),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator()
-    }
+    )
 }
+
+/** The day's metrics without the excluded apps: the exclusion only removes rows. */
+@Composable
+private fun metricsOf(
+    day: RingContent.Day,
+    excludedPackages: Set<String>,
+): DayMetrics =
+    remember(day, excludedPackages) {
+        day.metrics.copy(entries = day.metrics.entries.filter { it.packageName !in excludedPackages })
+    }
 
 private fun dashboardStateSaver(fallback: DayStop): Saver<DashboardState, Any> =
     listSaver<DashboardState, String>(
