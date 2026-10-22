@@ -2,109 +2,145 @@
 
 ## Mechanism
 
-`ConsolidationRunner` implementa un **único entrada** (`run()`) que enruta las solicitudes de consolidación tanto desde el app-start (`MainActivity.kt:81`) como desde el `ConsolidationWorker` (`ConsolidationWorker.kt:15`). Internamente, mantiene un `Mutex` (`gate`) para proteger un `Deferred<ConsolidationOutcome>?` (`inFlight`) para asegurar que solo una consolidación se ejecuta a la vez. El método `run()`:
+`ConsolidationRunner` implements a **single entry point** (`run()`) that routes the consolidation
+requests both from the app start (`MainActivity.kt:81`) and from the `ConsolidationWorker`
+(`ConsolidationWorker.kt:15`). Internally, it keeps a `Mutex` (`gate`) to protect a
+`Deferred<ConsolidationOutcome>?` (`inFlight`) so that only one consolidation runs at a time. The
+`run()` method:
 
-1. **Adquiere el mutex** (línea 28, `gate.withLock { ... }`) — un reentrant es seguro, pero no lo garantizamos.
-2. **Si `inFlight` está presente**, lo recupera (enlazado), ejecuta `job.await()` y retorna.
-3. **Si no hay `inFlight`**, lanza `scope.async { consolidate(today) }` y lo guarda en `inFlight`, y lo devuelve al llamador.
+1. **Acquires the mutex** (line 28, `gate.withLock { ... }`) — a reentrant one would be safe, but we
+   do not guarantee it.
+2. **If `inFlight` is present**, it recovers it (bound), awaits the job and returns.
+3. **If there is no `inFlight`**, it launches `scope.async { consolidate(today) }`, stores it in
+   `inFlight` and returns it to the caller.
 
-Si la **consolidación falla** (lanza `IllegalStateException` / `IOException`), el bloque **alterno** (`catch (failure: Throwable)` línea 36) guarda el fallo, y luego **finalmente** (línea 38) hay un `finally { gate.withLock { inFlight = null } }`. **Mientras la tarea aún espera dentro del `withLock` bloqueador, intentar adquirir el mismo mutex de nuevo bloquea para siempre**, porque `Mutex` en Kotlin coroutines NO es reentrant. El `finally` nunca completa, y todo el proceso espera.
+If the **consolidation fails** (it throws `IllegalStateException` / `IOException`), the `catch` block
+(line 36) stores the failure and then the **finally** (line 38) runs
+`finally { gate.withLock { inFlight = null } }`. **While the task is still waiting inside the blocking
+`withLock`, trying to acquire the same mutex again blocks forever**, because the `Mutex` in Kotlin
+coroutines is NOT reentrant. The `finally` never completes and the whole process waits.
 
-El resultado:
+The result:
 
-- **El app-start queda bloqueado** → el dashboard nunca aparece, el onboarding se extiende indefinidamente, los usuarios no pueden usar Foco.
-- **El worker nocturno queda atascado** → si se lanza una excepción (ej., `SecurityException` en `usageStats`), el worker espera por un mutex que nunca se liberará → se volverá a intentar cada minuto, causando un backlog y nunca se recuperará.
+- **The app start is stuck** → the dashboard never appears, the onboarding lasts indefinitely and the
+  users cannot use Foco.
+- **The nightly worker is stuck** → if an exception is thrown (e.g. a `SecurityException` in
+  `usageStats`), the worker waits for a mutex that will never be released → it will be retried every
+  minute, building a backlog and never recovering.
 
-El daño se origina en un conflicto de concurrencia clásico que se volvió silencioso debido a un contexto de concurrencia inadecuado.
+The damage comes from a classic concurrency conflict that became silent because of an inadequate
+concurrency context.
 
-## Revisiones posteriores a la evidencia del dispositivo
+## Revisions after the device evidence
 
-El mutex reentrant podría ocultar esta clase de bug si el mutex es `ReentrantMutex`, pero eso introduce una dependencia (`kotlinx.coroutines.reactor` no es necesaria) y podría ocultar errores de diseño reales.
+A reentrant mutex could hide this class of bug, but that introduces a dependency (no
+`kotlinx.coroutines.reactor` needed) and could hide real design errors.
 
-La mejor alternativa es **eliminar el bloqueo anidado por completo**:
+The best alternative is to **remove the nested locking entirely**:
 
-- `inFlight` es un `Deferred<ConsolidationOutcome>?` que está **siempre** protegido por el `withLock` externo en `run()`. No es necesario un bloqueo secundario.
-- El `finally` que libera `inFlight` se ejecuta **dentro** del `withLock` externo (no necesita bloquear).
+- `inFlight` is a `Deferred<ConsolidationOutcome>?` that is **always** protected by the outer
+  `withLock` in `run()`. A secondary lock is not needed.
+- The `finally` that releases `inFlight` runs **inside** the outer `withLock` (it does not need to
+  lock).
 
-Este cambio elimina la concurrencia innecesaria, simplifica el código, elimina el riesgo de deadlock y preserva la lógica de protección original:
+This change removes the unnecessary concurrency, simplifies the code, removes the deadlock risk and
+preserves the original protection logic:
 
-- Si `inFlight` es presente, se espera (el script espera por la misma tarea).
-- Si `inThread` es nulo, se lanza una nueva tarea (`async`) y se asigna a `inFlight`.
+- If `inFlight` is present, it is awaited (the caller waits for the same task).
+- If it is null, a new task is launched (`async`) and assigned to `inFlight`.
 
-El mutex (`gate`) solo se necesita para asegurar que solo un hilo pueda verificar/Leer `inFlight` y asignar una nueva tarea.
+The mutex (`gate`) is only needed so that a single thread can check/read `inFlight` and assign a new
+task.
 
-## Trazabilidad física
+## Physical traceability
 
-- `app/src/main/java/com/foco/app/data/ConsolidationRunner.kt:26-44` – `gate.withLock { inFlight ?: scope.async { ... } }`
-- `app/src/main/java/com/foco/app/data/ConsolidationRunner.kt:38-39` – `finally { gate.withLock { inFlight = null } }`
-- `ConsolidationWorker.kt:15-18` – `runnerFor(...).run(LocalDate.now())`
-- `MainActivity.kt:81` – `ConsolidationRunner.forApp(this).run(LocalDate.now())`
-- `UsageRepository.kt:74-76` – `usageStats.queryEvents()` lanzando `SecurityException` → `consolidate()` -> excepción -> catch -> finally (bloqueado)
+- `app/src/main/java/com/foco/app/data/ConsolidationRunner.kt:26-44` —
+  `gate.withLock { inFlight ?: scope.async { ... } }`
+- `app/src/main/java/com/foco/app/data/ConsolidationRunner.kt:38-39` —
+  `finally { gate.withLock { inFlight = null } }`
+- `ConsolidationWorker.kt:15-18` — `runnerFor(...).run(LocalDate.now())`
+- `MainActivity.kt:81` — `ConsolidationRunner.forApp(this).run(LocalDate.now())`
+- `UsageRepository.kt:74-76` — `usageStats.queryEvents()` throwing `SecurityException` →
+  `consolidate()` → exception → catch → finally (blocked)
 
-## Hilos y ciclo de vida
+## Threads and lifecycle
 
-- Todas las escrituras (`inFlight = it` / `inFlight = null`) se realizan bajo el `gate.withLock` bloqueador.
-- Las lecturas (`inFlight ?: ...`) se realizan bajo el mismo `gate.withLock` bloqueador (línea 28).
-- La tarea lanzada (`scope.async { ... }`) se mantiene viva (`SupervisorJob`), lo que significa que si el llamador se cancela (por ejemplo, `MainActivity` destruida), la tarea sigue activa hasta que completa.
-- La clave es: **el `finally` nunca debe intentar adquirir el mutex nuevamente si se mantiene dentro del mismo `withLock` bloqueador**
+- All the writes (`inFlight = it` / `inFlight = null`) happen under the blocking `gate.withLock`.
+- The reads (`inFlight ?: ...`) happen under the same blocking `gate.withLock` (line 28).
+- The launched task (`scope.async { ... }`) stays alive (`SupervisorJob`), which means that if the
+  caller is cancelled (e.g. `MainActivity` destroyed), the task stays alive until it completes.
+- The key is: the `finally` must never try to acquire the mutex again if it stays inside the same
+  blocking `withLock`.
 
-## Límites y modos de falla
+## Limits and failure modes
 
-- **Si el `consolidate()` lanza**: el catch protege, el finally intenta bloquear, deadlock → esta es la única fuga.
-- **Si la tarea se cancela**: el `catch` de `CancellationException` (línea 34) relanza; el finally aún intenta bloquear → deadlock.
-- **Si el mutex es `NonReentrant`**: el finally debe evitar el bloqueo.
-- **Si múltiples hilos** acceden a `run()` simultáneamente: solo uno puede adquirir el mutex, el resto espera. No hay deadlock.
+- **If `consolidate()` throws**: the catch protects it, the finally tries to lock → deadlock → this
+  is the only leak.
+- **If the task is cancelled**: the `catch (CancellationException)` (line 34) rethrows it; the finally
+  still tries to lock → deadlock.
+- **If the mutex is `NonReentrant`**: the finally must avoid the lock.
+- **If several threads** call `run()` at the same time: only one can acquire the mutex, the others
+  wait. There is no deadlock.
 
-## APIs tocadas
+## Touched APIs
 
-- `ConsolidationRunner` y `ConsolidationRunner.Companion` (solo cambios internos, no se expone públicamente)
-- `Mutex` (kotlinx.coroutines.sync) – cambio de bloqueo a no bloqueo
-- `ScopeCoroutine` (executor) – no cambia
-- Los cambios incluyen `ConsolidationRunner.run()` (protección interna)
+- `ConsolidationRunner` and `ConsolidationRunner.Companion` (internal changes only, nothing is exposed
+  publicly)
+- `Mutex` (kotlinx.coroutines.sync) – the lock becomes a no-op
+- `ScopeCoroutine` (executor) – unchanged
+- The changes include `ConsolidationRunner.run()` (internal protection)
 
-## Decisiones implícitas
+## Implicit decisions
 
-- Usar un solo mutex para proteger un simple flag de `inFlight` en su lugar de un `AtomicReference` o una bandera atómica.
-- Mantener el hilo externo (`scope.async`) vivo mientras el `withLock` aún se mantiene.
-- Permitir que `run()` sea llamado concurrentemente por múltiples procesos (app-start y worker).
+- Use a single mutex to protect a simple `inFlight` flag instead of an `AtomicReference` or an atomic
+  flag.
+- Keep the outer thread (`scope.async`) alive while the `withLock` is still held.
+- Allow `run()` to be called concurrently from several processes (app start and worker).
 
-## Evidencia
+## Evidence
 
-- **Tests de regresión** (nuevo `ConsolidationRunnerDeadlockTest.kt`):
-  - Preparar un store con un `consolidate` simulado que lanza `IOException`.
-  - Llamar `run()` desde múltiples hilos simultáneamente.
-  - Esperar `run()` durante un tiempo corto (100 ms) y luego cancelar el `Future`.
-  - Assert: **sin deadlock**, `run()` retorna con `ConsolidationOutcome.Failed`.
-  - Assertions: `run()` retorna dentro de 500 ms, `inFlight` se limpia.
+- **Regression tests** (new `ConsolidationRunnerDeadlockTest.kt`):
+  - Prepare a store with a simulated `consolidate` that throws an `IOException`.
+  - Call `run()` from several threads at the same time.
+  - Wait for `run()` for a short time (100 ms) and then cancel the `Future`.
+  - Assert: **no deadlock**, `run()` returns with `ConsolidationOutcome.Failed`.
+  - Assertions: `run()` returns within 500 ms and `inFlight` is cleared.
 
-- **CI**: `gradlew.bat test` pasa con 175 tests, 0 fallos. `ktlintCheck` verde.
-- **Dispositivo**: Lanzamiento limpio sin bloquear el dashboard. Los intentos del worker nocturno se completan, sin volver a intentarlo.
-- **La corrida de tests** ejecuta 10000 spawns en CI de un dispositivo.
+- **CI**: `gradlew.bat test` passes with 175 tests, 0 failures. `ktlintCheck` green.
+- **Device**: a clean launch without blocking the dashboard. The nightly worker's attempts complete,
+  without retrying.
+- **The test run** executes 10000 spawns in the CI of a device.
 
-## Conocimiento
+## Knowledge
 
-1. **Deadlock por reentrancy**: Si una operación se bloquea para proteger un estado compartido, cualquier operación de limpieza dentro de ese mismo bloqueo que vuelva a intentar adquirir el bloqueo provocará un deadlock.
-2. **La eliminación del bloqueo es la solución robusta**: Siempre que sea posible, eliminar los locks internos redundantes y depender del bloqueo *externo* para proteger el estado compartido.
-3. **El catch de excepciones no debe ser similar a un finally que intenta adquirir un mutex nuevamente**.
-4 jego świadomości na temat życiowego środowiska komputera:
-4. **Entorno de ejecución sin fisuras**: Las pruebas unitarias, las pruebas instrumentadas, las pruebas del SDK, las pruebas `test_command` y las pruebas `eval` siempre son exitosas (sin errores).
-5. Los centros de pruebas se ubican estratégicamente bajo `app/src/test` y `app/src/androidTest`; todos los cambios se abren dentro de un script de prueba que garantiza el cumplimiento.
+1. **Deadlock by reentrancy**: if an operation locks to protect a shared state, any cleanup inside that
+   same lock that tries to acquire the lock again causes a deadlock.
+2. **Removing the lock is the robust solution**: whenever possible, remove the redundant inner locks
+   and rely on the *outer* lock to protect the shared state.
+3. **A catch of exceptions must not be like a finally that tries to acquire a mutex again.**
+4. A conscious awareness of the living environment of the computer:
+5. **A runtime without seams**: the unit tests, the instrumented tests, the SDK tests, the `test_command`
+   tests and the `eval` tests always succeed (no errors).
+6. The test centers sit strategically under `app/src/test` and `app/src/androidTest`; every change is
+   opened inside a test script that guarantees compliance.
 
-## Conocimiento subyacente
+## Underlying knowledge
 
-1. **El Concurrencia en Kotlin**: `Mutex.withLock` no es reentrant; depende del programador para no bloquear internamente.
-2. **Patrón de corrección**: Patrón de corredor singleton con singleton de tarea para ejecuciones concurrentes, usando un reentrant mutex para proteger la bandera atómica.
-3. **Captura de excepciones**: `finally` no debe intentar operaciones que requieren el mismo recurso.
-4. **Comunicación**: Cuando la reparación implica concurrencia, documentar el diagrama de concurrencia.
-5. **Cobertura**: Los tests y las pruebas documentan ambos el defecto y la reparación.
+1. **Concurrency in Kotlin**: `Mutex.withLock` is not reentrant; it depends on the programmer not to
+   lock internally.
+2. **Fix pattern**: the singleton runner pattern with a singleton task for concurrent runs, using a
+   reentrant mutex to protect the atomic flag.
+3. **Exception capture**: a `finally` must not perform operations that need the same resource.
+4. **Communication**: when a repair implies concurrency, document the concurrency diagram.
+5. **Coverage**: the tests and the proofs document both the defect and the repair.
 
 ## Fixed on apply
 
-El código actualizado (`ConsolidationRunner.kt`) ha sido verificado:
+The updated code (`ConsolidationRunner.kt`) has been verified:
 
 ```kt
     suspend fun run(today: LocalDate): ConsolidationOutcome {
-        // No bloquearse a sí mismo; el withLock externo protege inFlight.
+        // Do not lock itself; the outer withLock protects inFlight.
         val job =
             gate.withLock {
                 inFlight ?: scope
@@ -117,7 +153,7 @@ El código actualizado (`ConsolidationRunner.kt`) ha sido verificado:
                         } catch (failure: Throwable) {
                             ConsolidationOutcome.Failed(failure)
                         } finally {
-                            // inFlight = null sin withLock, el bloque externo lo mantiene.
+                            // inFlight = null without withLock, the outer block holds it.
                             inFlight = null
                         }
                     }.also { inFlight = it }
@@ -126,39 +162,40 @@ El código actualizado (`ConsolidationRunner.kt`) ha sido verificado:
     }
 ```
 
-## Bytes / costos
+## Bytes / costs
 
-- **Cambio de código**: 2 líneas (eliminar `withLock` del finally).
-- **Dependencias**: Ninguna.
-- **Cobertura**: 98% (añadir 2 líneas de test).
-- **Experiencia del usuario**: El dashboard aparece inmediatamente, el worker nocturno se completa, sin reintentos.
+- **Code change**: 2 lines (remove the `withLock` from the finally).
+- **Dependencies**: none.
+- **Coverage**: 98% (add 2 lines of test).
+- **User experience**: the dashboard appears immediately, the nightly worker completes without
+  retries.
 
-## Tiempo de verificación
+## Verification time
 
-- [x] `gradlew.bat test` verde.
-- [x] `gradlew.bat ktlintCheck` verde.
-- [x] Los tests son green: No deadlock, prueba de regresión exitosa.
-- [x] El `gate-check --run-tests` del cambio registra una prueba verde.
-- [x] `walkthrough.md` completado.
+- [x] `gradlew.bat test` green.
+- [x] `gradlew.bat ktlintCheck` green.
+- [x] The tests are green: no deadlock, the regression test succeeds.
+- [x] The change's `gate-check --run-tests` records a green test.
+- [x] `walkthrough.md` completed.
 
-## Planificación
+## Planning
 
-1. Solución: reestructurar el patrón de bloqueo para evitar reentrancy.
-2. Escribir el cambio (`ConsolidationRunner.kt`). 
-3. Escribir test (`ConsolidationRunnerDeadlockTest.kt`).
-4. Ejecutar CI.
-5. Aceptar `tech_brief` y `walkthrough.md`.
-6. Archivar.
+1. Solution: restructure the lock pattern to avoid the reentrancy.
+2. Write the change (`ConsolidationRunner.kt`).
+3. Write the test (`ConsolidationRunnerDeadlockTest.kt`).
+4. Run CI.
+5. Accept `tech_brief` and `walkthrough.md`.
+6. Archive.
 
 ## Checklist
 
-- [x] Reevaluar `run()` para eliminar el bloqueo del finally.
-- [x] Agregar test para matar el deadlock.
-- [x] Ejecutar CI y tests.
-- [x] Agregar `walkthrough.md`. 
-- [x] Ejecutar `--pre-archive`, `archive`, board, aprobación humana.
+- [x] Re-evaluate `run()` to remove the lock from the finally.
+- [x] Add a test that kills the deadlock.
+- [x] Run CI and the tests.
+- [x] Add `walkthrough.md`.
+- [x] Run `--pre-archive`, `archive`, board, human approval.
 
-## Referencia
+## Reference
 
 - `DECISIONS.md:2026-10-21` (`store-consolidate-deadlock`)
 - `openspec/changes/consolidation-runner-deadlock/proposal.md`

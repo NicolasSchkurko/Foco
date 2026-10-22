@@ -8,7 +8,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -144,7 +146,36 @@ class SettingsMigrationTest {
         runBlocking {
             copySettingsFromLegacyStore(legacy, target)
 
-            assertEquals(emptyMap<Any, Any>(), target.data.first().asMap())
+            val stored = target.data.first()
+            assertNull("no language is copied", stored[languageKey])
+            assertNull("no appearance is copied", stored[appearanceKey])
+            assertEquals("the migration is marked as done", true, stored[migrationDoneKey])
         }
     }
+
+    @Test
+    fun aSecondRunDoesNotReadTheLegacyStore() {
+        assumeDataStoreCanReplaceAnExistingFile()
+        val legacy = newStore("legacy_once.preferences_pb")
+        val target = newStore("foco_once.preferences_pb")
+
+        runBlocking {
+            legacy.edit { preferences -> preferences[languageKey] = "en" }
+            copySettingsFromLegacyStore(legacy, target)
+
+            copySettingsFromLegacyStore(failingLegacyStore(), target)
+
+            assertEquals("en", target.data.first()[languageKey])
+        }
+    }
+
+    /** A legacy store that fails when it is read: the marker must keep the migration away from it. */
+    private fun failingLegacyStore(): DataStore<Preferences> =
+        object : DataStore<Preferences> {
+            override val data: Flow<Preferences> =
+                flow { throw IllegalStateException("the legacy store was read again") }
+
+            override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
+                throw IllegalStateException("the legacy store was written again")
+        }
 }

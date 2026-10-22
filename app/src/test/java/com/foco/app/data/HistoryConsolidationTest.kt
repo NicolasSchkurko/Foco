@@ -1,5 +1,6 @@
 package com.foco.app.data
 
+import com.foco.app.data.db.SessionRecord
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.async
@@ -124,6 +125,55 @@ class HistoryConsolidationTest {
             store.consolidate(today)
 
             assertEquals(0, sessions.rows.size)
+        }
+
+    @Test
+    fun `the day's rows are replaced inside one transaction`() =
+        runBlocking {
+            platform[yesterday] = dayWith("com.instagram.android" to minutes(yesterday, 0L, 1L))
+            val inside = mutableListOf<String>()
+            val transactional =
+                SessionHistoryStore(sessions, aggregates, markers, { platform[it] ?: emptyDay }) { body ->
+                    val before = sessions.calls.size
+                    body()
+                    inside += sessions.calls.drop(before)
+                }
+
+            transactional.consolidate(today)
+
+            assertEquals(listOf("deleteBetween", "upsert"), inside)
+        }
+
+    @Test
+    fun `a failure inside the transaction leaves the day's rows alone`() =
+        runBlocking {
+            val existing = minutes(yesterday, 0L, 1L)
+            platform[yesterday] = dayWith("com.instagram.android" to existing)
+            sessions.rows["com.instagram.android" to existing.first] =
+                SessionRecord("com.instagram.android", existing.first, existing.second)
+            val transactional =
+                SessionHistoryStore(sessions, aggregates, markers, { platform[it] ?: emptyDay }) { body ->
+                    val before = sessions.rows.toMap()
+                    try {
+                        body()
+                    } catch (failure: Throwable) {
+                        sessions.rows.clear()
+                        sessions.rows.putAll(before)
+                        throw failure
+                    }
+                }
+            sessions.failNextWrite = true
+
+            var failed = false
+            try {
+                transactional.consolidate(today)
+            } catch (_: IllegalStateException) {
+                failed = true
+            }
+
+            assertTrue("the raw write must fail", failed)
+            assertEquals("the day's rows survive the failure", 1, sessions.rows.size)
+            assertEquals("the day stays pending", 0, markers.rows.size)
         }
 
     @Test

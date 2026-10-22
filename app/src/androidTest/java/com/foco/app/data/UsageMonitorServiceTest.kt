@@ -8,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
+import com.foco.app.domain.AppLimitWindowRules
 import com.foco.app.domain.AppWindow
 import com.foco.app.ui.setAccessibilityServiceEnabled
 import kotlinx.coroutines.runBlocking
@@ -276,9 +277,9 @@ class UsageMonitorServiceTest {
                 .toEpochMilli()
         val window = AppWindow(9 * 60, 23 * 60)
 
-        assertFalse(windowBlocks(at("10:00"), window, zone))
-        assertTrue(windowBlocks(at("23:00"), window, zone))
-        assertFalse(windowBlocks(at("23:00"), null, zone))
+        assertFalse(AppLimitWindowRules.blocksAt(at("10:00"), window, zone))
+        assertTrue(AppLimitWindowRules.blocksAt(at("23:00"), window, zone))
+        assertFalse(AppLimitWindowRules.blocksAt(at("23:00"), null, zone))
     }
 
     private companion object {

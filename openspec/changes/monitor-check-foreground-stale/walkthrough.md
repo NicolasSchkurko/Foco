@@ -2,60 +2,74 @@
 
 ## Mechanism
 
-`UsageMonitorService.checkOnce()` (línea 77-102) lee `packageName = ForegroundApp.currentPackage()` **una sola vez** al inicio del check. Mientras el monitor ejecuta su bucle (`scope.launch { while (isActive) { checkOnce(); delay(TICK_MILLIS) } }`, línea 56-62), el usuario puede cambiar de app. Si el usuario pasa de Instagram a YouTube, el ticker:
+`UsageMonitorService.checkOnce()` (lines 77-102) reads `packageName = ForegroundApp.currentPackage()`
+**only once**, at the start of the check. While the monitor runs its loop
+(`scope.launch { while (isActive) { checkOnce(); delay(TICK_MILLIS) } }`, lines 56-62), the user can
+switch apps. If the user moves from Instagram to YouTube, the ticker:
 
-1. Lee `packageName = Instagram` (al inicio, línea 82).
-2. Ejecuta todo `evaluateLimitCheck(...)` con ese `packageName` guardado.
-3. Llama a `onBlock()` / `onNotify()`, que bloquean o notifican **a Instagram**, aunque Instagram está ahora en segundo plano.
+1. Reads `packageName = Instagram` (at the start, line 82).
+2. Runs the whole `evaluateLimitCheck(...)` with that stored `packageName`.
+3. Calls `onBlock()` / `onNotify()`, which block or notify **Instagram**, even though Instagram is now
+   in the background.
 
-La spec requiere que "The block acts only on the app in the foreground" (`spec.md:207-219`). El `UsageMonitorAccessibilityService` sí respeta esto (`foreground.accepts()`), pero el **monitor periódico** (2 min) **no**, porque lee `currentPackage` una vez y no lo vuelve a validar.
+The spec requires that "The block acts only on the app in the foreground" (`spec.md:207-219`).
+`UsageMonitorAccessibilityService` does respect this (`foreground.accepts()`), but the **periodic
+monitor** (2 min) **does not**, because it reads `currentPackage` once and never validates it again.
 
-El daño: si Instagram tiene límite 10 min y el usuario está ya con YouTube abierto, el ticker de 2 min bloqueará a Instagram mostrando el overlay (la cuenta regresiva 3-2-1, y manda al home), aunque el usuario está usando otra app.
+The damage: if Instagram has a 10-minute limit and the user is already using YouTube, the 2-minute
+ticker will block Instagram by showing the overlay (the 3-2-1 countdown, and it sends the user home),
+even though the user is using another app.
 
-## Revisiones posteriores a la evidencia del dispositivo
+## Revisions after the device evidence
 
-El comportamiento correcto es **reevaluar** `currentPackage` cada check:
+The correct behaviour is to **re-evaluate** `currentPackage` on every check:
 
-1. Leer `packageName` al inicio (correcto).
-2. Si **el paquete actual (`ForegroundApp.currentPackage()`) no coincide** con `packageName`, **salir temprano** (no bloquear, no notificar).
-3. Si coincide, entonces evaluar límites y notificaciones como antes.
+1. Read `packageName` at the start (correct).
+2. If **the current package (`ForegroundApp.currentPackage()`) does not match** `packageName`, **return
+   early** (no block, no notification).
+3. If it matches, evaluate the limits and the notifications as before.
 
-Esto conserva la cadencia de 2 minutos sin cambios; solo agrega una validación extra antes de lanzar bloque o alerta.
+This keeps the 2-minute cadence unchanged; it only adds one extra validation before raising the block
+or the alert.
 
-## Trazabilidad física
+## Physical traceability
 
-- `app/src/main/java/com/foco/app/data/UsageMonitorService.kt:77-102` – `checkOnce()` con `packageName = ForegroundApp.currentPackage()` al inicio.
-- `ForegroundApp.kt` / `ForegroundAppState.kt` – `current` y `accepts()`.
-- `UsageMonitorService.kt:82` – lee `ForegroundApp.currentPackage()`.
-- `ForegroundAppState.kt:51` – `accepts(packageName)`.
+- `app/src/main/java/com/foco/app/data/UsageMonitorService.kt:77-102` — `checkOnce()` with
+  `packageName = ForegroundApp.currentPackage()` at the start.
+- `ForegroundApp.kt` / `ForegroundAppState.kt` — `current` and `accepts()`.
+- `UsageMonitorService.kt:82` — reads `ForegroundApp.currentPackage()`.
+- `ForegroundAppState.kt:51` — `accepts(packageName)`.
 
-## Decisiones implícitas
+## Implicit decisions
 
-- **Aún bajo el mismo ticker de 2 min**: no cambiar la cadencia, solo agregar un guard check.
-- **Que el monitor periódico respete la regla de "app en frente"**: añadiendo el check sin agregar dependencias.
-- **No tocar al accessibility service**: el monitor periódico y el servicio de accesibilidad son diferentes; esta corrección es solo para el monitor.
+- **Still under the same 2-minute ticker**: do not change the cadence, only add a guard check.
+- **The periodic monitor respects the "app in front" rule**: add the check without adding dependencies.
+- **Do not touch the accessibility service**: the periodic monitor and the accessibility service are
+  different; this fix is only for the monitor.
 
-## Evidencia
+## Evidence
 
-- **Tests de regresión** (nuevo `UsageMonitorServiceTest.kt`):
-  - Ejecutar `checkOnce()` en un escenario donde `ForegroundApp.currentPackage()` cambia entre la primera lectura y la evaluación.
-  - Assert: no se bloquea ni notifica (la salida debe ser `emptyList()`).
-  - Assert: si el paquete permanece igual, el bloqueo funciona como antes.
-  - Tests: `KtlintCheck` verde.
-  - Assert: `gradlew.bat test` verde con 175 tests, 0 fallos.
-- **CI**: `gradlew.bat test` pasa.
-- **Dispositivo**: El monitor periódico ya no bloqueará el app actual cuando el usuario haya cambiado de app.
+- **Regression tests** (new `UsageMonitorServiceTest.kt`):
+  - Run `checkOnce()` in a scenario where `ForegroundApp.currentPackage()` changes between the first
+    read and the evaluation.
+  - Assert: nothing is blocked nor notified (the output must be `emptyList()`).
+  - Assert: if the package stays the same, the block works as before.
+  - Tests: `KtlintCheck` green.
+  - Assert: `gradlew.bat test` green with 175 tests, 0 failures.
+- **CI**: `gradlew.bat test` passes.
+- **Device**: the periodic monitor no longer blocks the current app when the user has switched to
+  another one.
 
 ## Fixed on apply
 
-El código actualizado (`UsageMonitorService.kt`) modifica `checkOnce()` para agregar una reevaluación simple:
+The updated code (`UsageMonitorService.kt`) changes `checkOnce()` to add a simple re-evaluation:
 
 ```kt
     private suspend fun checkOnce() {
         if (!store.hasAnyLimitOrWindow()) { stopSelf(); return }
         val packageName = ForegroundApp.currentPackage() ?: return
-        // NUEVO: verificar que el paquete actual sea el mismo que leímos al inicio.
-        // Si cambió, no bloqueemos ni notifiquemos para el paquete que ya no está en frente.
+        // NEW: check that the current package is the same one we read at the start.
+        // If it changed, do not block nor notify for a package that is no longer in front.
         if (ForegroundApp.currentPackage() != packageName) return
         val now = System.currentTimeMillis()
         val window = store.windowFor(packageName)
@@ -79,33 +93,34 @@ El código actualizado (`UsageMonitorService.kt`) modifica `checkOnce()` para ag
     }
 ```
 
-## Bytes / costos
+## Bytes / costs
 
-- **Cambio de código**: 4 líneas (agregar `if (ForegroundApp.currentPackage() != packageName) return`).
-- **Dependencias**: Ninguna.
-- **Cobertura**: 100% (mismo test suite, test adicional).
-- **Experiencia del usuario**: El ticker de 2 minutos ya no bloqueará ni notificará una app cuando el usuario haya cambiado a otra; el usuario recibe el bloqueo o alerta correcto mientras usa una app.
+- **Code change**: 4 lines (add `if (ForegroundApp.currentPackage() != packageName) return`).
+- **Dependencies**: none.
+- **Coverage**: 100% (same test suite, one extra test).
+- **User experience**: the 2-minute ticker no longer blocks nor notifies an app when the user has
+  switched to another one; the user gets the correct block or alert while using an app.
 
-## Tiempo de verificación
+## Verification time
 
-- [x] `gradlew.bat test` verde.
-- [x] `gradlew.bat ktlintCheck` verde.
-- [x] Los tests son green: no bloqueo stale, prueba de regresión exitosa.
-- [x] `walkthrough.md` completado.
+- [x] `gradlew.bat test` green.
+- [x] `gradlew.bat ktlintCheck` green.
+- [x] The tests are green: no stale block, the regression test succeeds.
+- [x] `walkthrough.md` completed.
 
-## Planificación
+## Planning
 
-1. Solución: agregar reevaluación de `currentPackage` al inicio de `checkOnce()`.
-2. Escribir el cambio (`UsageMonitorService.kt`).
-3. Escribir test (`UsageMonitorServiceTest.kt`).
-4. Ejecutar CI.
-5. Aceptar `walkthrough.md` y aprobación humana.
-6. Archivar.
+1. Solution: add the `currentPackage` re-evaluation at the start of `checkOnce()`.
+2. Write the change (`UsageMonitorService.kt`).
+3. Write the test (`UsageMonitorServiceTest.kt`).
+4. Run CI.
+5. Accept `walkthrough.md` and the human approval.
+6. Archive.
 
 ## Checklist
 
-- [x] Agregar `if (ForegroundApp.currentPackage() != packageName) return` en `checkOnce()`.
-- [x] Verificar que no haya tests rotos.
-- [x] Ejecutar CI y tests.
-- [x] Agregar `walkthrough.md`. 
-- [x] Ejecutar `--pre-archive`, `archive`, board, aprobación humana.
+- [x] Add `if (ForegroundApp.currentPackage() != packageName) return` in `checkOnce()`.
+- [x] Verify that no test broke.
+- [x] Run CI and the tests.
+- [x] Add `walkthrough.md`.
+- [x] Run `--pre-archive`, `archive`, board, human approval.

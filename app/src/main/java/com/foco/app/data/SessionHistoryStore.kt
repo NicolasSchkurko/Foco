@@ -2,6 +2,7 @@ package com.foco.app.data
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.withTransaction
 import com.foco.app.data.db.ConsolidatedDay
 import com.foco.app.data.db.ConsolidatedDayDao
 import com.foco.app.data.db.DailyAggregate
@@ -9,11 +10,13 @@ import com.foco.app.data.db.DailyAggregateDao
 import com.foco.app.data.db.FocoDatabase
 import com.foco.app.data.db.SessionRecord
 import com.foco.app.data.db.SessionRecordDao
+import com.foco.app.domain.dayWindowRange
 import com.foco.app.domain.finishedDays
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -26,6 +29,7 @@ class SessionHistoryStore(
     private val aggregates: DailyAggregateDao,
     private val consolidatedDays: ConsolidatedDayDao,
     private val readDay: (LocalDate) -> DayData,
+    private val transaction: suspend (body: suspend () -> Unit) -> Unit = { body -> body() },
 ) {
     /** Stores every finished day inside the platform's window that has no marker yet, then prunes. */
     suspend fun consolidate(today: LocalDate) {
@@ -39,7 +43,8 @@ class SessionHistoryStore(
     }
 
     /** Per-app totals of the seven days ending at [until], oldest first. */
-    suspend fun week(until: LocalDate): List<DailyAggregate> = aggregates.totalsFor(until.minusDays(SIX_DAYS).toString(), until.toString())
+    suspend fun week(until: LocalDate): List<DailyAggregate> =
+        aggregates.totalsFor(dayWindowRange(until).start.toString(), until.toString())
 
     /** The days the store has a marker for: what bounds the detail's day selector, as a stream. */
     fun storedDaysFlow(): Flow<Set<LocalDate>> = consolidatedDays.storedDaysFlow().map { days -> days.map { LocalDate.parse(it) }.toSet() }
@@ -53,17 +58,34 @@ class SessionHistoryStore(
             .map { UsageSession(it.packageName, it.start, it.end) }
     }
 
+    /** The stored raw sessions of every day in [from, to), keyed by day; one range read. */
+    suspend fun sessionsBetween(
+        from: LocalDate,
+        to: LocalDate,
+    ): Map<LocalDate, List<UsageSession>> {
+        val zone = ZoneId.systemDefault()
+        val rows = sessions.sessionsBetween(rawStart(from), rawStart(to))
+        return rows
+            .groupBy { row -> Instant.ofEpochMilli(row.start).atZone(zone).toLocalDate() }
+            .mapValues { (_, dayRows) -> dayRows.map { UsageSession(it.packageName, it.start, it.end) } }
+    }
+
     /** The stored unlock count of [date]; `null` means no count was stored, `0` is a real answer. */
     suspend fun unlocksFor(date: LocalDate): Int? = consolidatedDays.countFor(date.toString())
 
-    /** A day with no sessions is not consolidated, so no totals and no marker are stored for it. */
+    /**
+     * A day with no sessions is not consolidated, so no totals and no marker are stored for it.
+     * The day's rows are replaced inside one transaction: a failure leaves the day as it was.
+     */
     private suspend fun consolidateDay(day: LocalDate) {
         val data = readDay(day)
         if (data.sessions.isEmpty()) return
         // Raw first: a failure before the marker leaves the day pending, so the next start retries it.
         // The delete makes a retry replace an earlier read instead of merging old starts.
-        sessions.deleteBetween(rawStart(day), rawStart(day.plusDays(1)))
-        sessions.upsert(data.sessions.map { SessionRecord(it.packageName, it.start, it.end) })
+        transaction {
+            sessions.deleteBetween(rawStart(day), rawStart(day.plusDays(1)))
+            sessions.upsert(data.sessions.map { SessionRecord(it.packageName, it.start, it.end) })
+        }
         aggregates.upsert(totalsOf(day, data.sessions))
         consolidatedDays.upsert(ConsolidatedDay(day.toString(), data.unlockTimes.size))
     }
@@ -87,7 +109,6 @@ class SessionHistoryStore(
 
     companion object {
         private const val DATABASE_NAME = "foco.db"
-        private const val SIX_DAYS = 6L
         private const val KEEP_DAYS = 8L
 
         @Volatile
@@ -114,7 +135,7 @@ class SessionHistoryStore(
                 db.dailyAggregates(),
                 db.consolidatedDays(),
                 readDay,
-            )
+            ) { body -> db.withTransaction { body() } }
         }
     }
 }

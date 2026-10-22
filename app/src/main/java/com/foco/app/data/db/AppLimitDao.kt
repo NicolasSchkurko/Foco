@@ -12,11 +12,8 @@ interface AppLimitDao {
     @Query("SELECT * FROM app_limit")
     fun limitsFlow(): Flow<List<AppLimit>>
 
-    @Query("SELECT minutes FROM app_limit WHERE packageName = :packageName")
-    suspend fun minutesFor(packageName: String): Int?
-
-    @Query("SELECT alertEnabled FROM app_limit WHERE packageName = :packageName")
-    suspend fun alertEnabledFor(packageName: String): Boolean?
+    @Query("SELECT * FROM app_limit WHERE packageName = :packageName")
+    suspend fun limitRow(packageName: String): AppLimit?
 
     @Query("UPDATE app_limit SET alertEnabled = :enabled WHERE packageName = :packageName")
     suspend fun setAlertEnabled(
@@ -26,6 +23,10 @@ interface AppLimitDao {
 
     @Query("SELECT COUNT(*) FROM app_limit")
     suspend fun count(): Int
+
+    /** Whether a limit or a window exists: one answer for the monitor's "is there work to do". */
+    @Query("SELECT EXISTS(SELECT 1 FROM app_limit) OR EXISTS(SELECT 1 FROM app_limit_window)")
+    suspend fun hasAnyLimitOrWindow(): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(limit: AppLimit)

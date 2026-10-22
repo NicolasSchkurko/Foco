@@ -2,6 +2,7 @@ package com.foco.app.data
 
 import android.content.Context
 import com.foco.app.domain.buildWeekExport
+import com.foco.app.domain.dayWindowRange
 import com.foco.app.model.export.WeekExport
 import java.time.LocalDate
 import java.time.ZoneId
@@ -15,7 +16,7 @@ class WeekExportService(
     private val labels: (String) -> String,
     private val zone: ZoneId = ZoneId.systemDefault(),
 ) {
-    private val repository = UsageRepository(context.applicationContext)
+    private val repository = UsageRepository.forApp(context.applicationContext)
     private val store =
         SessionHistoryStore.forApp(context.applicationContext) { day ->
             repository.loadDay(day)
@@ -27,13 +28,10 @@ class WeekExportService(
             stored
                 .groupBy { LocalDate.parse(it.day) }
                 .mapValues { (_, rows) -> rows.associate { it.packageName to it.totalMillis } }
-        val sessions =
-            (1L..6L).associate { back ->
-                val date = today.minusDays(back)
-                date to store.sessionsFor(date)
-            }
+        val window = dayWindowRange(today)
+        val sessions = store.sessionsBetween(window.start, today)
         return buildWeekExport(
-            weekStart = today.minusDays(6),
+            weekStart = window.start,
             weekEnd = today,
             storedTotalsByDay = totals,
             sessionsByDay = sessions,
