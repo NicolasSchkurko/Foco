@@ -288,8 +288,9 @@ fun LimitsQuickAdjust(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (pendingStart != pendingEnd) {
-                            draftWindow = AppWindow(pendingStart, pendingEnd)
+                        val window = AppWindow.of(pendingStart, pendingEnd)
+                        if (window != null) {
+                            draftWindow = window
                             onWindowChange(pendingStart, pendingEnd)
                         }
                         showPicker = false

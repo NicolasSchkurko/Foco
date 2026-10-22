@@ -1,5 +1,6 @@
 package com.foco.app.data
 
+import com.foco.app.domain.AppLimitWindowRules
 import com.foco.app.domain.AppWindow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -171,8 +172,8 @@ class UsageMonitorServiceTest {
                 .toEpochMilli()
         val window = AppWindow(9 * 60, 23 * 60)
 
-        assertFalse(windowBlocks(at("10:00"), window, zone))
-        assertTrue(windowBlocks(at("23:00"), window, zone))
-        assertFalse(windowBlocks(at("23:00"), null, zone))
+        assertFalse(AppLimitWindowRules.blocksAt(at("10:00"), window, zone))
+        assertTrue(AppLimitWindowRules.blocksAt(at("23:00"), window, zone))
+        assertFalse(AppLimitWindowRules.blocksAt(at("23:00"), null, zone))
     }
 }

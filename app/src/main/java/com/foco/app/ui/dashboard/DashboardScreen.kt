@@ -116,7 +116,7 @@ fun DashboardScreen(
     onOpenSettings: () -> Unit = {},
     loadExport: (suspend () -> String)? = null,
     clock: Clock = Clock.systemDefaultZone(),
-    createRepository: (Context) -> UsageRepository = { UsageRepository(it) },
+    createRepository: (Context) -> UsageRepository = { UsageRepository.forApp(it) },
     createHistoryStore: (Context, (LocalDate) -> DayData) -> SessionHistoryStore =
         { appContext, readDay -> SessionHistoryStore.forApp(appContext, readDay) },
 ) {

@@ -88,12 +88,8 @@ class DashboardState private constructor(
         today: LocalDate,
     ) {
         val current = value
-        val keep =
-            ring +
-                current.ring.history.filter(isAllowed) +
-                listOfNotNull(current.ring.current.takeIf(isAllowed))
-        val nextRing = current.ring.retain(keep, today)
-        val isPresent = current.ring.current in keep
+        val nextRing = current.ring.retain(ring, isAllowed, DayStop.Day(today))
+        val isPresent = current.ring.current in ring || isAllowed(current.ring.current)
         set(
             current.copy(
                 ring = nextRing,

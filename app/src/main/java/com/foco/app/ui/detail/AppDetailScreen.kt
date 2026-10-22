@@ -99,7 +99,7 @@ fun AppDetailScreen(
 ) {
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val repository = remember { UsageRepository(context.applicationContext) }
+    val repository = remember { UsageRepository.forApp(context.applicationContext) }
     val limitsStore = remember { AppLimitsStore.forApp(context.applicationContext) }
     val store = remember { SessionHistoryStore.forApp(context.applicationContext) { date -> repository.loadDay(date) } }
     val today = rememberCurrentDate(clock)
