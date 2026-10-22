@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.foco.app.R
 import com.foco.app.ui.metrics.HourBucket
 
-/** Barras de uso por hora (00 a 23). */
+/** Usage bars per hour (00 to 23). */
 @Composable
 fun HourChart(hourly: List<HourBucket>) {
     Column {

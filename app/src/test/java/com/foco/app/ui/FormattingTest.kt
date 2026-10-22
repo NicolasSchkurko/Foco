@@ -33,4 +33,23 @@ class FormattingTest {
         assertEquals("Wed", formatWeekday(d, Locale.ENGLISH))
         assertEquals("Wed 21 Oct", formatDayLabel(d, today, "T", "Y", Locale.ENGLISH))
     }
+
+    @Test
+    fun theMinuteOfTheDayIs24Hour() {
+        assertEquals("00:00", formatMinuteOfDay24(0))
+        assertEquals("09:00", formatMinuteOfDay24(540))
+        assertEquals("23:45", formatMinuteOfDay24(1425))
+    }
+
+    @Test
+    fun theLabelsAreTheSameOnEveryCall() {
+        val d = LocalDate.of(2026, 10, 21)
+        val today = LocalDate.of(2026, 10, 21)
+        // The formatters are cached per locale: the text must not drift between calls.
+        assertEquals(formatWeekday(d, Locale.ENGLISH), formatWeekday(d, Locale.ENGLISH))
+        assertEquals(
+            formatDayLabel(d.minusDays(2), today, "T", "Y", Locale.ENGLISH),
+            formatDayLabel(d.minusDays(2), today, "T", "Y", Locale.ENGLISH),
+        )
+    }
 }

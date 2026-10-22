@@ -7,6 +7,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /** 3 h 24 min / 12 min / 40 s depending on magnitude. */
 fun formatDuration(millis: Long): String {
@@ -37,11 +38,15 @@ fun appLocale(): Locale {
     return if (requested.language in shipped) Locale.forLanguageTag(requested.language) else Locale.ENGLISH
 }
 
+/** The formatters per language: the pattern is parsed once per locale, not once per label. */
+private val weekdayFormatters = ConcurrentHashMap<Locale, DateTimeFormatter>()
+private val dayLabelFormatters = ConcurrentHashMap<Locale, DateTimeFormatter>()
+
 /** The week bar's label: the app language's short weekday (e.g. Mon / lun). */
 fun formatWeekday(
     date: LocalDate,
-    locale: Locale = appLocale(),
-): String = DateTimeFormatter.ofPattern("EEE", locale).format(date)
+    locale: Locale,
+): String = weekdayFormatters.getOrPut(locale) { DateTimeFormatter.ofPattern("EEE", locale) }.format(date)
 
 /**
  * Day selector label: today/yesterday use the active language's; the rest, the abbreviated date
@@ -52,10 +57,13 @@ fun formatDayLabel(
     today: LocalDate,
     todayLabel: String,
     yesterdayLabel: String,
-    locale: Locale = appLocale(),
+    locale: Locale,
 ): String =
     when (date) {
         today -> todayLabel
         today.minusDays(1) -> yesterdayLabel
-        else -> DateTimeFormatter.ofPattern("EEE d MMM", locale).format(date)
+        else -> dayLabelFormatters.getOrPut(locale) { DateTimeFormatter.ofPattern("EEE d MMM", locale) }.format(date)
     }
+
+/** A minute of the day in 24-hour form: "09:00". */
+fun formatMinuteOfDay24(minute: Int): String = String.format(Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)

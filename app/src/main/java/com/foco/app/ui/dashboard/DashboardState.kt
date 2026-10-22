@@ -4,10 +4,12 @@ import com.foco.app.domain.DayRingState
 import com.foco.app.domain.DayStop
 import com.foco.app.domain.back
 import com.foco.app.domain.moveTo
+import com.foco.app.domain.retain
 import com.foco.app.domain.step
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.LocalDate
 
 /** The home's position, typed history and motion; no Android or Compose. */
 class DashboardState private constructor(
@@ -76,22 +78,26 @@ class DashboardState private constructor(
         return true
     }
 
+    /**
+     * Keeps the history honest when the store drops a day: a vanished current position falls back
+     * to today. The domain owns the rule; the survivors are the ring's plus the allowed ones.
+     */
     fun retain(
         ring: List<DayStop>,
         isAllowed: (DayStop) -> Boolean,
-        fallback: DayStop,
+        today: LocalDate,
     ) {
         val current = value
-        val isPresent = current.ring.current in ring || isAllowed(current.ring.current)
-        val nextRing =
-            DayRingState(
-                current = if (isPresent) current.ring.current else fallback,
-                history = current.ring.history.filter { it in ring || isAllowed(it) },
-            )
+        val keep =
+            ring +
+                current.ring.history.filter(isAllowed) +
+                listOfNotNull(current.ring.current.takeIf(isAllowed))
+        val nextRing = current.ring.retain(keep, today)
+        val isPresent = current.ring.current in keep
         set(
             current.copy(
                 ring = nextRing,
-                shown = if (isPresent) current.shown else fallback,
+                shown = if (isPresent) current.shown else DayStop.Day(today),
             ),
         )
     }

@@ -3,7 +3,6 @@ package com.foco.app.ui.detail
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -50,19 +50,25 @@ import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DaySource
 import com.foco.app.domain.availableDays
 import com.foco.app.domain.daySource
-import com.foco.app.domain.reclampDayIndex
+import com.foco.app.domain.recentDays
+import com.foco.app.domain.reclampDay
 import com.foco.app.domain.stepCyclicIndex
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
+import com.foco.app.ui.common.EmptyState
 import com.foco.app.ui.common.HourChart
+import com.foco.app.ui.common.LoadingState
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.common.readOr
+import com.foco.app.ui.common.rememberAppLocale
 import com.foco.app.ui.common.rememberCurrentDate
+import com.foco.app.ui.common.rememberDayLabel
 import com.foco.app.ui.common.swipeThroughPositions
-import com.foco.app.ui.formatDayLabel
 import com.foco.app.ui.formatDuration
+import com.foco.app.ui.formatMinuteOfDay24
 import com.foco.app.ui.formatTimeOfDay
+import com.foco.app.ui.metrics.AppDayDetail
 import com.foco.app.ui.metrics.appDayDetail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -70,7 +76,6 @@ import kotlinx.coroutines.withContext
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 /** Tag of the day label; the tests read it to see which day is shown. */
 const val DAY_LABEL_TAG = "detail_day_label"
@@ -102,13 +107,15 @@ fun AppDetailScreen(
     val windows by limitsStore.windowsFlow.collectAsState(initial = emptyMap())
     val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
-    var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
+    var selectedIndex by remember { mutableIntStateOf(0) } // 0 = today; it grows towards the past
     // Survives recreation (rotation / Settings round-trip): a date key, not a raw index, so a
-    // shrunken window resolves through reclampDayIndex instead of crashing.
+    // shrunken window resolves through reclampDay instead of crashing.
     var savedSelectedDate by rememberSaveable { mutableStateOf<String?>(null) }
     // The window the selection was made in, so a rebuilt window can keep the same day.
     var selectedWindow by remember { mutableStateOf<List<LocalDate>>(emptyList()) }
     var sessions by remember { mutableStateOf<List<UsageSession>?>(null) }
+    // The day's summary, derived off the main thread when the day's sessions are read.
+    var detail by remember { mutableStateOf<AppDayDetail?>(null) }
     // Resume trigger: bumps on every return to the foreground so the load effect re-runs
     // (first show is handled by the effect itself; later resumes re-read the visible day).
     var refreshKey by remember { mutableStateOf(0) }
@@ -129,7 +136,7 @@ fun AppDetailScreen(
         remember(today, storedDays, date) {
             val available = availableDays(today, storedDays.orEmpty())
             // Any bar the week offers opens its day, even one the store has nothing for.
-            if (date != null && date !in available && date in today.minusDays(6)..today) {
+            if (date != null && date !in available && date in recentDays(today)) {
                 (available + date).sortedDescending()
             } else {
                 available
@@ -150,7 +157,10 @@ fun AppDetailScreen(
         val pending = requested?.let { day -> days.indexOf(day).takeIf { it >= 0 } }
         if (pending != null) return pending
         val remembered = savedSelectedDate?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
-        if (remembered != null) return reclampDayIndex(0, listOf(remembered), days, today)
+        if (remembered != null) {
+            val clamped = reclampDay(remembered, days, today)
+            return days.indexOf(clamped).takeIf { it >= 0 } ?: 0
+        }
         return selectedIndex.coerceIn(0, days.lastIndex.coerceAtLeast(0))
     }
     val effectiveIndex =
@@ -199,36 +209,39 @@ fun AppDetailScreen(
     LaunchedEffect(days, storedDays, savedSelectedDate) {
         val saved = savedSelectedDate?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() } ?: return@LaunchedEffect
         if (storedDays == null) return@LaunchedEffect
-        val idx =
-            days.indexOf(saved).takeIf { it >= 0 }
-                ?: days.minByOrNull { kotlin.math.abs(ChronoUnit.DAYS.between(it, saved)) }?.let { days.indexOf(it) }
-                ?: 0
+        val idx = days.indexOf(reclampDay(saved, days, today)).takeIf { it >= 0 } ?: 0
         if (selectedIndex != idx) selectedIndex = idx
     }
 
     val selectedDate = days.getOrNull(effectiveIndex) ?: today
     LaunchedEffect(packageName, selectedDate, storedDays, today, refreshKey) {
         sessions = null
-        sessions =
+        detail = null
+        val loaded =
             withContext(Dispatchers.IO) {
                 // Today is never consolidated, so the live read answers for it and the store for the rest.
                 // A failed read answers an empty day, which is the empty state the screen already has.
-                readOr(emptyList<UsageSession>()) {
-                    when (daySource(selectedDate, today, storedDays.orEmpty())) {
-                        DaySource.Live -> repository.loadDay(selectedDate).sessions
-                        DaySource.Stored -> store.sessionsFor(selectedDate)
-                        DaySource.Absent -> emptyList()
+                val loadedSessions =
+                    readOr(emptyList<UsageSession>()) {
+                        when (daySource(selectedDate, today, storedDays.orEmpty())) {
+                            DaySource.Live -> repository.loadDay(selectedDate).sessions
+                            DaySource.Stored -> store.sessionsFor(selectedDate)
+                            DaySource.Absent -> emptyList()
+                        }
                     }
-                }
+                // The day's summary is derived here, off the main thread: it walks every session.
+                loadedSessions to appDayDetail(loadedSessions, packageName, ZoneId.systemDefault())
             }
+        sessions = loaded.first
+        detail = loaded.second
     }
 
-    val detail =
-        remember(sessions, packageName) {
-            sessions?.let { appDayDetail(it, packageName, ZoneId.systemDefault()) }
-        }
-
     val openLimitsLabel = stringResource(R.string.detail_limits_configure)
+    // The locale and the day labels are read once for the screen, not once per label.
+    val locale = rememberAppLocale()
+    val dayLabel = rememberDayLabel(today, locale)
+    val previousDay = stringResource(R.string.day_previous)
+    val nextDay = stringResource(R.string.day_next)
 
     Scaffold { innerPadding ->
         Column(
@@ -268,17 +281,12 @@ fun AppDetailScreen(
                 IconButton(
                     onClick = { stepDay(1) },
                     enabled = effectiveIndex < days.lastIndex,
+                    modifier = Modifier.semantics { contentDescription = previousDay },
                 ) {
                     Text("‹", style = MaterialTheme.typography.titleLarge)
                 }
                 Text(
-                    text =
-                        formatDayLabel(
-                            selectedDate,
-                            today,
-                            stringResource(R.string.day_today),
-                            stringResource(R.string.day_yesterday),
-                        ),
+                    text = dayLabel(selectedDate),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.width(150.dp).testTag(DAY_LABEL_TAG),
                     textAlign = TextAlign.Center,
@@ -286,6 +294,7 @@ fun AppDetailScreen(
                 IconButton(
                     onClick = { stepDay(-1) },
                     enabled = effectiveIndex > 0,
+                    modifier = Modifier.semantics { contentDescription = nextDay },
                 ) {
                     Text("›", style = MaterialTheme.typography.titleLarge)
                 }
@@ -307,30 +316,21 @@ fun AppDetailScreen(
             ) {
                 when {
                     sessions == null ->
-                        Box(
+                        LoadingState(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                        )
 
                     current == null ->
-                        Box(
+                        EmptyState(
+                            text = stringResource(R.string.detail_empty),
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = stringResource(R.string.detail_empty),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                        )
 
                     else ->
                         Column(
@@ -357,14 +357,12 @@ fun AppDetailScreen(
                                     style = MaterialTheme.typography.titleMedium,
                                 )
                                 Spacer(Modifier.height(4.dp))
-                                val none = stringResource(R.string.settings_limit_none)
-                                val blockNow = stringResource(R.string.settings_limit_block_now)
                                 val minutes = limits[packageName]
                                 val window = windows[packageName]
                                 val alertOn = alerts[packageName] == true
                                 val preview =
                                     listOf(
-                                        stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes, none, blockNow),
+                                        stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(minutes),
                                         stringResource(R.string.settings_window_label) to
                                             (
                                                 if (window ==
@@ -374,8 +372,8 @@ fun AppDetailScreen(
                                                 } else {
                                                     stringResource(
                                                         R.string.settings_window_range,
-                                                        previewClockLabel(window.startMinute),
-                                                        previewClockLabel(window.endMinute),
+                                                        formatMinuteOfDay24(window.startMinute),
+                                                        formatMinuteOfDay24(window.endMinute),
                                                     )
                                                 }
                                             ),
@@ -480,20 +478,11 @@ fun AppDetailScreen(
     }
 }
 
-private fun previewLimitLabel(
-    minutes: Int?,
-    none: String,
-    blockNow: String,
-): String {
-    if (minutes == null) return none
-    if (minutes == 0) return blockNow
-    val h = minutes / 60
-    val rest = minutes % 60
-    return when {
-        h > 0 && rest > 0 -> "$h h $rest min"
-        h > 0 -> "$h h"
-        else -> "$minutes min"
+/** The limit as the preview shows it: the same words the editor shows. */
+@Composable
+private fun previewLimitLabel(minutes: Int?): String =
+    when (minutes) {
+        null -> stringResource(R.string.settings_limits_value_none)
+        0 -> stringResource(R.string.settings_limits_value_block_now)
+        else -> stringResource(R.string.settings_limits_value_minutes, minutes)
     }
-}
-
-private fun previewClockLabel(minute: Int): String = String.format(java.util.Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)

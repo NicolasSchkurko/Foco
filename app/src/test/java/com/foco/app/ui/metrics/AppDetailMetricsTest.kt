@@ -45,7 +45,7 @@ class AppDetailMetricsTest {
         val sessions =
             listOf(
                 UsageSession("app.a", at(11, 0), at(11, 50)),
-                UsageSession("app.a", at(10, 0), at(10, 30)), // fuera de orden a propósito
+                UsageSession("app.a", at(10, 0), at(10, 30)), // out of order on purpose
             )
 
         val detail = appDayDetail(sessions, "app.a", zone)!!

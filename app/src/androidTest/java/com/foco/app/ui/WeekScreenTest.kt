@@ -70,6 +70,7 @@ class WeekScreenTest {
             today,
             string(R.string.day_today),
             string(R.string.day_yesterday),
+            appLocale(),
         )
 
     /** The live day comes through the seam: the platform is never read and no activity is launched. */

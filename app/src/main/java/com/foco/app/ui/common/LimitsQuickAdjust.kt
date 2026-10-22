@@ -1,5 +1,6 @@
 package com.foco.app.ui.common
 
+import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,49 +37,46 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
-import com.foco.app.data.AppLimitsStore
 import com.foco.app.domain.AppLimitRules
 import com.foco.app.domain.AppLimitWindowRules
 import com.foco.app.domain.AppWindow
-import kotlinx.coroutines.Job
+import com.foco.app.ui.formatMinuteOfDay24
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Locale
 
 /**
  * The daily limit of one app: `-15 min` / `+15 min` around a centered value (long-press
- * accelerates) plus the recurring window with its picker. It reports the picks; the caller persists them.
+ * accelerates) plus the window picker. It shows the values it is given and reports the picks.
  */
 @Composable
 fun LimitsQuickAdjust(
-    store: AppLimitsStore,
-    packageName: String,
-    onLimitChange: (String, Int?) -> Unit,
-    onWindowChange: (String, Int, Int) -> Unit,
-    onWindowClear: (String) -> Unit,
+    limit: Int?,
+    window: AppWindow?,
+    onLimitChange: (Int?) -> Unit,
+    onWindowChange: (Int, Int) -> Unit,
+    onWindowClear: () -> Unit,
 ) {
     val context = LocalContext.current
-    var limit by remember(packageName) { mutableStateOf<Int?>(null) }
-    var window by remember(packageName) { mutableStateOf<AppWindow?>(null) }
+    // The values on screen: the caller's, until the user picks another one. The pick stays until
+    // the caller echoes it back, so a slow write never shows the old value again.
+    var draftLimit by remember(limit) { mutableStateOf(limit) }
+    var draftWindow by remember(window) { mutableStateOf(window) }
     var showPicker by remember { mutableStateOf(false) }
-    var interacted by remember(packageName) { mutableStateOf(false) }
-    LaunchedEffect(packageName) {
-        // Seed from the store when the user has not started editing; otherwise a late load would
-        // clobber an in-flight adjustment.
-        if (!interacted) {
-            limit = store.limitFor(packageName)
-            window = store.windowFor(packageName)
-        }
-    }
     val scope = rememberCoroutineScope()
     val is24 = DateFormat.is24HourFormat(context)
     val limitLabel = stringResource(R.string.detail_limits_limit_label)
+    // The press each button is holding: outside the snapshot, so a step does not recompose.
+    val minusPress = remember { StepPress() }
+    val plusPress = remember { StepPress() }
 
     @Composable
     fun valueLabel(value: Int?): String =
@@ -88,69 +87,85 @@ fun LimitsQuickAdjust(
         }
 
     fun applyDelta(delta: Int) {
-        val current = limit ?: 0
+        val current = draftLimit ?: 0
         if (delta < 0) {
             // Lower limit: 0 ("block now") is the floor of the grid, so the step never clears it.
             if (current == 0) return
-            val newVal =
-                ((current - AppLimitRules.STEP_MINUTES).coerceAtLeast(0) / AppLimitRules.STEP_MINUTES * AppLimitRules.STEP_MINUTES)
-            limit = newVal
-            interacted = true
-            onLimitChange(packageName, newVal)
+            val newValue =
+                (
+                    (current - AppLimitRules.STEP_MINUTES).coerceAtLeast(0) /
+                        AppLimitRules.STEP_MINUTES * AppLimitRules.STEP_MINUTES
+                )
+            draftLimit = newValue
+            onLimitChange(newValue)
         } else {
-            val newVal =
+            val newValue =
                 ((current + AppLimitRules.STEP_MINUTES) / AppLimitRules.STEP_MINUTES * AppLimitRules.STEP_MINUTES)
                     .coerceAtMost(AppLimitRules.MAX_MINUTES)
-            limit = newVal
-            interacted = true
-            onLimitChange(packageName, newVal)
+            draftLimit = newValue
+            onLimitChange(newValue)
         }
     }
 
-    var repeatJob by remember { mutableStateOf<Job?>(null) }
+    // The step the gesture and the click apply: the current one, so a step never restarts them.
+    val currentApplyDelta by rememberUpdatedState<(Int) -> Unit>(::applyDelta)
 
-    fun startRepeat(delta: Int) {
-        repeatJob?.cancel()
-        repeatJob =
+    // The step the click applies: a tap steps once, a held press already repeated the step.
+    fun stepFromClick(
+        press: StepPress,
+        delta: Int,
+    ) {
+        if (press.gestureSteps > press.accountedSteps) {
+            press.accountedSteps = press.gestureSteps
+        } else {
+            currentApplyDelta(delta)
+        }
+    }
+
+    fun startRepeat(
+        press: StepPress,
+        delta: Int,
+    ) {
+        press.repeatJob?.cancel()
+        press.repeatJob =
             scope.launch {
                 var wait = 400L
                 while (true) {
                     delay(wait)
-                    applyDelta(delta)
+                    currentApplyDelta(delta)
+                    press.gestureSteps++
                     // The longer it is held, the faster it repeats.
                     wait = (wait - 50L).coerceAtLeast(100L)
                 }
             }
     }
 
-    // A tap steps once; a press held past the long-press threshold repeats while it is held.
-    // Written by hand: the button's own clickable would consume the gesture otherwise.
-    suspend fun PointerInputScope.stepGesture(delta: Int) {
+    // A press held past the long-press threshold repeats the step while it is held; a tap is
+    // the button's own click. Written by hand: the button's clickable would consume the gesture.
+    suspend fun PointerInputScope.holdGesture(
+        press: StepPress,
+        delta: Int,
+    ) {
         awaitPointerEventScope {
             while (true) {
                 val down = awaitPointerEvent(PointerEventPass.Initial)
                 if (!down.changes.any { it.changedToDown() }) continue
-                var repeated = false
                 val longPress =
                     scope.launch {
                         delay(viewConfiguration.longPressTimeoutMillis)
-                        repeated = true
-                        startRepeat(delta)
+                        startRepeat(press, delta)
                     }
                 while (true) {
                     val event = awaitPointerEvent(PointerEventPass.Initial)
                     if (event.changes.all { it.changedToUp() }) break
                 }
                 longPress.cancel()
-                // A short press steps once; a long press already repeated.
-                if (!repeated) applyDelta(delta)
+                press.stopRepeat()
             }
         }
-        repeatJob?.cancel()
-        repeatJob = null
     }
 
-    val limitOn = limit != null
+    val limitOn = draftLimit != null
     Column {
         // The switch is the binary decision (a limit or none); the stepper only sets its size.
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -165,14 +180,13 @@ fun LimitsQuickAdjust(
             Switch(
                 checked = limitOn,
                 onCheckedChange = { on ->
-                    interacted = true
                     if (on) {
-                        val value = limit ?: AppLimitRules.STEP_MINUTES
-                        limit = value
-                        onLimitChange(packageName, value)
+                        val value = draftLimit ?: AppLimitRules.STEP_MINUTES
+                        draftLimit = value
+                        onLimitChange(value)
                     } else {
-                        limit = null
-                        onLimitChange(packageName, null)
+                        draftLimit = null
+                        onLimitChange(null)
                     }
                 },
                 modifier = Modifier.semantics { contentDescription = limitLabel },
@@ -181,30 +195,37 @@ fun LimitsQuickAdjust(
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(
-                onClick = {},
-                enabled = limitOn && (limit ?: 0) > 0,
+                onClick = { stepFromClick(minusPress, -AppLimitRules.STEP_MINUTES) },
+                enabled = limitOn && (draftLimit ?: 0) > 0,
                 modifier =
                     Modifier
                         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                        .pointerInput(limitOn, limit) { stepGesture(-AppLimitRules.STEP_MINUTES) },
+                        .pointerInput(Unit) { holdGesture(minusPress, -AppLimitRules.STEP_MINUTES) },
             ) { Text(stringResource(R.string.settings_limits_button_minus)) }
+            val currentValue = valueLabel(draftLimit)
             Text(
-                text = valueLabel(limit),
+                text = currentValue,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .semantics {
+                            stateDescription = currentValue
+                            liveRegion = LiveRegionMode.Polite
+                        },
             )
             OutlinedButton(
-                onClick = {},
+                onClick = { stepFromClick(plusPress, AppLimitRules.STEP_MINUTES) },
                 enabled = limitOn,
                 modifier =
                     Modifier
                         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                        .pointerInput(limitOn, limit) { stepGesture(AppLimitRules.STEP_MINUTES) },
+                        .pointerInput(Unit) { holdGesture(plusPress, AppLimitRules.STEP_MINUTES) },
             ) { Text(stringResource(R.string.settings_limits_button_plus)) }
         }
         Spacer(Modifier.height(12.dp))
-        val w = window
+        val w = draftWindow
         val rangeText =
             if (w == null) {
                 stringResource(R.string.settings_window_none)
@@ -228,11 +249,11 @@ fun LimitsQuickAdjust(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (window != null) {
+            if (draftWindow != null) {
                 TextButton(
                     onClick = {
-                        window = null
-                        onWindowClear(packageName)
+                        draftWindow = null
+                        onWindowClear()
                     },
                     modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
                 ) { Text(stringResource(R.string.settings_window_clear)) }
@@ -245,8 +266,8 @@ fun LimitsQuickAdjust(
     }
 
     if (showPicker) {
-        var pendingStart by remember { mutableStateOf(window?.startMinute ?: (9 * 60)) }
-        var pendingEnd by remember { mutableStateOf(window?.endMinute ?: (23 * 60)) }
+        var pendingStart by remember { mutableStateOf(draftWindow?.startMinute ?: (9 * 60)) }
+        var pendingEnd by remember { mutableStateOf(draftWindow?.endMinute ?: (23 * 60)) }
         AlertDialog(
             onDismissRequest = { showPicker = false },
             title = { Text(stringResource(R.string.settings_limits_picker_title)) },
@@ -268,8 +289,8 @@ fun LimitsQuickAdjust(
                 TextButton(
                     onClick = {
                         if (pendingStart != pendingEnd) {
-                            window = AppWindow(pendingStart, pendingEnd)
-                            onWindowChange(packageName, pendingStart, pendingEnd)
+                            draftWindow = AppWindow(pendingStart, pendingEnd)
+                            onWindowChange(pendingStart, pendingEnd)
                         }
                         showPicker = false
                     },
@@ -334,7 +355,7 @@ private fun TimeRangePicker(
     startMinute: Int,
     endMinute: Int,
     is24: Boolean,
-    context: android.content.Context,
+    context: Context,
     onChange: (Int, Int) -> Unit,
 ) {
     var start by remember { mutableStateOf(startMinute) }
@@ -377,7 +398,7 @@ private fun TimeDropdown(
     value: Int,
     label: String,
     is24: Boolean,
-    context: android.content.Context,
+    context: Context,
     onPick: (Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -392,7 +413,7 @@ private fun TimeDropdown(
             Text(formatMinuteOfDay(context, value, is24))
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            AppLimitWindowRules.options().filter { it % 30 == 0 }.forEach { minute ->
+            AppLimitWindowRules.options().forEach { minute ->
                 DropdownMenuItem(
                     text = { Text(formatMinuteOfDay(context, minute, is24)) },
                     onClick = {
@@ -407,12 +428,12 @@ private fun TimeDropdown(
 }
 
 private fun formatMinuteOfDay(
-    context: android.content.Context,
+    context: Context,
     minute: Int,
     is24: Boolean,
 ): String =
     if (is24) {
-        String.format(Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)
+        formatMinuteOfDay24(minute)
     } else {
         val cal =
             Calendar.getInstance().apply {

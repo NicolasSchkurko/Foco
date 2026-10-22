@@ -18,14 +18,14 @@ import androidx.compose.ui.unit.dp
 import com.foco.app.ui.formatDuration
 
 /**
- * One app in a ranking: icon, label, its share of [maxMillis] as a bar, its time and a [caption]
- * under it — the screen says what fits (when it was last used, or how many days it was used).
+ * One app in a ranking: icon, label, its share of [barReferenceMillis] as a bar, its time and a
+ * [caption] under it. The reference is the day's total on a day and the top app on the week.
  */
 @Composable
 fun AppUsageRow(
     packageName: String,
     millis: Long,
-    maxMillis: Long,
+    barReferenceMillis: Long,
     caption: String,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
@@ -48,7 +48,7 @@ fun AppUsageRow(
                 maxLines = 1,
             )
             Spacer(Modifier.height(4.dp))
-            val fraction = if (maxMillis > 0) millis.toFloat() / maxMillis else 0f
+            val fraction = if (barReferenceMillis > 0) millis.toFloat() / barReferenceMillis else 0f
             LinearProgressIndicator(
                 progress = { fraction },
                 modifier = Modifier.fillMaxWidth(),

@@ -11,7 +11,6 @@ import com.foco.app.ui.dashboard.DashboardScreen
 import com.foco.app.ui.detail.AppAppSettingsScreen
 import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.settings.SettingsScreen
-import java.time.LocalDate
 
 /**
  * The app's routes: the home, settings and the detail. The home owns the day ring; the week and the
@@ -25,15 +24,7 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
         composable("dashboard") {
             DashboardScreen(
                 loadDay = loadDay,
-                onAppClick = { packageName, date ->
-                    val route =
-                        if (date == null) {
-                            "detail/$packageName"
-                        } else {
-                            "detail/$packageName?date=$date"
-                        }
-                    navController.navigate(route)
-                },
+                onAppClick = { target -> navController.navigate(detailRoute(target)) },
                 onOpenSettings = { navController.navigate("settings") },
             )
         }
@@ -57,11 +48,7 @@ fun FocoNavHost(loadDay: (suspend () -> DayData)? = null) {
             val packageName = backStackEntry.arguments?.getString("packageName").orEmpty()
             AppDetailScreen(
                 packageName = packageName,
-                date =
-                    backStackEntry.arguments
-                        ?.getString("date")
-                        ?.takeIf { it.isNotEmpty() }
-                        ?.let(LocalDate::parse),
+                date = parseRouteDate(backStackEntry.arguments?.getString("date")),
                 onConfigure = { navController.navigate("app_settings/$packageName") },
             )
         }

@@ -30,6 +30,7 @@ import com.foco.app.R
 import com.foco.app.data.ConsolidationRunner
 import com.foco.app.data.UsageAccess
 import com.foco.app.ui.onboarding.OnboardingScreen
+import com.foco.app.ui.onboarding.OnboardingStep
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -81,11 +82,18 @@ fun App(
         }
     }
 
-    when {
-        !hasUsageAccess -> OnboardingScreen()
-        !hasAccessibility -> OnboardingScreen(accessibility = true)
-        !startupReady -> StartupLoadingScreen()
-        else -> FocoNavHost()
+    // What the app shows: the permission step that is missing, the startup load, or the home.
+    val entryState: EntryState =
+        when {
+            !hasUsageAccess -> EntryState.Onboarding(OnboardingStep.UsageAccess)
+            !hasAccessibility -> EntryState.Onboarding(OnboardingStep.Accessibility)
+            !startupReady -> EntryState.Loading
+            else -> EntryState.Home
+        }
+    when (entryState) {
+        is EntryState.Onboarding -> OnboardingScreen(entryState.step)
+        EntryState.Loading -> StartupLoadingScreen()
+        EntryState.Home -> FocoNavHost()
     }
 }
 
