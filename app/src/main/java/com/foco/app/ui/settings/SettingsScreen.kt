@@ -45,6 +45,7 @@ import com.foco.app.model.LanguageOption
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.appLabel
+import com.foco.app.ui.common.openSystemScreen
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -93,7 +94,7 @@ fun SettingsScreen() {
                 item {
                     AboutBlock(
                         version = identity.versionName(),
-                        onOpenRepository = { context.startActivity(identity.repositoryIntent()) },
+                        onOpenRepository = { openSystemScreen(context, identity.repositoryIntent()) },
                     )
                     Spacer(Modifier.height(16.dp))
                 }
@@ -104,13 +105,16 @@ fun SettingsScreen() {
                         value = languageLabel(language),
                         options =
                             LanguageOption.entries.map { option ->
-                                languageLabel(option) to {
-                                    // The pick re-creates the activity: the write must not be cancelled with it.
-                                    scope.launch {
-                                        withContext(NonCancellable) { store.setLanguage(option) }
-                                        AppLanguage.applyToSystem(option)
-                                    }
-                                }
+                                DropdownOption(
+                                    label = languageLabel(option),
+                                    onSelect = {
+                                        // The pick re-creates the activity: the write must not be cancelled with it.
+                                        scope.launch {
+                                            withContext(NonCancellable) { store.setLanguage(option) }
+                                            AppLanguage.applyToSystem(option)
+                                        }
+                                    },
+                                )
                             },
                     )
                 }
@@ -122,11 +126,14 @@ fun SettingsScreen() {
                         value = appearanceLabel(appearance),
                         options =
                             AppearanceOption.entries.map { option ->
-                                appearanceLabel(option) to {
-                                    scope.launch {
-                                        withContext(NonCancellable) { store.setAppearance(option) }
-                                    }
-                                }
+                                DropdownOption(
+                                    label = appearanceLabel(option),
+                                    onSelect = {
+                                        scope.launch {
+                                            withContext(NonCancellable) { store.setAppearance(option) }
+                                        }
+                                    },
+                                )
                             },
                     )
                 }
@@ -210,7 +217,7 @@ private fun AboutBlock(
 private fun DropdownRow(
     title: String,
     value: String,
-    options: List<Pair<String, () -> Unit>>,
+    options: List<DropdownOption>,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -237,11 +244,11 @@ private fun DropdownRow(
             )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { (label, onSelect) ->
+            options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(label) },
+                    text = { Text(option.label) },
                     onClick = {
-                        onSelect()
+                        option.onSelect()
                         expanded = false
                     },
                 )
