@@ -1,82 +1,82 @@
 # Tasks — monitor-check-foreground-stale
 
-## Prueba más arriesgada:
+## Riskiest test first:
 
-- [ ] 1. `UsageMonitorService.checkOnce()`: reevaluar `currentPackage` en el ticker antes de `evaluateLimitCheck`:
-  - Guardar `packageName = ForegroundApp.currentPackage()` (ya es correcto).
-  - Si `packageName != current` (el `foreground.current` grabado al inicio del check) salir temprano.
-  - Corregir: mover la lectura de `packageName` hacia el principio, cerca del `if (!store.hasAnyLimitOrWindow())`.
-  - Agregar un test en `app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt` que verifica el caso donde el usuario cambia de app entre la primera lectura y la evaluación.
-  - El test deberá capturar los eventos apropiados (`UsageStats`, `ForegroundApp`, etc.) para simular el cambio de app.
-- [ ] 2. Agregar `monitor-check-foreground-stale` a `.openspec.yaml`:
+- [ ] 1. `UsageMonitorService.checkOnce()`: re-evaluate `currentPackage` in the ticker before `evaluateLimitCheck`:
+  - Keep `packageName = ForegroundApp.currentPackage()` (that part is already correct).
+  - If `packageName != current` (the `foreground.current` read at the start of the check), return early.
+  - Fix: move the read of `packageName` to the beginning, next to `if (!store.hasAnyLimitOrWindow())`.
+  - Add a test in `app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt` that covers the case where the user switches apps between the first read and the evaluation.
+  - The test must capture the right events (`UsageStats`, `ForegroundApp`, etc.) to simulate the app switch.
+- [ ] 2. Add `monitor-check-foreground-stale` to `.openspec.yaml`:
   - `x-kind: fix`
-  - `x-targets` a `app/src/main/java/com/foco/app/data/UsageMonitorService.kt`
-  - `x-tests` a `app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt`
-  - `x-tech_brief: true` (si se necesita `walkthrough.md`)
-- [ ] 3. Unificar `walkthrough.md` si es necesario (el cambio es muy pequeño).
-- [ ] 4. Ejecutar `gradlew.bat test` y `gradlew.bat ktlintCheck`; todo verde.
-- [ ] 5. `--pre-archive`, `archive`, registrar el board, la aprobación humana para `walkthrough.md`.
+  - `x-targets` to `app/src/main/java/com/foco/app/data/UsageMonitorService.kt`
+  - `x-tests` to `app/src/test/java/com/foco/app/data/UsageMonitorServiceTest.kt`
+  - `x-tech_brief: true` (if `walkthrough.md` is needed)
+- [ ] 3. Unify `walkthrough.md` if needed (the change is very small).
+- [ ] 4. Run `gradlew.bat test` and `gradlew.bat ktlintCheck`; everything green.
+- [ ] 5. `--pre-archive`, `archive`, record the board, the human approval for `walkthrough.md`.
 
 ## Ideas
 
-- El código que reevalúa `currentPackage` antes de bloquear es mínimo, pero importante.
-- Reevaluar `usedSeconds` solo cuando el paquete coincide.
-- Plan de validación: CI en cada cambio.
+- The code that re-evaluates `currentPackage` before blocking is minimal, but important.
+- Re-evaluate `usedSeconds` only when the package matches.
+- Validation plan: CI on every change.
 
-## Decisión
+## Decision
 
-- Agregar `x-deps: []` (no es necesario).
-- Si `tech_brief` se activa, agregar `walkthrough.md`.
-- Asegurar que el `gate-check --run-tests` agregue la prueba como `[@test]`.
+- Add `x-deps: []` (not needed).
+- If `tech_brief` is enabled, add `walkthrough.md`.
+- Make sure the `gate-check --run-tests` adds the test as an `[@test]`.
 
-## Dependencias
+## Dependencies
 
-- Ninguna (informe independiente).
+- None (independent report).
 
-## Pasos
+## Steps
 
-1. Modificar `UsageMonitorService.kt` para reevaluar el paquete actual.
-2. Agregar test o probar cambios.
-3. Ejecutar CI.
-4. Completar `walkthrough.md` si es necesario.
-5. Procesar `/spec-triage` y `--pre-archive`.
+1. Change `UsageMonitorService.kt` to re-evaluate the current package.
+2. Add the test or check the changes.
+3. Run CI.
+4. Complete `walkthrough.md` if needed.
+5. Process `/spec-triage` and `--pre-archive`.
 
-## Lista de pendientes
+## Pending list
 
-- [ ] Modificar `UsageMonitorService.kt`.
-- [ ] Agregar test unitario.
-- [ ] Ejecutar tests.
-- [ ] Verificar CI.
-- [ ] Agregar `walkthrough.md` (si es necesario).
-- [ ] Actualizar `DECISIONS.md`.
+- [ ] Change `UsageMonitorService.kt`.
+- [ ] Add the unit test.
+- [ ] Run the tests.
+- [ ] Check CI.
+- [ ] Add `walkthrough.md` (if needed).
+- [ ] Update `DECISIONS.md`.
 
 ## Risks
 
-- Lo anterior está bien cubierto.
+- The above is well covered.
 
 ## Log
 
-- 2026-10-21: Aceptado por /spec-triage como fix para el monitor stale. 
+- 2026-10-21: Accepted by /spec-triage as a fix for the stale monitor.
 
 ## Checklist
 
-- [ ] Modificar `UsageMonitorService.kt`.
-- [ ] Agregar test y validaciones.
-- [ ] Ejecutar CI y pruebas.
-- [ ] Agregar `walkthrough.md` si es necesario.
-- [ ] Generar `BOARD.md` y `DECISIONS.md`.
+- [ ] Change `UsageMonitorService.kt`.
+- [ ] Add the test and the validations.
+- [ ] Run CI and the tests.
+- [ ] Add `walkthrough.md` if needed.
+- [ ] Generate `BOARD.md` and `DECISIONS.md`.
 
 ## Riskiest First Vertical Slice
 
-- [ ] 1. Reevaluar el paquete en el ticker (el cambio crucial).
-- [ ] 2. Asegurar los tests.
-- [ ] 3. Corregir CI y tests.
-- [ ] 4. Validar `--pre-archive`.
+- [ ] 1. Re-evaluate the package in the ticker (the crucial change).
+- [ ] 2. Make sure the tests hold.
+- [ ] 3. Fix CI and the tests.
+- [ ] 4. Validate `--pre-archive`.
 
-## Tareas
+## Tasks
 
-- [ ] Preparar el script de modificación.
-- [ ] Preparar el test.
-- [ ] Asegurar la verificación de CI.
-- [ ] Validar la aprobación.
-- [ ] Asegurar los checklists finales.
+- [ ] Prepare the change script.
+- [ ] Prepare the test.
+- [ ] Make sure the CI verification holds.
+- [ ] Validate the approval.
+- [ ] Make sure the final checklists hold.
