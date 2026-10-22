@@ -272,7 +272,8 @@ fun AppDetailScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // ‹ day › selector: ‹ goes back in time, › forward; disabled at the ends.
+            // ‹ day › selector: ‹ goes back in time and stops at the oldest day; › walks the ring
+            // back, the way the right swipe does, and never dies: the ring is cyclic.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -293,7 +294,6 @@ fun AppDetailScreen(
                 )
                 IconButton(
                     onClick = { stepDay(-1) },
-                    enabled = effectiveIndex > 0,
                     modifier = Modifier.semantics { contentDescription = nextDay },
                 ) {
                     Text("›", style = MaterialTheme.typography.titleLarge)

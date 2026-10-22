@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     // Kotlin viene incorporado en AGP 9; solo aplicamos el compilador de Compose.
@@ -6,6 +8,15 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktlint)
 }
+
+// La firma del release: las claves viven fuera del repositorio (`keystore.properties` y el
+// keystore estan en el .gitignore). Sin el archivo, el release se construye sin firmar.
+val releaseKeystore = Properties()
+val releaseKeystoreFile = rootProject.file("keystore.properties")
+if (releaseKeystoreFile.exists()) {
+    releaseKeystoreFile.inputStream().use { releaseKeystore.load(it) }
+}
+val hasReleaseKey = releaseKeystore.size > 0
 
 android {
     namespace = "com.foco.app"
@@ -16,10 +27,21 @@ android {
         applicationId = "com.foco.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.4.0"
+        versionCode = 5
+        versionName = "0.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = rootProject.file(releaseKeystore.getProperty("storeFile"))
+                storePassword = releaseKeystore.getProperty("storePassword")
+                keyAlias = releaseKeystore.getProperty("keyAlias")
+                keyPassword = releaseKeystore.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -29,6 +51,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            if (hasReleaseKey) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

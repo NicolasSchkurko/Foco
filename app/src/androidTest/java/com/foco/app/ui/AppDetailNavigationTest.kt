@@ -1,11 +1,14 @@
 package com.foco.app.ui
 
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -17,6 +20,7 @@ import com.foco.app.clearTheHistoryDay
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
+import com.foco.app.ui.detail.DAY_LABEL_TAG
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -182,6 +186,28 @@ class AppDetailNavigationTest {
         }
     }
 
+    /**
+     * The right arrow is never dimmed: the ring is cyclic. Pressing it walks the ring back the
+     * way the right swipe does, and from today the ring restarts on its oldest day.
+     */
+    @Test
+    fun theRightArrowIsNeverDimmedAndRestartsTheRing() {
+        val seededDay = LocalDate.now().minusDays(2)
+        val from = seededDay.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + 9 * HOUR
+        seedInStore(seededDay, from, from + HOUR)
+
+        launchAndOpenDetail().use {
+            // On today the arrow used to be dimmed: the ring is cyclic, so it is not anymore.
+            composeRule.onNodeWithText("›").assertIsEnabled()
+
+            val today = dayLabelText()
+            composeRule.onNodeWithText("›").performClick()
+
+            // The ring restarted on its oldest day: the label is not today anymore.
+            composeRule.waitUntil(timeoutMillis = 10_000) { dayLabelText() != today }
+        }
+    }
+
     /** Stores one day's session in the app's own store, behind the platform reader. */
     @Test
     fun recreatingTheActivityKeepsTheSelectedDay() {
@@ -280,6 +306,16 @@ class AppDetailNavigationTest {
             .fetchSemanticsNode()
             .config
             .contains(SemanticsProperties.Disabled)
+
+    /** The day the detail shows, as its label reads it. */
+    private fun dayLabelText(): String =
+        composeRule
+            .onNodeWithTag(DAY_LABEL_TAG)
+            .fetchSemanticsNode()
+            .config
+            .getOrNull(SemanticsProperties.Text)
+            ?.joinToString(" ") { it.text }
+            .orEmpty()
 
     /** Waits for the back arrow to be enabled, taps it once and lets the screen settle. */
     private fun tapBackArrow() {
