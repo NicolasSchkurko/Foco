@@ -19,10 +19,8 @@ import androidx.compose.ui.unit.dp
 private val SwipeThreshold = 64.dp
 
 /**
- * The horizontal swipe that walks a list of positions, the way the home's ring walks its days:
- * a swipe left goes to the next position and a swipe right to the previous one, and the walk
- * cycles. The position moves with the finger, so the screen answers even when the finger lifts
- * outside the window.
+ * The horizontal swipe that walks positions, the way the home's ring walks its days: left to
+ * the next one, right to the previous one. The position moves with the finger.
  */
 @Composable
 fun Modifier.swipeThroughPositions(
