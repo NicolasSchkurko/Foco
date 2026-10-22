@@ -13,13 +13,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
 import com.foco.app.R
+import com.foco.app.clearTheHistoryDay
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -143,6 +143,9 @@ class AppDetailNavigationTest {
      */
     @Test
     fun aDayStoredWhileTheDetailIsOpenBecomesReachable() {
+        // The oldest day of the window is cleared, so the window has a day to gain while the detail
+        // is open: the test does not depend on what the device remembers.
+        clearTheHistoryDay(LocalDate.now().minusDays(6))
         launchAndOpenDetail().use {
             // The arrows are the only witness of the window: walk to the day the store's days stop at,
             // where the back arrow is disabled and only a store write can enable it again.
@@ -158,7 +161,7 @@ class AppDetailNavigationTest {
                 generateSequence(today.minusDays(reached + 1L)) { it.minusDays(1) }
                     .takeWhile { it >= today.minusDays(6) }
                     .toList()
-            assumeTrue("the store already holds the whole window", gained.isNotEmpty())
+            assertTrue("the window must have a day to gain", gained.isNotEmpty())
             gained.forEach { day ->
                 val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + 9 * HOUR
                 seedInStore(day, from, from + HOUR)
