@@ -222,7 +222,7 @@ fun LimitsQuickAdjust(
             OutlinedButton(
                 onClick = { showPicker = true },
                 modifier = Modifier.sizeIn(minHeight = 48.dp),
-            ) { Text(stringResource(R.string.settings_limits_picker_title)) }
+            ) { Text(stringResource(R.string.settings_limits_picker_open)) }
             if (window != null) {
                 Spacer(Modifier.width(8.dp))
                 TextButton(

@@ -81,6 +81,7 @@
     <string name="settings_limits_button_plus">+15 min</string>
     <string name="settings_limits_picker_label">Time-range</string>
     <string name="settings_limits_picker_title">Pick range</string>
+    <string name="settings_limits_picker_open">Change range</string>
     <string name="settings_limits_picker_ok">OK</string>
     <string name="settings_limits_picker_cancel">Cancel</string>
     <string name="settings_limits_value_none">No limit</string>

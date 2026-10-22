@@ -81,6 +81,7 @@
     <string name="settings_limits_button_plus">+15 min</string>
     <string name="settings_limits_picker_label">Horario</string>
     <string name="settings_limits_picker_title">Elegí el rango</string>
+    <string name="settings_limits_picker_open">Cambiar rango</string>
     <string name="settings_limits_picker_ok">Aceptar</string>
     <string name="settings_limits_picker_cancel">Cancelar</string>
     <string name="settings_limits_value_none">Sin límite</string>
