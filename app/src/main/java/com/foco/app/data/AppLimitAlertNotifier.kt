@@ -8,6 +8,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.foco.app.R
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Posts the threshold warning as a system notification with one Entendido action. Resource: the
@@ -62,7 +63,7 @@ class AppLimitAlertNotifier(
                     context.getString(
                         R.string.limit_alert_message,
                         label,
-                        formatLimit(limitMinutes),
+                        limitDuration(limitMinutes),
                     ),
                 ).setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -74,7 +75,9 @@ class AppLimitAlertNotifier(
         return true
     }
 
+    /** The channel lives as long as the process: it is created once, not per notification. */
     private fun createChannel() {
+        if (!channelReady.compareAndSet(false, true)) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(
             NotificationChannel(
@@ -85,20 +88,24 @@ class AppLimitAlertNotifier(
         )
     }
 
-    private fun formatLimit(minutes: Int): String {
+    /** The limit's size in words, from the app's own strings: the notification is fully localized. */
+    private fun limitDuration(minutes: Int): String {
         val hours = minutes / 60
         val rest = minutes % 60
         return when {
-            hours > 0 && rest > 0 -> "$hours h $rest min"
-            hours > 0 -> "$hours h"
-            else -> "$minutes min"
+            hours > 0 && rest > 0 ->
+                context.getString(R.string.limit_alert_duration_hours_minutes, hours, rest)
+
+            hours > 0 -> context.getString(R.string.limit_alert_duration_hours, hours)
+            else -> context.getString(R.string.limit_alert_duration_minutes, minutes)
         }
     }
 
     companion object {
         internal const val CHANNEL_ID = "limit_alerts"
 
-        /** Stable per package and outside the monitor's id 1. */
+        /** The channel is created once per process, not once per notification. */
+        private val channelReady = AtomicBoolean(false)
     }
 }
 

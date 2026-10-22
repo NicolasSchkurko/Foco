@@ -104,6 +104,9 @@
     <string name="limit_alert_channel">Limit alerts</string>
     <string name="limit_alert_title">%1$s reached %2$d%% of its limit</string>
     <string name="limit_alert_message">%1$s used %2$s of its daily limit.</string>
+    <string name="limit_alert_duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="limit_alert_duration_hours">%1$d h</string>
+    <string name="limit_alert_duration_minutes">%1$d min</string>
     <string name="limit_alert_ack">Got it</string>
 
     <!-- Week -->
