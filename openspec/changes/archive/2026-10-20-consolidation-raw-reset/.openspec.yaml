@@ -14,4 +14,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
   - app/src/test/java/com/foco/app/data/HistoryFakes.kt
 x-deps: []
-x-gitref: 836ad0a
+x-gitref: 9482bdc

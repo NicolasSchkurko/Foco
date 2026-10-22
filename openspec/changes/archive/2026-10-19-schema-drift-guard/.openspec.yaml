@@ -15,4 +15,4 @@ x-tests:
 x-deps:
   - usage-history-foundation
   - nightly-consolidation
-x-gitref: bf7b3e3
+x-gitref: 10000e6

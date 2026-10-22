@@ -13,7 +13,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-deps:
   - settings-about-strings-contract
-x-gitref: aed2064
+x-gitref: 01d6651
 
 x-open_decisions: []
 x-conflicts: []

@@ -11,4 +11,4 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
 x-deps:
   - layer-check-scope
-x-gitref: 2725949
+x-gitref: c01068c

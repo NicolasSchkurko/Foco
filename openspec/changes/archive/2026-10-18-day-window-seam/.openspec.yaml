@@ -12,4 +12,4 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/domain/DayWindowTest.kt
 x-deps: []
-x-gitref: 6aa8009
+x-gitref: efd37fc

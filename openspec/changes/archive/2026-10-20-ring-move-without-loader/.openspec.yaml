@@ -19,6 +19,6 @@ x-tests:
 x-deps:
   - midnight-today-rollover
   - week-absent-bar-action
-x-gitref: 677c0be
+x-gitref: 24cf59b
 x-understood_by: Nschkurko
 x-understood_at: 2026-10-20

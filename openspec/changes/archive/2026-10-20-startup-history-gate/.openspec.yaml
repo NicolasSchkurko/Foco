@@ -16,7 +16,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/WeekScreenTest.kt
   - app/src/test/java/com/foco/app/data/HistoryConsolidationTest.kt
 x-deps: []
-x-gitref: 6f7c6f9
+x-gitref: 5cee744
 
 x-understood_by: Nschkurko
 x-understood_at: 2026-10-20

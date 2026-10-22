@@ -13,4 +13,4 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt
 x-deps:
   - spec-requirement-budget
-x-gitref: 5c9f244
+x-gitref: 2553316

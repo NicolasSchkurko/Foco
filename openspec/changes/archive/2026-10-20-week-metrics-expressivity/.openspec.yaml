@@ -9,4 +9,4 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt
 x-deps: []
-x-gitref: ec2312b
+x-gitref: acc1447

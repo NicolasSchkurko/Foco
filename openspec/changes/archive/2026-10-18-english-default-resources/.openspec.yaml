@@ -14,4 +14,4 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-deps: []
-x-gitref: 6405cfb
+x-gitref: 7b9dcc3

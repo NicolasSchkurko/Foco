@@ -11,5 +11,5 @@ x-tests:
 x-deps:
   - cross-midnight-sessions
   - datastore-test-on-windows
-x-gitref: a8c14fe
+x-gitref: 510c982
 x-merged_as: 1a6ae5e

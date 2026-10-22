@@ -10,4 +10,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
 x-deps:
   - day-ring-navigation
-x-gitref: 983d5c3
+x-gitref: 10000e6

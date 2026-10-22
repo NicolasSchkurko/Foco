@@ -13,4 +13,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
   - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
 x-deps: []
-x-gitref: f684cdd
+x-gitref: f7eaa86

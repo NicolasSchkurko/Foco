@@ -46,4 +46,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppEntrySeamTest.kt
   - app/src/androidTest/java/com/foco/app/ui/OnboardingContrastTest.kt
 x-deps: []
-x-gitref: f95a016
+x-gitref: 6f104a3

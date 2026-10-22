@@ -14,4 +14,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/SettingsMigrationTest.kt
   - app/src/test/java/com/foco/app/structure/SpecConfigRulesTest.kt
 x-deps: []
-x-gitref: 3c469f9
+x-gitref: e1c21a1

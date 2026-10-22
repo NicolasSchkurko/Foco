@@ -15,4 +15,4 @@ x-tests:
   - app/src/test/java/com/foco/app/domain/SessionBuilderTest.kt
 x-deps:
   - datastore-test-on-windows
-x-gitref: 940e81e
+x-gitref: 9fee260

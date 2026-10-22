@@ -13,4 +13,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/SettingsMigrationTest.kt
 x-deps:
   - structure-housekeeping
-x-gitref: ea373cf
+x-gitref: 7b40a6e

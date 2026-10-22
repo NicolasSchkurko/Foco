@@ -17,4 +17,4 @@ x-tests:
   - app/src/test/java/com/foco/app/ui/dashboard/RingMotionTest.kt
   - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
 x-deps: []
-x-gitref: 73b5270
+x-gitref: 464bd39

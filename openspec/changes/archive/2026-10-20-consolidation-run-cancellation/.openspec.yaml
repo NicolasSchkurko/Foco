@@ -14,4 +14,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt
   - app/src/androidTest/java/com/foco/app/data/ConsolidationWorkerTest.kt
 x-deps: []
-x-gitref: 9b0a959
+x-gitref: e8103ab

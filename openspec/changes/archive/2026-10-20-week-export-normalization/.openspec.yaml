@@ -9,4 +9,4 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/domain/WeekExportTest.kt
 x-deps: []
-x-gitref: 4a0504c
+x-gitref: d359528

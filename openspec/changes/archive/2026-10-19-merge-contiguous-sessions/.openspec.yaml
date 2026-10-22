@@ -14,4 +14,4 @@ x-tests:
   - app/src/test/java/com/foco/app/domain/SessionMergeTest.kt
   - app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt
 x-deps: []
-x-gitref: dbc05ae
+x-gitref: 464bd39

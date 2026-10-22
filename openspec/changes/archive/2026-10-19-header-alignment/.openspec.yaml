@@ -17,4 +17,4 @@ x-tests:
 x-deps:
   - week-screen
   - detail-window-follows-store
-x-gitref: 983d5c3
+x-gitref: 10000e6

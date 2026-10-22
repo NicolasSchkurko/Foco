@@ -11,4 +11,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
 x-deps:
   - midnight-today-rollover
-x-gitref: 266fc27
+x-gitref: 24cf59b

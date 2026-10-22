@@ -13,4 +13,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/DashboardRefreshTest.kt
 x-deps:
   - session-based-metrics
-x-gitref: 890254b
+x-gitref: 140bbea

@@ -13,4 +13,4 @@ x-tests:
   - app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt
   - app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt
 x-deps: []
-x-gitref: 8b0db14
+x-gitref: 10000e6
