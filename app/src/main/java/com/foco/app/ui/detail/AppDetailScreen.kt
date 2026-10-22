@@ -57,6 +57,7 @@ import com.foco.app.data.UsageRepository
 import com.foco.app.domain.DaySource
 import com.foco.app.domain.availableDays
 import com.foco.app.domain.reclampDayIndex
+import com.foco.app.domain.stepCyclicIndex
 import com.foco.app.domain.daySource
 import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
@@ -143,11 +144,18 @@ fun AppDetailScreen(
             }
         }
 
+    // The day the route asked for, applied once the window can hold it: the stored days arrive
+    // asynchronously, and applying the request to the first (today-alone) window would land on
+    // the wrong day once the list grows. Afterwards the user's taps on the selector win.
+    var requested by remember { mutableStateOf(date) }
+
     // The window is rebuilt when today rolls over or the store changes, so the selection is
     // reclamped: the same DAY when it is still offered, the nearest valid one otherwise. The
     // resolution is by date, never by the old index, which may point at another day.
     val windowChanged = selectedWindow != days
     fun resolveSelection(): Int {
+        val pending = requested?.let { day -> days.indexOf(day).takeIf { it >= 0 } }
+        if (pending != null) return pending
         val remembered = savedSelectedDate?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
         if (remembered != null) return reclampDayIndex(0, listOf(remembered), days, today)
         return selectedIndex.coerceIn(0, days.lastIndex.coerceAtLeast(0))
@@ -165,22 +173,20 @@ fun AppDetailScreen(
         if (days.isEmpty()) return
         // The walk cycles: past the oldest day it starts again on today, and on today a swipe
         // back continues with the oldest one — the same ring the home walks.
-        val size = days.size
-        val target = (((effectiveIndex + delta) % size) + size) % size
+        val target = stepCyclicIndex(effectiveIndex, days.size, delta)
         selectedIndex = target
         days.getOrNull(target)?.toString()?.let { savedSelectedDate = it }
     }
     val stepDayState = rememberUpdatedState<(Int) -> Unit>(::stepDay)
     SideEffect {
-        if (selectedIndex != effectiveIndex) selectedIndex = effectiveIndex
-        selectedWindow = days
+        if (windowChanged) {
+            val clamped = resolveSelection()
+            if (selectedIndex != clamped) selectedIndex = clamped
+            selectedWindow = days
+        }
         days.getOrNull(effectiveIndex)?.toString()?.let { savedSelectedDate = it }
     }
 
-    // The requested day is applied once, and only when the window can hold it: the stored days
-    // arrive asynchronously, and applying the request to the first (today-alone) window would land
-    // on the wrong day once the list grows. Afterwards the user's taps on the selector win.
-    var requested by remember { mutableStateOf(date) }
     LaunchedEffect(days, storedDays) {
         if (storedDays != null) {
             val index = days.indexOf(requested)
