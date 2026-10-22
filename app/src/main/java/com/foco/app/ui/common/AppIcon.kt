@@ -9,15 +9,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.foco.app.data.AppPackageInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -28,11 +25,10 @@ fun AppIcon(
     size: Dp = 40.dp,
 ) {
     val context = LocalContext.current
-    val packageInfo = remember { AppPackageInfo(context.applicationContext) }
     val bitmap by produceState<ImageBitmap?>(initialValue = null, packageName) {
         value =
             withContext(Dispatchers.IO) {
-                packageInfo.iconBitmap(packageName)?.asImageBitmap()
+                AppPackageCache.icon(context, packageName)
             }
     }
 
