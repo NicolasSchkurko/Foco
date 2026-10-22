@@ -42,12 +42,15 @@ class AppDetailLimitsTest {
 
     private fun appString(resId: Int): String = compose.activity.resources.getString(resId)
 
-    /** A day and a package the store really holds: the store keeps the first loader it was given. */
+    /** A day and a package the store really holds, inside the detail's seven-day window. */
     private fun storedDayAndPackage(): Pair<LocalDate, String>? {
+        val today = LocalDate.now()
         val days = runBlocking { store.storedDaysFlow().firstOrNull() }.orEmpty()
-        val day = days.minOrNull() ?: return null
-        val pkg = runBlocking { store.sessionsFor(day) }.firstOrNull()?.packageName ?: return null
-        return day to pkg
+        for (day in days.filter { it <= today && it >= today.minusDays(6) }.sortedDescending()) {
+            val pkg = runBlocking { store.sessionsFor(day) }.firstOrNull()?.packageName
+            if (pkg != null) return day to pkg
+        }
+        return null
     }
 
     @Before
@@ -135,9 +138,10 @@ class AppDetailLimitsTest {
         compose.setContent {
             MaterialTheme { AppDetailScreen(packageName = pkg, date = day) }
         }
-        // The detail is loaded: the day label shows the stored day.
+        // The detail is loaded and shows the requested (stored) day, not today.
         compose.waitUntil(timeoutMillis = 10_000) {
-            compose.onAllNodesWithText(appString(R.string.detail_limits_section)).fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodesWithText(appString(R.string.detail_limits_section)).fetchSemanticsNodes().isNotEmpty() &&
+                compose.onAllNodesWithText(appString(R.string.day_today)).fetchSemanticsNodes().isEmpty()
         }
 
         // A swipe right walks to the previous day, the way the home's ring walks its positions.

@@ -178,8 +178,7 @@ class LimitsQuickAdjustTest {
     fun thePickerOpensWithTheSystemTimeFormat() {
         show()
 
-        val pickerLabel = appString(R.string.settings_limits_picker_label)
-        compose.onAllNodesWithText(pickerLabel).filterToOne(hasClickAction()).performClick()
+        compose.onNodeWithText(appString(R.string.settings_limits_picker_title)).performClick()
         compose.onNodeWithText(appString(R.string.settings_limits_picker_title)).assertIsDisplayed()
 
         compose.onNodeWithText(timeLabel(9)).assertIsDisplayed()
@@ -202,8 +201,7 @@ class LimitsQuickAdjustTest {
         var range: Pair<Int, Int>? = null
         show(onWindowChange = { _, start, end -> range = start to end })
 
-        val pickerLabel = appString(R.string.settings_limits_picker_label)
-        compose.onAllNodesWithText(pickerLabel).filterToOne(hasClickAction()).performClick()
+        compose.onNodeWithText(appString(R.string.settings_limits_picker_title)).performClick()
         // The start dropdown shows the current start, in the system time format.
         compose.onNodeWithText(timeLabel(9)).performClick()
         // The dropdown lives in a popup: the semantic action avoids a coordinate click.

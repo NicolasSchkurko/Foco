@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -75,6 +74,7 @@ import com.foco.app.data.MotionScale
 import com.foco.app.data.SessionHistoryStore
 import com.foco.app.data.UsageRepository
 import com.foco.app.data.WeekExportService
+import com.foco.app.ui.common.swipeThroughPositions
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.domain.DayStop
 import com.foco.app.domain.dayRing
@@ -272,8 +272,6 @@ fun DashboardScreen(
         }
     }
 
-    val swipeThreshold = with(LocalDensity.current) { 64.dp.toPx() }
-
     var exporting by remember { mutableStateOf(false) }
 
     // The export seam: the tests drive the success and failure paths without the platform.
@@ -437,24 +435,10 @@ fun DashboardScreen(
                         .weight(1f)
                         .padding(horizontal = 20.dp)
                         .testTag("dashboard_content")
-                        .pointerInput(ring, requestedKey) {
-                            var totalDrag = 0f
-                            detectHorizontalDragGestures(
-                                onDragStart = { totalDrag = 0f },
-                                onHorizontalDrag = { change, amount ->
-                                    change.consume()
-                                    totalDrag += amount
-                                },
-                                onDragEnd = {
-                                    when {
-                                        totalDrag <= -swipeThreshold -> moveStep(forward = true)
-                                        totalDrag >= swipeThreshold -> moveStep(forward = false)
-                                    }
-                                    totalDrag = 0f
-                                },
-                                onDragCancel = { totalDrag = 0f },
-                            )
-                        },
+                        .swipeThroughPositions(
+                            onNext = { moveStep(forward = true) },
+                            onPrevious = { moveStep(forward = false) },
+                        ),
             ) {
                 AnimatedContent(
                     targetState = shownKey,

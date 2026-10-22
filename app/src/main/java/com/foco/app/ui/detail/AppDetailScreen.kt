@@ -41,9 +41,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.input.pointer.pointerInput
@@ -60,6 +62,8 @@ import com.foco.app.model.UsageSession
 import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.common.ScreenHeader
+import com.foco.app.ui.common.swipeThroughPositions
+import com.foco.app.ui.common.tapWithoutConsuming
 import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.common.readOr
 import com.foco.app.ui.common.rememberCurrentDate
@@ -140,18 +144,33 @@ fun AppDetailScreen(
         }
 
     // The window is rebuilt when today rolls over or the store changes, so the selection is
-    // reclamped: the same day when it is offered, the nearest valid one otherwise.
-    val effectiveIndex = reclampDayIndex(selectedIndex, selectedWindow, days, today)
+    // reclamped: the same DAY when it is still offered, the nearest valid one otherwise. The
+    // resolution is by date, never by the old index, which may point at another day.
+    val windowChanged = selectedWindow != days
+    fun resolveSelection(): Int {
+        val remembered = savedSelectedDate?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+        if (remembered != null) return reclampDayIndex(0, listOf(remembered), days, today)
+        return selectedIndex.coerceIn(0, days.lastIndex.coerceAtLeast(0))
+    }
+    val effectiveIndex =
+        if (windowChanged) {
+            resolveSelection()
+        } else {
+            selectedIndex.coerceIn(0, days.lastIndex.coerceAtLeast(0))
+        }
 
     // One day forward (older) or backward (newer) inside the window; shared by the arrows and
     // the horizontal swipe, which walks the days the way the home walks its ring.
     fun stepDay(delta: Int) {
-        val target = (effectiveIndex + delta).coerceIn(0, days.lastIndex.coerceAtLeast(0))
+        if (days.isEmpty()) return
+        // The walk cycles: past the oldest day it starts again on today, and on today a swipe
+        // back continues with the oldest one — the same ring the home walks.
+        val size = days.size
+        val target = (((effectiveIndex + delta) % size) + size) % size
         selectedIndex = target
         days.getOrNull(target)?.toString()?.let { savedSelectedDate = it }
     }
     val stepDayState = rememberUpdatedState<(Int) -> Unit>(::stepDay)
-    val swipeThreshold = with(LocalDensity.current) { 64.dp.toPx() }
     SideEffect {
         if (selectedIndex != effectiveIndex) selectedIndex = effectiveIndex
         selectedWindow = days
@@ -278,44 +297,10 @@ fun AppDetailScreen(
                         .fillMaxWidth()
                         .weight(1f)
                         .testTag(DETAIL_CONTENT_TAG)
-                        .pointerInput(Unit) {
-                            // The same gesture the home uses: a horizontal drag walks the days
-                            // (swipe left to the next, older one; swipe right to the previous one).
-                            // The day moves with the finger, so the gesture answers even when the
-                            // finger lifts outside the window.
-                            var totalDrag = 0f
-                            var moved = false
-                            detectHorizontalDragGestures(
-                                onDragStart = {
-                                    totalDrag = 0f
-                                    moved = false
-                                },
-                                onHorizontalDrag = { change, amount ->
-                                    change.consume()
-                                    if (!moved) {
-                                        totalDrag += amount
-                                        when {
-                                            totalDrag <= -swipeThreshold -> {
-                                                moved = true
-                                                stepDayState.value(1)
-                                            }
-                                            totalDrag >= swipeThreshold -> {
-                                                moved = true
-                                                stepDayState.value(-1)
-                                            }
-                                        }
-                                    }
-                                },
-                                onDragEnd = {
-                                    totalDrag = 0f
-                                    moved = false
-                                },
-                                onDragCancel = {
-                                    totalDrag = 0f
-                                    moved = false
-                                },
-                            )
-                        },
+                        .swipeThroughPositions(
+                            onNext = { stepDayState.value(1) },
+                            onPrevious = { stepDayState.value(-1) },
+                        ),
             ) {
                 when {
                     sessions == null ->
@@ -355,9 +340,13 @@ fun AppDetailScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable(onClickLabel = openLimitsLabel, role = Role.Button) { onConfigure() }
-                                    .padding(vertical = 4.dp)
-                                    .testTag(LIMITS_PREVIEW_TAG),
+                                    .tapWithoutConsuming { onConfigure() }
+                                .semantics {
+                                    role = Role.Button
+                                    onClick(label = openLimitsLabel) { onConfigure(); true }
+                                }
+                                .padding(vertical = 4.dp)
+                                .testTag(LIMITS_PREVIEW_TAG),
                             ) {
                             // Preview: limit / window / alert for this app
                             Text(

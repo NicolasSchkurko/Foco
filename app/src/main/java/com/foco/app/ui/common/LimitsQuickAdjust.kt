@@ -216,21 +216,21 @@ fun LimitsQuickAdjust(
                     formatMinuteOfDay(context, w.endMinute, is24),
                 )
             }
-        Text(rangeText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(Modifier.height(4.dp))
+        Text(rangeText, style = MaterialTheme.typography.bodyLarge)
+        Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(
                 onClick = { showPicker = true },
-                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
-            ) { Text(stringResource(R.string.settings_limits_picker_label)) }
-            Spacer(Modifier.width(8.dp))
+                modifier = Modifier.sizeIn(minHeight = 48.dp),
+            ) { Text(stringResource(R.string.settings_limits_picker_title)) }
             if (window != null) {
+                Spacer(Modifier.width(8.dp))
                 TextButton(
                     onClick = {
                         window = null
                         onWindowClear(packageName)
                     },
-                    modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
+                    modifier = Modifier.sizeIn(minHeight = 48.dp),
                 ) { Text(stringResource(R.string.settings_window_clear)) }
             }
         }
@@ -289,7 +289,7 @@ fun LimitAlertsToggle(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 14.dp),
+                .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -310,15 +310,13 @@ fun LimitAlertsToggle(
                 )
             }
         }
+        Spacer(Modifier.width(16.dp))
         Switch(
             checked = alertEnabled,
             onCheckedChange = onAlertChange,
             // Any limit counts, including "block now".
             enabled = minutes != null,
-            modifier =
-                Modifier
-                    .padding(start = 8.dp)
-                    .semantics { contentDescription = alertsLabel },
+            modifier = Modifier.semantics { contentDescription = alertsLabel },
         )
     }
 }
