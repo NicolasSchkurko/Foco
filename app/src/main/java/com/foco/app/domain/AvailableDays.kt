@@ -2,7 +2,9 @@ package com.foco.app.domain
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import kotlin.math.abs
+
+/** The days the ring and the selector offer: today and the six days behind it. */
+const val DAY_WINDOW_DAYS = 7
 
 /**
  * Days the detail screen's selector offers: today and every day behind it, down to the oldest
@@ -11,55 +13,27 @@ import kotlin.math.abs
 fun availableDays(
     today: LocalDate,
     storedDays: Set<LocalDate>,
-    windowDays: Int = 7,
+    windowDays: Int = DAY_WINDOW_DAYS,
 ): List<LocalDate> {
-    require(windowDays >= 1) { "windowDays must be at least 1" }
-    val windowFloor = today.minusDays((windowDays - 1).toLong())
+    val windowFloor = recentDays(today, windowDays).last()
     val oldest = storedDays.filter { it in windowFloor..today.minusDays(1) }.minOrNull() ?: today
     return (0..ChronoUnit.DAYS.between(oldest, today)).map { today.minusDays(it) }
-}
-
-/** Reclamp: same date when still present, nearest valid otherwise, today when empty. */
-fun reclampDayIndex(
-    selectedIndex: Int,
-    previousDays: List<LocalDate>,
-    days: List<LocalDate>,
-    today: LocalDate,
-): Int {
-    if (days.isEmpty()) return 0
-    val clamped = reclampDay(previousDays.getOrNull(selectedIndex), days, today)
-    return days.indexOf(clamped).takeIf { it >= 0 } ?: 0
 }
 
 /** The days whose data is final: the same window without today, which is still being built. */
 fun finishedDays(
     today: LocalDate,
-    windowDays: Int = 7,
-): List<LocalDate> {
-    require(windowDays >= 1) { "windowDays must be at least 1" }
-    return (1 until windowDays).map { today.minusDays(it.toLong()) }
-}
+    windowDays: Int = DAY_WINDOW_DAYS,
+): List<LocalDate> = recentDays(today, windowDays).drop(1)
 
 /** The last [windowDays] days, newest first: today and the days behind it. */
 fun recentDays(
     today: LocalDate,
-    windowDays: Int = 7,
+    windowDays: Int = DAY_WINDOW_DAYS,
 ): List<LocalDate> {
     require(windowDays >= 1) { "windowDays must be at least 1" }
     return (0 until windowDays).map { today.minusDays(it.toLong()) }
 }
 
-/** Reclamp a date: the same date when it is still offered, the nearest one otherwise. */
-fun reclampDay(
-    previousDate: LocalDate?,
-    days: List<LocalDate>,
-    today: LocalDate,
-): LocalDate {
-    if (days.isEmpty()) return today
-    if (previousDate != null) {
-        if (previousDate in days) return previousDate
-        val closest = days.minByOrNull { abs(ChronoUnit.DAYS.between(it, previousDate)) }
-        if (closest != null) return closest
-    }
-    return days.firstOrNull { it == today } ?: days.first()
-}
+/** The dates the window covers: today and the days behind it, oldest first. */
+fun dayWindowRange(today: LocalDate): ClosedRange<LocalDate> = today.minusDays((DAY_WINDOW_DAYS - 1).toLong())..today

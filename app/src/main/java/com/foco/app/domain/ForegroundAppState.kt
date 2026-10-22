@@ -25,8 +25,8 @@ class ForegroundAppState(
     }
 
     /**
-     * Applies a window-state event; returns the app to evaluate, or null when nothing changed.
-     * [isViewWindow] marks a view-group window leaving the foreground, which a block ignores briefly.
+     * Applies a window-state event; returns the app to evaluate (the same app again included),
+     * or null when the event is not relevant: no package, Foco, an ignored package, a late event.
      */
     fun onWindowEvent(
         packageName: String?,

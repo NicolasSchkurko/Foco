@@ -4,6 +4,9 @@ import com.foco.app.model.UsageSession
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
@@ -54,6 +57,14 @@ class AppLimitWindowRulesTest {
         assertFalse(AppLimitWindowRules.isValid(9 * 60, 9 * 60))
         assertTrue(AppLimitWindowRules.isValid(9 * 60, 23 * 60))
         assertTrue(AppLimitWindowRules.isValid(22 * 60, 6 * 60))
+    }
+
+    @Test
+    fun `a window with equal ends is rejected by the constructor`() {
+        assertThrows(IllegalArgumentException::class.java) { AppWindow(600, 600) }
+        assertThrows(IllegalArgumentException::class.java) { AppWindow(9 * 60 + 5, 23 * 60) }
+        assertNull(AppWindow.of(600, 600))
+        assertNotNull(AppWindow.of(9 * 60, 23 * 60))
     }
 
     @Test
@@ -156,6 +167,15 @@ class AppLimitWindowRulesTest {
             )
 
         assertEquals(3L, AppLimitWindowRules.usedSeconds(sessions, "instagram", window, zone))
+    }
+
+    @Test
+    fun `no window never blocks`() {
+        val window = AppWindow(9 * 60, 23 * 60)
+
+        assertFalse(AppLimitWindowRules.blocksAt(at("23:00"), null, zone))
+        assertTrue(AppLimitWindowRules.blocksAt(at("23:00"), window, zone))
+        assertFalse(AppLimitWindowRules.blocksAt(at("10:00"), window, zone))
     }
 
     @Test

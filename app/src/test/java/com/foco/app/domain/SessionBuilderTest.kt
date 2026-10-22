@@ -13,6 +13,15 @@ private const val HOUR = 60 * MINUTE
 class SessionBuilderTest {
     private val base = 10 * HOUR
 
+    /** The window of the day that starts at [dayStart]. */
+    private fun dayWindow(dayStart: Long): DayWindow =
+        DayWindow(
+            startOfDay = dayStart,
+            dayEndExclusive = dayStart + 24 * HOUR,
+            lookbackStart = dayStart - 24 * HOUR,
+            effectiveEnd = dayStart + 24 * HOUR,
+        )
+
     @Test
     fun `direct switch between apps closes the previous session at the new start`() {
         val sessions =
@@ -105,7 +114,7 @@ class SessionBuilderTest {
         )
         assertEquals(
             listOf(UsageSession("app.a", dayStart, dayStart + 6 * MINUTE)),
-            clampSessionsToDay(folded, dayStart, dayStart + 24 * HOUR),
+            clampSessionsToDay(folded, dayWindow(dayStart)),
         )
     }
 
@@ -120,7 +129,7 @@ class SessionBuilderTest {
 
         assertEquals(
             listOf(UsageSession("app.a", dayStart, dayStart + 6 * MINUTE)),
-            clampSessionsToDay(folded, dayStart, dayStart + 24 * HOUR),
+            clampSessionsToDay(folded, dayWindow(dayStart)),
         )
     }
 
@@ -137,14 +146,12 @@ class SessionBuilderTest {
         val yesterday =
             clampSessionsToDay(
                 buildSessions(events, now = dayStart),
-                dayStart - 24 * HOUR,
-                dayStart,
+                dayWindow(dayStart - 24 * HOUR),
             )
         val today =
             clampSessionsToDay(
                 buildSessions(events, now = stoppedToday),
-                dayStart,
-                dayStart + 24 * HOUR,
+                dayWindow(dayStart),
             )
 
         assertEquals(listOf(UsageSession("app.a", resumedYesterday, dayStart)), yesterday)
@@ -162,9 +169,9 @@ class SessionBuilderTest {
                 now = dayStart + 2 * HOUR,
             )
 
-        assertTrue(clampSessionsToDay(olderThanTheDay, dayStart, dayStart + 24 * HOUR).isEmpty())
+        assertTrue(clampSessionsToDay(olderThanTheDay, dayWindow(dayStart)).isEmpty())
         assertTrue(orphanStop.isEmpty())
-        assertTrue(clampSessionsToDay(orphanStop, dayStart, dayStart + 24 * HOUR).isEmpty())
+        assertTrue(clampSessionsToDay(orphanStop, dayWindow(dayStart)).isEmpty())
     }
 
     @Test
@@ -179,7 +186,22 @@ class SessionBuilderTest {
                 now = dayStart + 3 * HOUR,
             )
 
-        assertEquals(inside, clampSessionsToDay(inside, dayStart, dayStart + 24 * HOUR))
+        assertEquals(inside, clampSessionsToDay(inside, dayWindow(dayStart)))
+    }
+
+    @Test
+    fun `an event older than the open session is ignored`() {
+        val sessions =
+            buildSessions(
+                listOf(
+                    UsageEvent("app.a", base, UsageEventType.RESUMED),
+                    // Out of order: older than the open session, so it opens nothing.
+                    UsageEvent("app.b", base - 5 * MINUTE, UsageEventType.RESUMED),
+                ),
+                now = base + 30 * MINUTE,
+            )
+
+        assertEquals(listOf(UsageSession("app.a", base, base + 30 * MINUTE)), sessions)
     }
 
     @Test

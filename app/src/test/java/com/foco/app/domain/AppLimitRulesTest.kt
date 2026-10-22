@@ -65,17 +65,6 @@ class AppLimitRulesTest {
     }
 
     @Test
-    fun `the picker offers zero and 15-minute steps up to 24 hours`() {
-        val options = AppLimitRules.options()
-
-        assertEquals(0, options.first())
-        assertEquals(15, options[1])
-        assertEquals(24 * 60, options.last())
-        assertEquals(1 + 24 * 4, options.size)
-        assertTrue(options.all(AppLimitRules::isSelectable))
-    }
-
-    @Test
     fun `only zero and the 15-minute grid are selectable`() {
         assertTrue(AppLimitRules.isSelectable(0))
         assertTrue(AppLimitRules.isSelectable(15))
@@ -126,5 +115,13 @@ class AppLimitRulesTest {
         val endsAtRecheck = UsageSession("instagram", firstRecheck - 5_000L, firstRecheck)
 
         assertTrue(AppLimitRules.isForegroundAt(listOf(endsAtRecheck), "instagram", firstRecheck))
+    }
+
+    @Test
+    fun `the end instant is foreground and the next millisecond is not`() {
+        val session = UsageSession("instagram", 0, 1_000L)
+
+        assertTrue(AppLimitRules.isForegroundAt(listOf(session), "instagram", 1_000L))
+        assertFalse(AppLimitRules.isForegroundAt(listOf(session), "instagram", 1_001L))
     }
 }

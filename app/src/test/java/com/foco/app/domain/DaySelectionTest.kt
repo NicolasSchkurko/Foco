@@ -105,4 +105,15 @@ class DaySelectionTest {
         )
         assertEquals(emptyList<LocalDate>(), finishedDays(today, windowDays = 1))
     }
+
+    @Test
+    fun `the window is seven days and every day rule agrees on it`() {
+        val window = (0 until DAY_WINDOW_DAYS).map { today.minusDays(it.toLong()) }
+
+        assertEquals(7, DAY_WINDOW_DAYS)
+        assertEquals(today.minusDays(6)..today, dayWindowRange(today))
+        assertEquals(window, recentDays(today))
+        assertEquals(window.drop(1), finishedDays(today))
+        assertEquals(today.minusDays(6), availableDays(today, storedDays(1, 2, 3, 4, 5, 6)).last())
+    }
 }

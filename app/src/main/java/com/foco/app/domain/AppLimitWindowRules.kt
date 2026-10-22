@@ -24,13 +24,13 @@ object AppLimitWindowRules {
     fun isValid(
         startMinute: Int,
         endMinute: Int,
-    ): Boolean = isSelectable(startMinute) && isSelectable(endMinute) && startMinute != endMinute
+    ): Boolean = AppWindow.isWindow(startMinute, endMinute)
 
     /** Whether [nowMillis] falls inside [window]; a start after the end crosses midnight. */
     fun isInside(
         nowMillis: Long,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Boolean {
         val secondOfDay =
             Instant
@@ -47,11 +47,18 @@ object AppLimitWindowRules {
         }
     }
 
+    /** Whether [nowMillis] is outside [window]; no window never blocks. */
+    fun blocksAt(
+        nowMillis: Long,
+        window: AppWindow?,
+        zone: ZoneId,
+    ): Boolean = window != null && !isInside(nowMillis, window, zone)
+
     /** The next local instant at which [window] opens or closes after [nowMillis]. */
     fun nextBoundaryMillis(
         nowMillis: Long,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Long {
         val zoned = Instant.ofEpochMilli(nowMillis).atZone(zone)
         val inside = isInside(nowMillis, window, zone)
@@ -68,7 +75,7 @@ object AppLimitWindowRules {
     fun inWindowMillis(
         session: UsageSession,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Long = inWindowMillisByDay(session, window, zone).values.sum()
 
     /**
@@ -78,7 +85,7 @@ object AppLimitWindowRules {
     fun inWindowMillisByDay(
         session: UsageSession,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Map<LocalDate, Long> {
         if (session.end <= session.start) return emptyMap()
         val firstDay = Instant.ofEpochMilli(session.start).atZone(zone).toLocalDate()
@@ -98,7 +105,7 @@ object AppLimitWindowRules {
         sessions: List<UsageSession>,
         packageName: String,
         window: AppWindow,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId,
     ): Long =
         sessions
             .filter { it.packageName == packageName }

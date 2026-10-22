@@ -34,8 +34,7 @@ fun DayStop.step(
     if (ring.isEmpty()) return this
     val index = ring.indexOf(this)
     if (index < 0) return ring.first()
-    val next = if (forward) (index + 1) % ring.size else (index - 1 + ring.size) % ring.size
-    return ring[next]
+    return ring[stepCyclicIndex(index, ring.size, if (forward) 1 else -1)]
 }
 
 /** Stable key for saveable UI state; dates are ISO-8601. */

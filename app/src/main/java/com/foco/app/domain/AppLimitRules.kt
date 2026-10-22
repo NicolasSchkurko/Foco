@@ -5,14 +5,15 @@ import com.foco.app.model.UsageSession
 /** The daily-limit rule: the selectable grid, and when a package has used its budget. */
 object AppLimitRules {
     const val BLOCK_IMMEDIATELY_MINUTES = 0
-    const val STEP_MINUTES = 15
-    const val MAX_MINUTES = 24 * 60
+
+    /** The grid both rules share: the window owns it, the limit steps on it. */
+    const val STEP_MINUTES = AppLimitWindowRules.STEP_MINUTES
+
+    /** The minutes of a local day, the last step of the limit grid. */
+    const val MAX_MINUTES = AppLimitWindowRules.MINUTES_PER_DAY
 
     /** The warning tiers, in increasing order; the monitor notifies only the highest crossed. */
     val ALERT_TIERS = listOf(50, 75, 90)
-
-    /** The picker's values: block at open, then 15-minute steps up to 24 h. */
-    fun options(): List<Int> = listOf(BLOCK_IMMEDIATELY_MINUTES) + (STEP_MINUTES..MAX_MINUTES step STEP_MINUTES)
 
     /** Zero or a 15-minute step up to 24 h; no limit is the absence of a value, not a value. */
     fun isSelectable(minutes: Int): Boolean =
@@ -46,7 +47,7 @@ object AppLimitRules {
 
     /**
      * Whether [packageName] was the foreground at [at]: a same-minute reopen merges into the
-     * pre-block session, so its start may precede the block and must still count as foreground.
+     * pre-block session, so its start may precede the block; the end instant counts too.
      */
     fun isForegroundAt(
         sessions: List<UsageSession>,
