@@ -13,7 +13,7 @@
 - [x] 2.3 `data/db/SessionRecordDao.kt`: `upsert` (`REPLACE`), `sessionsBetween` (half-open on `start`), `pruneBefore`.
 - [x] 2.4 `data/db/DailyAggregateDao.kt`: `upsert`, `storedDays`, `totalsFor`.
 - [x] 2.5 `data/db/FocoDatabase.kt`: `@Database(version = 1)`, the two entities, the two DAOs, `exportSchema = true`.
-- [x] 2.6 Commit `app/schemas/â€¦/1.json`: it is the migration baseline, and `fallbackToDestructiveMigration` is never used (it would erase exactly the history this change exists to keep).
+- [x] 2.6 Commit `app/schemas/…/1.json`: it is the migration baseline, and `fallbackToDestructiveMigration` is never used (it would erase exactly the history this change exists to keep).
 
 ## 3. The store (an adapter, not a policy owner)
 
@@ -32,7 +32,7 @@
 
 - [x] 5.1 `HistoryConsolidationTest` (JVM, fakes): a day is stored and read back; a day the platform no longer serves still yields its data; consolidating twice leaves identical rows.
 - [x] 5.2 `HistoryRetentionTest` (JVM, fakes): pruning deletes raw rows older than seven days and keeps their totals; a day inside the window is untouched.
-- [x] 5.3 `FocoDatabaseTest` (instrumented): the real SQLite applies both primary keys and the `REPLACE` semantics â€” the part the fakes cannot prove.
+- [x] 5.3 `FocoDatabaseTest` (instrumented): the real SQLite applies both primary keys and the `REPLACE` semantics — the part the fakes cannot prove.
 - [x] 5.4 Red first where it matters: 5.1/5.2 against a store that does not prune / does not skip stored days, then green.
 
 ## 6. Verify
