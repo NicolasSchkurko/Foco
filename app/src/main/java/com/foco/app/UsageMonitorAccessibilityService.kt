@@ -8,8 +8,7 @@ import com.foco.app.data.AppLimitsStore
 import com.foco.app.data.AppPackageInfo
 import com.foco.app.data.UsageMonitorEvaluator
 import com.foco.app.data.UsageMonitorService
-import com.foco.app.data.windowBlocks
-import com.foco.app.domain.AppLimitRules
+import com.foco.app.data.UsageRepository
 import com.foco.app.domain.AppLimitWindowRules
 import com.foco.app.domain.AppWindow
 import com.foco.app.domain.BlockReason
@@ -26,6 +25,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.ZoneId
 
 /**
  * The app's accessibility entry point: reads the foreground package, hosts the three-second block
@@ -41,7 +42,8 @@ class UsageMonitorAccessibilityService :
     private var blockedPackage: String? = null
 
     private val store by lazy { AppLimitsStore.forApp(this) }
-    private val evaluator by lazy { UsageMonitorEvaluator(this) }
+    private val evaluator by lazy { UsageMonitorEvaluator.forApp(this) }
+    private val usage by lazy { UsageRepository.forApp(this) }
 
     private val inputMethodPackages: Set<String> by lazy {
         getSystemService(InputMethodManager::class.java)
@@ -97,26 +99,30 @@ class UsageMonitorAccessibilityService :
         scope.launch {
             if (blockHost.isShowing) return@launch
             try {
-                val now = System.currentTimeMillis()
-                val window = store.windowFor(packageName)
-                val limit = store.limitFor(packageName)
-                val used = evaluator.usedSecondsToday(packageName, now, window)
-                val reason =
-                    forcedReason ?: when {
-                        windowBlocks(now, window) -> BlockReason.OUTSIDE_WINDOW
-                        AppLimitRules.isAtOrOverLimit(limit, used) -> BlockReason.LIMIT
-                        else -> null
-                    }
-                if (reason == null) {
-                    armBoundary(packageName, window, now)
-                    return@launch
-                }
+                val reason = withContext(Dispatchers.IO) { decide(packageName, forcedReason) }
+                if (reason == null) return@launch
                 boundaryJob?.cancel()
                 showBlock(packageName, reason)
             } catch (t: Throwable) {
                 Log.e(TAG, "evaluate failed for $packageName", t)
             }
         }
+    }
+
+    /**
+     * The block reason for a package, read off the main thread; null when there is nothing to
+     * enforce. The usage is read only when a limit can fire.
+     */
+    private suspend fun decide(
+        packageName: String,
+        forcedReason: BlockReason?,
+    ): BlockReason? {
+        val now = System.currentTimeMillis()
+        val window = store.windowFor(packageName)
+        val limit = store.limitFor(packageName)
+        val reason = forcedReason ?: evaluator.evaluate(packageName, limit, window, now)
+        if (reason == null) armBoundary(packageName, window, now)
+        return reason
     }
 
     /** Arms the one-shot check for the next window boundary; the 2-minute tick is the fallback. */
@@ -127,7 +133,7 @@ class UsageMonitorAccessibilityService :
     ) {
         boundaryJob?.cancel()
         if (window == null) return
-        val waitMillis = AppLimitWindowRules.nextBoundaryMillis(now, window) - now
+        val waitMillis = AppLimitWindowRules.nextBoundaryMillis(now, window, ZoneId.systemDefault()) - now
         if (waitMillis <= 0) return
         boundaryJob =
             scope.launch {
@@ -171,9 +177,18 @@ class UsageMonitorAccessibilityService :
     }
 
     /** One-shot re-check after our own HOME: a limit screen already showing wins, else re-evaluate. */
-    private fun recheckForeground(packageName: String) {
+    private suspend fun recheckForeground(packageName: String) {
         if (blockHost.isShowing) return
-        if (evaluator.isForegroundNow(packageName)) evaluate(packageName)
+        if (withContext(Dispatchers.IO) { isStillInFront(packageName) }) evaluate(packageName)
+    }
+
+    /**
+     * Whether the blocked package is still in front and still has something to enforce. The usage
+     * is read only when a limit or a window can fire.
+     */
+    private suspend fun isStillInFront(packageName: String): Boolean {
+        if (store.limitFor(packageName) == null && store.windowFor(packageName) == null) return false
+        return usage.isForegroundNow(packageName)
     }
 
     private fun removeOverlay() {

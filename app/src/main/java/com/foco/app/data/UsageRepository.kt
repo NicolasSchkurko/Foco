@@ -4,6 +4,10 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import com.foco.app.domain.AppLimitRules
+import com.foco.app.domain.AppLimitWindowRules
+import com.foco.app.domain.AppWindow
+import com.foco.app.domain.TodayUsageReader
 import com.foco.app.domain.buildSessions
 import com.foco.app.domain.clampSessionsToDay
 import com.foco.app.domain.dayWindow
@@ -17,12 +21,12 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Reads UsageStatsManager and maps it to flat events; sessions come from the pure fold, clamped to the day, and from
- * the package policy. It adds nothing: flat data out, the UI derives.
+ * Reads UsageStatsManager and maps it to flat events; sessions come from the pure fold, clamped to
+ * the day, and from the package policy. Resource: the device's UsageStats events, read on demand.
  */
 class UsageRepository(
     private val context: Context,
-) {
+) : TodayUsageReader {
     private val usageStats: UsageStatsManager? =
         context.getSystemService(UsageStatsManager::class.java)
 
@@ -52,11 +56,39 @@ class UsageRepository(
     fun launchablePackageNames(): Set<String> = launchablePackages.toSet()
 
     /** The current day's data. */
-    fun loadToday(now: Long = System.currentTimeMillis()): DayData =
-        loadDay(
-            date = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate(),
-            now = now,
-        )
+    fun loadToday(now: Long = System.currentTimeMillis()): DayData {
+        val zone = ZoneId.systemDefault()
+        return readDay(Instant.ofEpochMilli(now).atZone(zone).toLocalDate(), now, zone)
+    }
+
+    /**
+     * Today's foreground time for [packageName] in milliseconds, truncated to the second: the usage
+     * a daily limit counts.
+     */
+    override fun todayUsageMillis(
+        packageName: String,
+        now: Long,
+    ): Long = AppLimitRules.usedSeconds(loadToday(now).sessions, packageName) * 1000L
+
+    /**
+     * The part of today's usage that falls inside [window], in milliseconds and truncated to the
+     * second: the usage a windowed limit counts.
+     */
+    fun usageMillisInsideWindow(
+        packageName: String,
+        now: Long,
+        window: AppWindow,
+    ): Long {
+        val zone = ZoneId.systemDefault()
+        val sessions = loadToday(now).sessions
+        return AppLimitWindowRules.usedSeconds(sessions, packageName, window, zone) * 1000L
+    }
+
+    /** Whether [packageName] is the foreground right now, from today's sessions — the monitor's source. */
+    fun isForegroundNow(
+        packageName: String,
+        now: Long = System.currentTimeMillis(),
+    ): Boolean = AppLimitRules.isForegroundAt(loadToday(now).sessions, packageName, now)
 
     /**
      * Events -> fold -> clamp to the day -> package policy. [dayWindow] builds the window: it looks from
@@ -65,10 +97,16 @@ class UsageRepository(
     fun loadDay(
         date: LocalDate,
         now: Long = System.currentTimeMillis(),
+    ): DayData = readDay(date, now, ZoneId.systemDefault())
+
+    /** The day's read in one calendar: the query window and the merge never disagree. */
+    private fun readDay(
+        date: LocalDate,
+        now: Long,
+        zone: ZoneId,
     ): DayData {
-        val window = dayWindow(date, ZoneId.systemDefault(), now)
+        val window = dayWindow(date, zone, now)
         val startOfDay = window.startOfDay
-        val dayEndExclusive = window.dayEndExclusive
         val effectiveEnd = window.effectiveEnd
 
         val events =
@@ -77,8 +115,9 @@ class UsageRepository(
 
         val rawEvents = mutableListOf<UsageEvent>()
         val unlockTimes = mutableListOf<Long>()
+        // The platform refills one event holder: a new one per event would churn the hottest loop.
+        val event = UsageEvents.Event()
         while (events.hasNextEvent()) {
-            val event = UsageEvents.Event()
             events.getNextEvent(event)
 
             when (event.eventType) {
@@ -105,15 +144,28 @@ class UsageRepository(
                 sessions =
                     clampSessionsToDay(
                         sessions = buildSessions(rawEvents, now = effectiveEnd),
-                        dayStart = startOfDay,
-                        dayEndExclusive = dayEndExclusive,
+                        window = window,
                     ),
                 allowedPackages = launchablePackages,
                 excludedPackages = excludedPackages,
             )
         return DayData(
-            sessions = mergeContiguousSessions(sessions, ZoneId.systemDefault()),
+            sessions = mergeContiguousSessions(sessions, zone),
             unlockTimes = unlockTimes,
         )
+    }
+
+    companion object {
+        @Volatile
+        private var shared: UsageRepository? = null
+
+        /**
+         * The app's reader over the platform's usage events; one per process. Shortcut: the
+         * launchable set is a snapshot, so a package installed later counts from the next start.
+         */
+        fun forApp(context: Context): UsageRepository =
+            shared ?: synchronized(this) {
+                shared ?: UsageRepository(context.applicationContext).also { shared = it }
+            }
     }
 }
