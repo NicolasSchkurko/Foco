@@ -102,7 +102,7 @@ fun AppDetailScreen(
     val windows by limitsStore.windowsFlow.collectAsState(initial = emptyMap())
     val alerts by limitsStore.alertsFlow.collectAsState(initial = emptyMap())
     var storedDays by remember { mutableStateOf<Set<LocalDate>?>(null) }
-    var selectedIndex by remember { mutableIntStateOf(0) } // 0 = hoy; crece hacia atrás
+    var selectedIndex by remember { mutableIntStateOf(0) } // 0 = today; it grows towards the past
     // Survives recreation (rotation / Settings round-trip): a date key, not a raw index, so a
     // shrunken window resolves through reclampDayIndex instead of crashing.
     var savedSelectedDate by rememberSaveable { mutableStateOf<String?>(null) }

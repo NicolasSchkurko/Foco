@@ -50,7 +50,7 @@ class UnlockCountTest {
             waitForInteractive(composeRule, interactive = false)
             shell("input keyevent KEYCODE_WAKEUP")
             waitForInteractive(composeRule, interactive = true)
-            shell("input keyevent 82") // MENU descarta el keyguard
+            shell("input keyevent 82") // MENU dismisses the keyguard
             waitForKeyguardUnlocked(composeRule)
         }
         shell("input keyevent KEYCODE_WAKEUP")
