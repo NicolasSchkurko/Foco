@@ -20,37 +20,35 @@ import androidx.compose.ui.unit.dp
 import com.foco.app.AccessibilityAccess
 import com.foco.app.R
 import com.foco.app.data.UsageAccess
+import com.foco.app.ui.common.openSystemScreen
 
 /**
  * Shown while a required permission is missing: usage access first, then the accessibility
  * service that enforcement needs. The Scaffold gives the text the theme's content colour.
  */
 @Composable
-fun OnboardingScreen(accessibility: Boolean = false) {
+fun OnboardingScreen(step: OnboardingStep) {
     val context = LocalContext.current
-    val explanation =
-        if (accessibility) {
-            stringResource(R.string.onboarding_accessibility_explanation)
-        } else {
-            stringResource(R.string.onboarding_explanation)
-        }
-    val action =
-        if (accessibility) {
-            stringResource(R.string.onboarding_accessibility_open_settings)
-        } else {
-            stringResource(R.string.onboarding_open_settings)
-        }
-    val hint =
-        if (accessibility) {
-            stringResource(R.string.onboarding_accessibility_hint)
-        } else {
-            stringResource(R.string.onboarding_hint)
+    val (explanation, action, hint) =
+        when (step) {
+            OnboardingStep.UsageAccess ->
+                Triple(
+                    stringResource(R.string.onboarding_explanation),
+                    stringResource(R.string.onboarding_open_settings),
+                    stringResource(R.string.onboarding_hint),
+                )
+
+            OnboardingStep.Accessibility ->
+                Triple(
+                    stringResource(R.string.onboarding_accessibility_explanation),
+                    stringResource(R.string.onboarding_accessibility_open_settings),
+                    stringResource(R.string.onboarding_accessibility_hint),
+                )
         }
     val intent =
-        if (accessibility) {
-            AccessibilityAccess.settingsIntent()
-        } else {
-            UsageAccess.settingsIntent()
+        when (step) {
+            OnboardingStep.UsageAccess -> UsageAccess.settingsIntent()
+            OnboardingStep.Accessibility -> AccessibilityAccess.settingsIntent()
         }
 
     Scaffold { innerPadding ->
@@ -78,7 +76,7 @@ fun OnboardingScreen(accessibility: Boolean = false) {
 
             Spacer(Modifier.height(24.dp))
 
-            Button(onClick = { context.startActivity(intent) }) {
+            Button(onClick = { openSystemScreen(context, intent) }) {
                 Text(action)
             }
 

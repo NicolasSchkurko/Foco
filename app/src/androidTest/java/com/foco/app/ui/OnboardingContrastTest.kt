@@ -16,6 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
 import com.foco.app.ui.onboarding.OnboardingScreen
+import com.foco.app.ui.onboarding.OnboardingStep
 import com.foco.app.ui.theme.FocoTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -50,10 +51,11 @@ class OnboardingContrastTest {
         dark: Boolean,
         accessibility: Boolean,
     ) {
+        val step = if (accessibility) OnboardingStep.Accessibility else OnboardingStep.UsageAccess
         composeRule.setContent {
             FocoTheme(darkTheme = dark) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-                    OnboardingScreen(accessibility = accessibility)
+                    OnboardingScreen(step = step)
                 }
             }
         }
