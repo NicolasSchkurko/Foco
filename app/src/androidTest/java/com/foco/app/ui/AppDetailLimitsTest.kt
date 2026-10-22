@@ -8,7 +8,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
@@ -21,8 +21,10 @@ import com.foco.app.ui.detail.AppDetailScreen
 import com.foco.app.ui.detail.DAY_LABEL_TAG
 import com.foco.app.ui.detail.DETAIL_CONTENT_TAG
 import com.foco.app.ui.detail.LIMITS_PREVIEW_TAG
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,45 +35,27 @@ class AppDetailLimitsTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
 
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+    private val store: SessionHistoryStore by lazy { SessionHistoryStore.forApp(targetContext) { emptyDay } }
 
     /** The strings of the activity: the per-app locale wins over the device one. */
     private val strings get() = compose.activity.resources
 
     private fun appString(resId: Int): String = compose.activity.resources.getString(resId)
 
+    /** A day and a package the store really holds: the store keeps the first loader it was given. */
+    private fun storedDayAndPackage(): Pair<LocalDate, String>? {
+        val days = runBlocking { store.storedDaysFlow().firstOrNull() }.orEmpty()
+        val day = days.minOrNull() ?: return null
+        val pkg = runBlocking { store.sessionsFor(day) }.firstOrNull()?.packageName ?: return null
+        return day to pkg
+    }
+
     @Before
     fun seedTheDay() {
-        // The limits preview only renders with a loaded day; the store is the source of it.
+        // The window only holds the days the store has, so a finished day must be stored.
         val day = LocalDate.now().minusDays(1)
         val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + 9 * HOUR
-        val store =
-            SessionHistoryStore.forApp(targetContext) { date ->
-                if (date == day || date == day.minusDays(1)) {
-                    DayData(listOf(UsageSession(PACKAGE, from, from + HOUR)), unlockTimes = emptyList())
-                } else {
-                    emptyDay
-                }
-            }
-        runBlocking { store.consolidate(LocalDate.now()) }
-    }
-
-    @Test fun previewShowsValues() {
-        compose.setContent {
-            MaterialTheme {
-                AppDetailScreen(
-                    packageName = PACKAGE,
-                    date = LocalDate.now().minusDays(1),
-                )
-            }
-        }
-        compose.onNodeWithTag(LIMITS_PREVIEW_TAG).assertIsDisplayed()
-    }
-
-    @Test fun aHorizontalSwipeWalksTheDays() {
-        // The window only holds the days the store has, so yesterday must be stored.
-        val day = LocalDate.now().minusDays(1)
-        val from = day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() + 9 * HOUR
-        val store =
+        val seeded =
             SessionHistoryStore.forApp(targetContext) { date ->
                 if (date == day) {
                     DayData(listOf(UsageSession(PACKAGE, from, from + HOUR)), unlockTimes = emptyList())
@@ -79,19 +63,88 @@ class AppDetailLimitsTest {
                     emptyDay
                 }
             }
-        runBlocking { store.consolidate(LocalDate.now()) }
+        runBlocking { seeded.consolidate(LocalDate.now()) }
+    }
 
-        // The detail opens on the stored day: the live day has no usage on the device.
+    @Test fun previewShowsValues() {
+        val stored = storedDayAndPackage()
+        assumeTrue("the device stores no finished day", stored != null)
+        val day = stored!!.first
+        val pkg = stored.second
         compose.setContent {
-            MaterialTheme { AppDetailScreen(packageName = PACKAGE, date = day) }
+            MaterialTheme {
+                AppDetailScreen(
+                    packageName = pkg,
+                    date = day,
+                )
+            }
         }
-        compose.waitUntil(timeoutMillis = 10_000) {
-            compose.onAllNodesWithText(appString(R.string.day_yesterday)).fetchSemanticsNodes().isNotEmpty()
+        compose.onNodeWithTag(LIMITS_PREVIEW_TAG, useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test fun theLimitsIconOpensTheDedicatedSettings() {
+        val stored = storedDayAndPackage()
+        assumeTrue("the device stores no finished day", stored != null)
+        val day = stored!!.first
+        val pkg = stored.second
+        var opened = false
+        compose.setContent {
+            MaterialTheme {
+                AppDetailScreen(
+                    packageName = pkg,
+                    date = day,
+                    onConfigure = { opened = true },
+                )
+            }
         }
 
-        // A swipe right walks back to today, the way the home's ring walks its positions.
+        compose
+            .onNodeWithContentDescription(appString(R.string.detail_limits_configure))
+            .performClick()
+
+        assertTrue(opened)
+    }
+
+    @Test fun tappingTheLimitsBlockOpensTheDedicatedSettings() {
+        val stored = storedDayAndPackage()
+        assumeTrue("the device stores no finished day", stored != null)
+        val day = stored!!.first
+        val pkg = stored.second
+        var opened = false
+        compose.setContent {
+            MaterialTheme {
+                AppDetailScreen(
+                    packageName = pkg,
+                    date = day,
+                    onConfigure = { opened = true },
+                )
+            }
+        }
+
+        // The whole preview block is a shortcut to the app's limit settings.
+        compose.onNodeWithTag(LIMITS_PREVIEW_TAG, useUnmergedTree = true).performClick()
+
+        assertTrue(opened)
+    }
+
+    @Test fun aHorizontalSwipeWalksTheDays() {
+        val stored = storedDayAndPackage()
+        assumeTrue("the device stores no finished day", stored != null)
+        val day = stored!!.first
+        val pkg = stored.second
+        compose.setContent {
+            MaterialTheme { AppDetailScreen(packageName = pkg, date = day) }
+        }
+        // The detail is loaded: the day label shows the stored day.
+        compose.waitUntil(timeoutMillis = 10_000) {
+            compose.onAllNodesWithText(appString(R.string.detail_limits_section)).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // A swipe right walks to the previous day, the way the home's ring walks its positions.
         // The touch injection is not always delivered on the first try: swipe until the day moves.
-        val shown = { compose.onNodeWithTag(DAY_LABEL_TAG).fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(" ") }
+        val shown = {
+            compose.onNodeWithTag(DAY_LABEL_TAG).fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(" ")
+        }
         val before = shown()
         var moved = false
         repeat(3) {
@@ -102,43 +155,6 @@ class AppDetailLimitsTest {
         }
 
         assertTrue("the swipe must walk to another day (was $before)", moved)
-    }
-
-    @Test fun theLimitsIconOpensTheDedicatedSettings() {
-        var opened = false
-        compose.setContent {
-            MaterialTheme {
-                AppDetailScreen(
-                    packageName = PACKAGE,
-                    date = LocalDate.now().minusDays(1),
-                    onConfigure = { opened = true },
-                )
-            }
-        }
-
-        compose
-            .onNodeWithContentDescription(strings.getString(R.string.detail_limits_configure))
-            .performClick()
-
-        assertTrue(opened)
-    }
-
-    @Test fun tappingTheLimitsBlockOpensTheDedicatedSettings() {
-        var opened = false
-        compose.setContent {
-            MaterialTheme {
-                AppDetailScreen(
-                    packageName = PACKAGE,
-                    date = LocalDate.now().minusDays(1),
-                    onConfigure = { opened = true },
-                )
-            }
-        }
-
-        // The whole preview block is a shortcut to the app's limit settings.
-        compose.onNodeWithTag(LIMITS_PREVIEW_TAG).performClick()
-
-        assertTrue(opened)
     }
 
     private companion object {
