@@ -74,7 +74,7 @@
     <string name="settings_window_none">Sin ventana</string>
     <string name="settings_window_from">Desde</string>
     <string name="settings_window_to">Hasta</string>
-    <string name="settings_window_clear">Sin ventana</string>
+    <string name="settings_window_clear">Quitar</string>
     <string name="settings_window_range">%1$s–%2$s</string>
     <string name="settings_limits_quick_adjust">Ajuste rápido</string>
     <string name="settings_limits_button_minus">-15 min</string>

@@ -150,7 +150,7 @@ fun LimitsQuickAdjust(
     }
 
     val limitOn = limit != null
-    Column(modifier = Modifier.padding(12.dp)) {
+    Column {
         // The switch is the binary decision (a limit or none); the stepper only sets its size.
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
@@ -203,8 +203,6 @@ fun LimitsQuickAdjust(
             ) { Text(stringResource(R.string.settings_limits_button_plus)) }
         }
         Spacer(Modifier.height(12.dp))
-        Text(stringResource(R.string.settings_limits_picker_label), style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.height(4.dp))
         val w = window
         val rangeText =
             if (w == null) {
@@ -216,23 +214,32 @@ fun LimitsQuickAdjust(
                     formatMinuteOfDay(context, w.endMinute, is24),
                 )
             }
-        Text(rangeText, style = MaterialTheme.typography.bodyLarge)
-        Spacer(Modifier.height(8.dp))
+        // The same title-and-value shape as the two rows above, so the three line up.
         Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(
-                onClick = { showPicker = true },
-                modifier = Modifier.sizeIn(minHeight = 48.dp),
-            ) { Text(stringResource(R.string.settings_limits_picker_open)) }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.settings_limits_picker_label),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = rangeText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             if (window != null) {
-                Spacer(Modifier.width(8.dp))
                 TextButton(
                     onClick = {
                         window = null
                         onWindowClear(packageName)
                     },
-                    modifier = Modifier.sizeIn(minHeight = 48.dp),
+                    modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
                 ) { Text(stringResource(R.string.settings_window_clear)) }
             }
+            OutlinedButton(
+                onClick = { showPicker = true },
+                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
+            ) { Text(stringResource(R.string.settings_limits_picker_open)) }
         }
     }
 

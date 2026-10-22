@@ -74,7 +74,7 @@
     <string name="settings_window_none">No window</string>
     <string name="settings_window_from">From</string>
     <string name="settings_window_to">To</string>
-    <string name="settings_window_clear">No window</string>
+    <string name="settings_window_clear">Remove</string>
     <string name="settings_window_range">%1$s–%2$s</string>
     <string name="settings_limits_quick_adjust">Quick adjust</string>
     <string name="settings_limits_button_minus">-15 min</string>

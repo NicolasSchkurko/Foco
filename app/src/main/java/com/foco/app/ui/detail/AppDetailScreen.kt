@@ -41,14 +41,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
 import com.foco.app.data.AppLimitsStore
@@ -64,7 +58,6 @@ import com.foco.app.ui.common.AppIcon
 import com.foco.app.ui.common.HourChart
 import com.foco.app.ui.common.ScreenHeader
 import com.foco.app.ui.common.swipeThroughPositions
-import com.foco.app.ui.common.tapWithoutConsuming
 import com.foco.app.ui.common.appLabel
 import com.foco.app.ui.common.readOr
 import com.foco.app.ui.common.rememberCurrentDate
@@ -344,15 +337,16 @@ fun AppDetailScreen(
                                     .weight(1f),
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .tapWithoutConsuming { onConfigure() }
-                                .semantics {
-                                    role = Role.Button
-                                    onClick(label = openLimitsLabel) { onConfigure(); true }
-                                }
-                                .padding(vertical = 4.dp)
-                                .testTag(LIMITS_PREVIEW_TAG),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clickable(
+                                            onClickLabel = openLimitsLabel,
+                                            role = Role.Button,
+                                            onClick = onConfigure,
+                                        )
+                                        .padding(vertical = 4.dp)
+                                        .testTag(LIMITS_PREVIEW_TAG),
                             ) {
                             // Preview: limit / window / alert for this app
                             Text(

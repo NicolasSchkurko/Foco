@@ -1,16 +1,10 @@
 package com.foco.app.ui.common
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.changedToDown
-import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -19,8 +13,8 @@ import androidx.compose.ui.unit.dp
 private val SwipeThreshold = 64.dp
 
 /**
- * The horizontal swipe that walks positions, the way the home's ring walks its days: left to
- * the next one, right to the previous one. The position moves with the finger.
+ * The horizontal swipe that walks positions the way the home's ring walks its days: left to the
+ * next one, right to the previous one, as soon as the finger crosses the threshold.
  */
 @Composable
 fun Modifier.swipeThroughPositions(
@@ -28,54 +22,44 @@ fun Modifier.swipeThroughPositions(
     onPrevious: () -> Unit,
 ): Modifier {
     val threshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
-    // The callbacks are read through a state, so the pointer input is not restarted when the
-    // screen recomposes in the middle of a swipe.
+    // The callbacks are read through a state, so a recomposition in the middle of the gesture
+    // neither restarts the pointer input nor calls a stale walk.
     val next by rememberUpdatedState(onNext)
     val previous by rememberUpdatedState(onPrevious)
     return this.pointerInput(Unit) {
-        awaitPointerEventScope {
-            while (true) {
-                val down = awaitPointerEvent(PointerEventPass.Initial)
-                if (!down.changes.any { it.changedToDown() }) continue
-                val startX = down.changes.first().position.x
-                val startY = down.changes.first().position.y
-                var totalDrag = 0f
-                var decided = false
-                while (!decided) {
-                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                    if (event.changes.all { it.changedToUp() }) break
-                    val change = event.changes.firstOrNull() ?: continue
-                    val dx = change.position.x - startX
-                    val dy = change.position.y - startY
-                    if (kotlin.math.abs(dy) > kotlin.math.abs(dx) && kotlin.math.abs(dy) > 24f) {
-                        // A vertical drag: the list scrolls, the walk waits.
-                        break
-                    }
-                    totalDrag += dx
-                    if (totalDrag <= -threshold) {
-                        decided = true
-                        change.consume()
-                        next()
-                    } else if (totalDrag >= threshold) {
-                        decided = true
-                        change.consume()
-                        previous()
+        var drag = 0f
+        var moved = false
+        detectHorizontalDragGestures(
+            onDragStart = {
+                drag = 0f
+                moved = false
+            },
+            onHorizontalDrag = { change, amount ->
+                // The drag belongs to the walk from here on: the list under the finger must not
+                // also scroll sideways.
+                change.consume()
+                if (!moved) {
+                    drag += amount
+                    when {
+                        drag <= -threshold -> {
+                            moved = true
+                            next()
+                        }
+                        drag >= threshold -> {
+                            moved = true
+                            previous()
+                        }
                     }
                 }
-            }
-        }
+            },
+            onDragEnd = {
+                drag = 0f
+                moved = false
+            },
+            onDragCancel = {
+                drag = 0f
+                moved = false
+            },
+        )
     }
 }
-
-/**
- * A tap that never consumes the down event, so a parent gesture (a horizontal drag) can still
- * recognise it. A plain `clickable` would swallow the down and the drag would never start.
- */
-fun Modifier.tapWithoutConsuming(onClick: () -> Unit): Modifier =
-    pointerInput(onClick) {
-        awaitEachGesture {
-            awaitFirstDown(requireUnconsumed = false)
-            val up = waitForUpOrCancellation()
-            if (up != null) onClick()
-        }
-    }
