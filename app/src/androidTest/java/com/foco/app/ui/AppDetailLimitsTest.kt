@@ -161,9 +161,38 @@ class AppDetailLimitsTest {
         assertTrue("the swipe must walk to another day (was $before)", moved)
     }
 
+    @Test fun aSwipeWalksTheDaysThatArriveAfterTheFirstFrame() {
+        val stored = storedDayAndPackage()
+        assumeTrue("the device stores no finished day", stored != null)
+        val pkg = stored!!.second
+        // Opened without a day, the way the home opens it: the window only holds the days the
+        // store announces, and those arrive after the first frame.
+        compose.setContent { MaterialTheme { AppDetailScreen(packageName = pkg) } }
+        // The window grew when the arrow to an older day turned on.
+        compose.waitUntil(timeoutMillis = 10_000) {
+            compose.onAllNodesWithText(ARROW_TO_OLDER).fetchSemanticsNodes()
+                .any { SemanticsProperties.Disabled !in it.config }
+        }
+
+        val shown = {
+            compose.onNodeWithTag(DAY_LABEL_TAG).fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(" ")
+        }
+        val before = shown()
+        var moved = false
+        repeat(3) {
+            if (moved) return@repeat
+            compose.onNodeWithTag(DETAIL_CONTENT_TAG).performTouchInput { swipeRight() }
+            compose.waitUntil(timeoutMillis = 3_000) { shown() != before }
+            moved = shown() != before
+        }
+
+        assertTrue("the swipe must walk to another day (was $before)", moved)
+    }
+
     private companion object {
         const val PACKAGE = "com.foco.app"
         const val HOUR = 3_600_000L
+        const val ARROW_TO_OLDER = "‹"
         val emptyDay = DayData(sessions = emptyList(), unlockTimes = emptyList())
     }
 }

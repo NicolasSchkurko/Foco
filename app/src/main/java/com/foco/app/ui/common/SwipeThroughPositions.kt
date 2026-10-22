@@ -23,7 +23,9 @@ fun Modifier.swipeThroughPositions(
 ): Modifier {
     val threshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
     // The callbacks are read through a state, so a recomposition in the middle of the gesture
-    // neither restarts the pointer input nor calls a stale walk.
+    // neither restarts the pointer input nor calls a stale walk. The state must hold a LAMBDA:
+    // a reference to a local function compares by owner and name, so two of them look equal
+    // while capturing different values, and the walk would keep the first one's window.
     val next by rememberUpdatedState(onNext)
     val previous by rememberUpdatedState(onPrevious)
     return this.pointerInput(Unit) {

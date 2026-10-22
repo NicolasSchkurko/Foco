@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
@@ -170,7 +169,10 @@ fun AppDetailScreen(
         selectedIndex = target
         days.getOrNull(target)?.toString()?.let { savedSelectedDate = it }
     }
-    val stepDayState = rememberUpdatedState<(Int) -> Unit>(::stepDay)
+    // The day walk is called straight from the swipe's lambdas (like the home's ring): a
+    // reference to this local function would keep the first composition's window forever,
+    // because Kotlin compares two local-function references by owner and name, not by the
+    // values they captured.
     SideEffect {
         if (windowChanged) {
             val clamped = resolveSelection()
@@ -297,8 +299,8 @@ fun AppDetailScreen(
                         .weight(1f)
                         .testTag(DETAIL_CONTENT_TAG)
                         .swipeThroughPositions(
-                            onNext = { stepDayState.value(1) },
-                            onPrevious = { stepDayState.value(-1) },
+                            onNext = { stepDay(1) },
+                            onPrevious = { stepDay(-1) },
                         ),
             ) {
                 when {
