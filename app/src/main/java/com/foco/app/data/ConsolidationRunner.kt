@@ -53,7 +53,7 @@ class ConsolidationRunner(
         fun forApp(context: Context): ConsolidationRunner =
             shared ?: synchronized(this) {
                 shared ?: ConsolidationRunner(consolidate = { day ->
-                    val repository = UsageRepository(context.applicationContext)
+                    val repository = UsageRepository.forApp(context.applicationContext)
                     SessionHistoryStore
                         .forApp(context.applicationContext) { date -> repository.loadDay(date) }
                         .consolidate(day)

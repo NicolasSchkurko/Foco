@@ -109,4 +109,27 @@ class AppLimitsStoreTest {
             assertNull(store.limitFor("com.instagram.android"))
             assertEquals(0, database!!.appLimits().count())
         }
+
+    @Test
+    fun theAppStoreIsOneInstanceForTheProcess() {
+        val first = AppLimitsStore.forApp(context)
+        val second = AppLimitsStore.forApp(context)
+
+        assertTrue("the store must be shared, not built per caller", first === second)
+    }
+
+    @Test
+    fun theLimitRowCarriesTheMinutesAndTheAlertFlag() =
+        runBlocking {
+            val store = AppLimitsStore(database!!.appLimits(), database!!.appLimitAlerts(), database!!.appLimitWindows())
+
+            store.setLimit("com.instagram.android", 30)
+            store.setAlertEnabled("com.instagram.android", true)
+
+            val row = store.limitRowFor("com.instagram.android")
+
+            assertEquals(30, row?.minutes)
+            assertTrue(row?.alertEnabled == true)
+            assertNull(store.limitRowFor("com.unknown"))
+        }
 }

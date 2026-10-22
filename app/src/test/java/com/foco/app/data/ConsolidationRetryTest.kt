@@ -28,9 +28,9 @@ class ConsolidationRetryTest {
                 DailyAggregate("app.a", oldDay.toString(), 1_000)
             markers.rows[oldDay.toString()] = ConsolidatedDay(oldDay.toString(), 2)
             val store =
-                SessionHistoryStore(sessions, aggregates, markers) {
+                SessionHistoryStore(sessions, aggregates, markers, readDay = {
                     throw IllegalStateException("platform busy")
-                }
+                })
             val runner = ConsolidationRunner({ day -> store.consolidate(day) })
 
             val outcome = runner.run(today)
@@ -55,13 +55,13 @@ class ConsolidationRetryTest {
             val yesterday = today.minusDays(1)
             val start = yesterday.toEpochDay() * 86_400_000L
             val store =
-                SessionHistoryStore(sessions, aggregates, markers) { day ->
+                SessionHistoryStore(sessions, aggregates, markers, readDay = { day ->
                     if (day == yesterday) {
                         DayData(listOf(UsageSession("app.a", start, start + 60_000L)), emptyList())
                     } else {
                         DayData(emptyList(), emptyList())
                     }
-                }
+                })
             val runner = ConsolidationRunner({ day -> store.consolidate(day) })
 
             val outcome = runner.run(today)

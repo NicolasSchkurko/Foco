@@ -14,7 +14,16 @@ import kotlinx.coroutines.flow.map
 class FakeSessionRecordDao : SessionRecordDao {
     val rows = mutableMapOf<Pair<String, Long>, SessionRecord>()
 
+    /** The write calls, in order: the transaction tests watch them. */
+    val calls = mutableListOf<String>()
+    var failNextWrite = false
+
     override suspend fun upsert(records: List<SessionRecord>) {
+        calls += "upsert"
+        if (failNextWrite) {
+            failNextWrite = false
+            error("the raw row write failed")
+        }
         records.forEach { rows[it.packageName to it.start] = it }
     }
 
@@ -22,6 +31,7 @@ class FakeSessionRecordDao : SessionRecordDao {
         from: Long,
         to: Long,
     ): Int {
+        calls += "deleteBetween"
         val before = rows.size
         rows.values.removeIf { it.start >= from && it.start < to }
         return before - rows.size
@@ -51,9 +61,6 @@ class FakeDailyAggregateDao : DailyAggregateDao {
     }
 
     override suspend fun storedDays(): List<String> = daysNow()
-
-    /** What the map holds when a write happens: the fake's stand-in for Room's invalidation. */
-    override fun storedDaysFlow(): Flow<List<String>> = writes.map { daysNow() }
 
     override suspend fun totalsFor(
         from: String,

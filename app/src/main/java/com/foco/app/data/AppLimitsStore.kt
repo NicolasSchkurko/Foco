@@ -12,8 +12,13 @@ import com.foco.app.data.db.AppLimitWindowDao
 import com.foco.app.domain.AppLimitRules
 import com.foco.app.domain.AppLimitWindowRules
 import com.foco.app.domain.AppWindow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import java.time.LocalDate
 
 /**
@@ -25,33 +30,43 @@ class AppLimitsStore(
     private val alertFired: AppLimitAlertFiredDao,
     private val windows: AppLimitWindowDao,
 ) {
+    /** Every limit row; read once and shared by the two projections below. */
+    private val limitRows: Flow<List<AppLimit>> =
+        limits.limitsFlow().shareIn(storeScope, SharingStarted.WhileSubscribed(), replay = 1)
+
     /** Every configured limit, keyed by package; a missing key means no limit. */
     val limitsFlow: Flow<Map<String, Int>> =
-        limits.limitsFlow().map { rows -> rows.associate { it.packageName to it.minutes } }
+        limitRows.map { rows -> rows.associate { it.packageName to it.minutes } }
 
-    /** Every per-app alert flag, keyed by package; a missing key means alerts are off. */
+    /** Every per-app alert flag, keyed by package; a missing key means no limit row. */
     val alertsFlow: Flow<Map<String, Boolean>> =
-        limits.limitsFlow().map { rows -> rows.associate { it.packageName to it.alertEnabled } }
+        limitRows.map { rows -> rows.associate { it.packageName to it.alertEnabled } }
 
     /** Every recurring window, keyed by package; a missing key means no window. */
     val windowsFlow: Flow<Map<String, AppWindow>> =
         windows.windowsFlow().map { rows ->
-            rows.associate { it.packageName to AppWindow(it.startMinute, it.endMinute) }
+            rows
+                .mapNotNull { row -> AppWindow.of(row.startMinute, row.endMinute)?.let { row.packageName to it } }
+                .toMap()
         }
 
-    suspend fun limitFor(packageName: String): Int? = limits.minutesFor(packageName)
+    /** The package's limit row: its minutes and whether its alerts are on. */
+    suspend fun limitRowFor(packageName: String): AppLimit? = limits.limitRow(packageName)
 
-    suspend fun alertEnabledFor(packageName: String): Boolean = limits.alertEnabledFor(packageName) ?: false
+    suspend fun limitFor(packageName: String): Int? = limits.limitRow(packageName)?.minutes
 
+    suspend fun alertEnabledFor(packageName: String): Boolean = limits.limitRow(packageName)?.alertEnabled ?: false
+
+    /** The package's window; a stored row that is not a valid window is skipped, not accepted. */
     suspend fun windowFor(packageName: String): AppWindow? =
         windows
             .windowFor(packageName)
-            ?.let { AppWindow(it.startMinute, it.endMinute) }
+            ?.let { AppWindow.of(it.startMinute, it.endMinute) }
 
     suspend fun hasAnyLimit(): Boolean = limits.count() > 0
 
     /** Whether a limit or a window exists, so the monitor has work to do. */
-    suspend fun hasAnyLimitOrWindow(): Boolean = limits.count() > 0 || windows.count() > 0
+    suspend fun hasAnyLimitOrWindow(): Boolean = limits.hasAnyLimitOrWindow()
 
     /**
      * Stores [minutes] for [packageName]; only the zero/15-minute grid is accepted. Changing the
@@ -97,7 +112,7 @@ class AppLimitsStore(
         enabled: Boolean,
         day: LocalDate = LocalDate.now(),
     ) {
-        val minutes = limits.minutesFor(packageName) ?: return
+        val minutes = limits.limitRow(packageName)?.minutes ?: return
         if (enabled && minutes <= 0) return
         limits.setAlertEnabled(packageName, enabled)
         alertFired.clearDay(packageName, day.toString())
@@ -125,23 +140,36 @@ class AppLimitsStore(
     companion object {
         private const val DATABASE_NAME = "limits.db"
 
+        /** The scope the shared limit rows run in; it lives as long as the app. */
+        private val storeScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
         @Volatile
         private var database: AppLimitDatabase? = null
 
-        /** The app's store over its private limits database. */
-        fun forApp(context: Context): AppLimitsStore {
-            val db =
-                database ?: synchronized(this) {
-                    database ?: Room
-                        .databaseBuilder(
-                            context.applicationContext,
-                            AppLimitDatabase::class.java,
-                            DATABASE_NAME,
-                        ).addMigrations(AppLimitDatabase.MIGRATION_1_2, AppLimitDatabase.MIGRATION_2_3)
-                        .build()
-                        .also { database = it }
+        @Volatile
+        private var store: AppLimitsStore? = null
+
+        /** The app's store over its private limits database; one per process. */
+        fun forApp(context: Context): AppLimitsStore =
+            store ?: synchronized(this) {
+                store ?: run {
+                    val db = databaseFor(context)
+                    AppLimitsStore(db.appLimits(), db.appLimitAlerts(), db.appLimitWindows())
+                        .also { store = it }
                 }
-            return AppLimitsStore(db.appLimits(), db.appLimitAlerts(), db.appLimitWindows())
-        }
+            }
+
+        /** The app's database over `limits.db`; one per process. */
+        private fun databaseFor(context: Context): AppLimitDatabase =
+            database ?: synchronized(this) {
+                database ?: Room
+                    .databaseBuilder(
+                        context.applicationContext,
+                        AppLimitDatabase::class.java,
+                        DATABASE_NAME,
+                    ).addMigrations(AppLimitDatabase.MIGRATION_1_2, AppLimitDatabase.MIGRATION_2_3)
+                    .build()
+                    .also { database = it }
+            }
     }
 }

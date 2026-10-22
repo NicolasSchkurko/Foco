@@ -4,6 +4,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.data.db.AppLimitDatabase
+import com.foco.app.data.db.AppLimitWindow
 import com.foco.app.domain.AppWindow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -101,5 +102,14 @@ class AppLimitWindowStoreTest {
             database = open()
 
             assertEquals(AppWindow(9 * 60, 23 * 60), store().windowFor("com.instagram.android"))
+        }
+
+    @Test
+    fun aStoredRowThatIsNotAWindowIsSkipped() =
+        runBlocking {
+            database!!.appLimitWindows().upsert(AppLimitWindow("com.instagram.android", 9 * 60, 9 * 60))
+
+            assertNull("an invalid row is not a window", store().windowFor("com.instagram.android"))
+            assertEquals(emptyMap<String, AppWindow>(), store().windowsFlow.first())
         }
 }
