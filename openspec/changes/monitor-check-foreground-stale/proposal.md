@@ -2,37 +2,57 @@
 
 ## Why
 
-`UsageMonitorService.checkOnce()` (línea 82-98) lee el `packageName` actual de `ForegroundApp.currentPackage()` **una sola vez** al inicio del check. Luego itera sobre el valor de `limit`, `alertEnabled`, `usedSeconds` e intenta bloquear o notificar. Mientras tanto, el usuario puede cambiar de app (ej., de Instagram a YouTube). El monitor periódico (ticker cada 2 minutos) **no valida nuevamente** `currentPackage` antes de `onBlock()` / `onNotify()`. La spec dice que "El block acts only on the app in the foreground" (`spec.md:207-219`).
+`UsageMonitorService.checkOnce()` (lines 82-98) reads the current `packageName` from
+`ForegroundApp.currentPackage()` **only once**, at the start of the check. It then iterates over the
+`limit`, `alertEnabled` and `usedSeconds` values and tries to block or notify. Meanwhile, the user can
+switch apps (e.g. from Instagram to YouTube). The periodic monitor (a ticker every 2 minutes) **does
+not re-validate** `currentPackage` before `onBlock()` / `onNotify()`. The spec says that "The block
+acts only on the app in the foreground" (`spec.md:207-219`).
 
-El resultado:
-- Una app que ya tiene un límite activo y **alcanzó** su límite, pero **está actualmente abierta** pero **con un límite agotado**, **bloquea** una vez que está abierta.
-- El ticker de 2 min lee el `packageName` (Instagram) **mientras está fuera del frente**, espera el límite (1500 s alcanzado), y lanza bloque **sobre Instagram** aunque Instagram está actualmente abierto. Esto en realidad provoca un ciclo de vida de actividad extraño.
-- El bloqueo de monitor basado en `currentPackage()` (el servicio de accesibilidad) es correcto, pero el monitor periódico está incorrectamente diseñado.
+The result:
 
-El mecanismo:
-- `UsageMonitorService.checkOnce()` lee `packageName = ForegroundApp.currentPackage()` al inicio (línea 82) y lo guarda.
-- Luego `evaluateLimitCheck(...)` (línea 91-100) valida `limitMinutes` y `usedSeconds` y decide el bloqueo o alerta.
-- El `BackgroundAppEvent` se usa de forma similar; `UsageMonitorAccessibilityService` usa `foreground.accepts()` que `onWindowEvent` actualiza `currentPackage` correctamente.
+- An app that already has an active limit and **reached** it, and that **is currently open** with an
+  **exhausted limit**, **blocks** as soon as it is open.
+- The 2-minute ticker reads the `packageName` (Instagram) **while it is not in front**, waits for the
+  limit (1500 s reached), and raises the block **on Instagram** even though Instagram is not the
+  current app. This actually causes a strange activity lifecycle.
+- The block driven by `currentPackage()` (the accessibility service) is correct, but the periodic
+  monitor is wrongly designed.
 
-El bug no es un bug en el sentido tradicional, es una **especificación** (la entrada para checkOnce solo se completa al inicio).
+The mechanism:
 
-## Qué cambia
+- `UsageMonitorService.checkOnce()` reads `packageName = ForegroundApp.currentPackage()` at the start
+  (line 82) and keeps it.
+- Then `evaluateLimitCheck(...)` (lines 91-100) validates `limitMinutes` and `usedSeconds` and decides
+  the block or the alert.
+- `BackgroundAppEvent` is used in a similar way; `UsageMonitorAccessibilityService` uses
+  `foreground.accepts()`, which `onWindowEvent` keeps up to date correctly.
 
-- `UsageMonitorService.checkOnce()` lo reevalúa tras cada `delay` de 2 minutos:
-  - `current = ForegroundApp.currentPackage()` (es correcto).
-  - Si `current == packageName` (leído previamente), continúa con `evaluateLimitCheck`.
-  - Si el paquete actual es **diferente**, salimos temprano (no bloqueamos ningún paquete).
-- Solo reavaluamos `usedSeconds` si el paquete actual coincide; de lo contrario, no bloqueamos nunca nada para ese paquete no activo.
-- Agregar prueba: JVM y CI para verificar el cambio de monitor (primer test es un `JUnit5` unit test).
+The bug is not a bug in the traditional sense: it is a **specification** (the check's input is only
+completed at the start).
 
-## Riesgos
+## What changes
 
-- Si el `currentPackage()` cambia entre la primera lectura y la evaluación (`onBlock` / `onNotify`), podemos bloquear un paquete que ya no está en frente, provocando un ciclo de vida inesperado (la situación real que observamos).
-- Los cambios en el test runner pueden afectar al monitor de CI.
-- Es un ajuste muy pequeño; podría interrumpir la cadencia de 2 minutos, pero en realidad mantiene el ticker regular.
+- `UsageMonitorService.checkOnce()` re-evaluates it after every 2-minute `delay`:
+  - `current = ForegroundApp.currentPackage()` (that is correct).
+  - If `current == packageName` (read earlier), it continues with `evaluateLimitCheck`.
+  - If the current package is **different**, it returns early (it blocks no package).
+- `usedSeconds` is only re-evaluated when the current package matches; otherwise nothing is blocked
+  for a package that is not in front.
+- Add a test: a JVM one and a CI one to verify the monitor change (the first test is a `JUnit5` unit
+  test).
 
-## Aceptación
+## Risks
 
-Aceptado por el humano para /spec-triage como `fix`, con `tech_brief` si es necesario (es detección).
+- If `currentPackage()` changes between the first read and the evaluation (`onBlock` / `onNotify`), we
+  can block a package that is no longer in front, causing an unexpected lifecycle (the real situation
+  we observed).
+- The changes in the test runner may affect the CI monitor.
+- It is a very small adjustment; it could interrupt the 2-minute cadence, but it actually keeps the
+  regular ticker.
 
-Signado por: AI • 2026-10-21
+## Acceptance
+
+Accepted by the human for /spec-triage as a `fix`, with `tech_brief` if needed (it is detection).
+
+Signed by: AI • 2026-10-21

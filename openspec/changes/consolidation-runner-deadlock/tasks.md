@@ -2,65 +2,75 @@
 
 ## Riskiest first vertical slice
 
-- [ ] 1. `ConsolidationRunner`: modificar `gate` / `inFlight` para evitar reentrancy:
-  - Usar `Mutex(locking = LockingMode.NON_REENTRANT)` explícitamente, o reestructurar para que `finally` no necesite bloquear (lo hace el `withLock` externo).
-  - Reemplazar `gate.withLock { inFlight = null }` con `inFlight = null` (el `withLock` externo en `run()` lo protege).
-  - Probar en JVM que `run()` retorna `ConsolidationOutcome.Failed` cuando `consolidate` lanza.
-- [ ] 2. Agregar `consolidation-runner-deadlock` a `.openspec.yaml` (`x-kind: fix`, `x-targets` a `app/src/main/java/com/foco/app/data/ConsolidationRunner.kt`).
-- [ ] 3. Enviar `gate-check --run-tests` con `consolidation-runner-deadlock` incluido, en `app/src/test/...` si se requiere una `[@test]` nueva.
-- [ ] 4. Corregir `gitignore` si cambia la construcción; `gradlew.bat test`, `gradlew.bat ktlintCheck` → green.
+- [ ] 1. `ConsolidationRunner`: change `gate` / `inFlight` to avoid the reentrancy:
+  - Use `Mutex(locking = LockingMode.NON_REENTRANT)` explicitly, or restructure it so the `finally`
+    does not need to lock (the outer `withLock` already does it).
+  - Replace `gate.withLock { inFlight = null }` with `inFlight = null` (the outer `withLock` in `run()`
+    protects it).
+  - Test on the JVM that `run()` returns `ConsolidationOutcome.Failed` when `consolidate` throws.
+- [ ] 2. Add `consolidation-runner-deadlock` to `.openspec.yaml` (`x-kind: fix`, `x-targets` to
+  `app/src/main/java/com/foco/app/data/ConsolidationRunner.kt`).
+- [ ] 3. Send `gate-check --run-tests` with `consolidation-runner-deadlock` included, in
+  `app/src/test/...` if a new `[@test]` is needed.
+- [ ] 4. Fix `gitignore` if the build changes; `gradlew.bat test`, `gradlew.bat ktlintCheck` → green.
 - [ ] 5. [--pre-archive, archive, regenerate board, commit]
 
-## Atajos
+## Shortcuts
 
-- La mejor solución es reestructurar `ConsolidationRunner` para que el bloqueo sea **externo** (el `run()` ya hace `gate.withLock`, solo `inFlight` necesita un campo.
-- El `finally` se mueve fuera del `withLock` externo.
+- The best solution is to restructure `ConsolidationRunner` so the lock is **external** (`run()` already
+  does `gate.withLock`; only `inFlight` needs a field).
+- The `finally` moves outside the outer `withLock`.
 
-## Decisiones
+## Decisions
 
-- Usar `supervisorJob()`: La rama del worker y la rama de app-start comparten el **mismo** `ConsolidationRunner` (`shared`).
-- Solo se necesita un `ReentrantMutex` si mantenemos `gate` para `inFlight`.
-- `inFlight` debe estar siempre bajo `gate.withLock` (la única protección).
+- Use `supervisorJob()`: the worker branch and the app-start branch share the **same**
+  `ConsolidationRunner` (`shared`).
+- A `ReentrantMutex` is only needed if `gate` is kept for `inFlight`.
+- `inFlight` must always be under `gate.withLock` (the only protection).
 
-## Variantes
+## Variants
 
-- Mantener `gate` pero hacerlo reentrant usando `withLock` mutex que permite reentrancy (Kotlin/Multihost): `ReentrantMutex()`.
-- Mantener `gate` pero permitir que `finally` haga `withLock` si el código externaliza la protección de `inFlight` con un respaldo para la verificación de `await()`.
+- Keep `gate` but make it reentrant with a `withLock` mutex that allows reentrancy (Kotlin/Multihost):
+  `ReentrantMutex()`.
+- Keep `gate` but let the `finally` do a `withLock` if the code externalizes the protection of
+  `inFlight` with a fallback for the `await()` verification.
 
-## Dependencias
+## Dependencies
 
-- El cambio declara un cambio de prueba en `app/src/test/java/com/foco/app/data/ConsolidationRunnerTest.kt` (si existe) o agrega uno nuevo.
-- `consolidation-runner-deadlock` tiene deps: [] (sin) porque ningún cambio activo depende de él todavía.
-- El cambio depende de `usage-history-foundation` (`archived`), `nightly-consolidation` (draft), `schema-drift-guard` (draft) a través de `.openspec.yaml`.
+- The change declares a test change in `app/src/test/java/com/foco/app/data/ConsolidationRunnerTest.kt`
+  (if it exists) or adds a new one.
+- `consolidation-runner-deadlock` has deps: [] (none), because no active change depends on it yet.
+- The change depends on `usage-history-foundation` (`archived`), `nightly-consolidation` (draft) and
+  `schema-drift-guard` (draft) through `.openspec.yaml`.
 
-## Tarea de tiempo
+## Time task
 
-- Asegurar que no haya fugas de bloqueo: JMeter 100 sprints.
-- Asegurar que un error en la consolidación limpia todos los nulls.
-- Asegurar la cadencia del test runner.
+- Make sure there is no lock leak: JMeter 100 sprints.
+- Make sure an error in the consolidation clears all the nulls.
+- Make sure the test runner keeps its cadence.
 
-## Acta de aceptación
+## Acceptance record
 
-- [ ] Aceptar `consolidation-runner-deadlock` (draft) con `tech_brief: true`.
-- [ ] Aplicar `walkthrough.md` y comprender la aprobación humana antes de `--pre-archive`.
-- [ ] Después de `verified`, registrar `ARCHIVE.md` -> `BOARD.md` actualizado.
+- [ ] Accept `consolidation-runner-deadlock` (draft) with `tech_brief: true`.
+- [ ] Apply `walkthrough.md` and the human's comprehension approval before `--pre-archive`.
+- [ ] After `verified`, register `ARCHIVE.md` -> `BOARD.md` updated.
 
-## Edición del CHANGELOG
+## CHANGELOG edit
 
-Agregado en `openspec/changes/consolidation-runner-deadlock/` bajo `DECISIONS.md`.
+Added under `openspec/changes/consolidation-runner-deadlock/` in `DECISIONS.md`.
 
-## Hoja de ruta
+## Roadmap
 
-1. Preparar el fix del cambio (archivos listos).
-2. Abrir PR para aprobación humana.
-3. Después de la aprobación, aplicar a dev, CI, green.
-4. Corrección del test runner.
-5. Llevar a `--pre-archive` + `walkthrough.md` + aprobación humana.
+1. Prepare the change's fix (the files are ready).
+2. Open the PR for the human approval.
+3. After the approval, apply it to dev, CI, green.
+4. Fix the test runner.
+5. Take it to `--pre-archive` + `walkthrough.md` + the human's approval.
 
-## Lista de pendientes
+## To-do list
 
-- [ ] Modificar `ConsolidationRunner.kt` para evitar reentrancy del mutex.
-- [ ] Agregar test de regresión para el caso de error con bloqueo.
-- [ ] Ejecutar la suite completa de tests.
-- [ ] Asegurar la seguridad de las pruebas estructuradas.
-- [ ] Generar walkthrough.md con la explicación y rastreo.
+- [ ] Modify `ConsolidationRunner.kt` to avoid the mutex reentrancy.
+- [ ] Add a regression test for the error case with the lock.
+- [ ] Run the whole test suite.
+- [ ] Make sure the structured test safety holds.
+- [ ] Generate `walkthrough.md` with the explanation and the traceability.
