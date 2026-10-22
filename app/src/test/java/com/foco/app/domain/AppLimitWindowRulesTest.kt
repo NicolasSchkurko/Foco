@@ -4,6 +4,9 @@ import com.foco.app.model.UsageSession
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
@@ -54,6 +57,14 @@ class AppLimitWindowRulesTest {
         assertFalse(AppLimitWindowRules.isValid(9 * 60, 9 * 60))
         assertTrue(AppLimitWindowRules.isValid(9 * 60, 23 * 60))
         assertTrue(AppLimitWindowRules.isValid(22 * 60, 6 * 60))
+    }
+
+    @Test
+    fun `a window with equal ends is rejected by the constructor`() {
+        assertThrows(IllegalArgumentException::class.java) { AppWindow(600, 600) }
+        assertThrows(IllegalArgumentException::class.java) { AppWindow(9 * 60 + 5, 23 * 60) }
+        assertNull(AppWindow.of(600, 600))
+        assertNotNull(AppWindow.of(9 * 60, 23 * 60))
     }
 
     @Test
@@ -126,6 +137,45 @@ class AppLimitWindowRulesTest {
         assertEquals(30 * 60_000L, AppLimitWindowRules.inWindowMillis(session("23:00", "23:30"), window, zone))
         assertEquals(60 * 60_000L, AppLimitWindowRules.inWindowMillis(session("05:00", "07:00"), window, zone))
         assertEquals(0L, AppLimitWindowRules.inWindowMillis(session("12:00", "13:00"), window, zone))
+    }
+
+    @Test
+    fun `a session crossing local midnight counts its in-window minutes on the day they belong to`() {
+        val window = AppWindow(22 * 60, 6 * 60)
+        val crossing =
+            UsageSession(
+                "instagram",
+                at(zone, day, "23:00"),
+                at(zone, day.plusDays(1), "03:00"),
+            )
+
+        // 23:00-00:00 belongs to the 20th, 00:00-03:00 to the 21st: 4 h inside the window.
+        assertEquals(
+            mapOf(day to 60 * 60_000L, day.plusDays(1) to 3 * 60 * 60_000L),
+            AppLimitWindowRules.inWindowMillisByDay(crossing, window, zone),
+        )
+        assertEquals(4 * 60 * 60_000L, AppLimitWindowRules.inWindowMillis(crossing, window, zone))
+    }
+
+    @Test
+    fun `sub-second sessions are not truncated away`() {
+        val window = AppWindow(9 * 60, 23 * 60)
+        val sessions =
+            listOf(
+                UsageSession("instagram", at("09:00"), at("09:00") + 1_500L),
+                UsageSession("instagram", at("10:00"), at("10:00") + 1_500L),
+            )
+
+        assertEquals(3L, AppLimitWindowRules.usedSeconds(sessions, "instagram", window, zone))
+    }
+
+    @Test
+    fun `no window never blocks`() {
+        val window = AppWindow(9 * 60, 23 * 60)
+
+        assertFalse(AppLimitWindowRules.blocksAt(at("23:00"), null, zone))
+        assertTrue(AppLimitWindowRules.blocksAt(at("23:00"), window, zone))
+        assertFalse(AppLimitWindowRules.blocksAt(at("10:00"), window, zone))
     }
 
     @Test

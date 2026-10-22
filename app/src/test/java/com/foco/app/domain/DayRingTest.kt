@@ -108,7 +108,7 @@ class DayRingTest {
             DayRingState(
                 current = DayStop.Day(oldest),
                 history = listOf(DayStop.Week, DayStop.Day(oldest)),
-            ).retain(dayRing(today, emptySet()), today)
+            ).retain(dayRing(today, emptySet()), { false }, DayStop.Day(today))
 
         assertEquals(DayStop.Day(today), vanished.current)
         assertEquals(listOf(DayStop.Week), vanished.history)

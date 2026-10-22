@@ -10,4 +10,10 @@ data class ExportApp(
     val totalMillis: Long,
     val sessionsAvailable: Boolean,
     val sessions: List<ExportSession>,
-)
+) {
+    init {
+        require(sessionsAvailable == sessions.isNotEmpty()) {
+            "sessionsAvailable must match the sessions it carries"
+        }
+    }
+}
