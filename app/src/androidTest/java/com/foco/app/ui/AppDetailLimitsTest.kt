@@ -84,6 +84,20 @@ class AppDetailLimitsTest {
         compose.onNodeWithTag(LIMITS_PREVIEW_TAG, useUnmergedTree = true).assertIsDisplayed()
     }
 
+    @Test fun theDayArrowsCarryADescription() {
+        val stored = storedDayAndPackage()
+        assumeTrue("the device stores no finished day", stored != null)
+        val day = stored!!.first
+        val pkg = stored.second
+        compose.setContent {
+            MaterialTheme { AppDetailScreen(packageName = pkg, date = day) }
+        }
+
+        // A screen reader announces the arrows, not the "<" and ">" glyphs.
+        compose.onNodeWithContentDescription(appString(R.string.day_previous)).assertIsDisplayed()
+        compose.onNodeWithContentDescription(appString(R.string.day_next)).assertIsDisplayed()
+    }
+
     @Test fun theLimitsIconOpensTheDedicatedSettings() {
         val stored = storedDayAndPackage()
         assumeTrue("the device stores no finished day", stored != null)
