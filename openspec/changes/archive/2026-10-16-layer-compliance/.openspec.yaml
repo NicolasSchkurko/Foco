@@ -18,4 +18,4 @@ x-tests:
   - app/src/test/java/com/foco/app/domain/DaySelectionTest.kt
   - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
 x-deps: []
-x-gitref: 1193d5a
+x-gitref: 48c5362

@@ -22,7 +22,7 @@ x-tests:
 x-deps:
   - settings-limits-quick-adjust
   - limits-section-direct-access
-x-gitref: 390bf02
+x-gitref: 67705ad
 x-open_decisions: []
 x-conflicts: []
 

@@ -9,5 +9,5 @@ x-targets:
   - app/src/test/java/com/foco/app/domain/DayRingTest.kt
 x-tests:
   - app/src/test/java/com/foco/app/domain/DayRingTest.kt
-x-gitref: babffd6
+x-gitref: 928ebd0
 x-tech_brief: false

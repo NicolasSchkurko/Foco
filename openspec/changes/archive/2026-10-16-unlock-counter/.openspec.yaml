@@ -17,4 +17,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
 x-deps:
   - detail-back-ux
-x-gitref: fee0b48
+x-gitref: c5aa2fa

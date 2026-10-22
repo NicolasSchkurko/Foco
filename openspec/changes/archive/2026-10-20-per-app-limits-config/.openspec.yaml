@@ -18,4 +18,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppLimitsSettingsTest.kt
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-deps: []
-x-gitref: cede0ca
+x-gitref: 11cf349

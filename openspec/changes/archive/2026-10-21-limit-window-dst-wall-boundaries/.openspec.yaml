@@ -9,7 +9,7 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/domain/AppLimitWindowRulesTest.kt
 x-deps: []
-x-gitref: 0e11bbf
+x-gitref: 58c82e9
 x-open_decisions: []
 x-conflicts: []
 

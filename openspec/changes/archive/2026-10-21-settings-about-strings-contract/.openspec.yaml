@@ -11,7 +11,7 @@ x-targets:
 x-tests:
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
 x-deps: []
-x-gitref: 8e994a4
+x-gitref: 58c82e9
 x-open_decisions: []
 x-verified_by: human-agent
 x-verified_at: 2026-10-21

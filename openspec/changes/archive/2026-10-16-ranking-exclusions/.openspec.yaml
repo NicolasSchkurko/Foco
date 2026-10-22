@@ -16,4 +16,4 @@ x-tests:
   - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
 x-deps:
   - app-usage-detail
-x-gitref: 7f025a1
+x-gitref: 6e15ae7

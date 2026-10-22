@@ -10,6 +10,6 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/data/SessionFilterTest.kt
 x-deps: []
-x-gitref: 65fda6c
+x-gitref: 7d594c8
 x-open_decisions: []
 x-conflicts: []

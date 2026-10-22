@@ -9,7 +9,7 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/data/ConsolidationConcurrencyTest.kt
 x-deps: []
-x-gitref: 8e994a4
+x-gitref: 58c82e9
 
 
 x-verified_by: agent

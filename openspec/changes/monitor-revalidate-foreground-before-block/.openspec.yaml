@@ -12,6 +12,6 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/data/UsageMonitorServiceTest.kt
 x-deps:
   - post-block-recheck-undelivered-resume
-x-gitref: 65fda6c
+x-gitref: 7d594c8
 x-open_decisions: []
 x-conflicts: []

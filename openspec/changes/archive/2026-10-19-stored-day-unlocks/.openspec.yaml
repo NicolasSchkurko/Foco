@@ -24,4 +24,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/HistoryWeekTest.kt
 x-deps:
   - usage-history-foundation
-x-gitref: 80c729b
+x-gitref: d18adc5

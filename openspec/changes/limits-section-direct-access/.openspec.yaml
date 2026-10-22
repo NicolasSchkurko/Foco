@@ -15,7 +15,7 @@ x-deps:
   - settings-about-strings-contract
   - settings-limits-quick-adjust
 x-superseded_by: limits-ui-in-the-app-settings
-x-gitref: 3c3171e
+x-gitref: 9d9a322
 
 x-open_decisions: []
 x-conflicts: []

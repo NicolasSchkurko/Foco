@@ -9,7 +9,7 @@ x-targets:
 x-tests:
   - app/src/androidTest/java/com/foco/app/data/AppLimitAlertNotifierTest.kt
 x-deps: []
-x-gitref: 0e11bbf
+x-gitref: 58c82e9
 x-open_decisions: []
 x-conflicts: []
 

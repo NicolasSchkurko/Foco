@@ -14,6 +14,6 @@ x-tests:
 x-deps:
   - code-hygiene-tripwires
   - settings-about-strings-contract
-x-gitref: 65fda6c
+x-gitref: 7d594c8
 x-open_decisions: []
 x-conflicts: []

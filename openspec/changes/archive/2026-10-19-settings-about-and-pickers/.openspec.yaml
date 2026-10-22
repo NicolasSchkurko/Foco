@@ -16,7 +16,7 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/DefaultLocaleResourcesTest.kt
 x-deps:
   - weekly-json-export
-x-gitref: c3d3c92
+x-gitref: 6687e90
 x-understood_by: Nschkurko
 x-understood_at: 2026-10-19
 x-tech_brief: true

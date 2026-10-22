@@ -11,4 +11,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/SettingsScreenTest.kt
   - app/src/test/java/com/foco/app/data/AppAppearanceTest.kt
 x-deps: []
-x-gitref: 07b89ef
+x-gitref: 33d9dff

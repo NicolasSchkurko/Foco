@@ -36,4 +36,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/data/db/AppLimitSchemaBaselineTest.kt
 x-deps:
   - app-limits
-x-gitref: 840bf3c
+x-gitref: 6a20097

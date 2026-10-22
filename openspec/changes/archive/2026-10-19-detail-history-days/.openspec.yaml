@@ -21,4 +21,4 @@ x-tests:
 x-deps:
   - usage-history-foundation
   - history-storage-followups
-x-gitref: dbf35df
+x-gitref: 0b267b2

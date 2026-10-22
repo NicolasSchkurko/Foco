@@ -15,4 +15,4 @@ x-tests:
 x-deps:
   - session-based-metrics
   - dashboard-auto-refresh
-x-gitref: 431fbca
+x-gitref: 68efdfb

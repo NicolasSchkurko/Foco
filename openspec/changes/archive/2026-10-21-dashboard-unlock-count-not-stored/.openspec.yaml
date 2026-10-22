@@ -11,7 +11,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/UnlockCountTest.kt
 x-deps:
   - dashboard-periodic-refresh-resilience
-x-gitref: 8e994a4
+x-gitref: 58c82e9
 x-open_decisions: []
 x-conflicts: []
 

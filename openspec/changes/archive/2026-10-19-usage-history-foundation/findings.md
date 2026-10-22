@@ -1,6 +1,6 @@
 # Findings — usage-history-foundation
 
-Verified in the `/spec-verify` pass of 2026-10-19 against the code at `6e5ec9c`. None of them
+Verified in the `/spec-verify` pass of 2026-10-19 against the code at `030f105`. None of them
 breaks a requirement of the delta spec: all three requirements are implemented and tested. They are
 gaps the tests do not cover.
 

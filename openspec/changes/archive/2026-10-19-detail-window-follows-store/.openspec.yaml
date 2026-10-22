@@ -21,4 +21,4 @@ x-tests:
 x-deps:
   - stored-day-unlocks
   - week-screen
-x-gitref: 80c729b
+x-gitref: d18adc5

@@ -11,7 +11,7 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
 x-deps:
   - dashboard-unlock-count-not-stored
-x-gitref: b69cb02
+x-gitref: 0638dc4
 x-open_decisions: []
 x-conflicts: []
 

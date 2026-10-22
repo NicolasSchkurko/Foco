@@ -13,4 +13,4 @@ x-targets:
 x-tests:
   - app/src/test/java/com/foco/app/domain/ForegroundAppStateTest.kt
 x-deps: []
-x-gitref: 92f86c4
+x-gitref: 999741f

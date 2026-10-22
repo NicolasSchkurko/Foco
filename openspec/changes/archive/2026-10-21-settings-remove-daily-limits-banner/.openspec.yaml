@@ -17,7 +17,7 @@ x-deps:
   - dashboard-unlock-count-not-stored
   - settings-about-strings-contract
   - settings-limits-quick-adjust
-x-gitref: 8e994a4
+x-gitref: 58c82e9
 
 x-open_decisions: []
 x-conflicts: []

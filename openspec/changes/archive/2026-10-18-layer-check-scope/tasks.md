@@ -30,6 +30,6 @@
 
 ### Note on the merge ref (2026-10-19)
 
-- `x-gitref: a8c14fe` is the apply commit; `x-merged_as: 3c77881` is the main commit this change is verified against at archive time. Why both: the merge into `main` was `0ef1907`, but the *dependent* change `boundary-check-fixture` had already extended this change's target file (`LayerRulesTest.kt`) before the archive, and `--pre-archive` compares every file the target glob covers between the ref and HEAD — so the ref had to move to a commit that contains both. Lesson for a change whose target is a glob: archive it before the next change touches the same files.
+- `x-gitref: a8c14fe` is the apply commit; `x-merged_as: 1a6ae5e` is the main commit this change is verified against at archive time. Why both: the merge into `main` was `c01068c`, but the *dependent* change `boundary-check-fixture` had already extended this change's target file (`LayerRulesTest.kt`) before the archive, and `--pre-archive` compares every file the target glob covers between the ref and HEAD — so the ref had to move to a commit that contains both. Lesson for a change whose target is a glob: archive it before the next change touches the same files.
 - Ordering: no dep on the three overlapping drafts (glob-only overlap, no file in common).
 - No tech brief: the comprehension pass is not required before archiving.

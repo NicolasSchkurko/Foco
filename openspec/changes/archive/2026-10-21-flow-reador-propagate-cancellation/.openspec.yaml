@@ -10,7 +10,7 @@ x-tests:
   - app/src/test/java/com/foco/app/ui/common/ReadOrTest.kt
   - app/src/androidTest/java/com/foco/app/ui/detail/AppDetailReadTest.kt
 x-deps: []
-x-gitref: 0e11bbf
+x-gitref: 58c82e9
 x-waivers: []
 x-verified_by: agent
 x-verified_at: 2026-10-21

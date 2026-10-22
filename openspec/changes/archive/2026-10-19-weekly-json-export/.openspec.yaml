@@ -31,7 +31,7 @@ x-deps:
   - soften-ring-swipe-animation
   - nightly-consolidation
   - schema-drift-guard
-x-gitref: a31132d
+x-gitref: 9d23196
 x-understood_by: Nschkurko
 x-understood_at: 2026-10-19
 x-tech_brief: true

@@ -25,4 +25,4 @@ x-tests:
   - app/src/test/java/com/foco/app/BackupDisabledManifestTest.kt
   - app/src/androidTest/java/com/foco/app/data/db/FocoDatabaseTest.kt
 x-deps: []
-x-gitref: 6e5ec9c
+x-gitref: 030f105

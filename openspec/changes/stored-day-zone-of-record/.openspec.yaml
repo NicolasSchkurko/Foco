@@ -11,6 +11,6 @@ x-tests:
   - app/src/test/java/com/foco/app/data/HistoryDayZoneTest.kt
 x-deps:
   - consolidation-totals-reset
-x-gitref: 65fda6c
+x-gitref: 7d594c8
 x-open_decisions: []
 x-conflicts: []

@@ -19,4 +19,4 @@ x-tests:
   - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
 x-deps:
   - detail-back-arrow
-x-gitref: a3b3bb3
+x-gitref: 07150b3

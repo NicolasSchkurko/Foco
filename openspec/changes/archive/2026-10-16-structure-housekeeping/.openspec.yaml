@@ -22,4 +22,4 @@ x-tests:
   - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
 x-deps:
   - app-entry-gate
-x-gitref: fab70df
+x-gitref: 51a8167

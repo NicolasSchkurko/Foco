@@ -16,4 +16,4 @@ x-tests:
   - app/src/test/java/com/foco/app/data/SessionFilterTest.kt
   - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
 x-deps: []
-x-gitref: 94fe8ba
+x-gitref: b32d069

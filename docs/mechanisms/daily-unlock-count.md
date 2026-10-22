@@ -3,7 +3,7 @@
 > Anchored by `/spec-explain` · 2026-10-19. This is documentation of the mechanism; the contract
 > lives in `openspec/specs/usage-tracking/spec.md` and in the change deltas. Code is the authority —
 > refs are `path:line` at the time of writing. The owning change is **`stored-day-unlocks`**
-> (`change/stored-day-unlocks`, verified; `main` contains its implementation commit `92bde98`).
+> (`change/stored-day-unlocks`, verified; `main` contains its implementation commit `01656e1`).
 > The requirement for the stored count is still only in the change delta
 > (`openspec/changes/stored-day-unlocks/specs/usage-tracking/spec.md:5-20`); it has not been merged
 > into the living spec.
@@ -358,4 +358,4 @@ not something the migration SQL can solve.
   the local artifact is `room-testing-android:2.8.5`, and the repo records the device test passing
   on API 36 (`openspec/changes/stored-day-unlocks/tasks.md:26`). It was not re-run here.
 - `resolved:` The owning branch is `change/stored-day-unlocks`; `main` contains its implementation
-  commit `92bde98` (`git branch --contains 92bde98`). The current checkout is `main`.
+  commit `01656e1` (`git branch --contains 01656e1`). The current checkout is `main`.
