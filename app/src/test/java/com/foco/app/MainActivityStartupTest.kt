@@ -1,6 +1,6 @@
 package com.foco.app
 
-import com.foco.app.domain.withStartupTimeout
+import com.foco.app.domain.consolidation.withStartupTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

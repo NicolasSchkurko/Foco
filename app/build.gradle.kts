@@ -66,15 +66,20 @@ android {
         compose = true
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     sourceSets {
         // `MigrationTestHelper` reads the exported schemas as assets.
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+        getByName("androidTest").assets.srcDir("$projectDir/src/androidTest/schemas")
     }
 }
 
 ksp {
-    // The exported schemas are the migration baseline: committed under `app/schemas/`.
-    arg("room.schemaLocation", "$projectDir/schemas")
+    // The exported schemas are the migration baseline: committed under `app/src/androidTest/schemas/`.
+    arg("room.schemaLocation", "$projectDir/src/androidTest/schemas")
 }
 
 ktlint {

@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.foco.app.ui.common.rememberCurrentDate
+import com.foco.app.ui.common.time.rememberCurrentDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

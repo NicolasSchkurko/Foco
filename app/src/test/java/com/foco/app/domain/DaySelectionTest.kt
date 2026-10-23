@@ -1,5 +1,11 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.history.DAY_WINDOW_DAYS
+import com.foco.app.domain.history.availableDays
+import com.foco.app.domain.history.dayWindowRange
+import com.foco.app.domain.history.finishedDays
+import com.foco.app.domain.history.recentDays
+import com.foco.app.domain.history.reclampDayIndex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

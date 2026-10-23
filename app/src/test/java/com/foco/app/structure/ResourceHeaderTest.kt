@@ -114,7 +114,7 @@ class ResourceHeaderTest {
         val adapters =
             kotlinFiles.filter { file ->
                 val layer = layerOf(appRoot, file)
-                layer.isEmpty() || layer == "data"
+                (layer.isEmpty() || layer == "data" || layer.startsWith("data/")) && !layer.startsWith("data/db")
             }
         return adapters.filter { file -> touchesAResource(file) }.toList()
     }
@@ -152,7 +152,7 @@ class ResourceHeaderTest {
         val appRoot = File("src/main/java/com/foco/app")
         val scope = filesInScope(appRoot).map { it.relativeTo(appRoot).path.replace('\\', '/') }
 
-        assertTrue("the adapters of the data layer must be in scope: $scope", scope.contains("data/AppLimitsStore.kt"))
+        assertTrue("the adapters of the data layer must be in scope: $scope", scope.contains("data/stores/AppLimitsStore.kt"))
         assertTrue("the entry layer's adapters must be in scope: $scope", scope.contains("AccessibilityAccess.kt"))
         assertTrue("the schema package declares tables, it does not open a resource: $scope", scope.none { it.startsWith("data/db/") })
         assertTrue("the UI is a view, not an adapter: $scope", scope.none { it.startsWith("ui/") })

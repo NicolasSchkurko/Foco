@@ -1,5 +1,6 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.ring.stepCyclicIndex
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

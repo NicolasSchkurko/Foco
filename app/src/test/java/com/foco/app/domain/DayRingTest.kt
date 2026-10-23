@@ -1,5 +1,14 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.ring.DayRingState
+import com.foco.app.domain.ring.DayStop
+import com.foco.app.domain.ring.back
+import com.foco.app.domain.ring.dayRing
+import com.foco.app.domain.ring.dayStopFromKey
+import com.foco.app.domain.ring.key
+import com.foco.app.domain.ring.moveTo
+import com.foco.app.domain.ring.retain
+import com.foco.app.domain.ring.step
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

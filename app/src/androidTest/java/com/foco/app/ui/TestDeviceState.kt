@@ -6,7 +6,7 @@ import android.app.usage.UsageStatsManager
 import android.os.PowerManager
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.test.platform.app.InstrumentationRegistry
-import com.foco.app.ui.metrics.MIN_VISIBLE_SESSION_MILLIS
+import com.foco.app.ui.metrics.day.MIN_VISIBLE_SESSION_MILLIS
 
 /** The app whose real usage the dashboard tests need; also the system Settings package. */
 private const val SETTINGS_PACKAGE = "com.android.settings"

@@ -6,8 +6,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
-import com.foco.app.ui.metrics.DayMetrics
-import com.foco.app.ui.metrics.deriveDayMetrics
+import com.foco.app.ui.metrics.day.DayMetrics
+import com.foco.app.ui.metrics.day.deriveDayMetrics
 import java.time.ZoneId
 
 /** What one ring position renders once its data is ready; the home caches one entry per position. */

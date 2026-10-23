@@ -16,13 +16,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.foco.app.data.AppAppearance
-import com.foco.app.data.AppLanguage
-import com.foco.app.data.ConsolidationScheduler
-import com.foco.app.data.SettingsStore
-import com.foco.app.data.UsageMonitorService
-import com.foco.app.data.migrateSettingsFromLegacyDataStore
-import com.foco.app.domain.withStartupTimeout
+import com.foco.app.data.consolidation.ConsolidationScheduler
+import com.foco.app.data.monitor.UsageMonitorService
+import com.foco.app.data.stores.SettingsStore
+import com.foco.app.data.stores.migrateSettingsFromLegacyDataStore
+import com.foco.app.data.system.AppAppearance
+import com.foco.app.data.system.AppLanguage
+import com.foco.app.domain.consolidation.withStartupTimeout
 import com.foco.app.model.AppearanceOption
 import com.foco.app.ui.App
 import com.foco.app.ui.theme.FocoTheme
@@ -47,9 +47,7 @@ class MainActivity : AppCompatActivity() {
         scheduleTheNightlyConsolidation()
         setContent {
             val appearance by settings.appearance.collectAsState(initial = storedAppearance)
-            // Picking another appearance in Settings reaches here and applies at once;
-            // appcompat re-creates the activity if the mode changes, and startup applies it
-            // again. Repeating the mode in force does nothing (appcompat compares it).
+
             LaunchedEffect(appearance) { AppAppearance.applyToSystem(appearance) }
 
             FocoTheme(darkTheme = appearance.isDark(isSystemInDarkTheme())) {
@@ -71,11 +69,8 @@ class MainActivity : AppCompatActivity() {
      * The bounded startup read: the legacy store is migrated, the language is applied and the
      * appearance reaches the theme before the first frame.
      */
-    private fun loadTheStartupSettings(settings: SettingsStore): AppearanceOption {
-        // One-shot DataStore read at startup: the migration runs first
-        // (once), the language is applied and the appearance reaches the theme before
-        // the first frame. The value read seeds the Compose state.
-        return runBlocking {
+    private fun loadTheStartupSettings(settings: SettingsStore): AppearanceOption =
+        runBlocking {
             withStartupTimeout(
                 timeoutMillis = STARTUP_TIMEOUT_MILLIS,
                 fallback = {
@@ -88,7 +83,6 @@ class MainActivity : AppCompatActivity() {
                 applyTheAppearance(settings)
             }
         }
-    }
 
     /** The system's locale list follows the language the user picked. */
     private suspend fun applyTheLanguage(settings: SettingsStore) {

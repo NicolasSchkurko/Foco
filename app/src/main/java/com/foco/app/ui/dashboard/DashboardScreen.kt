@@ -2,15 +2,6 @@ package com.foco.app.ui.dashboard
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -56,43 +47,43 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.foco.app.R
-import com.foco.app.data.AppPackageInfo
-import com.foco.app.data.ExcludedAppsStore
-import com.foco.app.data.MotionScale
-import com.foco.app.data.SessionHistoryStore
-import com.foco.app.data.UsageRepository
-import com.foco.app.data.WeekExportService
 import com.foco.app.data.db.DailyAggregate
-import com.foco.app.domain.DayStop
-import com.foco.app.domain.dayRing
-import com.foco.app.domain.dayStopFromKey
-import com.foco.app.domain.key
-import com.foco.app.domain.recentDays
-import com.foco.app.domain.weekExportJson
+import com.foco.app.data.export.WeekExportService
+import com.foco.app.data.monitor.UsageRepository
+import com.foco.app.data.stores.ExcludedAppsStore
+import com.foco.app.data.stores.SessionHistoryStore
+import com.foco.app.data.system.AppPackageInfo
+import com.foco.app.data.system.MotionScale
+import com.foco.app.domain.export.weekExportJson
+import com.foco.app.domain.history.recentDays
+import com.foco.app.domain.ring.DayStop
+import com.foco.app.domain.ring.dayRing
+import com.foco.app.domain.ring.dayStopFromKey
+import com.foco.app.domain.ring.key
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.DetailTarget
-import com.foco.app.ui.common.AppUsageRow
-import com.foco.app.ui.common.EmptyState
-import com.foco.app.ui.common.HourChart
-import com.foco.app.ui.common.LoadingState
-import com.foco.app.ui.common.ScreenHeader
-import com.foco.app.ui.common.WeekContent
-import com.foco.app.ui.common.readOr
-import com.foco.app.ui.common.rememberAppLocale
-import com.foco.app.ui.common.rememberCurrentDate
-import com.foco.app.ui.common.rememberDayLabel
-import com.foco.app.ui.common.swipeThroughPositions
+import com.foco.app.ui.common.apps.AppUsageRow
+import com.foco.app.ui.common.charts.HourChart
+import com.foco.app.ui.common.charts.WeekContent
+import com.foco.app.ui.common.layout.EmptyState
+import com.foco.app.ui.common.layout.LoadingState
+import com.foco.app.ui.common.layout.ScreenHeader
+import com.foco.app.ui.common.ring.PositionRingContainer
+import com.foco.app.ui.common.time.rememberAppLocale
+import com.foco.app.ui.common.time.rememberCurrentDate
+import com.foco.app.ui.common.time.rememberDayLabel
+import com.foco.app.ui.common.util.readOr
+import com.foco.app.ui.dashboard.export.WeekExportButton
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatTimeOfDay
-import com.foco.app.ui.metrics.DayMetrics
-import com.foco.app.ui.metrics.deriveDayMetrics
+import com.foco.app.ui.metrics.day.DayMetrics
+import com.foco.app.ui.metrics.day.deriveDayMetrics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -411,105 +402,52 @@ fun DashboardScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            Column(
+            PositionRingContainer(
+                targetState = shownKey,
+                slideDirection = slideDirection,
+                softMotion = softMotion,
+                motionScale = motionScale,
+                onNext = { moveStep(forward = true) },
+                onPrevious = { moveStep(forward = false) },
+                label = "day-ring",
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(horizontal = 20.dp)
-                        .testTag("dashboard_content")
-                        .swipeThroughPositions(
-                            onNext = { moveStep(forward = true) },
-                            onPrevious = { moveStep(forward = false) },
-                        ),
-            ) {
-                AnimatedContent(
-                    targetState = shownKey,
-                    transitionSpec = {
-                        val forward = slideDirection >= 0
-                        when {
-                            motionScale <= 0f ->
-                                EnterTransition.None togetherWith ExitTransition.None
-
-                            softMotion -> {
-                                val duration = RingMotion.durationMillis(motionScale)
-                                val slide =
-                                    tween<IntOffset>(
-                                        durationMillis = duration,
-                                        easing = RingMotion.softEasing,
-                                    )
-                                val fade =
-                                    tween<Float>(
-                                        durationMillis = duration,
-                                        easing = RingMotion.softEasing,
-                                    )
-                                val enter =
-                                    slideInHorizontally(animationSpec = slide) { width ->
-                                        if (forward) {
-                                            width / RingMotion.SOFT_SLIDE_DIVISOR
-                                        } else {
-                                            -width / RingMotion.SOFT_SLIDE_DIVISOR
-                                        }
-                                    } + fadeIn(animationSpec = fade)
-                                val exit =
-                                    slideOutHorizontally(animationSpec = slide) { width ->
-                                        if (forward) {
-                                            -width / RingMotion.SOFT_SLIDE_DIVISOR
-                                        } else {
-                                            width / RingMotion.SOFT_SLIDE_DIVISOR
-                                        }
-                                    } + fadeOut(animationSpec = fade)
-                                enter togetherWith exit
-                            }
-
-                            else -> {
-                                val enter =
-                                    slideInHorizontally { width ->
-                                        if (forward) width / 4 else -width / 4
-                                    } + fadeIn()
-                                val exit =
-                                    slideOutHorizontally { width ->
-                                        if (forward) -width / 4 else width / 4
-                                    } + fadeOut()
-                                enter togetherWith exit
-                            }
+                        .testTag("dashboard_content"),
+            ) { targetKey ->
+                when (val target = dayStopFromKey(targetKey) ?: DayStop.Day(today)) {
+                    DayStop.Week -> {
+                        val week = ringContent[targetKey] as? RingContent.Week
+                        val live = ringContent[todayKey] as? RingContent.Day
+                        if (week == null || live == null) {
+                            RingLoading()
+                        } else {
+                            WeekContent(
+                                today = today,
+                                totals = week.totals,
+                                todayData = live.data,
+                                excludedPackages = excludedPackages,
+                                onDayClick = { date -> moveTo(DayStop.Day(date)) },
+                                onAppClick = { packageName -> onAppClick(DetailTarget(packageName)) },
+                                modifier = Modifier.fillMaxSize(),
+                            )
                         }
-                    },
-                    label = "day-ring",
-                    modifier = Modifier.fillMaxSize(),
-                ) { targetKey ->
-                    when (val target = dayStopFromKey(targetKey) ?: DayStop.Day(today)) {
-                        DayStop.Week -> {
-                            val week = ringContent[targetKey] as? RingContent.Week
-                            val live = ringContent[todayKey] as? RingContent.Day
-                            if (week == null || live == null) {
-                                RingLoading()
-                            } else {
-                                WeekContent(
-                                    today = today,
-                                    totals = week.totals,
-                                    todayData = live.data,
-                                    excludedPackages = excludedPackages,
-                                    onDayClick = { date -> moveTo(DayStop.Day(date)) },
-                                    onAppClick = { packageName -> onAppClick(DetailTarget(packageName)) },
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            }
-                        }
+                    }
 
-                        is DayStop.Day -> {
-                            val dayContent = ringContent[targetKey] as? RingContent.Day
-                            if (dayContent == null) {
-                                RingLoading()
-                            } else {
-                                DayDashboardContent(
-                                    metrics = metricsOf(dayContent, excludedPackages),
-                                    date = target.date,
-                                    today = today,
-                                    onExclude = onExclude,
-                                    onAppClick = onAppClick,
-                                )
-                            }
+                    is DayStop.Day -> {
+                        val dayContent = ringContent[targetKey] as? RingContent.Day
+                        if (dayContent == null) {
+                            RingLoading()
+                        } else {
+                            DayDashboardContent(
+                                metrics = metricsOf(dayContent, excludedPackages),
+                                date = target.date,
+                                today = today,
+                                onExclude = onExclude,
+                                onAppClick = onAppClick,
+                            )
                         }
                     }
                 }

@@ -2,7 +2,7 @@ package com.foco.app.ui.detail
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.foco.app.model.UsageSession
-import com.foco.app.ui.common.readOr
+import com.foco.app.ui.common.util.readOr
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation

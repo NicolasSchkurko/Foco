@@ -1,0 +1,5 @@
+- [ ] Move `ui/metrics/` files into `detail/`, `day/`, and `week/` subpackages
+- [ ] Move `ui/common/` files into `ring/`, `apps/`, `charts/`, `time/`, `layout/`, `limits/`, and `util/` subpackages
+- [ ] Move `ui/dashboard/` export components into `export/` subpackage
+- [ ] Update imports across callers and test files
+- [ ] Verify LayerRulesTest and full unit test suite

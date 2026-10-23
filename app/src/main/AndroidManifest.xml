@@ -79,7 +79,7 @@
           a plain foreground service below it. It stops when no limit remains.
         -->
         <service
-            android:name=".data.UsageMonitorService"
+            android:name=".data.monitor.UsageMonitorService"
             android:exported="false"
             android:foregroundServiceType="specialUse"
             android:stopWithTask="false">
@@ -104,7 +104,7 @@
 
         <!-- Brings the monitor back after a reboot, only if a limit and accessibility exist. -->
         <receiver
-            android:name=".data.UsageMonitorBootReceiver"
+            android:name=".data.monitor.UsageMonitorBootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -114,7 +114,7 @@
 
         <!-- The Entendido action of a limit alert; explicit from our own notification. -->
         <receiver
-            android:name=".data.AppLimitAlertDismissReceiver"
+            android:name=".data.alerts.AppLimitAlertDismissReceiver"
             android:enabled="true"
             android:exported="false" />
     </application>

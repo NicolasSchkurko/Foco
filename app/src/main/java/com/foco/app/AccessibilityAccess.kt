@@ -36,5 +36,7 @@ object AccessibilityAccess {
         return false
     }
 
+    fun isEnabled(context: Context): Boolean = isGranted(context)
+
     fun settingsIntent(): Intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
 }

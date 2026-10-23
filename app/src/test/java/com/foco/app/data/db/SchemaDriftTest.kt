@@ -1,6 +1,6 @@
 package com.foco.app.data.db
 
-import com.foco.app.domain.schemaDrift
+import com.foco.app.domain.consolidation.schemaDrift
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

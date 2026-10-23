@@ -1,0 +1,8 @@
+package com.foco.app.ui.metrics.day
+
+/** Everything the dashboard shows for a day, derived from its sessions. */
+data class DayMetrics(
+    val totalMillis: Long,
+    val entries: List<AppUsageEntry>,
+    val hourly: List<HourBucket>,
+)

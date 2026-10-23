@@ -27,8 +27,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.foco.app.AccessibilityAccess
 import com.foco.app.R
-import com.foco.app.data.ConsolidationRunner
-import com.foco.app.data.UsageAccess
+import com.foco.app.data.consolidation.ConsolidationRunner
+import com.foco.app.data.system.UsageAccess
 import com.foco.app.ui.onboarding.OnboardingScreen
 import com.foco.app.ui.onboarding.OnboardingStep
 import kotlinx.coroutines.Dispatchers

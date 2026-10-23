@@ -1,5 +1,6 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.history.dayWindow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

@@ -1,0 +1,65 @@
+schema: spec-anchored
+created: 2026-10-22
+x-kind: refactor
+x-status: verified
+x-verified_by: agent
+x-verified_at: 2026-10-22
+x-evidence: unit test suite green (228 tests passed in 4s), LayerRulesTest passed, domain and data packages reorganized into domain subfolders (ring, limits, history, sessions, monitor, consolidation, export, stores, alerts, system)
+x-accepted_by: human
+x-accepted_at: 2026-10-22
+x-targets:
+  - app/src/main/java/com/foco/app/domain/ring/DayRingState.kt
+  - app/src/main/java/com/foco/app/domain/ring/DayStop.kt
+  - app/src/main/java/com/foco/app/domain/ring/StepCyclicIndex.kt
+  - app/src/main/java/com/foco/app/domain/limits/AppLimitRules.kt
+  - app/src/main/java/com/foco/app/domain/limits/AppLimitWindowRules.kt
+  - app/src/main/java/com/foco/app/domain/limits/AppWindow.kt
+  - app/src/main/java/com/foco/app/domain/limits/BlockReason.kt
+  - app/src/main/java/com/foco/app/domain/history/AvailableDays.kt
+  - app/src/main/java/com/foco/app/domain/history/DaySelection.kt
+  - app/src/main/java/com/foco/app/domain/history/DaySource.kt
+  - app/src/main/java/com/foco/app/domain/history/DayWindow.kt
+  - app/src/main/java/com/foco/app/domain/history/DetailDaySource.kt
+  - app/src/main/java/com/foco/app/domain/history/TodayUsageReader.kt
+  - app/src/main/java/com/foco/app/domain/sessions/SessionBuilder.kt
+  - app/src/main/java/com/foco/app/domain/sessions/SessionFilter.kt
+  - app/src/main/java/com/foco/app/domain/sessions/SessionMerge.kt
+  - app/src/main/java/com/foco/app/domain/monitor/ForegroundApp.kt
+  - app/src/main/java/com/foco/app/domain/monitor/ForegroundAppState.kt
+  - app/src/main/java/com/foco/app/domain/monitor/ForegroundAppTracker.kt
+  - app/src/main/java/com/foco/app/domain/consolidation/ConsolidationOutcome.kt
+  - app/src/main/java/com/foco/app/domain/consolidation/StartupTimeout.kt
+  - app/src/main/java/com/foco/app/domain/consolidation/SchemaDrift.kt
+  - app/src/main/java/com/foco/app/domain/export/WeekExportBuilder.kt
+  - app/src/main/java/com/foco/app/domain/export/WeekExportJson.kt
+  - app/src/main/java/com/foco/app/data/stores/AppLimitsStore.kt
+  - app/src/main/java/com/foco/app/data/stores/SessionHistoryStore.kt
+  - app/src/main/java/com/foco/app/data/stores/ExcludedAppsStore.kt
+  - app/src/main/java/com/foco/app/data/stores/SettingsStore.kt
+  - app/src/main/java/com/foco/app/data/stores/SettingsMigration.kt
+  - app/src/main/java/com/foco/app/data/monitor/UsageMonitorService.kt
+  - app/src/main/java/com/foco/app/data/monitor/UsageMonitorEvaluator.kt
+  - app/src/main/java/com/foco/app/data/monitor/UsageMonitorBootReceiver.kt
+  - app/src/main/java/com/foco/app/data/monitor/UsageRepository.kt
+  - app/src/main/java/com/foco/app/data/consolidation/ConsolidationWorker.kt
+  - app/src/main/java/com/foco/app/data/consolidation/ConsolidationRunner.kt
+  - app/src/main/java/com/foco/app/data/consolidation/ConsolidationScheduler.kt
+  - app/src/main/java/com/foco/app/data/alerts/AppLimitAlertNotifier.kt
+  - app/src/main/java/com/foco/app/data/alerts/AppLimitAlertDismissReceiver.kt
+  - app/src/main/java/com/foco/app/data/system/AppAppearance.kt
+  - app/src/main/java/com/foco/app/data/system/AppIdentity.kt
+  - app/src/main/java/com/foco/app/data/system/AppLanguage.kt
+  - app/src/main/java/com/foco/app/data/system/AppPackageInfo.kt
+  - app/src/main/java/com/foco/app/data/system/MotionScale.kt
+  - app/src/main/java/com/foco/app/data/system/NotificationPermission.kt
+  - app/src/main/java/com/foco/app/data/system/OverlayWindow.kt
+  - app/src/main/java/com/foco/app/data/system/UsageAccess.kt
+  - app/src/main/java/com/foco/app/data/export/WeekExportService.kt
+x-tests:
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+  - app/src/test/java/com/foco/app/domain/ring/DayRingTest.kt
+  - app/src/test/java/com/foco/app/data/stores/SettingsMigrationTest.kt
+x-deps: []
+x-gitref: HEAD
+x-open_decisions: []
+x-conflicts: []

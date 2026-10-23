@@ -1,4 +1,4 @@
-package com.foco.app.ui.metrics
+package com.foco.app.ui.metrics.detail
 
 import com.foco.app.model.UsageSession
 import org.junit.Assert.assertEquals

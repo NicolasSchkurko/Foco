@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
-import com.foco.app.domain.BlockReason
+import com.foco.app.domain.limits.BlockReason
 import kotlinx.coroutines.isActive
 
 /**

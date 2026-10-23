@@ -1,0 +1,5 @@
+- [ ] Move `domain/` files into `ring/`, `limits/`, `history/`, `sessions/`, `monitor/`, `consolidation/`, and `export/` subpackages
+- [ ] Move `data/` files into `stores/`, `monitor/`, `consolidation/`, `alerts/`, `system/`, and `export/` subpackages
+- [ ] Update imports across callers, receivers, and test files
+- [ ] Move domain and data unit tests under `app/src/test/` to match subpackages
+- [ ] Verify LayerRulesTest and full unit test suite

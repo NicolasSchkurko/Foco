@@ -1,5 +1,7 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.history.DaySource
+import com.foco.app.domain.history.daySource
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate

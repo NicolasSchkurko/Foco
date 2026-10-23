@@ -1,0 +1,23 @@
+schema: spec-anchored
+created: 2026-10-22
+x-kind: refactor
+x-status: verified
+x-verified_by: agent
+x-verified_at: 2026-10-22
+x-evidence: unit test suite green (244 tests passed), PositionRingContainer extracted to ui/common/ring/ and integrated into DashboardScreen and AppDetailScreen
+x-accepted_by: human
+x-accepted_at: 2026-10-22
+x-targets:
+  - app/src/main/java/com/foco/app/ui/common/ring/RingMotion.kt
+  - app/src/main/java/com/foco/app/ui/common/ring/PositionRingContainer.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/DashboardScreen.kt
+  - app/src/main/java/com/foco/app/ui/detail/AppDetailScreen.kt
+  - app/src/test/java/com/foco/app/ui/common/ring/RingMotionTest.kt
+x-tests:
+  - app/src/test/java/com/foco/app/ui/common/ring/RingMotionTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/AppDetailNavigationTest.kt
+  - app/src/androidTest/java/com/foco/app/ui/DashboardRingTest.kt
+x-deps: []
+x-gitref: HEAD
+x-open_decisions: []
+x-conflicts: []

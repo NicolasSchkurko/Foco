@@ -1,0 +1,5 @@
+- [ ] Extract `RingMotion` to `com.foco.app.ui.common`
+- [ ] Create `PositionRingContainer` in `com.foco.app.ui.common`
+- [ ] Refactor `DashboardScreen` to use `PositionRingContainer`
+- [ ] Update `AppDetailScreen` to use `PositionRingContainer`
+- [ ] Verify test suite passes

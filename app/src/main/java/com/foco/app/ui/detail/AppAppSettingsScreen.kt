@@ -30,15 +30,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.foco.app.R
-import com.foco.app.data.AppLimitAlertNotifier
-import com.foco.app.data.AppLimitsStore
-import com.foco.app.data.NotificationPermission
-import com.foco.app.data.UsageMonitorService
-import com.foco.app.ui.common.AppIcon
-import com.foco.app.ui.common.LimitAlertsToggle
-import com.foco.app.ui.common.LimitsQuickAdjust
-import com.foco.app.ui.common.ScreenHeader
-import com.foco.app.ui.common.appLabel
+import com.foco.app.data.alerts.AppLimitAlertNotifier
+import com.foco.app.data.monitor.UsageMonitorService
+import com.foco.app.data.stores.AppLimitsStore
+import com.foco.app.data.system.NotificationPermission
+import com.foco.app.ui.common.apps.AppIcon
+import com.foco.app.ui.common.apps.appLabel
+import com.foco.app.ui.common.layout.ScreenHeader
+import com.foco.app.ui.common.limits.LimitAlertsToggle
+import com.foco.app.ui.common.limits.LimitsQuickAdjust
 import kotlinx.coroutines.launch
 
 /**

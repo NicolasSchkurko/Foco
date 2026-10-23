@@ -27,24 +27,13 @@ class SourceEncodingTest {
 
     /** The files the rule covers: the sources and every Markdown file of the repository. */
     private fun coveredFiles(root: File): List<File> {
-        val sources =
-            root
-                .walkTopDown()
-                .filter {
-                    it.isFile &&
-                        it.extension in setOf("kt", "xml") &&
-                        !it.path.contains("build/")
-                }.toList()
-        val markdown =
-            root
-                .walkTopDown()
-                .filter {
-                    it.isFile &&
-                        it.extension == "md" &&
-                        !it.path.contains("build/") &&
-                        !it.path.contains(".git/")
-                }.toList()
-        return sources + markdown
+        val ignoredDirs = setOf("build", ".git", ".gradle", ".artifacts", ".idea", "node_modules")
+        return root
+            .walkTopDown()
+            .onEnter { dir -> dir.name !in ignoredDirs }
+            .filter { file ->
+                file.isFile && file.extension in setOf("kt", "xml", "md")
+            }.toList()
     }
 
     /** The violations of [files]: BOM bytes, U+FFFD and double-encoded text, each named. */

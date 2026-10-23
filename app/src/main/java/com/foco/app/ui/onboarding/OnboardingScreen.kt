@@ -19,8 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.foco.app.AccessibilityAccess
 import com.foco.app.R
-import com.foco.app.data.UsageAccess
-import com.foco.app.ui.common.openSystemScreen
+import com.foco.app.data.system.UsageAccess
+import com.foco.app.ui.common.layout.openSystemScreen
 
 /**
  * Shown while a required permission is missing: usage access first, then the accessibility

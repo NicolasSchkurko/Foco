@@ -10,15 +10,11 @@ Stack: **Kotlin + Jetpack Compose**. Everything local — no accounts, no server
 
 ---
 
-> **🧪 Note:** this repository is a **development experiment** for the **Spec Growth** method — a spec-anchored workflow where specs are the living contract (`openspec/specs/`), in-flight changes live in `openspec/changes/`, the rationale is recorded in `DECISIONS.md`, status is generated into `BOARD.md`, and verification runs in `scripts/gates/` (pre-commit). The app is the method's test case.
-
----
-
 ## Current status
 
 - ✅ **Day tracker**: total usage, hourly activity, app ranking and the "Usage Access" onboarding.
 - ✅ **History**: Room-backed sessions, week view, app detail and the consolidation markers.
-- ⏭️ **App limits, optional alerts and modular friction** (Phases 3–4): see **[PLAN.md](PLAN.md)**.
+- ⏭️ **App limits, optional alerts and modular friction** (Phases 3–4): see **[PLAN.md](docs/PLAN.md)**.
 
 ## Requirements
 
@@ -49,21 +45,15 @@ If your manufacturer is slow to show the app in that list, leave Settings and co
 Foco/
 ├── app/
 │   ├── build.gradle.kts              # module: SDK, dependencies
-│   ├── schemas/                      # Room migration baselines
-│   └── src/main/
-│       ├── AndroidManifest.xml       # permissions + queries + activity
-│       ├── res/                      # icons, themes, strings
-│       └── java/com/foco/app/
-│           ├── MainActivity.kt       # entry point: onboarding ↔ dashboard
-│           ├── data/                 # UsageRepository, SessionHistoryStore,
-│           │                         # preferences and Room DAOs/entities
-│           ├── domain/               # sessions, ring, filtering, exports
-│           ├── model/                # pure types (UsageSession, DayData, …)
-│           └── ui/                   # dashboard, week, detail, settings,
-│                                     # onboarding, common widgets, metrics
+│   └── src/
+│       ├── main/                     # app source (java, res, manifest)
+│       ├── test/                     # JVM unit tests
+│       └── androidTest/              # instrumented tests
+│           └── schemas/              # Room migration baselines
+├── docs/                             # documentation, plan, mechanisms
+│   └── PLAN.md                       # phased implementation plan
 ├── openspec/                         # living specs, changes and archive
 ├── gradle/libs.versions.toml         # version catalog
-├── PLAN.md                           # phased implementation plan
 └── gradlew / gradlew.bat             # Gradle wrapper
 ```
 

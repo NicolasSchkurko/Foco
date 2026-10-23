@@ -1,5 +1,7 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.export.buildWeekExport
+import com.foco.app.domain.export.weekExportJson
 import com.foco.app.model.UsageSession
 import com.foco.app.model.export.WeekExport
 import kotlinx.serialization.json.Json

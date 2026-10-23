@@ -1,5 +1,6 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.monitor.ForegroundAppState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

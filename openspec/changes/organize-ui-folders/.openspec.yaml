@@ -1,0 +1,49 @@
+schema: spec-anchored
+created: 2026-10-22
+x-kind: refactor
+x-status: verified
+x-verified_by: agent
+x-verified_at: 2026-10-22
+x-evidence: unit test suite green (244 tests passed), LayerRulesTest passed, UI packages reorganized into domain subfolders (ring, apps, charts, time, layout, limits, util, day, week, detail, export)
+x-accepted_by: human
+x-accepted_at: 2026-10-22
+x-targets:
+  - app/src/main/java/com/foco/app/ui/common/ring/PositionRingContainer.kt
+  - app/src/main/java/com/foco/app/ui/common/ring/RingMotion.kt
+  - app/src/main/java/com/foco/app/ui/common/ring/SwipeThroughPositions.kt
+  - app/src/main/java/com/foco/app/ui/common/apps/AppIcon.kt
+  - app/src/main/java/com/foco/app/ui/common/apps/AppLabel.kt
+  - app/src/main/java/com/foco/app/ui/common/apps/AppPackageCache.kt
+  - app/src/main/java/com/foco/app/ui/common/apps/AppUsageRow.kt
+  - app/src/main/java/com/foco/app/ui/common/charts/HourChart.kt
+  - app/src/main/java/com/foco/app/ui/common/charts/WeekContent.kt
+  - app/src/main/java/com/foco/app/ui/common/time/CurrentDate.kt
+  - app/src/main/java/com/foco/app/ui/common/time/DayLabels.kt
+  - app/src/main/java/com/foco/app/ui/common/layout/ScreenHeader.kt
+  - app/src/main/java/com/foco/app/ui/common/layout/ScreenStates.kt
+  - app/src/main/java/com/foco/app/ui/common/layout/StepPress.kt
+  - app/src/main/java/com/foco/app/ui/common/layout/OpenSystemScreen.kt
+  - app/src/main/java/com/foco/app/ui/common/limits/LimitsQuickAdjust.kt
+  - app/src/main/java/com/foco/app/ui/common/util/ReadOr.kt
+  - app/src/main/java/com/foco/app/ui/metrics/detail/AppDayDetail.kt
+  - app/src/main/java/com/foco/app/ui/metrics/detail/AppDetail.kt
+  - app/src/main/java/com/foco/app/ui/metrics/day/DayMetrics.kt
+  - app/src/main/java/com/foco/app/ui/metrics/day/UsageMetrics.kt
+  - app/src/main/java/com/foco/app/ui/metrics/day/AppUsageEntry.kt
+  - app/src/main/java/com/foco/app/ui/metrics/day/HourBucket.kt
+  - app/src/main/java/com/foco/app/ui/metrics/week/WeekMetrics.kt
+  - app/src/main/java/com/foco/app/ui/metrics/week/WeekDayBar.kt
+  - app/src/main/java/com/foco/app/ui/metrics/week/AppWeekTotal.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/export/WeekExportButton.kt
+  - app/src/main/java/com/foco/app/ui/dashboard/export/WeekExportShare.kt
+x-tests:
+  - app/src/test/java/com/foco/app/structure/LayerRulesTest.kt
+  - app/src/test/java/com/foco/app/ui/common/ring/RingMotionTest.kt
+  - app/src/test/java/com/foco/app/ui/common/util/ReadOrTest.kt
+  - app/src/test/java/com/foco/app/ui/metrics/AppDetailMetricsTest.kt
+  - app/src/test/java/com/foco/app/ui/metrics/UsageMetricsTest.kt
+  - app/src/test/java/com/foco/app/ui/metrics/WeekMetricsTest.kt
+x-deps: []
+x-gitref: HEAD
+x-open_decisions: []
+x-conflicts: []

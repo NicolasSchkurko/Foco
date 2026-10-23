@@ -1,6 +1,6 @@
 package com.foco.app.ui.dashboard
 
-import com.foco.app.domain.DayStop
+import com.foco.app.domain.ring.DayStop
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

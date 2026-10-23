@@ -1,5 +1,8 @@
 package com.foco.app.domain
 
+import com.foco.app.domain.history.DayWindow
+import com.foco.app.domain.sessions.buildSessions
+import com.foco.app.domain.sessions.clampSessionsToDay
 import com.foco.app.model.UsageEvent
 import com.foco.app.model.UsageEventType
 import com.foco.app.model.UsageSession

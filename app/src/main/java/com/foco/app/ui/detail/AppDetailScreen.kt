@@ -44,32 +44,33 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.foco.app.R
-import com.foco.app.data.AppLimitsStore
-import com.foco.app.data.SessionHistoryStore
-import com.foco.app.data.UsageRepository
-import com.foco.app.domain.DaySource
-import com.foco.app.domain.availableDays
-import com.foco.app.domain.daySource
-import com.foco.app.domain.recentDays
-import com.foco.app.domain.reclampDay
-import com.foco.app.domain.stepCyclicIndex
+import com.foco.app.data.monitor.UsageRepository
+import com.foco.app.data.stores.AppLimitsStore
+import com.foco.app.data.stores.SessionHistoryStore
+import com.foco.app.data.system.MotionScale
+import com.foco.app.domain.history.DaySource
+import com.foco.app.domain.history.availableDays
+import com.foco.app.domain.history.daySource
+import com.foco.app.domain.history.recentDays
+import com.foco.app.domain.history.reclampDay
+import com.foco.app.domain.ring.stepCyclicIndex
 import com.foco.app.model.UsageSession
-import com.foco.app.ui.common.AppIcon
-import com.foco.app.ui.common.EmptyState
-import com.foco.app.ui.common.HourChart
-import com.foco.app.ui.common.LoadingState
-import com.foco.app.ui.common.ScreenHeader
-import com.foco.app.ui.common.appLabel
-import com.foco.app.ui.common.readOr
-import com.foco.app.ui.common.rememberAppLocale
-import com.foco.app.ui.common.rememberCurrentDate
-import com.foco.app.ui.common.rememberDayLabel
-import com.foco.app.ui.common.swipeThroughPositions
+import com.foco.app.ui.common.apps.AppIcon
+import com.foco.app.ui.common.apps.appLabel
+import com.foco.app.ui.common.charts.HourChart
+import com.foco.app.ui.common.layout.EmptyState
+import com.foco.app.ui.common.layout.LoadingState
+import com.foco.app.ui.common.layout.ScreenHeader
+import com.foco.app.ui.common.ring.PositionRingContainer
+import com.foco.app.ui.common.time.rememberAppLocale
+import com.foco.app.ui.common.time.rememberCurrentDate
+import com.foco.app.ui.common.time.rememberDayLabel
+import com.foco.app.ui.common.util.readOr
 import com.foco.app.ui.formatDuration
 import com.foco.app.ui.formatMinuteOfDay24
 import com.foco.app.ui.formatTimeOfDay
-import com.foco.app.ui.metrics.AppDayDetail
-import com.foco.app.ui.metrics.appDayDetail
+import com.foco.app.ui.metrics.detail.AppDayDetail
+import com.foco.app.ui.metrics.detail.appDayDetail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
@@ -170,10 +171,14 @@ fun AppDetailScreen(
             selectedIndex.coerceIn(0, days.lastIndex.coerceAtLeast(0))
         }
 
+    val motionScale = remember { MotionScale(context.applicationContext).scale() }
+    var slideDirection by remember { mutableIntStateOf(1) }
+
     // One day forward (older) or backward (newer) inside the window; shared by the arrows and
     // the horizontal swipe, which walks the days the way the home walks its ring.
     fun stepDay(delta: Int) {
         if (days.isEmpty()) return
+        slideDirection = if (delta >= 0) 1 else -1
         // The walk cycles: past the oldest day it starts again on today, and on today a swipe
         // back continues with the oldest one — the same ring the home walks.
         val target = stepCyclicIndex(effectiveIndex, days.size, delta)
@@ -303,17 +308,20 @@ fun AppDetailScreen(
             Spacer(Modifier.height(8.dp))
 
             val current = detail
-            Column(
+            PositionRingContainer(
+                targetState = selectedDate.toString(),
+                slideDirection = slideDirection,
+                softMotion = true,
+                motionScale = motionScale,
+                onNext = { stepDay(1) },
+                onPrevious = { stepDay(-1) },
+                label = "detail-day-ring",
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .testTag(DETAIL_CONTENT_TAG)
-                        .swipeThroughPositions(
-                            onNext = { stepDay(1) },
-                            onPrevious = { stepDay(-1) },
-                        ),
-            ) {
+                        .testTag(DETAIL_CONTENT_TAG),
+            ) { _ ->
                 when {
                     sessions == null ->
                         LoadingState(

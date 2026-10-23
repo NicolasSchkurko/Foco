@@ -1,11 +1,11 @@
 package com.foco.app.ui.dashboard
 
-import com.foco.app.domain.DayRingState
-import com.foco.app.domain.DayStop
-import com.foco.app.domain.back
-import com.foco.app.domain.moveTo
-import com.foco.app.domain.retain
-import com.foco.app.domain.step
+import com.foco.app.domain.ring.DayRingState
+import com.foco.app.domain.ring.DayStop
+import com.foco.app.domain.ring.back
+import com.foco.app.domain.ring.moveTo
+import com.foco.app.domain.ring.retain
+import com.foco.app.domain.ring.step
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

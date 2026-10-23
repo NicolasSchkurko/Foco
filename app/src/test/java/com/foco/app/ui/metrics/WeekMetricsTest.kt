@@ -1,4 +1,4 @@
-package com.foco.app.ui.metrics
+package com.foco.app.ui.metrics.week
 
 import com.foco.app.data.db.DailyAggregate
 import com.foco.app.model.UsageSession

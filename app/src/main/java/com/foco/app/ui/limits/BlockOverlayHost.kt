@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.foco.app.data.OverlayWindow
+import com.foco.app.data.system.OverlayWindow
 
 /**
  * Hosts one composable in the accessibility overlay window. Resource: a fresh owner per block and
