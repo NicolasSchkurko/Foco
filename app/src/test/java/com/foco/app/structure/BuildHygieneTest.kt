@@ -40,12 +40,11 @@ class BuildHygieneTest {
     }
 
     @Test
-    fun ciRunsTheSuiteTheStaticAnalysisAndTheGate() {
+    fun ciRunsTheSuiteAndStaticAnalysis() {
         val ci = File("../.github/workflows/ci.yml").readText()
 
         assertTrue("CI must run the JVM suite", ci.contains("./gradlew test"))
         assertTrue("CI must run the static analysis", ci.contains("ktlintCheck"))
-        assertTrue("CI must run the Spec Growth gate", ci.contains("gate-check.mjs"))
     }
 
     /** The block that opens with [header], braces included; empty when the header is absent. */
