@@ -1,10 +1,10 @@
 # Repository constitution
 
-Foco uses living specs and structured changes as the project's contract and design tracking.
+Foco uses specifications and structured change proposals as the contract and design record.
 
 ## Layout
 
-`openspec/specs/` (living specifications) · `openspec/changes/` (changes in flight and archive) · `openspec/schemas/` (schemas) · `docs/BOARD.md` (task/change tracking) · `docs/ARCHITECTURE.dsl` (system structure).
+`openspec/specs/` (specifications) · `openspec/changes/` (changes in flight and archive) · `docs/BOARD.md` (task/change tracking) · `docs/ARCHITECTURE.dsl` (system structure).
 
 ## Reuse first (code minimalism)
 
@@ -20,5 +20,5 @@ Be lazy about the solution, never about the change: finish every caller, test an
 
 ## Project context
 
-- **Foco**: personal Android app (Kotlin + Jetpack Compose, Material 3), 100% local — no accounts or servers. Phases in `docs/PLAN.md` (1 tracker ✅ · 2 Room history ✅ · 3 app limits and optional alerts · 4 modular friction at app open).
+- **Foco**: personal Android app (Kotlin + Jetpack Compose, Material 3), 100% local — no accounts or servers. Phases in `docs/PLAN.md` (1 tracker ✅ · 2 Room history ✅ · 3 app limits and optional alerts ✅ · 4 modular friction at app open).
 - Code in `app/src/main/java/com/foco/app/` (`model/`, `domain/`, `data/`, `ui/`). Build: Android Studio or `gradlew.bat assembleDebug`. Tests: JVM tests under `app/src/test/`; instrumented tests under `app/src/androidTest/`.
