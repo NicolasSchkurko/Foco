@@ -99,7 +99,6 @@ fun AppAppSettingsScreen(
 
             ScreenHeader(
                 title = label,
-                subtitle = stringResource(R.string.detail_limits_section),
                 onBack = { if (onBack != null) onBack() else backDispatcher?.onBackPressed() },
                 titleLeading = { AppIcon(packageName = packageName) },
             )
@@ -114,6 +113,12 @@ fun AppAppSettingsScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 20.dp),
             ) {
+                Text(
+                    text = stringResource(R.string.detail_limits_section),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.settings_limits_explanation),
                     style = MaterialTheme.typography.bodyMedium,
