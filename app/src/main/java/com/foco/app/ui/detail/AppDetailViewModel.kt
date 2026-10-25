@@ -40,7 +40,6 @@ class AppDetailViewModel(
     private val limitsStoreProvider: ((Context) -> AppLimitsStore)? = null,
     coroutineScope: CoroutineScope? = null,
 ) : ViewModel() {
-
     private val scope: CoroutineScope get() = internalScope ?: viewModelScope
     private val internalScope: CoroutineScope? = coroutineScope
 
@@ -55,14 +54,15 @@ class AppDetailViewModel(
     init {
         val today = LocalDate.now(clock)
         val initialDays = listOf(today)
-        _uiState = MutableStateFlow(
-            AppDetailUiState(
-                packageName = packageName,
-                selectedDate = initialDate ?: today,
-                shownDate = initialDate ?: today,
-                days = initialDays,
+        _uiState =
+            MutableStateFlow(
+                AppDetailUiState(
+                    packageName = packageName,
+                    selectedDate = initialDate ?: today,
+                    shownDate = initialDate ?: today,
+                    days = initialDays,
+                ),
             )
-        )
         uiState = _uiState.asStateFlow()
     }
 
@@ -131,11 +131,12 @@ class AppDetailViewModel(
     private fun updateDaysWindow(stored: Set<LocalDate>) {
         val today = LocalDate.now(clock)
         val available = availableDays(today, stored)
-        val computedDays = if (initialDate != null && initialDate !in available && initialDate in recentDays(today)) {
-            (available + initialDate).sortedDescending()
-        } else {
-            available
-        }
+        val computedDays =
+            if (initialDate != null && initialDate !in available && initialDate in recentDays(today)) {
+                (available + initialDate).sortedDescending()
+            } else {
+                available
+            }
 
         val clamped = reclampDay(uiState.value.selectedDate, computedDays, today)
         val newIndex = computedDays.indexOf(clamped).coerceAtLeast(0)
@@ -158,16 +159,18 @@ class AppDetailViewModel(
         val store = historyStore
 
         scope.launch {
-            val loaded = withContext(Dispatchers.IO) {
-                val loadedSessions = readOr(emptyList<UsageSession>()) {
-                    when (daySource(date, today, currentStored)) {
-                        DaySource.Live -> repo?.loadDay(date)?.sessions.orEmpty()
-                        DaySource.Stored -> store?.sessionsFor(date).orEmpty()
-                        DaySource.Absent -> emptyList()
-                    }
+            val loaded =
+                withContext(Dispatchers.IO) {
+                    val loadedSessions =
+                        readOr(emptyList<UsageSession>()) {
+                            when (daySource(date, today, currentStored)) {
+                                DaySource.Live -> repo?.loadDay(date)?.sessions.orEmpty()
+                                DaySource.Stored -> store?.sessionsFor(date).orEmpty()
+                                DaySource.Absent -> emptyList()
+                            }
+                        }
+                    loadedSessions to appDayDetail(loadedSessions, packageName, ZoneId.systemDefault())
                 }
-                loadedSessions to appDayDetail(loadedSessions, packageName, ZoneId.systemDefault())
-            }
 
             _uiState.update { current ->
                 val updatedDetails = current.dayDetails + (date to loaded)

@@ -47,7 +47,6 @@ class DashboardViewModel(
     private val refreshIntervalMillis: Long = DEFAULT_REFRESH_INTERVAL_MILLIS,
     coroutineScope: CoroutineScope? = null,
 ) : ViewModel() {
-
     private val scope: CoroutineScope get() = internalScope ?: viewModelScope
     private val internalScope: CoroutineScope? = coroutineScope
 
@@ -65,13 +64,14 @@ class DashboardViewModel(
         val initialStop = DayStop.Day(today)
         dashboardState = DashboardState(initialStop)
 
-        _uiState = MutableStateFlow(
-            DashboardUiState(
-                shown = initialStop,
-                ringState = DayRingState(initialStop),
-                today = today,
+        _uiState =
+            MutableStateFlow(
+                DashboardUiState(
+                    shown = initialStop,
+                    ringState = DayRingState(initialStop),
+                    today = today,
+                ),
             )
-        )
         uiState = _uiState.asStateFlow()
 
         scope.launch {
@@ -127,7 +127,11 @@ class DashboardViewModel(
         dashboardState.moveStep(ring, forward)
     }
 
-    fun moveTo(target: DayStop, direction: Int? = null, soft: Boolean = false) {
+    fun moveTo(
+        target: DayStop,
+        direction: Int? = null,
+        soft: Boolean = false,
+    ) {
         val today = LocalDate.now(clock)
         val ring = dayRing(today, uiState.value.storedDays)
         val recentWindow = recentDays(today)
@@ -135,9 +139,7 @@ class DashboardViewModel(
         dashboardState.moveTo(target, ring, isShortcut, direction, soft)
     }
 
-    fun goBack(): Boolean {
-        return dashboardState.goBack()
-    }
+    fun goBack(): Boolean = dashboardState.goBack()
 
     fun excludeApp(packageName: String) {
         val store = excludedStore ?: return
@@ -156,10 +158,11 @@ class DashboardViewModel(
     suspend fun exportWeekJson(context: Context? = null): String {
         loadExportOverride?.let { return it() }
         val appContext = context?.applicationContext ?: return ""
-        val service = WeekExportService(
-            context = appContext,
-            labels = AppPackageInfo(appContext)::label,
-        )
+        val service =
+            WeekExportService(
+                context = appContext,
+                labels = AppPackageInfo(appContext)::label,
+            )
         val today = LocalDate.now(clock)
         return weekExportJson(service.export(today))
     }
@@ -174,14 +177,15 @@ class DashboardViewModel(
 
                 if (isLive) {
                     try {
-                        val content = withContext(Dispatchers.IO) {
-                            val data = loadDayOverride?.invoke() ?: repository?.loadDay(today) ?: DayData(emptyList(), emptyList())
-                            RingContent.Day(
-                                data = data,
-                                unlocks = data.unlockTimes.size,
-                                metrics = deriveDayMetrics(data.sessions, ZoneId.systemDefault()),
-                            )
-                        }
+                        val content =
+                            withContext(Dispatchers.IO) {
+                                val data = loadDayOverride?.invoke() ?: repository?.loadDay(today) ?: DayData(emptyList(), emptyList())
+                                RingContent.Day(
+                                    data = data,
+                                    unlocks = data.unlockTimes.size,
+                                    metrics = deriveDayMetrics(data.sessions, ZoneId.systemDefault()),
+                                )
+                            }
                         putRingContent(todayKey, content)
                     } catch (f: Exception) {
                         android.util.Log.w("DashboardViewModel", "Periodic load failed", f)
@@ -201,9 +205,10 @@ class DashboardViewModel(
         if (target == DayStop.Week) {
             if (weekTotalsDay != today || !_uiState.value.ringContent.containsKey(targetKey)) {
                 scope.launch {
-                    val totals = withContext(Dispatchers.IO) {
-                        readOr(emptyList<DailyAggregate>()) { historyStore?.week(today).orEmpty() }
-                    }
+                    val totals =
+                        withContext(Dispatchers.IO) {
+                            readOr(emptyList<DailyAggregate>()) { historyStore?.week(today).orEmpty() }
+                        }
                     putRingContent(targetKey, RingContent.Week(totals))
                     weekTotalsDay = today
                 }
@@ -211,28 +216,33 @@ class DashboardViewModel(
         } else if (date != null && date != today) {
             if (!_uiState.value.ringContent.containsKey(targetKey)) {
                 scope.launch {
-                    val stored = withContext(Dispatchers.IO) {
-                        val sessions = readOr(emptyList<UsageSession>()) { historyStore?.sessionsFor(date).orEmpty() }
-                        val unlocks = readOr<Int?>(null) { historyStore?.unlocksFor(date) }
-                        RingContent.Day(
-                            data = DayData(sessions, emptyList()),
-                            unlocks = unlocks,
-                            metrics = deriveDayMetrics(sessions, ZoneId.systemDefault()),
-                        )
-                    }
+                    val stored =
+                        withContext(Dispatchers.IO) {
+                            val sessions = readOr(emptyList<UsageSession>()) { historyStore?.sessionsFor(date).orEmpty() }
+                            val unlocks = readOr<Int?>(null) { historyStore?.unlocksFor(date) }
+                            RingContent.Day(
+                                data = DayData(sessions, emptyList()),
+                                unlocks = unlocks,
+                                metrics = deriveDayMetrics(sessions, ZoneId.systemDefault()),
+                            )
+                        }
                     putRingContent(targetKey, stored)
                 }
             }
         }
 
-        val requestedReady = _uiState.value.ringContent.containsKey(targetKey) &&
-            (target != DayStop.Week || _uiState.value.ringContent.containsKey(DayStop.Day(today).key()))
+        val requestedReady =
+            _uiState.value.ringContent.containsKey(targetKey) &&
+                (target != DayStop.Week || _uiState.value.ringContent.containsKey(DayStop.Day(today).key()))
         if (requestedReady) {
             dashboardState.showCurrent()
         }
     }
 
-    private fun putRingContent(key: String, content: RingContent) {
+    private fun putRingContent(
+        key: String,
+        content: RingContent,
+    ) {
         _uiState.update { current ->
             val updatedMap = current.ringContent + (key to content)
             val today = LocalDate.now(clock)
@@ -253,6 +263,7 @@ class DashboardViewModel(
 fun metricsOf(
     day: RingContent.Day,
     excludedPackages: Set<String>,
-): DayMetrics = day.metrics.copy(
-    entries = day.metrics.entries.filter { it.packageName !in excludedPackages }
-)
+): DayMetrics =
+    day.metrics.copy(
+        entries = day.metrics.entries.filter { it.packageName !in excludedPackages },
+    )

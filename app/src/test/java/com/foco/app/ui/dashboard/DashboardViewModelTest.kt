@@ -21,11 +21,12 @@ class DashboardViewModelTest {
 
     @Test
     fun `initial state sets default ring position to today`() {
-        val viewModel = DashboardViewModel(
-            clock = clock,
-            loadDayOverride = { DayData(emptyList(), emptyList()) },
-            coroutineScope = testScope,
-        )
+        val viewModel =
+            DashboardViewModel(
+                clock = clock,
+                loadDayOverride = { DayData(emptyList(), emptyList()) },
+                coroutineScope = testScope,
+            )
         val state = viewModel.uiState.value
 
         assertEquals(DayStop.Day(today), state.shown)
@@ -35,11 +36,12 @@ class DashboardViewModelTest {
 
     @Test
     fun `moveStep forward and backward updates current position`() {
-        val viewModel = DashboardViewModel(
-            clock = clock,
-            loadDayOverride = { DayData(emptyList(), emptyList()) },
-            coroutineScope = testScope,
-        )
+        val viewModel =
+            DashboardViewModel(
+                clock = clock,
+                loadDayOverride = { DayData(emptyList(), emptyList()) },
+                coroutineScope = testScope,
+            )
 
         viewModel.moveStep(forward = true)
         val stateAfterNext = viewModel.uiState.value
@@ -55,11 +57,12 @@ class DashboardViewModelTest {
 
     @Test
     fun `moveTo updates position and history`() {
-        val viewModel = DashboardViewModel(
-            clock = clock,
-            loadDayOverride = { DayData(emptyList(), emptyList()) },
-            coroutineScope = testScope,
-        )
+        val viewModel =
+            DashboardViewModel(
+                clock = clock,
+                loadDayOverride = { DayData(emptyList(), emptyList()) },
+                coroutineScope = testScope,
+            )
 
         viewModel.moveTo(DayStop.Week)
         assertEquals(DayStop.Week, viewModel.uiState.value.requested)
@@ -70,15 +73,17 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `exportWeekJson delegates to loadExportOverride`() = runBlocking {
-        val expectedJson = "{\"week\":\"2026-10-20\"}"
-        val viewModel = DashboardViewModel(
-            clock = clock,
-            loadExportOverride = { expectedJson },
-            coroutineScope = testScope,
-        )
+    fun `exportWeekJson delegates to loadExportOverride`() =
+        runBlocking {
+            val expectedJson = "{\"week\":\"2026-10-20\"}"
+            val viewModel =
+                DashboardViewModel(
+                    clock = clock,
+                    loadExportOverride = { expectedJson },
+                    coroutineScope = testScope,
+                )
 
-        val result = viewModel.exportWeekJson()
-        assertEquals(expectedJson, result)
-    }
+            val result = viewModel.exportWeekJson()
+            assertEquals(expectedJson, result)
+        }
 }

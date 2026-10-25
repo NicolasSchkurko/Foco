@@ -18,11 +18,12 @@ class AppDetailViewModelTest {
 
     @Test
     fun `initial state sets package name selectedDate and shownDate`() {
-        val viewModel = AppDetailViewModel(
-            packageName = testPackage,
-            clock = clock,
-            coroutineScope = testScope,
-        )
+        val viewModel =
+            AppDetailViewModel(
+                packageName = testPackage,
+                clock = clock,
+                coroutineScope = testScope,
+            )
         val state = viewModel.uiState.value
 
         assertEquals(testPackage, state.packageName)
@@ -32,11 +33,12 @@ class AppDetailViewModelTest {
 
     @Test
     fun `stepDay updates index and selected date`() {
-        val viewModel = AppDetailViewModel(
-            packageName = testPackage,
-            clock = clock,
-            coroutineScope = testScope,
-        )
+        val viewModel =
+            AppDetailViewModel(
+                packageName = testPackage,
+                clock = clock,
+                coroutineScope = testScope,
+            )
 
         viewModel.stepDay(1)
         val stateAfterStep = viewModel.uiState.value

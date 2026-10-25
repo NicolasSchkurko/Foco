@@ -56,77 +56,75 @@ fun AppDetailContent(
                     ).padding(vertical = 4.dp)
                     .testTag(LIMITS_PREVIEW_TAG),
         ) {
+            HourChart(detail.hourly)
 
-        HourChart(detail.hourly)
+            Spacer(Modifier.height(16.dp))
 
-        Spacer(Modifier.height(16.dp))
-
-
-        Text(
-            text = stringResource(R.string.detail_summary),
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Spacer(Modifier.height(4.dp))
-
-        val summary =
-            listOf(
-                stringResource(R.string.detail_total) to formatDuration(detail.totalMillis),
-                stringResource(R.string.detail_sessions) to detail.sessionCount.toString(),
-                stringResource(R.string.detail_first) to formatTimeOfDay(detail.firstStart),
-                stringResource(R.string.detail_last) to formatTimeOfDay(detail.lastEnd),
-                stringResource(R.string.detail_average) to formatDuration(detail.averageMillis),
-                stringResource(R.string.detail_longest) to formatDuration(detail.longestMillis),
+            Text(
+                text = stringResource(R.string.detail_summary),
+                style = MaterialTheme.typography.titleMedium,
             )
-        summary.forEach { (label, value) ->
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(text = value, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
+            Spacer(Modifier.height(4.dp))
 
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = stringResource(R.string.detail_limits_section),
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Spacer(Modifier.height(4.dp))
-        val preview =
+            val summary =
+                listOf(
+                    stringResource(R.string.detail_total) to formatDuration(detail.totalMillis),
+                    stringResource(R.string.detail_sessions) to detail.sessionCount.toString(),
+                    stringResource(R.string.detail_first) to formatTimeOfDay(detail.firstStart),
+                    stringResource(R.string.detail_last) to formatTimeOfDay(detail.lastEnd),
+                    stringResource(R.string.detail_average) to formatDuration(detail.averageMillis),
+                    stringResource(R.string.detail_longest) to formatDuration(detail.longestMillis),
+                )
+            summary.forEach { (label, value) ->
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(text = value, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.detail_limits_section),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(Modifier.height(4.dp))
+            val preview =
                 listOf(
                     stringResource(R.string.detail_limits_limit_label) to previewLimitLabel(limitMinutes),
                     stringResource(R.string.settings_window_label) to
-                            (
-                                    if (window ==
-                                        null
-                                    ) {
-                                        stringResource(R.string.settings_window_none)
-                                    } else {
-                                        stringResource(
-                                            R.string.settings_window_range,
-                                            formatMinuteOfDay24(window.startMinute),
-                                            formatMinuteOfDay24(window.endMinute),
-                                        )
-                                    }
-                                    ),
+                        (
+                            if (window ==
+                                null
+                            ) {
+                                stringResource(R.string.settings_window_none)
+                            } else {
+                                stringResource(
+                                    R.string.settings_window_range,
+                                    formatMinuteOfDay24(window.startMinute),
+                                    formatMinuteOfDay24(window.endMinute),
+                                )
+                            }
+                        ),
                     stringResource(R.string.detail_limits_alerts_label) to
-                            (
-                                    if (alertOn) {
-                                        stringResource(
-                                            R.string.detail_limits_alerts_on,
-                                        )
-                                    } else {
-                                        stringResource(R.string.detail_limits_alerts_off)
-                                    }
-                                    ),
+                        (
+                            if (alertOn) {
+                                stringResource(
+                                    R.string.detail_limits_alerts_on,
+                                )
+                            } else {
+                                stringResource(R.string.detail_limits_alerts_off)
+                            }
+                        ),
                 )
             preview.forEach { (label, value) ->
                 Row(
