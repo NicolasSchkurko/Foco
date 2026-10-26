@@ -1,11 +1,11 @@
 package com.foco.app.data.stores
 
-import com.foco.app.data.db.ConsolidatedDay
-import com.foco.app.data.db.ConsolidatedDayDao
-import com.foco.app.data.db.DailyAggregate
-import com.foco.app.data.db.DailyAggregateDao
-import com.foco.app.data.db.SessionRecord
-import com.foco.app.data.db.SessionRecordDao
+import com.foco.app.data.db.history.consolidatedday.ConsolidatedDay
+import com.foco.app.data.db.history.consolidatedday.ConsolidatedDayDao
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregateDao
+import com.foco.app.data.db.history.sessionrecord.SessionRecord
+import com.foco.app.data.db.history.sessionrecord.SessionRecordDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map

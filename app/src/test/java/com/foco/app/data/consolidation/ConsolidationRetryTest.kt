@@ -1,8 +1,8 @@
 package com.foco.app.data.consolidation
 
-import com.foco.app.data.db.ConsolidatedDay
-import com.foco.app.data.db.DailyAggregate
-import com.foco.app.data.db.SessionRecord
+import com.foco.app.data.db.history.consolidatedday.ConsolidatedDay
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
+import com.foco.app.data.db.history.sessionrecord.SessionRecord
 import com.foco.app.data.stores.FakeConsolidatedDayDao
 import com.foco.app.data.stores.FakeDailyAggregateDao
 import com.foco.app.data.stores.FakeSessionRecordDao

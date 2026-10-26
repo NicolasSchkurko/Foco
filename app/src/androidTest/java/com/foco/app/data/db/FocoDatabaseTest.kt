@@ -3,6 +3,9 @@ package com.foco.app.data.db
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.foco.app.data.db.history.FocoDatabase
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
+import com.foco.app.data.db.history.sessionrecord.SessionRecord
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals

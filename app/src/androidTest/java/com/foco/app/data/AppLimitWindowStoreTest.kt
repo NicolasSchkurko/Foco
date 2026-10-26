@@ -3,9 +3,10 @@ package com.foco.app.data
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.foco.app.data.db.AppLimitDatabase
-import com.foco.app.data.db.AppLimitWindow
-import com.foco.app.domain.AppWindow
+import com.foco.app.data.db.limits.AppLimitDatabase
+import com.foco.app.data.db.limits.applimitwindow.AppLimitWindow
+import com.foco.app.data.stores.AppLimitsStore
+import com.foco.app.domain.limits.AppWindow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After

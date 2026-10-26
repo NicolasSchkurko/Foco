@@ -1,6 +1,6 @@
 package com.foco.app.ui.metrics.week
 
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import org.junit.Assert.assertEquals

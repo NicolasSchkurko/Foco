@@ -3,7 +3,7 @@ package com.foco.app.ui.dashboard
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
 import com.foco.app.data.export.WeekExportService
 import com.foco.app.data.monitor.UsageRepository
 import com.foco.app.data.stores.ExcludedAppsStore

@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
-import com.foco.app.data.AppLimitsStore
+import com.foco.app.data.stores.AppLimitsStore
 import com.foco.app.ui.detail.AppAppSettingsScreen
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

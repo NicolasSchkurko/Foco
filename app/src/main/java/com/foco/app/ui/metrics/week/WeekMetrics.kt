@@ -1,6 +1,6 @@
 package com.foco.app.ui.metrics.week
 
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.metrics.day.MIN_VISIBLE_SESSION_MILLIS
 import com.foco.app.ui.metrics.day.dayTotal

@@ -1,9 +1,15 @@
-package com.foco.app.data.db
+package com.foco.app.data.db.history
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.foco.app.data.db.history.consolidatedday.ConsolidatedDay
+import com.foco.app.data.db.history.consolidatedday.ConsolidatedDayDao
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregateDao
+import com.foco.app.data.db.history.sessionrecord.SessionRecord
+import com.foco.app.data.db.history.sessionrecord.SessionRecordDao
 
 /**
  * The app's own history: raw sessions, per-day totals and one marker per finished day carrying its

@@ -8,6 +8,9 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
+import com.foco.app.data.monitor.UsageMonitorBootReceiver
+import com.foco.app.data.monitor.UsageMonitorService
+import com.foco.app.data.stores.AppLimitsStore
 import com.foco.app.ui.setAccessibilityServiceEnabled
 import kotlinx.coroutines.runBlocking
 import org.junit.After

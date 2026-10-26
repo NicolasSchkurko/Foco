@@ -13,7 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
 import com.foco.app.R
-import com.foco.app.data.ExcludedAppsStore
+import com.foco.app.data.stores.ExcludedAppsStore
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals

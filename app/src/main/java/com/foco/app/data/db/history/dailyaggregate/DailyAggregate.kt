@@ -1,4 +1,4 @@
-package com.foco.app.data.db
+package com.foco.app.data.db.history.dailyaggregate
 
 import androidx.room.Entity
 

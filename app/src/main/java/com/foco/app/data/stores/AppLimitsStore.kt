@@ -2,13 +2,13 @@ package com.foco.app.data.stores
 
 import android.content.Context
 import androidx.room.Room
-import com.foco.app.data.db.AppLimit
-import com.foco.app.data.db.AppLimitAlertFired
-import com.foco.app.data.db.AppLimitAlertFiredDao
-import com.foco.app.data.db.AppLimitDao
-import com.foco.app.data.db.AppLimitDatabase
-import com.foco.app.data.db.AppLimitWindow
-import com.foco.app.data.db.AppLimitWindowDao
+import com.foco.app.data.db.limits.AppLimitDatabase
+import com.foco.app.data.db.limits.applimit.AppLimit
+import com.foco.app.data.db.limits.applimit.AppLimitDao
+import com.foco.app.data.db.limits.applimitalertfired.AppLimitAlertFired
+import com.foco.app.data.db.limits.applimitalertfired.AppLimitAlertFiredDao
+import com.foco.app.data.db.limits.applimitwindow.AppLimitWindow
+import com.foco.app.data.db.limits.applimitwindow.AppLimitWindowDao
 import com.foco.app.domain.limits.AppLimitRules
 import com.foco.app.domain.limits.AppLimitWindowRules
 import com.foco.app.domain.limits.AppWindow

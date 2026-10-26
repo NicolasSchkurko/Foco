@@ -1,6 +1,6 @@
 package com.foco.app.data.stores
 
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

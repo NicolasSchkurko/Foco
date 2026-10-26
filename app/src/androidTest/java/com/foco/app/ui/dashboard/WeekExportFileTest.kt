@@ -4,8 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.foco.app.domain.buildWeekExport
-import com.foco.app.domain.weekExportJson
+import com.foco.app.domain.export.buildWeekExport
+import com.foco.app.domain.export.weekExportJson
+import com.foco.app.ui.dashboard.export.weekExportShareIntent
+import com.foco.app.ui.dashboard.export.writeWeekExport
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

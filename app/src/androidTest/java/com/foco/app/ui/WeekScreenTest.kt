@@ -12,9 +12,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
 import com.foco.app.clearTheHistoryDay
-import com.foco.app.data.ExcludedAppsStore
-import com.foco.app.data.SessionHistoryStore
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
+import com.foco.app.data.stores.ExcludedAppsStore
+import com.foco.app.data.stores.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.runBlocking

@@ -1,4 +1,4 @@
-package com.foco.app.data.db
+package com.foco.app.data.db.limits.applimit
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

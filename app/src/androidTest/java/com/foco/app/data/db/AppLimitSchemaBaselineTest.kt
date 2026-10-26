@@ -3,7 +3,8 @@ package com.foco.app.data.db
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.foco.app.domain.schemaDrift
+import com.foco.app.data.db.limits.AppLimitDatabase
+import com.foco.app.domain.consolidation.schemaDrift
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -60,7 +61,7 @@ class AppLimitSchemaBaselineTest {
     /** The committed exports, read from the schemas folder wired as androidTest assets. */
     private fun committedSchemas(): Map<Int, String?> {
         val assets = instrumentation.context.assets
-        val folder = "com.foco.app.data.db.AppLimitDatabase"
+        val folder = "com.foco.app.data.db.limits.AppLimitDatabase"
         return (assets.list(folder) ?: emptyArray())
             .mapNotNull { name -> name.removeSuffix(".json").toIntOrNull()?.let { it to name } }
             .associate { (version, name) ->

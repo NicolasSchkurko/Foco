@@ -8,7 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
-import com.foco.app.domain.BlockReason
+import com.foco.app.domain.limits.BlockReason
 import com.foco.app.ui.limits.AppLimitBlockScreen
 import com.foco.app.ui.limits.OverlayLifecycleOwner
 import com.foco.app.ui.theme.FocoTheme

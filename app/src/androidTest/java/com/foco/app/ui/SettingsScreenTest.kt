@@ -20,11 +20,11 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.MainActivity
-import com.foco.app.data.AppAppearance
-import com.foco.app.data.AppIdentity
-import com.foco.app.data.AppLanguage
-import com.foco.app.data.ExcludedAppsStore
-import com.foco.app.data.SettingsStore
+import com.foco.app.data.stores.ExcludedAppsStore
+import com.foco.app.data.stores.SettingsStore
+import com.foco.app.data.system.AppAppearance
+import com.foco.app.data.system.AppIdentity
+import com.foco.app.data.system.AppLanguage
 import com.foco.app.model.AppearanceOption
 import com.foco.app.model.LanguageOption
 import kotlinx.coroutines.flow.first

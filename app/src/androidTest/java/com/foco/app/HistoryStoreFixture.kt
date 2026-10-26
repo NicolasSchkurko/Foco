@@ -2,7 +2,7 @@ package com.foco.app
 
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
-import com.foco.app.data.db.FocoDatabase
+import com.foco.app.data.db.history.FocoDatabase
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.ZoneId

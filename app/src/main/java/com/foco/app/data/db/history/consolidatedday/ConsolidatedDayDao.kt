@@ -1,4 +1,4 @@
-package com.foco.app.data.db
+package com.foco.app.data.db.history.consolidatedday
 
 import androidx.room.Dao
 import androidx.room.Insert

@@ -19,7 +19,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
-import com.foco.app.domain.AppWindow
+import com.foco.app.domain.limits.AppWindow
 import com.foco.app.ui.common.limits.LimitsQuickAdjust
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

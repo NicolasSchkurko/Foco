@@ -1,9 +1,15 @@
-package com.foco.app.data.db
+package com.foco.app.data.db.limits
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.foco.app.data.db.limits.applimit.AppLimit
+import com.foco.app.data.db.limits.applimit.AppLimitDao
+import com.foco.app.data.db.limits.applimitalertfired.AppLimitAlertFired
+import com.foco.app.data.db.limits.applimitalertfired.AppLimitAlertFiredDao
+import com.foco.app.data.db.limits.applimitwindow.AppLimitWindow
+import com.foco.app.data.db.limits.applimitwindow.AppLimitWindowDao
 
 /**
  * The daily limits, the alert tiers already fired and the recurring use windows, version 3.

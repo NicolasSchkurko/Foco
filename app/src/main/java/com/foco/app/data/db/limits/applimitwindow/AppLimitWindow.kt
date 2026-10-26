@@ -1,4 +1,4 @@
-package com.foco.app.data.db
+package com.foco.app.data.db.limits.applimitwindow
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

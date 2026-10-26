@@ -1,6 +1,6 @@
 package com.foco.app.data.stores
 
-import com.foco.app.data.db.SessionRecord
+import com.foco.app.data.db.history.sessionrecord.SessionRecord
 import com.foco.app.domain.history.finishedDays
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData

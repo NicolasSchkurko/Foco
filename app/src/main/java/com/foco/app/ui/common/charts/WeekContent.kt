@@ -28,7 +28,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.foco.app.R
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.common.apps.AppUsageRow
 import com.foco.app.ui.common.layout.EmptyState

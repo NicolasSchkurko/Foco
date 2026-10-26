@@ -17,7 +17,7 @@ import androidx.compose.ui.test.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.foco.app.R
-import com.foco.app.data.SessionHistoryStore
+import com.foco.app.data.stores.SessionHistoryStore
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import kotlinx.coroutines.CompletableDeferred

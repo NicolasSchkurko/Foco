@@ -3,7 +3,7 @@ package com.foco.app.ui.dashboard
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.foco.app.data.db.DailyAggregate
+import com.foco.app.data.db.history.dailyaggregate.DailyAggregate
 import com.foco.app.model.UsageSession
 import com.foco.app.model.day.DayData
 import com.foco.app.ui.metrics.day.DayMetrics
